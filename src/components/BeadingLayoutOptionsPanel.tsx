@@ -1,0 +1,78 @@
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  Text,
+} from "@chakra-ui/react";
+import { FC, ChangeEvent, useCallback } from "react";
+import { PatternLayoutOptions } from "./PatternProvider";
+
+export const BeadingLayoutOptionsPanel: FC<{
+  layout: PatternLayoutOptions;
+  onChange?: (layout: PatternLayoutOptions) => void;
+}> = ({ layout, onChange }) => {
+  const handleOnVerticalClick = useCallback(() => {
+    onChange?.({
+      ...layout,
+      orientation: "vertical",
+    });
+  }, [onChange, layout]);
+
+  const handleOnHorizontalClick = useCallback(() => {
+    onChange?.({
+      ...layout,
+      orientation: "horizontal",
+    });
+  }, [onChange, layout]);
+
+  const handleOnWidthChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      onChange?.({
+        ...layout,
+        width: parseInt(event.target.value),
+      });
+    },
+    [onChange, layout]
+  );
+
+  return (
+    <Flex flexDirection={"column"} gap={2} w={"100%"}>
+      <Flex alignItems={"center"} justifyContent={"space-between"}>
+        <Text as={"b"} fontSize={"xs"}>
+          Layout
+        </Text>
+      </Flex>
+      <ButtonGroup isAttached size={"xs"} variant={"outline"}>
+        <Button
+          isActive={layout.orientation === "vertical"}
+          width={"50%"}
+          onClick={handleOnVerticalClick}
+        >
+          Vertical
+        </Button>
+        <Button
+          isActive={layout.orientation === "horizontal"}
+          width={"50%"}
+          onClick={handleOnHorizontalClick}
+        >
+          Horizontal
+        </Button>
+      </ButtonGroup>
+      <InputGroup size={"xs"}>
+        <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
+        <Input
+          type={"number"}
+          value={layout.width}
+          onChange={handleOnWidthChange}
+        />
+      </InputGroup>
+      <InputGroup size={"xs"}>
+        <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
+        <Input type={"text"} value={layout.beadSize.title} />
+      </InputGroup>
+    </Flex>
+  );
+};
