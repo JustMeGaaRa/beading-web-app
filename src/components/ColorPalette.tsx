@@ -9,6 +9,7 @@ export const ColorPalette: FC = () => {
     <SimpleGrid columns={5} spacing={1}>
       {colors.map((color) => (
         <Box
+          key={color}
           aria-selected={selectedColor === color}
           backgroundColor={color}
           borderRadius={4}

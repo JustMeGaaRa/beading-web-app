@@ -1,41 +1,52 @@
 import {
   BeadingGridState,
   BeadingGridProperties,
-  PatternLayoutOptions,
   BeadingGridCellState,
+  PatternOptions,
 } from "../components";
 import { CellBlankColor } from "../constants";
 
 export const createBeadingGrid = (
   name: string,
-  options: BeadingGridProperties,
-  layout: PatternLayoutOptions
+  gridOptions: BeadingGridProperties,
+  options: PatternOptions
 ): BeadingGridState => {
-  switch (options.type) {
-    case "square":
+  const isHorizontal = options.layout.orientation === "horizontal";
+
+  switch (gridOptions.type) {
+    case "square": {
+      const rowCount = isHorizontal ? options.layout.height : gridOptions.height;
+      const columnCount = isHorizontal ? gridOptions.width : options.layout.width;
       return {
         name: name,
-        rows: Array.from({ length: options.height }, () => ({
-          cells: Array.from({ length: layout.width }, () => CellBlankColor),
+        rows: Array.from({ length: rowCount }, () => ({
+          cells: Array.from({ length: columnCount }, () => CellBlankColor),
         })),
-        options: options,
+        options: gridOptions,
       };
-    case "peyote":
+    }
+    case "peyote": {
+      const rowCount = isHorizontal ? options.layout.height : gridOptions.height;
+      const columnCount = isHorizontal ? gridOptions.width : options.layout.width;
       return {
         name: name,
-        rows: Array.from({ length: options.height }, () => ({
-          cells: Array.from({ length: layout.width }, () => CellBlankColor),
+        rows: Array.from({ length: rowCount }, () => ({
+          cells: Array.from({ length: columnCount }, () => CellBlankColor),
         })),
-        options: options,
+        options: gridOptions,
       };
-    case "brick":
+    }
+    case "brick": {
+      const rowCount = (isHorizontal ? options.layout.height : gridOptions.height) + gridOptions.fringe;
+      const columnCount = isHorizontal ? gridOptions.width : options.layout.width;
       return {
         name: name,
-        rows: Array.from({ length: options.height }, () => ({
-          cells: Array.from({ length: layout.width }, () => CellBlankColor),
+        rows: Array.from({ length: rowCount }, () => ({
+          cells: Array.from({ length: columnCount }, () => CellBlankColor),
         })),
-        options: options,
+        options: gridOptions,
       };
+    }
   }
 };
 
@@ -57,10 +68,10 @@ export const setGridCell = (
 
 export const applyGridOptions = (
   grid: BeadingGridState,
-  options: BeadingGridProperties,
-  layout: PatternLayoutOptions
+  modifiedGridOptions: BeadingGridProperties,
+  options: PatternOptions
 ): BeadingGridState => {
-  const modifiedGrid = createBeadingGrid(grid.name, options, layout);
+  const modifiedGrid = createBeadingGrid(grid.name, modifiedGridOptions, options);
   const minWidth = Math.min(
     grid.rows[0].cells.length,
     modifiedGrid.rows[0].cells.length
@@ -75,6 +86,10 @@ export const applyGridOptions = (
 
   return modifiedGrid;
 };
+
+export const getGridMetadata = (grid: BeadingGridState, options: PatternOptions) => {
+
+}
 
 export const isNullOrEmpty = (str?: string) =>
   str === null || str === undefined || str === "";

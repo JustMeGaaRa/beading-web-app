@@ -17,7 +17,6 @@ import { FC, useCallback, useEffect, useState } from "react";
 import {
   BeadingGridOptionsPanel,
   BeadingGridState,
-  BeadingGridProperties,
   PatternLayoutOptions,
   BeadingLayoutOptionsPanel,
   PatternOptions,
@@ -37,7 +36,9 @@ type PatternConfigurationState = {
 
 export const ProjectPropertiesPanel: FC<{
   position: PanelPosition;
-}> = ({ position }) => {
+}> = ({
+  position
+}) => {
   const [patternCopy, setPatternCopy] = useState<PatternConfigurationState>({
     options: DefaultPatternOptions,
     grids: [],
@@ -58,7 +59,7 @@ export const ProjectPropertiesPanel: FC<{
 
   const handleOnAddGridClick = useCallback(() => {
     addGrid("square");
-  }, [options, addGrid]);
+  }, [addGrid]);
 
   const handleOnDeleteGridClick = useCallback(
     (grid: BeadingGridConfiguration) => {
@@ -111,7 +112,7 @@ export const ProjectPropertiesPanel: FC<{
           (gridCopy) => grid.name == gridCopy.name
         );
         return gridCopy
-          ? applyGridOptions(grid, gridCopy.options, patternCopy.options.layout)
+          ? applyGridOptions(grid, gridCopy.options, patternCopy.options)
           : grid;
       })
     );
@@ -121,6 +122,7 @@ export const ProjectPropertiesPanel: FC<{
   return (
     <Box
       alignItems={"start"}
+      height={"100%"}
       padding={1}
       position={"absolute"}
       right={0}
@@ -143,7 +145,7 @@ export const ProjectPropertiesPanel: FC<{
               </Text>
               <AccordionIcon />
             </AccordionButton>
-            <AccordionPanel maxHeight={"50vh"} overflowY={"scroll"}>
+            <AccordionPanel maxHeight={"40vh"} overflowY={"scroll"}>
               <ColorPalette />
             </AccordionPanel>
           </AccordionItem>
@@ -163,7 +165,7 @@ export const ProjectPropertiesPanel: FC<{
               </Text>
               <AccordionIcon />
             </AccordionButton>
-            <AccordionPanel maxHeight={"50vh"} overflowY={"scroll"}>
+            <AccordionPanel maxHeight={"40vh"} overflowY={"scroll"}>
               <VStack
                 alignItems={"start"}
                 divider={<StackDivider borderColor="gray.200" />}
@@ -177,6 +179,7 @@ export const ProjectPropertiesPanel: FC<{
                   <BeadingGridOptionsPanel
                     key={grid.name}
                     canDelete={patternCopy.grids.length > 1}
+                    isHorizontal={patternCopy.options.layout.orientation === "horizontal"}
                     name={grid.name}
                     options={grid.options}
                     onChange={handleOnOptionsChange}

@@ -13,7 +13,10 @@ import { PatternLayoutOptions } from "./PatternProvider";
 export const BeadingLayoutOptionsPanel: FC<{
   layout: PatternLayoutOptions;
   onChange?: (layout: PatternLayoutOptions) => void;
-}> = ({ layout, onChange }) => {
+}> = ({
+  layout,
+  onChange
+}) => {
   const handleOnVerticalClick = useCallback(() => {
     onChange?.({
       ...layout,
@@ -28,6 +31,16 @@ export const BeadingLayoutOptionsPanel: FC<{
     });
   }, [onChange, layout]);
 
+  const handleOnHeightChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      onChange?.({
+        ...layout,
+        height: parseInt(event.target.value),
+      });
+    },
+    [onChange, layout]
+  );
+
   const handleOnWidthChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       onChange?.({
@@ -38,6 +51,10 @@ export const BeadingLayoutOptionsPanel: FC<{
     [onChange, layout]
   );
 
+  const handleOnBeadSizeChange = useCallback(() => {}, []);
+
+  const isHorizontal = layout.orientation === "horizontal";
+
   return (
     <Flex flexDirection={"column"} gap={2} w={"100%"}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
@@ -47,31 +64,47 @@ export const BeadingLayoutOptionsPanel: FC<{
       </Flex>
       <ButtonGroup isAttached size={"xs"} variant={"outline"}>
         <Button
-          isActive={layout.orientation === "vertical"}
+          isActive={!isHorizontal}
           width={"50%"}
           onClick={handleOnVerticalClick}
         >
           Vertical
         </Button>
         <Button
-          isActive={layout.orientation === "horizontal"}
+          isActive={isHorizontal}
           width={"50%"}
           onClick={handleOnHorizontalClick}
         >
           Horizontal
         </Button>
       </ButtonGroup>
-      <InputGroup size={"xs"}>
-        <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
-        <Input
-          type={"number"}
-          value={layout.width}
-          onChange={handleOnWidthChange}
-        />
-      </InputGroup>
+      {isHorizontal && (
+        <InputGroup size={"xs"}>
+          <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
+          <Input
+            type={"number"}
+            value={layout.height}
+            onChange={handleOnHeightChange}
+          />
+        </InputGroup>
+      )}
+      {!isHorizontal && (
+        <InputGroup size={"xs"}>
+          <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
+          <Input
+            type={"number"}
+            value={layout.width}
+            onChange={handleOnWidthChange}
+          />
+        </InputGroup>
+      )}
       <InputGroup size={"xs"}>
         <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
-        <Input type={"text"} value={layout.beadSize.title} />
+        <Input
+          type={"text"}
+          value={layout.beadSize.title}
+          onChange={handleOnBeadSizeChange}
+        />
       </InputGroup>
     </Flex>
   );

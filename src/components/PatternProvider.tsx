@@ -22,6 +22,7 @@ export type BeadSize = {
 export type PatternLayoutOptions = {
   beadSize: BeadSize;
   orientation: LayoutOrientation;
+  height: number;
   width: number;
 };
 
@@ -58,6 +59,7 @@ export const DefaultPatternOptions: PatternOptions = {
   layout: {
     beadSize: OneSixByOneThree,
     orientation: "horizontal",
+    height: 10,
     width: 10,
   },
 };
@@ -69,16 +71,19 @@ export type BeadingGridType = "square" | "peyote" | "brick";
 export type SquareGridProperties = {
   type: "square";
   height: number;
+  width: number;
 };
 
 export type PeyoteGridProperties = {
   type: "peyote";
   height: number;
+  width: number;
 };
 
 export type BrickGridProperties = {
   type: "brick";
   height: number;
+  width: number;
   fringe: number;
   drop: number;
 };
@@ -104,6 +109,7 @@ export const DefaultBeadingGrid: BeadingGridState = {
   options: {
     type: "square",
     height: 0,
+    width: 0,
   },
 };
 
@@ -169,17 +175,17 @@ export const usePattern = () => {
     setGridCount,
   } = useContext(PatternContext);
 
-  const resetGrids = useCallback(
-    (type: BeadingGridType) => {
+  const resetGrids = useCallback((type: BeadingGridType) => {
       const grid = createBeadingGrid(
         "Grid 1",
         {
           type: type,
           height: 20,
+          width: 20,
           drop: 1,
           fringe: 0,
         },
-        options.layout
+        options
       );
       setGrids([grid]);
       setGridCount(1);
@@ -187,17 +193,17 @@ export const usePattern = () => {
     [gridCount, setGrids, setGridCount]
   );
 
-  const addGrid = useCallback(
-    (type: BeadingGridType) => {
+  const addGrid = useCallback((type: BeadingGridType) => {
       const grid = createBeadingGrid(
         `Grid ${gridCount + 1}`,
         {
           type: type,
           height: 20,
+          width: 20,
           drop: 1,
           fringe: 0,
         },
-        options.layout
+        options
       );
       setGrids((grids) => [...grids, grid]);
       setGridCount((count) => count + 1);
@@ -232,17 +238,15 @@ export const usePattern = () => {
     }, 0);
     const totalHeight =
       options.layout.orientation === "vertical"
-        ? grids.reduce(
-            (totalHeight, gridState) =>
-              totalHeight +
-              gridState.options.height * options.layout.beadSize.height,
-            0
-          )
+        ? grids
+            .reduce((totalHeight, gridState) =>
+              totalHeight + gridState.options.height * options.layout.beadSize.height,
+              0
+            )
         : grids
             .map((gridState) => gridState.rows.length)
-            .reduce(
-              (max, height) =>
-                max > height ? max : height * options.layout.beadSize.height,
+            .reduce((max, height) =>
+              max > height ? max : height * options.layout.beadSize.height,
               0
             );
     const totalWidth =

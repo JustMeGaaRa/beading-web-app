@@ -28,7 +28,11 @@ const BeadSummaryItem: FC<{
   color: string;
   colorName: string;
   number: number;
-}> = ({ color, colorName, number }) => {
+}> = ({
+  color,
+  colorName,
+  number
+}) => {
   return (
     <Flex
       alignItems={"center"}

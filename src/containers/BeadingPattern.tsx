@@ -147,21 +147,25 @@ export const BeadingPattern: FC = () => {
     const isHorizontal = patternOptions.layout.orientation === "horizontal";
 
     const metadata = grids.reduce((metadata, grid, index) => {
-      const gridHeight =
-        grid.options.height *
-        patternOptions.layout.beadSize.height *
-        CellPixelRatio;
-      const gridWidth =
-        patternOptions.layout.width *
-        patternOptions.layout.beadSize.width *
-        CellPixelRatio;
-      offsetX = isHorizontal ? offsetX + gridWidth : 0;
-      offsetY = isHorizontal ? 0 : offsetY + gridHeight;
+      const gridHeight = isHorizontal
+        ? patternOptions.layout.height *
+          patternOptions.layout.beadSize.height *
+          CellPixelRatio
+        : grid.options.height *
+          patternOptions.layout.beadSize.height *
+          CellPixelRatio;
+      const gridWidth = isHorizontal
+        ? grid.options.width *
+          patternOptions.layout.beadSize.width *
+          CellPixelRatio
+        : patternOptions.layout.width *
+          patternOptions.layout.beadSize.width *
+          CellPixelRatio;
       const dividerPoints = isHorizontal
         ? [gridWidth, 0, gridWidth, gridHeight]
         : [0, gridHeight, gridWidth, gridHeight];
 
-      return {
+      const gridMetadata = {
         ...metadata,
         [grid.name]: {
           position: {
@@ -178,6 +182,11 @@ export const BeadingPattern: FC = () => {
           },
         },
       };
+
+      offsetX = isHorizontal ? offsetX + gridWidth : 0;
+      offsetY = isHorizontal ? 0 : offsetY + gridHeight;
+
+      return gridMetadata;
     }, initialMetadata);
 
     return {
@@ -193,7 +202,7 @@ export const BeadingPattern: FC = () => {
         width={stageSize.width}
         onContextMenu={handleOnContextMenu}
       >
-        {grids.map((grid, index) => {
+        {grids.map((grid) => {
           switch (grid.options.type) {
             case "square":
               return (
@@ -287,26 +296,11 @@ export const BeadingPattern: FC = () => {
 const SquareGrid: FC<{
   grid: BeadingGridState;
   beadSize: BeadSize;
-  onBeadingClick?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerDown?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerUp?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerOver?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerEnter?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
+  onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerOver?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
 }> = ({
   grid,
   beadSize,
@@ -319,46 +313,32 @@ const SquareGrid: FC<{
   const cellHeight = beadSize.height * CellPixelRatio;
   const cellWidth = beadSize.width * CellPixelRatio;
 
-  const handleOnBeadingGridClick = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingClick?.(grid, event);
-    },
-    [grid, onBeadingClick]
-  );
+  const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
+    onBeadingClick?.(grid, event);
+  }, [grid, onBeadingClick]);
 
-  const handleOnBeadingGridDown = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerDown?.(grid, event);
-    },
-    [grid, onBeadingPointerDown]
-  );
+  const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerDown?.(grid, event);
+  }, [grid, onBeadingPointerDown]);
 
-  const handleOnBeadingGridUp = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerUp?.(grid, event);
-    },
-    [grid, onBeadingPointerUp]
-  );
+  const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerUp?.(grid, event);
+  }, [grid, onBeadingPointerUp]);
 
-  const handleOnBeadingGridOver = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerOver?.(grid, event);
-    },
-    [grid, onBeadingPointerOver]
-  );
+  const handleOnBeadingGridOver = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerOver?.(grid, event);
+  }, [grid, onBeadingPointerOver]);
 
-  const handleOnBeadingGridEnter = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerEnter?.(grid, event);
-    },
-    [grid, onBeadingPointerEnter]
-  );
+  const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerEnter?.(grid, event);
+  }, [grid, onBeadingPointerEnter]);
 
   return (
     <>
       {grid.rows.map((row, rowIndex) =>
         row.cells.map((cell, columnIndex) => (
           <GridCell
+            key={`${rowIndex}-${columnIndex}`}
             fill={cell}
             row={rowIndex}
             column={columnIndex}
@@ -381,26 +361,11 @@ const SquareGrid: FC<{
 const PeyoteGrid: FC<{
   grid: BeadingGridState;
   beadSize: BeadSize;
-  onBeadingClick?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerDown?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerUp?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerOver?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerEnter?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
+  onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerOver?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
 }> = ({
   grid,
   beadSize,
@@ -413,46 +378,32 @@ const PeyoteGrid: FC<{
   const cellHeight = beadSize.height * CellPixelRatio;
   const cellWidth = beadSize.width * CellPixelRatio;
 
-  const handleOnBeadingGridClick = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingClick?.(grid, event);
-    },
-    [grid, onBeadingClick]
-  );
+  const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
+    onBeadingClick?.(grid, event);
+  }, [grid, onBeadingClick]);
 
-  const handleOnBeadingGridDown = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerDown?.(grid, event);
-    },
-    [grid, onBeadingPointerDown]
-  );
+  const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerDown?.(grid, event);
+  }, [grid, onBeadingPointerDown]);
 
-  const handleOnBeadingGridUp = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerUp?.(grid, event);
-    },
-    [grid, onBeadingPointerUp]
-  );
+  const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerUp?.(grid, event);
+  }, [grid, onBeadingPointerUp]);
 
-  const handleOnBeadingGridOver = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerOver?.(grid, event);
-    },
-    [grid, onBeadingPointerOver]
-  );
+  const handleOnBeadingGridOver = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerOver?.(grid, event);
+  }, [grid, onBeadingPointerOver]);
 
-  const handleOnBeadingGridEnter = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerEnter?.(grid, event);
-    },
-    [grid, onBeadingPointerEnter]
-  );
+  const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerEnter?.(grid, event);
+  }, [grid, onBeadingPointerEnter]);
 
   return (
     <>
       {grid.rows.map((row, rowIndex) =>
         row.cells.map((cell, columnIndex) => (
           <GridCell
+            key={`${rowIndex}-${columnIndex}`}
             fill={cell}
             row={rowIndex}
             column={columnIndex}
@@ -476,26 +427,11 @@ const BrickGrid: FC<{
   grid: BeadingGridState;
   beadSize: BeadSize;
   options: BrickGridProperties;
-  onBeadingClick?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerDown?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerUp?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerOver?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
-  onBeadingPointerEnter?: (
-    source: BeadingGridState,
-    event: BeadingPointerEvent
-  ) => void;
+  onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerOver?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+  onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
 }> = ({
   grid,
   beadSize,
@@ -509,46 +445,32 @@ const BrickGrid: FC<{
   const cellHeight = beadSize.width * CellPixelRatio;
   const cellWidth = beadSize.height * CellPixelRatio;
 
-  const handleOnBeadingGridClick = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingClick?.(grid, event);
-    },
-    [grid, onBeadingClick]
-  );
+  const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
+    onBeadingClick?.(grid, event);
+  }, [grid, onBeadingClick]);
 
-  const handleOnBeadingGridDown = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerDown?.(grid, event);
-    },
-    [grid, onBeadingPointerDown]
-  );
+  const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerDown?.(grid, event);
+  }, [grid, onBeadingPointerDown]);
 
-  const handleOnBeadingGridUp = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerUp?.(grid, event);
-    },
-    [grid, onBeadingPointerUp]
-  );
+  const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerUp?.(grid, event);
+  }, [grid, onBeadingPointerUp]);
 
-  const handleOnBeadingGridOver = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerOver?.(grid, event);
-    },
-    [grid, onBeadingPointerOver]
-  );
+  const handleOnBeadingGridOver = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerOver?.(grid, event);
+  }, [grid, onBeadingPointerOver]);
 
-  const handleOnBeadingGridEnter = useCallback(
-    (event: BeadingPointerEvent) => {
-      onBeadingPointerEnter?.(grid, event);
-    },
-    [grid, onBeadingPointerEnter]
-  );
+  const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
+    onBeadingPointerEnter?.(grid, event);
+  }, [grid, onBeadingPointerEnter]);
 
   return (
     <>
       {grid.rows.map((row, rowIndex) =>
         row.cells.map((cell, columnIndex) => (
           <GridCell
+            key={`${rowIndex}-${columnIndex}`}
             fill={cell}
             row={rowIndex}
             column={columnIndex}
@@ -556,7 +478,8 @@ const BrickGrid: FC<{
             width={cellWidth}
             x={
               cellWidth * columnIndex +
-              (cellWidth / 2) * (Math.floor(rowIndex / options.drop) % 2)
+              (cellWidth / 2) * (Math.floor(rowIndex / options.drop) % 2 *
+              (rowIndex > grid.rows.length - options.fringe ? 0 : 1))
             }
             y={cellHeight * rowIndex}
             onClick={handleOnBeadingGridClick}

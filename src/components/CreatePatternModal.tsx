@@ -16,7 +16,10 @@ import { BeadingGridType, BeadingGridTypes, usePattern } from "../components";
 export const CreatePatternModal: FC<{
   isOpen: boolean;
   onClose: () => void;
-}> = ({ isOpen, onClose }) => {
+}> = ({
+  isOpen,
+  onClose
+}) => {
   const [selectedType, setSelectedType] = useState<BeadingGridType>("square");
   const { resetGrids } = usePattern();
 

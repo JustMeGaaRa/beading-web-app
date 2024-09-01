@@ -18,11 +18,19 @@ import {
 
 export const BeadingGridOptionsPanel: FC<{
   canDelete?: boolean;
+  isHorizontal?: boolean;
   name: string;
   options: BeadingGridProperties;
   onChange?: (grid: Omit<BeadingGridState, "rows">) => void;
   onDelete?: (grid: Omit<BeadingGridState, "rows">) => void;
-}> = ({ canDelete, name, options, onChange, onDelete }) => {
+}> = ({
+  canDelete,
+  isHorizontal,
+  name,
+  options,
+  onChange,
+  onDelete
+}) => {
   const handleOnDeleteClick = useCallback(() => {
     onDelete?.({ name, options });
   }, [onDelete, name, options]);
@@ -47,6 +55,19 @@ export const BeadingGridOptionsPanel: FC<{
         options: {
           ...options,
           height: parseInt(event.target.value),
+        },
+      });
+    },
+    [onChange, name, options]
+  );
+
+  const handleOnWidthChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      onChange?.({
+        name: name,
+        options: {
+          ...options,
+          width: parseInt(event.target.value),
         },
       });
     },
@@ -112,14 +133,26 @@ export const BeadingGridOptionsPanel: FC<{
           </Button>
         ))}
       </ButtonGroup>
-      <InputGroup size={"xs"}>
-        <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
-        <Input
-          type={"number"}
-          value={options.height}
-          onChange={handleOnHeightChange}
-        />
-      </InputGroup>
+      {!isHorizontal && (
+        <InputGroup size={"xs"}>
+          <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
+          <Input
+            type={"number"}
+            value={options.height}
+            onChange={handleOnHeightChange}
+          />
+        </InputGroup>
+      )}
+      {isHorizontal && (
+        <InputGroup size={"xs"}>
+          <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
+          <Input
+            type={"number"}
+            value={options.width}
+            onChange={handleOnWidthChange}
+          />
+        </InputGroup>
+      )}
       {options.type === "brick" && (
         <InputGroup size={"xs"}>
           <InputLeftAddon width={"60px"}>Drop</InputLeftAddon>
