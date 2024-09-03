@@ -425,7 +425,7 @@ export const BeadingPattern: FC = () => {
           <MenuItem>Clear</MenuItem>
         </MenuList>
       </Menu>
-      {createPortal(
+      {stageRef.current && createPortal(
         <Menu>
           <MenuButton
             as={Button}
