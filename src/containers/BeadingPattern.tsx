@@ -1,4 +1,17 @@
-import { Box, Menu, MenuList, MenuItem, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  useDisclosure
+} from "@chakra-ui/react";
+import {
+  MediaImage,
+  NavArrowDown,
+  Page
+} from "iconoir-react";
 import {
   FC,
   useCallback,
@@ -7,7 +20,15 @@ import {
   useRef,
   useState,
 } from "react";
-import { Circle, Layer, Line, Rect, Stage, Text } from "react-konva";
+import { createPortal } from "react-dom";
+import {
+  Circle,
+  Layer,
+  Line,
+  Rect,
+  Stage,
+  Text
+} from "react-konva";
 import Konva from "konva";
 import {
   usePattern,
@@ -18,7 +39,12 @@ import {
   BrickGridProperties,
   BeadingGridCellState,
 } from "../components";
-import { isNullOrEmpty, setGridCell } from "../utils";
+import {
+  downloadUri,
+  isNullOrEmpty,
+  setGridCell,
+  toJsonUri
+} from "../utils";
 import {
   CellBlankColor,
   CellDotColor,
@@ -85,7 +111,7 @@ export const BeadingPattern: FC = () => {
   const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
   const [isPointerDown, setIsPointerDown] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { grids, options: patternOptions, setGrids } = usePattern();
+  const { name, grids, options: patternOptions, setGrids } = usePattern();
   const { selectedTool } = useTools();
   const { selectedColor, setSelectedColor } = useColorPalette();
 
@@ -260,7 +286,7 @@ export const BeadingPattern: FC = () => {
 
   const handleOnTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
     event.evt.preventDefault();
-    
+
     const stage = stageRef.current;
     if (!stage) return;
 
@@ -289,6 +315,16 @@ export const BeadingPattern: FC = () => {
   const handleOnTouchEnd = useCallback(() => {
     lastDist.current = 0;
   }, []);
+
+  const handleOnSaveImageClick = useCallback(() => {
+    const imageUri = stageRef.current?.toDataURL() ?? "";
+    downloadUri(imageUri, `${name}.png`);
+  }, [name, stageRef.current]);
+
+  const handleOnSavePatternClick = useCallback(() => {
+    const patternUri = toJsonUri({ name, grids, patternOptions });
+    downloadUri(patternUri, `${name}.json`);
+  }, [name, grids, patternOptions]);
 
   return (
     <Box ref={containerRef} height={"100%"} width={"100%"}>
@@ -389,6 +425,28 @@ export const BeadingPattern: FC = () => {
           <MenuItem>Clear</MenuItem>
         </MenuList>
       </Menu>
+      {createPortal(
+        <Menu>
+          <MenuButton
+            as={Button}
+            colorScheme={"gray"}
+            rightIcon={<NavArrowDown />}
+            size={"sm"}
+            variant={"solid"}
+          >
+            Save As
+          </MenuButton>
+          <MenuList zIndex={1000}>
+            <MenuItem icon={<MediaImage />} onClick={handleOnSaveImageClick}>
+              Image (.png)
+            </MenuItem>
+            <MenuItem icon={<Page />} onClick={handleOnSavePatternClick}>
+              Pattern (.json)
+            </MenuItem>
+          </MenuList>
+        </Menu>,
+        document.getElementById("header-actions-group") as any
+      )}
     </Box>
   );
 };

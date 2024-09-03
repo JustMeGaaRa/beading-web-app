@@ -6,33 +6,25 @@ import {
   AccordionPanel,
   Box,
   Button,
-  ButtonGroup,
   Icon,
   StackDivider,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { Palette, Plus, Settings } from "iconoir-react";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback } from "react";
 import {
   BeadingGridOptionsPanel,
   BeadingGridState,
   PatternLayoutOptions,
   BeadingLayoutOptionsPanel,
-  PatternOptions,
   ColorPalette,
-  DefaultPatternOptions,
   usePattern,
 } from "../components";
 import { PanelPosition } from "../types";
-import { applyGridOptions, deepClone } from "../utils";
+import { applyGridOptions } from "../utils";
 
 type BeadingGridConfiguration = Omit<BeadingGridState, "rows">;
-
-type PatternConfigurationState = {
-  options: PatternOptions;
-  grids: Array<BeadingGridConfiguration>;
-};
 
 export const ProjectPropertiesPanel: FC<{
   position: PanelPosition;
