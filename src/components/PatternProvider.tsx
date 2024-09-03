@@ -208,7 +208,7 @@ export const usePattern = () => {
       setGrids((grids) => [...grids, grid]);
       setGridCount((count) => count + 1);
     },
-    [gridCount, setGrids, setGridCount]
+    [gridCount, options, setGrids, setGridCount]
   );
 
   const getSummary = useCallback((): PatternSummary => {

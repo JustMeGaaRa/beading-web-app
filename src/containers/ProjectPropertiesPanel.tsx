@@ -39,23 +39,7 @@ export const ProjectPropertiesPanel: FC<{
 }> = ({
   position
 }) => {
-  const [patternCopy, setPatternCopy] = useState<PatternConfigurationState>({
-    options: DefaultPatternOptions,
-    grids: [],
-  });
   const { grids, options, setGrids, addGrid, setOptions } = usePattern();
-
-  useEffect(() => {
-    setPatternCopy({
-      options: deepClone<PatternOptions>(options),
-      grids: deepClone<Array<BeadingGridConfiguration>>(
-        grids.map((grid) => ({
-          name: grid.name,
-          options: grid.options,
-        }))
-      ),
-    });
-  }, [grids, options, setPatternCopy]);
 
   const handleOnAddGridClick = useCallback(() => {
     addGrid("square");
@@ -70,54 +54,26 @@ export const ProjectPropertiesPanel: FC<{
 
   const handleOnLayoutChange = useCallback(
     (layout: PatternLayoutOptions) => {
-      setPatternCopy((project: PatternConfigurationState) => ({
-        ...project,
-        options: {
-          ...project.options,
-          layout: layout,
-        },
-      }));
+      setGrids((grids) =>
+        grids.map((grid) => applyGridOptions(grid, grid.options, { layout }))
+      );
+      setOptions({ layout });
     },
-    [setPatternCopy]
+    [setGrids, setOptions]
   );
 
   const handleOnOptionsChange = useCallback(
-    (grid: BeadingGridConfiguration) => {
-      setPatternCopy((project: PatternConfigurationState) => ({
-        ...project,
-        grids: project.grids.map((gridCopy) =>
-          gridCopy.name === grid.name ? grid : gridCopy
-        ),
-      }));
+    (modifiedGrid: BeadingGridConfiguration) => {
+      setGrids((grids) =>
+        grids.map((grid) => 
+          grid.name == modifiedGrid.name
+            ? applyGridOptions(grid, modifiedGrid.options, options)
+            : grid
+        )
+      );
     },
-    [setPatternCopy]
+    [setGrids, options]
   );
-
-  const handleOnDiscardClick = useCallback(() => {
-    setPatternCopy({
-      options: deepClone<PatternOptions>(options),
-      grids: deepClone<Array<BeadingGridConfiguration>>(
-        grids.map((grid) => ({
-          name: grid.name,
-          options: grid.options,
-        }))
-      ),
-    });
-  }, [grids, options, setPatternCopy]);
-
-  const handleOnApplyClick = useCallback(() => {
-    setGrids((grids) =>
-      grids.map((grid) => {
-        const gridCopy = patternCopy.grids.find(
-          (gridCopy) => grid.name == gridCopy.name
-        );
-        return gridCopy
-          ? applyGridOptions(grid, gridCopy.options, patternCopy.options)
-          : grid;
-      })
-    );
-    setOptions(patternCopy.options);
-  }, [setGrids, setOptions, patternCopy]);
 
   return (
     <Box
@@ -172,14 +128,14 @@ export const ProjectPropertiesPanel: FC<{
                 spacing={4}
               >
                 <BeadingLayoutOptionsPanel
-                  layout={patternCopy.options.layout}
+                  layout={options.layout}
                   onChange={handleOnLayoutChange}
                 />
-                {patternCopy.grids.map((grid) => (
+                {grids.map((grid) => (
                   <BeadingGridOptionsPanel
                     key={grid.name}
-                    canDelete={patternCopy.grids.length > 1}
-                    isHorizontal={patternCopy.options.layout.orientation === "horizontal"}
+                    canDelete={grids.length > 1}
+                    isHorizontal={options.layout.orientation === "horizontal"}
                     name={grid.name}
                     options={grid.options}
                     onChange={handleOnOptionsChange}
@@ -194,22 +150,6 @@ export const ProjectPropertiesPanel: FC<{
                 >
                   Add grid
                 </Button>
-                <ButtonGroup size={"sm"} width={"100%"}>
-                  <Button
-                    variant={"outline"}
-                    width={"50%"}
-                    onClick={handleOnDiscardClick}
-                  >
-                    Discard
-                  </Button>
-                  <Button
-                    variant={"solid"}
-                    width={"50%"}
-                    onClick={handleOnApplyClick}
-                  >
-                    Apply
-                  </Button>
-                </ButtonGroup>
               </VStack>
             </AccordionPanel>
           </AccordionItem>
