@@ -34,8 +34,54 @@ type BeadingPointerEvent = {
   y?: number;
 };
 
+const ZOOM_FACTOR = 1.1;
+
+const calculateNewScale = (
+  currentScale: number,
+  deltaY: number,
+  scaleBy: number
+) => {
+  return deltaY > 0
+    ? currentScale / scaleBy
+    : currentScale * scaleBy;
+};
+
+const getPointerOffset = (
+  pointerPosition: Konva.Vector2d,
+  stage: Konva.Stage,
+  scale: number
+) => {
+  return {
+    x: (pointerPosition.x - stage.x()) / scale,
+    y: (pointerPosition.y - stage.y()) / scale,
+  };
+};
+
+const calculateNewPosition = (
+  pointerOffset: Konva.Vector2d,
+  pointerPosition: Konva.Vector2d,
+  scale: number
+) => {
+  return {
+    x: pointerPosition.x - pointerOffset.x * scale,
+    y: pointerPosition.y - pointerOffset.y * scale,
+  };
+};
+
+const applyTransform = (
+  stage: Konva.Stage,
+  scale: number,
+  position: Konva.Vector2d
+) => {
+  stage.scale({ x: scale, y: scale });
+  stage.position(position);
+  stage.batchDraw();
+};
+
 export const BeadingPattern: FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
+  const lastDist = useRef(0);
   const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
   const [isPointerDown, setIsPointerDown] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -194,13 +240,67 @@ export const BeadingPattern: FC = () => {
     };
   }, [grids, patternOptions]);
 
+  const handleOnWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
+    event.evt.preventDefault();
+
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const oldScale = stage.scaleX();
+    const pointerPosition = stage.getPointerPosition();
+
+    if (!pointerPosition) return;
+
+    const newScale = calculateNewScale(oldScale, event.evt.deltaY, ZOOM_FACTOR);
+    const pointerOffset = getPointerOffset(pointerPosition, stage, oldScale);
+    const newPosition = calculateNewPosition(pointerOffset, pointerPosition, newScale);
+
+    applyTransform(stage, newScale, newPosition);
+  }, [stageRef]);
+
+  const handleOnTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
+    event.evt.preventDefault();
+    
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    if (event.evt.touches.length === 2) {
+      const [touch1, touch2] = event.evt.touches as any;
+      const dist = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+
+      if (lastDist.current === 0) {
+        lastDist.current = dist;
+        return;
+      }
+
+      const oldScale = stage.scaleX();
+      const newScale = oldScale * (dist / lastDist.current);
+
+      stage.scale({ x: newScale, y: newScale });
+      stage.batchDraw();
+
+      lastDist.current = dist;
+    }
+  }, [stageRef]);
+
+  const handleOnTouchEnd = useCallback(() => {
+    lastDist.current = 0;
+  }, []);
+
   return (
     <Box ref={containerRef} height={"100%"} width={"100%"}>
       <Stage
+        ref={stageRef}
         draggable={selectedTool === "cursor"}
         height={stageSize.height}
         width={stageSize.width}
         onContextMenu={handleOnContextMenu}
+        onTouchMove={handleOnTouchMove}
+        onTouchEnd={handleOnTouchEnd}
+        onWheel={handleOnWheel}
       >
         {grids.map((grid) => {
           switch (grid.options.type) {
