@@ -15,11 +15,11 @@ import {
 import { Page } from "iconoir-react";
 import { FC, ChangeEvent, useCallback } from "react";
 import {
-  CreatePatternModal,
   Header,
   PatternSummaryPanel,
   usePattern,
 } from "../components";
+import { CreatePatternModal } from "./CreatePatternModal";
 
 export const ProjectHeader: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false });

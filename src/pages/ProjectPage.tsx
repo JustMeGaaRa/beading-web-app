@@ -75,8 +75,8 @@ export const ProjectPage: FC = () => {
           <Page>
             <ProjectHeader />
             <Content>
-              <ProjectToolsPanel position={"left-center"} />
-              <ProjectPropertiesPanel position={"right-center"} />
+              <ProjectToolsPanel />
+              <ProjectPropertiesPanel />
               <BeadingPattern />
             </Content>
           </Page>

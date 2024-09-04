@@ -8,7 +8,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FC, ChangeEvent, useCallback } from "react";
-import { PatternLayoutOptions } from "./PatternProvider";
+import { PatternLayoutOptions } from "./pattern";
 
 export const BeadingLayoutOptionsPanel: FC<{
   layout: PatternLayoutOptions;

@@ -31,7 +31,6 @@ import {
 } from "react-konva";
 import Konva from "konva";
 import {
-  usePattern,
   useColorPalette,
   useTools,
   BeadSize,
@@ -40,18 +39,17 @@ import {
   BeadingGridCellState,
 } from "../components";
 import {
-  downloadUri,
-  isNullOrEmpty,
-  setGridCell,
-  toJsonUri
-} from "../utils";
-import {
   CellBlankColor,
   CellDotColor,
   CellPixelRatio,
   CellStrokeColor,
   DividerStrokeColor,
-} from "../constants";
+  usePattern,
+  downloadUri,
+  isNullOrEmpty,
+  setGridCell,
+  toJsonUri
+} from "../components";
 
 type BeadingPointerEvent = {
   row: number;

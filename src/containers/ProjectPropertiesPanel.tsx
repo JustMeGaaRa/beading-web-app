@@ -20,17 +20,12 @@ import {
   BeadingLayoutOptionsPanel,
   ColorPalette,
   usePattern,
+  applyGridOptions,
 } from "../components";
-import { PanelPosition } from "../types";
-import { applyGridOptions } from "../utils";
 
 type BeadingGridConfiguration = Omit<BeadingGridState, "rows">;
 
-export const ProjectPropertiesPanel: FC<{
-  position: PanelPosition;
-}> = ({
-  position
-}) => {
+export const ProjectPropertiesPanel: FC = () => {
   const { grids, options, setGrids, addGrid, setOptions } = usePattern();
 
   const handleOnAddGridClick = useCallback(() => {

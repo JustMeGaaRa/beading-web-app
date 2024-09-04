@@ -11,7 +11,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FC, useCallback, useState } from "react";
-import { BeadingGridType, BeadingGridTypes, usePattern } from "../components";
+import { BeadingGridType, BeadingGridTypes } from "../components";
+import { usePattern } from "../components";
 
 export const CreatePatternModal: FC<{
   isOpen: boolean;

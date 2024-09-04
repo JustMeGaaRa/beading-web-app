@@ -7,14 +7,16 @@ import {
   Redo,
   Undo,
 } from "iconoir-react";
-import { FC } from "react";
-import { useTools } from "../components";
-import { PanelPosition } from "../types";
+import { FC, useCallback } from "react";
+import { usePatterHistory, useTools } from "../components";
 
-export const ProjectToolsPanel: FC<{
-  position: PanelPosition;
-}> = ({ position }) => {
+export const ProjectToolsPanel: FC = () => {
   const { selectedTool, setSelectedTool } = useTools();
+  const { undo, redo } = usePatterHistory();
+
+  const handleOnUndoClick = useCallback(() => undo(), [undo]);
+
+  const handleOnRedoClick = useCallback(() => redo(), [redo]);
 
   return (
     <Box
@@ -63,8 +65,18 @@ export const ProjectToolsPanel: FC<{
           title={"Color Picker"}
           onClick={() => setSelectedTool("picker")}
         />
-        <IconButton aria-label={"undo"} icon={<Undo />} title={"Undo"} />
-        <IconButton aria-label={"redo"} icon={<Redo />} title={"Redo"} />
+        <IconButton
+          aria-label={"undo"}
+          icon={<Undo />}
+          title={"Undo"}
+          onClick={handleOnUndoClick}
+        />
+        <IconButton
+          aria-label={"redo"}
+          icon={<Redo />}
+          title={"Redo"}
+          onClick={handleOnRedoClick}
+        />
       </ButtonGroup>
     </Box>
   );
