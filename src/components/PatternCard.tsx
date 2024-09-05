@@ -49,7 +49,7 @@ export const PatternCard: FC<{
                 <AspectRatio ratio={250/180}>
                     <Box
                         alignItems={"center"}
-                        backgroundColor={"gray.100"}
+                        backgroundColor={"blackAlpha.100"}
                         borderColor={"gray.100"}
                         borderRadius={8}
                         borderWidth={1}
@@ -60,11 +60,15 @@ export const PatternCard: FC<{
                         onClick={handleOnClick}
                     >
                         <Image
-                            alt={"base64 image"}
+                            alt={""}
                             minHeight={"100%"}
                             minWidth={"100%"}
                             cursor={"pointer"}
-                            src={pattern.coverUrl}
+                            borderWidth={0}
+                            src={pattern.coverUrl !== ""
+                                ? pattern.coverUrl
+                                : "no-cover.svg"
+                            }
                         />
                     </Box>
                 </AspectRatio>

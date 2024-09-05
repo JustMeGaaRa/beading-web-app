@@ -1,7 +1,14 @@
 import { Box, Grid, useBreakpointValue } from "@chakra-ui/react";
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { PatternCard, PatternState, usePattern, usePatternCollection } from "../components";
+import {
+    downloadUri,
+    PatternCard,
+    PatternState,
+    toJsonUri,
+    usePattern,
+    usePatternCollection
+} from "../components";
 
 export type PatternCollectionState = {
     patterns: Array<PatternState>;
@@ -23,7 +30,8 @@ export const PatternCollectionExplorer: FC = () => {
     }, [deletePattern]);
 
     const handleOnPatternSave = useCallback((pattern: PatternState) => {
-        deletePattern(pattern.patternId);
+        const patternUri = toJsonUri(pattern);
+        downloadUri(patternUri, `${pattern.name}.json`);
     }, [deletePattern]);
     
     return (
