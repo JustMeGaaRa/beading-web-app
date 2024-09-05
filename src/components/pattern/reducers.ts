@@ -1,13 +1,16 @@
 import throttle from "just-throttle";
 import { ApplyGridOptionsAction, ApplyPatternOptionsAction, PatternActions } from "./actions";
-import { DefaultPatternOptions } from "./constants";
 import { PatternState, SquareGridProperties } from "./types";
 import { applyGridOptions, createBeadingGrid, setGridCell } from "./utils";
 
 export const patternReducer = (state: PatternState, action: PatternActions): PatternState => {
     switch (action.type) {
-        case "setName":
+        case "setPattern":
+            return { ...action.payload.pattern };
+        case "setPatternName":
             return { ...state, name: action.payload.name };
+        case "setPatternCover":
+            return { ...state, coverUrl: action.payload.coverUrl };
         case "setGridCellColor":
             return {
                 ...state,
@@ -39,13 +42,6 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
             return applyPatternOptionsReducer(state, action);
         case "applyGridOptions":
             return applyGridOptionsReducer(state, action);
-        case "resetPattern":
-            return {
-                name: state.name,
-                options: DefaultPatternOptions,
-                grids: [],
-                gridCount: 0
-            };
         default:
             return state;
     }

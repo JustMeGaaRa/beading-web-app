@@ -15,6 +15,7 @@ import {
 import {
     FC,
     useCallback,
+    useEffect,
     useLayoutEffect,
     useMemo,
     useRef,
@@ -36,7 +37,6 @@ import {
     BeadSize,
     BeadingGridState,
     BrickGridProperties,
-    BeadingGridCellState,
 } from "../components";
 import {
     CellBlankColor,
@@ -47,7 +47,6 @@ import {
     usePattern,
     downloadUri,
     isNullOrEmpty,
-    setGridCell,
     toJsonUri
 } from "../components";
 
@@ -109,7 +108,7 @@ export const BeadingPattern: FC = () => {
     const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
     const [isPointerDown, setIsPointerDown] = useState(false);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { name, grids, options: patternOptions, setGridCellColor } = usePattern();
+    const { name, grids, options, setPatternCover, setGridCellColor, getPattern } = usePattern();
     const { selectedTool } = useTools();
     const { selectedColor, setSelectedColor } = useColorPalette();
 
@@ -130,6 +129,15 @@ export const BeadingPattern: FC = () => {
             window.removeEventListener("resize", resizeStage);
         };
     }, [containerRef.current]);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const imageUri = stageRef.current?.toDataURL() ?? "";
+            setPatternCover(imageUri);
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, [stageRef.current, setPatternCover]);
 
     const handleOnBeadingClick = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         const { row, column } = event;
@@ -188,22 +196,22 @@ export const BeadingPattern: FC = () => {
                 divider: { isVisible: boolean; points: Array<number> };
             }
         >;
-        const isHorizontal = patternOptions.layout.orientation === "horizontal";
+        const isHorizontal = options.layout.orientation === "horizontal";
 
         const metadata = grids.reduce((metadata, grid, index) => {
             const gridHeight = isHorizontal
-                ? patternOptions.layout.height *
-                    patternOptions.layout.beadSize.height *
+                ? options.layout.height *
+                    options.layout.beadSize.height *
                     CellPixelRatio
                 : grid.options.height *
-                    patternOptions.layout.beadSize.height *
+                    options.layout.beadSize.height *
                     CellPixelRatio;
             const gridWidth = isHorizontal
                 ? grid.options.width *
-                    patternOptions.layout.beadSize.width *
+                    options.layout.beadSize.width *
                     CellPixelRatio
-                : patternOptions.layout.width *
-                    patternOptions.layout.beadSize.width *
+                : options.layout.width *
+                    options.layout.beadSize.width *
                     CellPixelRatio;
             const dividerPoints = isHorizontal
                 ? [gridWidth, 0, gridWidth, gridHeight]
@@ -234,7 +242,7 @@ export const BeadingPattern: FC = () => {
         }, initialMetadata);
 
         return { metadata };
-    }, [grids, patternOptions]);
+    }, [grids, options]);
 
     const handleOnWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
         event.evt.preventDefault();
@@ -292,9 +300,10 @@ export const BeadingPattern: FC = () => {
     }, [name, stageRef.current]);
 
     const handleOnSavePatternClick = useCallback(() => {
-        const patternUri = toJsonUri({ name, grids, patternOptions });
+        const pattern = getPattern();
+        const patternUri = toJsonUri(pattern);
         downloadUri(patternUri, `${name}.json`);
-    }, [name, grids, patternOptions]);
+    }, [name, grids, options]);
 
     return (
         <Box ref={containerRef} height={"100%"} width={"100%"}>
@@ -319,7 +328,7 @@ export const BeadingPattern: FC = () => {
                             >
                                 <SquareGrid
                                     grid={grid}
-                                    beadSize={patternOptions.layout.beadSize}
+                                    beadSize={options.layout.beadSize}
                                     onBeadingClick={handleOnBeadingClick}
                                     onBeadingPointerDown={handleOnBeadingPointerDown}
                                     onBeadingPointerUp={handleOnBeadingPointerUp}
@@ -344,7 +353,7 @@ export const BeadingPattern: FC = () => {
                             >
                                 <PeyoteGrid
                                     grid={grid}
-                                    beadSize={patternOptions.layout.beadSize}
+                                    beadSize={options.layout.beadSize}
                                     onBeadingClick={handleOnBeadingClick}
                                     onBeadingPointerDown={handleOnBeadingPointerDown}
                                     onBeadingPointerUp={handleOnBeadingPointerUp}
@@ -369,7 +378,7 @@ export const BeadingPattern: FC = () => {
                             >
                                 <BrickGrid
                                     grid={grid}
-                                    beadSize={patternOptions.layout.beadSize}
+                                    beadSize={options.layout.beadSize}
                                     options={grid.options}
                                     onBeadingClick={handleOnBeadingClick}
                                     onBeadingPointerDown={handleOnBeadingPointerDown}

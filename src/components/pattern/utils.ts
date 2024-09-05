@@ -1,5 +1,18 @@
-import { CellBlankColor } from "./constants";
+import { v6 } from "uuid";
+import { CellBlankColor, DefaultPatternOptions } from "./constants";
 import { BeadingGridCellState, BeadingGridProperties, BeadingGridState, PatternOptions } from "./types";
+
+export const createDefaultPattern = () => {
+    return {
+        patternId: `pattern-${v6()}`,
+        name: "Untitled pattern",
+        coverUrl: "",
+        lastModified: new Date(),
+        options: DefaultPatternOptions,
+        grids: [],
+        gridCount: 0,
+    };
+};
 
 export const createBeadingGrid = (
     name: string,

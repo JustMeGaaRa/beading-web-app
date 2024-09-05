@@ -74,6 +74,9 @@ export type BeadingGridState = {
 };
 
 export type PatternState = {
+    patternId: string;
+    coverUrl: string;
+    lastModified: Date;
     name: string;
     options: PatternOptions;
     grids: Array<BeadingGridState>;

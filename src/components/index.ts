@@ -5,6 +5,8 @@ export * from "./ColorPaletteProvider";
 export * from "./Content";
 export * from "./Header";
 export * from "./Page";
+export * from "./PatternCard";
 export * from "./pattern";
+export * from "./pattern-collection";
 export * from "./PatternSummaryPanel";
 export * from "./ToolsProvider";

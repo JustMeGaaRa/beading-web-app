@@ -1,0 +1,1 @@
+import { DefaultPatternOptions } from "../pattern";
