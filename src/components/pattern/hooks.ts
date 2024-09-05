@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { usePatternStore } from "./store";
-import { BeadingGridType, BeadSize, PatternSummary } from "./types";
-import { createBeadingGrid, isNullOrEmpty } from "./utils";
+import { BeadingGridCellState, BeadingGridProperties, BeadSize, PatternOptions, PatternSummary } from "./types";
+import { isNullOrEmpty } from "./utils";
 import { useStore } from "zustand";
 
 export const usePattern = () => {
@@ -9,44 +9,36 @@ export const usePattern = () => {
         name,
         grids,
         options,
-        gridCount,
-        setName,
-        setGrids,
-        setOptions,
-        setGridCount,
+        dispatch
     } = usePatternStore();
 
-    const resetGrids = useCallback((type: BeadingGridType) => {
-        const grid = createBeadingGrid(
-            "Grid 1",
-            {
-                type: type,
-                height: 10,
-                width: 10,
-                drop: 1,
-                fringe: 0,
-            },
-            options
-        );
-        setGrids([grid]);
-        setGridCount(1);
-    }, [gridCount, setGrids, setGridCount]);
+    const setPatternName = useCallback((name: string) => {
+        dispatch({ type: "setName", payload: { name } });
+    }, [dispatch]);
 
-    const addGrid = useCallback((type: BeadingGridType) => {
-        const grid = createBeadingGrid(
-            `Grid ${gridCount + 1}`,
-            {
-                type: type,
-                height: 10,
-                width: 10,
-                drop: 1,
-                fringe: 0,
-            },
-            options
-        );
-        setGrids((grids) => [...grids, grid]);
-        setGridCount((count) => count + 1);
-    }, [gridCount, options, setGrids, setGridCount]);
+    const setGridCellColor = useCallback((name: string, cell: BeadingGridCellState) => {
+        dispatch({ type: "setGridCellColor", payload: { name, cell } });
+    }, [dispatch]);
+    
+    const addGrid = useCallback(() => {
+        dispatch({ type: "addGrid", payload: {} });
+    }, [dispatch]);
+    
+    const deleteGrid = useCallback((name: string) => {
+        dispatch({ type: "deleteGrid", payload: { name } });
+    }, [dispatch]);
+
+    const resetGrids = useCallback(() => {
+        dispatch({ type: "resetPattern", payload: {} });
+    }, [dispatch]);
+
+    const applyPatternOptions = useCallback((options: PatternOptions) => {
+        dispatch({ type: "applyPatternOptions", payload: { options } });
+    }, [dispatch]);
+
+    const applyGridOptions = useCallback((name: string, options: BeadingGridProperties) => {
+        dispatch({ type: "applyGridOptions", payload: { name, options } });
+    }, [dispatch]);
 
     const getSummary = useCallback((): PatternSummary => {
         const beadItems = new Map<string, number>();
@@ -106,11 +98,13 @@ export const usePattern = () => {
         name,
         grids,
         options,
-        setName,
-        setGrids,
-        setOptions,
+        setPatternName,
+        setGridCellColor,
         addGrid,
+        deleteGrid,
         resetGrids,
+        applyPatternOptions,
+        applyGridOptions,
         getSummary,
     };
 };

@@ -79,10 +79,3 @@ export type PatternState = {
     grids: Array<BeadingGridState>;
     gridCount: number;
 };
-
-export type PatternActions = {
-    setName: React.Dispatch<SetStateAction<string>>;
-    setOptions: React.Dispatch<SetStateAction<PatternOptions>>;
-    setGrids: React.Dispatch<SetStateAction<Array<BeadingGridState>>>;
-    setGridCount: React.Dispatch<SetStateAction<number>>;
-};

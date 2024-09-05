@@ -1,452 +1,424 @@
 import {
-  Box,
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  useDisclosure
+    Box,
+    Button,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
+    useDisclosure
 } from "@chakra-ui/react";
 import {
-  MediaImage,
-  NavArrowDown,
-  Page
+    MediaImage,
+    NavArrowDown,
+    Page
 } from "iconoir-react";
 import {
-  FC,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
+    FC,
+    useCallback,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 import { createPortal } from "react-dom";
 import {
-  Circle,
-  Layer,
-  Line,
-  Rect,
-  Stage,
-  Text
+    Circle,
+    Layer,
+    Line,
+    Rect,
+    Stage,
+    Text
 } from "react-konva";
 import Konva from "konva";
 import {
-  useColorPalette,
-  useTools,
-  BeadSize,
-  BeadingGridState,
-  BrickGridProperties,
-  BeadingGridCellState,
+    useColorPalette,
+    useTools,
+    BeadSize,
+    BeadingGridState,
+    BrickGridProperties,
+    BeadingGridCellState,
 } from "../components";
 import {
-  CellBlankColor,
-  CellDotColor,
-  CellPixelRatio,
-  CellStrokeColor,
-  DividerStrokeColor,
-  usePattern,
-  downloadUri,
-  isNullOrEmpty,
-  setGridCell,
-  toJsonUri
+    CellBlankColor,
+    CellDotColor,
+    CellPixelRatio,
+    CellStrokeColor,
+    DividerStrokeColor,
+    usePattern,
+    downloadUri,
+    isNullOrEmpty,
+    setGridCell,
+    toJsonUri
 } from "../components";
 
 type BeadingPointerEvent = {
-  row: number;
-  column: number;
-  x?: number;
-  y?: number;
+    row: number;
+    column: number;
+    x?: number;
+    y?: number;
 };
 
 const ZOOM_FACTOR = 1.1;
 
 const calculateNewScale = (
-  currentScale: number,
-  deltaY: number,
-  scaleBy: number
+    currentScale: number,
+    deltaY: number,
+    scaleBy: number
 ) => {
-  return deltaY > 0
-    ? currentScale / scaleBy
-    : currentScale * scaleBy;
+    return deltaY > 0
+        ? currentScale / scaleBy
+        : currentScale * scaleBy;
 };
 
 const getPointerOffset = (
-  pointerPosition: Konva.Vector2d,
-  stage: Konva.Stage,
-  scale: number
+    pointerPosition: Konva.Vector2d,
+    stage: Konva.Stage,
+    scale: number
 ) => {
-  return {
-    x: (pointerPosition.x - stage.x()) / scale,
-    y: (pointerPosition.y - stage.y()) / scale,
-  };
+    return {
+        x: (pointerPosition.x - stage.x()) / scale,
+        y: (pointerPosition.y - stage.y()) / scale,
+    };
 };
 
 const calculateNewPosition = (
-  pointerOffset: Konva.Vector2d,
-  pointerPosition: Konva.Vector2d,
-  scale: number
+    pointerOffset: Konva.Vector2d,
+    pointerPosition: Konva.Vector2d,
+    scale: number
 ) => {
-  return {
-    x: pointerPosition.x - pointerOffset.x * scale,
-    y: pointerPosition.y - pointerOffset.y * scale,
-  };
+    return {
+        x: pointerPosition.x - pointerOffset.x * scale,
+        y: pointerPosition.y - pointerOffset.y * scale,
+    };
 };
 
 const applyTransform = (
-  stage: Konva.Stage,
-  scale: number,
-  position: Konva.Vector2d
+    stage: Konva.Stage,
+    scale: number,
+    position: Konva.Vector2d
 ) => {
-  stage.scale({ x: scale, y: scale });
-  stage.position(position);
-  stage.batchDraw();
+    stage.scale({ x: scale, y: scale });
+    stage.position(position);
+    stage.batchDraw();
 };
 
 export const BeadingPattern: FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<Konva.Stage>(null);
-  const lastDist = useRef(0);
-  const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
-  const [isPointerDown, setIsPointerDown] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { name, grids, options: patternOptions, setGrids } = usePattern();
-  const { selectedTool } = useTools();
-  const { selectedColor, setSelectedColor } = useColorPalette();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const stageRef = useRef<Konva.Stage>(null);
+    const lastDist = useRef(0);
+    const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
+    const [isPointerDown, setIsPointerDown] = useState(false);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { name, grids, options: patternOptions, setGridCellColor } = usePattern();
+    const { selectedTool } = useTools();
+    const { selectedColor, setSelectedColor } = useColorPalette();
 
-  useLayoutEffect(() => {
-    const resizeStage = () => {
-      if (containerRef.current) {
-        setStageSize({
-          height: containerRef.current.offsetHeight,
-          width: containerRef.current.offsetWidth,
-        });
-      }
-    };
+    useLayoutEffect(() => {
+        const resizeStage = () => {
+            if (containerRef.current) {
+                setStageSize({
+                    height: containerRef.current.offsetHeight,
+                    width: containerRef.current.offsetWidth,
+                });
+            }
+        };
 
-    resizeStage();
-    window.addEventListener("resize", resizeStage);
+        resizeStage();
+        window.addEventListener("resize", resizeStage);
 
-    return () => {
-      window.removeEventListener("resize", resizeStage);
-    };
-  }, [containerRef.current]);
+        return () => {
+            window.removeEventListener("resize", resizeStage);
+        };
+    }, [containerRef.current]);
 
-  const setCellColor = useCallback(
-    (gridName: string, cell: BeadingGridCellState) => {
-      setGrids((grids) =>
-        grids.map((grid) =>
-          grid.name === gridName ? setGridCell(grid, cell) : grid
-        )
-      );
-    },
-    [setGrids]
-  );
+    const handleOnBeadingClick = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+        const { row, column } = event;
 
-  const handleOnBeadingClick = useCallback(
-    (source: BeadingGridState, event: BeadingPointerEvent) => {
-      const { row, column } = event;
-
-      if (selectedTool === "pencil") {
-        setCellColor(source.name, { row, column, color: selectedColor });
-      }
-      if (selectedTool === "eraser") {
-        setCellColor(source.name, { row, column, color: CellBlankColor });
-      }
-      if (selectedTool === "picker") {
-        setSelectedColor(source.rows[row].cells[column]);
-      }
-    },
-    [selectedTool, selectedColor, setGrids]
-  );
-
-  const handleOnBeadingPointerDown = useCallback(
-    (source: BeadingGridState, event: BeadingPointerEvent) => {
-      setIsPointerDown(true);
-    },
-    [setIsPointerDown]
-  );
-
-  const handleOnBeadingPointerUp = useCallback(
-    (source: BeadingGridState, event: BeadingPointerEvent) => {
-      setIsPointerDown(false);
-    },
-    [setIsPointerDown]
-  );
-
-  const handleOnBeadingPointerEnter = useCallback(
-    (source: BeadingGridState, event: BeadingPointerEvent) => {
-      if (isPointerDown) {
         if (selectedTool === "pencil") {
-          setCellColor(source.name, {
-            row: event.row,
-            column: event.column,
-            color: selectedColor,
-          });
+            setGridCellColor(source.name, { row, column, color: selectedColor });
         }
         if (selectedTool === "eraser") {
-          setCellColor(source.name, {
-            row: event.row,
-            column: event.column,
-            color: CellBlankColor,
-          });
+            setGridCellColor(source.name, { row, column, color: CellBlankColor });
         }
-      }
-    },
-    [isPointerDown, setCellColor]
-  );
+        if (selectedTool === "picker") {
+            setSelectedColor(source.rows[row].cells[column]);
+        }
+    }, [selectedTool, selectedColor, setSelectedColor]);
 
-  const handleOnContextMenu = useCallback(
-    (event: Konva.KonvaEventObject<PointerEvent>) => {
-      onOpen();
-      event.evt.preventDefault();
-    },
-    [onOpen]
-  );
+    const handleOnBeadingPointerDown = useCallback(() => {
+        setIsPointerDown(true);
+    }, [setIsPointerDown]);
 
-  const { metadata } = useMemo(() => {
-    let offsetX = 0;
-    let offsetY = 0;
-    const initialMetadata = {} as Record<
-      string,
-      {
-        position: { x: number; y: number };
-        size: { height: number; width: number };
-        divider: { isVisible: boolean; points: Array<number> };
-      }
-    >;
-    const isHorizontal = patternOptions.layout.orientation === "horizontal";
+    const handleOnBeadingPointerUp = useCallback(() => {
+        setIsPointerDown(false);
+    }, [setIsPointerDown]);
 
-    const metadata = grids.reduce((metadata, grid, index) => {
-      const gridHeight = isHorizontal
-        ? patternOptions.layout.height *
-          patternOptions.layout.beadSize.height *
-          CellPixelRatio
-        : grid.options.height *
-          patternOptions.layout.beadSize.height *
-          CellPixelRatio;
-      const gridWidth = isHorizontal
-        ? grid.options.width *
-          patternOptions.layout.beadSize.width *
-          CellPixelRatio
-        : patternOptions.layout.width *
-          patternOptions.layout.beadSize.width *
-          CellPixelRatio;
-      const dividerPoints = isHorizontal
-        ? [gridWidth, 0, gridWidth, gridHeight]
-        : [0, gridHeight, gridWidth, gridHeight];
+    const handleOnBeadingPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+        if (isPointerDown) {
+            if (selectedTool === "pencil") {
+                setGridCellColor(source.name, {
+                    row: event.row,
+                    column: event.column,
+                    color: selectedColor,
+                });
+            }
+            if (selectedTool === "eraser") {
+                setGridCellColor(source.name, {
+                    row: event.row,
+                    column: event.column,
+                    color: CellBlankColor,
+                });
+            }
+        }
+    }, [isPointerDown, setGridCellColor]);
 
-      const gridMetadata = {
-        ...metadata,
-        [grid.name]: {
-          position: {
-            x: offsetX,
-            y: offsetY,
-          },
-          size: {
-            height: gridHeight,
-            width: gridWidth,
-          },
-          divider: {
-            isVisible: index < grids.length - 1,
-            points: dividerPoints,
-          },
-        },
-      };
+    const handleOnContextMenu = useCallback((event: Konva.KonvaEventObject<PointerEvent>) => {
+        event.evt.preventDefault();
+        onOpen();
+    }, [onOpen]);
 
-      offsetX = isHorizontal ? offsetX + gridWidth : 0;
-      offsetY = isHorizontal ? 0 : offsetY + gridHeight;
+    const { metadata } = useMemo(() => {
+        let offsetX = 0;
+        let offsetY = 0;
+        const initialMetadata = {} as Record<
+            string,
+            {
+                position: { x: number; y: number };
+                size: { height: number; width: number };
+                divider: { isVisible: boolean; points: Array<number> };
+            }
+        >;
+        const isHorizontal = patternOptions.layout.orientation === "horizontal";
 
-      return gridMetadata;
-    }, initialMetadata);
+        const metadata = grids.reduce((metadata, grid, index) => {
+            const gridHeight = isHorizontal
+                ? patternOptions.layout.height *
+                    patternOptions.layout.beadSize.height *
+                    CellPixelRatio
+                : grid.options.height *
+                    patternOptions.layout.beadSize.height *
+                    CellPixelRatio;
+            const gridWidth = isHorizontal
+                ? grid.options.width *
+                    patternOptions.layout.beadSize.width *
+                    CellPixelRatio
+                : patternOptions.layout.width *
+                    patternOptions.layout.beadSize.width *
+                    CellPixelRatio;
+            const dividerPoints = isHorizontal
+                ? [gridWidth, 0, gridWidth, gridHeight]
+                : [0, gridHeight, gridWidth, gridHeight];
 
-    return {
-      metadata,
-    };
-  }, [grids, patternOptions]);
+            const gridMetadata = {
+                ...metadata,
+                [grid.name]: {
+                    position: {
+                        x: offsetX,
+                        y: offsetY,
+                    },
+                    size: {
+                        height: gridHeight,
+                        width: gridWidth,
+                    },
+                    divider: {
+                        isVisible: index < grids.length - 1,
+                        points: dividerPoints,
+                    },
+                },
+            };
 
-  const handleOnWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
-    event.evt.preventDefault();
+            offsetX = isHorizontal ? offsetX + gridWidth : 0;
+            offsetY = isHorizontal ? 0 : offsetY + gridHeight;
 
-    const stage = stageRef.current;
-    if (!stage) return;
+            return gridMetadata;
+        }, initialMetadata);
 
-    const oldScale = stage.scaleX();
-    const pointerPosition = stage.getPointerPosition();
+        return { metadata };
+    }, [grids, patternOptions]);
 
-    if (!pointerPosition) return;
+    const handleOnWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
+        event.evt.preventDefault();
 
-    const newScale = calculateNewScale(oldScale, event.evt.deltaY, ZOOM_FACTOR);
-    const pointerOffset = getPointerOffset(pointerPosition, stage, oldScale);
-    const newPosition = calculateNewPosition(pointerOffset, pointerPosition, newScale);
+        const stage = stageRef.current;
+        if (!stage) return;
 
-    applyTransform(stage, newScale, newPosition);
-  }, [stageRef]);
+        const oldScale = stage.scaleX();
+        const pointerPosition = stage.getPointerPosition();
 
-  const handleOnTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
-    event.evt.preventDefault();
+        if (!pointerPosition) return;
 
-    const stage = stageRef.current;
-    if (!stage) return;
+        const newScale = calculateNewScale(oldScale, event.evt.deltaY, ZOOM_FACTOR);
+        const pointerOffset = getPointerOffset(pointerPosition, stage, oldScale);
+        const newPosition = calculateNewPosition(pointerOffset, pointerPosition, newScale);
 
-    if (event.evt.touches.length === 2) {
-      const [touch1, touch2] = event.evt.touches as any;
-      const dist = Math.hypot(
-        touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
-      );
+        applyTransform(stage, newScale, newPosition);
+    }, [stageRef]);
 
-      if (lastDist.current === 0) {
+    const handleOnTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
+        event.evt.preventDefault();
+
+        const stage = stageRef.current;
+        if (!stage) return;
+
+        if (event.evt.touches.length !== 2) return;
+
+        const [touch1, touch2] = event.evt.touches as any;
+        const dist = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+        );
+
+        if (lastDist.current === 0) {
+            lastDist.current = dist;
+            return;
+        }
+
+        const oldScale = stage.scaleX();
+        const newScale = oldScale * (dist / lastDist.current);
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.batchDraw();
+
         lastDist.current = dist;
-        return;
-      }
+    }, [stageRef]);
 
-      const oldScale = stage.scaleX();
-      const newScale = oldScale * (dist / lastDist.current);
+    const handleOnTouchEnd = useCallback(() => {
+        lastDist.current = 0;
+    }, []);
 
-      stage.scale({ x: newScale, y: newScale });
-      stage.batchDraw();
+    const handleOnSaveImageClick = useCallback(() => {
+        const imageUri = stageRef.current?.toDataURL() ?? "";
+        downloadUri(imageUri, `${name}.png`);
+    }, [name, stageRef.current]);
 
-      lastDist.current = dist;
-    }
-  }, [stageRef]);
+    const handleOnSavePatternClick = useCallback(() => {
+        const patternUri = toJsonUri({ name, grids, patternOptions });
+        downloadUri(patternUri, `${name}.json`);
+    }, [name, grids, patternOptions]);
 
-  const handleOnTouchEnd = useCallback(() => {
-    lastDist.current = 0;
-  }, []);
-
-  const handleOnSaveImageClick = useCallback(() => {
-    const imageUri = stageRef.current?.toDataURL() ?? "";
-    downloadUri(imageUri, `${name}.png`);
-  }, [name, stageRef.current]);
-
-  const handleOnSavePatternClick = useCallback(() => {
-    const patternUri = toJsonUri({ name, grids, patternOptions });
-    downloadUri(patternUri, `${name}.json`);
-  }, [name, grids, patternOptions]);
-
-  return (
-    <Box ref={containerRef} height={"100%"} width={"100%"}>
-      <Stage
-        ref={stageRef}
-        draggable={selectedTool === "cursor"}
-        height={stageSize.height}
-        width={stageSize.width}
-        onContextMenu={handleOnContextMenu}
-        onTouchMove={handleOnTouchMove}
-        onTouchEnd={handleOnTouchEnd}
-        onWheel={handleOnWheel}
-      >
-        {grids.map((grid) => {
-          switch (grid.options.type) {
-            case "square":
-              return (
-                <Layer
-                  key={grid.name}
-                  x={metadata[grid.name].position.x}
-                  y={metadata[grid.name].position.y}
-                >
-                  <SquareGrid
-                    grid={grid}
-                    beadSize={patternOptions.layout.beadSize}
-                    onBeadingClick={handleOnBeadingClick}
-                    onBeadingPointerDown={handleOnBeadingPointerDown}
-                    onBeadingPointerUp={handleOnBeadingPointerUp}
-                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                  />
-                  <Text text={grid.name} fill={DividerStrokeColor} />
-                  {metadata[grid.name].divider.isVisible && (
-                    <Line
-                      points={metadata[grid.name].divider.points}
-                      stroke={DividerStrokeColor}
-                      strokeWidth={1}
-                    />
-                  )}
-                </Layer>
-              );
-            case "peyote":
-              return (
-                <Layer
-                  key={grid.name}
-                  x={metadata[grid.name].position.x}
-                  y={metadata[grid.name].position.y}
-                >
-                  <PeyoteGrid
-                    grid={grid}
-                    beadSize={patternOptions.layout.beadSize}
-                    onBeadingClick={handleOnBeadingClick}
-                    onBeadingPointerDown={handleOnBeadingPointerDown}
-                    onBeadingPointerUp={handleOnBeadingPointerUp}
-                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                  />
-                  <Text text={grid.name} fill={DividerStrokeColor} />
-                  {metadata[grid.name].divider.isVisible && (
-                    <Line
-                      points={metadata[grid.name].divider.points}
-                      stroke={DividerStrokeColor}
-                      strokeWidth={1}
-                    />
-                  )}
-                </Layer>
-              );
-            case "brick":
-              return (
-                <Layer
-                  key={grid.name}
-                  x={metadata[grid.name].position.x}
-                  y={metadata[grid.name].position.y}
-                >
-                  <BrickGrid
-                    grid={grid}
-                    beadSize={patternOptions.layout.beadSize}
-                    options={grid.options}
-                    onBeadingClick={handleOnBeadingClick}
-                    onBeadingPointerDown={handleOnBeadingPointerDown}
-                    onBeadingPointerUp={handleOnBeadingPointerUp}
-                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                  />
-                  <Text text={grid.name} fill={DividerStrokeColor} />
-                  {metadata[grid.name].divider.isVisible && (
-                    <Line
-                      points={metadata[grid.name].divider.points}
-                      stroke={DividerStrokeColor}
-                      strokeWidth={1}
-                    />
-                  )}
-                </Layer>
-              );
-          }
-        })}
-      </Stage>
-      <Menu isOpen={isOpen} onClose={onClose} closeOnBlur closeOnSelect>
-        <MenuList>
-          <MenuItem>Select All</MenuItem>
-          <MenuItem>Clear</MenuItem>
-        </MenuList>
-      </Menu>
-      {stageRef.current && createPortal(
-        <Menu>
-          <MenuButton
-            as={Button}
-            colorScheme={"gray"}
-            rightIcon={<NavArrowDown />}
-            size={"sm"}
-            variant={"solid"}
-          >
-            Save As
-          </MenuButton>
-          <MenuList zIndex={1000}>
-            <MenuItem icon={<MediaImage />} onClick={handleOnSaveImageClick}>
-              Image (.png)
-            </MenuItem>
-            <MenuItem icon={<Page />} onClick={handleOnSavePatternClick}>
-              Pattern (.json)
-            </MenuItem>
-          </MenuList>
-        </Menu>,
-        document.getElementById("header-actions-group") as any
-      )}
-    </Box>
-  );
+    return (
+        <Box ref={containerRef} height={"100%"} width={"100%"}>
+            <Stage
+                ref={stageRef}
+                draggable={selectedTool === "cursor"}
+                height={stageSize.height}
+                width={stageSize.width}
+                onContextMenu={handleOnContextMenu}
+                onTouchMove={handleOnTouchMove}
+                onTouchEnd={handleOnTouchEnd}
+                onWheel={handleOnWheel}
+            >
+            {grids.map((grid) => {
+                switch (grid.options.type) {
+                    case "square":
+                        return (
+                            <Layer
+                                key={grid.name}
+                                x={metadata[grid.name].position.x}
+                                y={metadata[grid.name].position.y}
+                            >
+                                <SquareGrid
+                                    grid={grid}
+                                    beadSize={patternOptions.layout.beadSize}
+                                    onBeadingClick={handleOnBeadingClick}
+                                    onBeadingPointerDown={handleOnBeadingPointerDown}
+                                    onBeadingPointerUp={handleOnBeadingPointerUp}
+                                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
+                                />
+                                <Text text={grid.name} fill={DividerStrokeColor} />
+                                {metadata[grid.name].divider.isVisible && (
+                                    <Line
+                                        points={metadata[grid.name].divider.points}
+                                        stroke={DividerStrokeColor}
+                                        strokeWidth={1}
+                                    />
+                                )}
+                            </Layer>
+                        );
+                    case "peyote":
+                        return (
+                            <Layer
+                                key={grid.name}
+                                x={metadata[grid.name].position.x}
+                                y={metadata[grid.name].position.y}
+                            >
+                                <PeyoteGrid
+                                    grid={grid}
+                                    beadSize={patternOptions.layout.beadSize}
+                                    onBeadingClick={handleOnBeadingClick}
+                                    onBeadingPointerDown={handleOnBeadingPointerDown}
+                                    onBeadingPointerUp={handleOnBeadingPointerUp}
+                                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
+                                />
+                                <Text text={grid.name} fill={DividerStrokeColor} />
+                                {metadata[grid.name].divider.isVisible && (
+                                    <Line
+                                        points={metadata[grid.name].divider.points}
+                                        stroke={DividerStrokeColor}
+                                        strokeWidth={1}
+                                    />
+                                )}
+                            </Layer>
+                        );
+                    case "brick":
+                        return (
+                            <Layer
+                                key={grid.name}
+                                x={metadata[grid.name].position.x}
+                                y={metadata[grid.name].position.y}
+                            >
+                                <BrickGrid
+                                    grid={grid}
+                                    beadSize={patternOptions.layout.beadSize}
+                                    options={grid.options}
+                                    onBeadingClick={handleOnBeadingClick}
+                                    onBeadingPointerDown={handleOnBeadingPointerDown}
+                                    onBeadingPointerUp={handleOnBeadingPointerUp}
+                                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
+                                />
+                                <Text text={grid.name} fill={DividerStrokeColor} />
+                                {metadata[grid.name].divider.isVisible && (
+                                    <Line
+                                        points={metadata[grid.name].divider.points}
+                                        stroke={DividerStrokeColor}
+                                        strokeWidth={1}
+                                    />
+                                )}
+                            </Layer>
+                        );
+                }
+            })}
+            </Stage>
+            <Menu isOpen={isOpen} onClose={onClose} closeOnBlur closeOnSelect>
+                <MenuList>
+                    <MenuItem>Select All</MenuItem>
+                    <MenuItem>Clear</MenuItem>
+                </MenuList>
+            </Menu>
+            {stageRef.current && createPortal(
+                <Menu>
+                    <MenuButton
+                    as={Button}
+                    colorScheme={"gray"}
+                    rightIcon={<NavArrowDown />}
+                    size={"sm"}
+                    variant={"solid"}
+                    >
+                    Save As
+                    </MenuButton>
+                    <MenuList zIndex={1000}>
+                    <MenuItem icon={<MediaImage />} onClick={handleOnSaveImageClick}>
+                        Image (.png)
+                    </MenuItem>
+                    <MenuItem icon={<Page />} onClick={handleOnSavePatternClick}>
+                        Pattern (.json)
+                    </MenuItem>
+                    </MenuList>
+                </Menu>,
+                document.getElementById("header-actions-group") as any
+            )}
+        </Box>
+    );
 };
 
 const SquareGrid: FC<{
