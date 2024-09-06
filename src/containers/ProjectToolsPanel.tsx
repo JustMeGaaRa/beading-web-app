@@ -20,7 +20,7 @@ export const ProjectToolsPanel: FC = () => {
 
   return (
     <Box
-      padding={1}
+      padding={3}
       position={"absolute"}
       left={0}
       top={"50%"}

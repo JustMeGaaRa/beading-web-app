@@ -1,6 +1,6 @@
 import { v6 } from "uuid";
 import { CellBlankColor, DefaultPatternOptions } from "./constants";
-import { BeadingGridCellState, BeadingGridProperties, BeadingGridState, PatternOptions } from "./types";
+import { BeadingGridCellState, BeadingGridProperties, BeadingGridRow, BeadingGridState, PatternOptions, PatternState } from "./types";
 
 export const createDefaultPattern = () => {
     return {
@@ -13,6 +13,55 @@ export const createDefaultPattern = () => {
         gridCount: 0,
     };
 };
+
+export const validatePattern = (data: any): data is PatternState => {
+    if (typeof data !== "object" || data === null) {
+        return false;
+    }
+
+    return typeof data.patternId === "string"
+        && typeof data.coverUrl === "string"
+        && typeof data.lastModified === "string"
+        && typeof data.name === "string"
+        && typeof data.gridCount === "number"
+        && validatePatternOptions(data.options)
+        && Array.isArray(data.grids)
+        && data.grids.every((grid: any) => validateBeadingGrid(grid));
+};
+
+export const validateBeadingGrid = (data: any): data is BeadingGridState => {
+    if (typeof data !== "object" || data === null) {
+        return false;
+    }
+
+    return typeof data.name === "string"
+        && typeof data.options === "object"
+        && Array.isArray(data.rows)
+        && data.rows.every((row: any) => validateBeadingGridRow(row));
+};
+
+export const validateBeadingGridRow = (data: any): data is BeadingGridRow => {
+    if (typeof data !== "object" || data === null) {
+        return false;
+    }
+    
+    return Array.isArray(data.cells)
+        && data.cells.every((cell: any) => typeof cell === "string");
+};
+
+export const validatePatternOptions = (data: any): data is PatternOptions => {
+    if (typeof data !== "object" || data === null) {
+        return false;
+    }
+
+    if (typeof data.layout !== "object" || data.layout === null) {
+        return false;
+    }
+
+    return typeof data.layout.width === "number"
+        && typeof data.layout.height === "number"
+        && typeof data.layout.orientation === "string";
+}
 
 export const createBeadingGrid = (
     name: string,

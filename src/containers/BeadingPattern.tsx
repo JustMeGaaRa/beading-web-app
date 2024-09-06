@@ -407,21 +407,21 @@ export const BeadingPattern: FC = () => {
             {stageRef.current && createPortal(
                 <Menu>
                     <MenuButton
-                    as={Button}
-                    colorScheme={"gray"}
-                    rightIcon={<NavArrowDown />}
-                    size={"sm"}
-                    variant={"solid"}
+                        as={Button}
+                        colorScheme={"gray"}
+                        rightIcon={<NavArrowDown />}
+                        size={"sm"}
+                        variant={"solid"}
                     >
-                    Save As
+                        Save As
                     </MenuButton>
                     <MenuList zIndex={1000}>
-                    <MenuItem icon={<MediaImage />} onClick={handleOnSaveImageClick}>
-                        Image (.png)
-                    </MenuItem>
-                    <MenuItem icon={<Page />} onClick={handleOnSavePatternClick}>
-                        Pattern (.json)
-                    </MenuItem>
+                        <MenuItem icon={<MediaImage />} onClick={handleOnSaveImageClick}>
+                            Image (.png)
+                        </MenuItem>
+                        <MenuItem icon={<Page />} onClick={handleOnSavePatternClick}>
+                            Pattern (.json)
+                        </MenuItem>
                     </MenuList>
                 </Menu>,
                 document.getElementById("header-actions-group") as any

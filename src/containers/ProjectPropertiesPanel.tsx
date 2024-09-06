@@ -54,7 +54,7 @@ export const ProjectPropertiesPanel: FC = () => {
         <Box
             alignItems={"start"}
             height={"100%"}
-            padding={1}
+            padding={3}
             position={"absolute"}
             right={0}
             top={0}

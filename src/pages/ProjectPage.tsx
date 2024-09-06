@@ -71,13 +71,8 @@ export const ProjectPage: FC = () => {
         "pink.100",
     ]);
     const { patternId } = useParams();
-    const { patterns, savePattern } = usePatternCollection();
-    const { setPattern, getPattern } = usePattern();
-
-    // useEffect(() => {
-    //     const pattern = patterns.find((pattern) => pattern.patternId === patternId);
-    //     setPattern(pattern as any);
-    // }, [patterns, setPattern]);
+    const { savePattern } = usePatternCollection();
+    const { getPattern } = usePattern();
 
     useEffect(() => {
         const intervalId = setInterval(() => {
