@@ -77,7 +77,7 @@ export const createBeadingGrid = (
             return {
                 name: name,
                 rows: Array.from({ length: rowCount }, () => ({
-                cells: Array.from({ length: columnCount }, () => CellBlankColor),
+                    cells: Array.from({ length: columnCount }, () => CellBlankColor),
                 })),
                 options: gridOptions,
             };
@@ -88,7 +88,7 @@ export const createBeadingGrid = (
             return {
                 name: name,
                 rows: Array.from({ length: rowCount }, () => ({
-                cells: Array.from({ length: columnCount }, () => CellBlankColor),
+                    cells: Array.from({ length: columnCount }, () => CellBlankColor),
                 })),
                 options: gridOptions,
             };
@@ -99,7 +99,7 @@ export const createBeadingGrid = (
             return {
                 name: name,
                 rows: Array.from({ length: rowCount }, () => ({
-                cells: Array.from({ length: columnCount }, () => CellBlankColor),
+                    cells: Array.from({ length: columnCount }, () => CellBlankColor),
                 })),
                 options: gridOptions,
             };

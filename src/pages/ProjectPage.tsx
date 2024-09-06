@@ -9,6 +9,7 @@ import {
     ToolsProvider,
     usePattern,
     usePatternCollection,
+    usePatternStore,
 } from "../components";
 import {
     BeadingPattern,
@@ -73,15 +74,17 @@ export const ProjectPage: FC = () => {
     const { patternId } = useParams();
     const { savePattern } = usePatternCollection();
     const { getPattern } = usePattern();
+    const { resetDirty } = usePatternStore();
 
     useEffect(() => {
         const intervalId = setInterval(() => {
             const pattern = getPattern();
             savePattern(pattern);
+            resetDirty();
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [getPattern]);
+    }, [getPattern, savePattern, resetDirty]);
 
     return (
         <PatternProvider>

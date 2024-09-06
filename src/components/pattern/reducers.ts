@@ -1,6 +1,6 @@
-import throttle from "just-throttle";
 import { ApplyGridOptionsAction, ApplyPatternOptionsAction, PatternActions } from "./actions";
-import { PatternState, SquareGridProperties } from "./types";
+import { DefaultGridOptions } from "./constants";
+import { PatternState } from "./types";
 import { applyGridOptions, createBeadingGrid, setGridCell } from "./utils";
 
 export const patternReducer = (state: PatternState, action: PatternActions): PatternState => {
@@ -20,14 +20,11 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
                 )
             }
         case "addGrid":
-            const options = {
-                type: "square",
-                height: 10,
-                width: 10,
-                drop: 1,
-                fringe: 0,
-            } as SquareGridProperties;
-            const grid = createBeadingGrid(`Grid ${state.gridCount + 1}`, options, state.options);
+            const grid = createBeadingGrid(
+                `Grid ${state.gridCount + 1}`,
+                DefaultGridOptions,
+                state.options
+            );
             return {
                 ...state,
                 grids: [...state.grids, grid],

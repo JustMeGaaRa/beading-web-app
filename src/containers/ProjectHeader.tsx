@@ -11,18 +11,30 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@chakra-ui/react";
-import { ArrowLeft, Page } from "iconoir-react";
-import { FC, ChangeEvent, useCallback } from "react";
+import { ArrowLeft, CloudCheck, CloudSync, Page } from "iconoir-react";
+import { FC, ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
     Header,
     PatternSummaryPanel,
     usePattern,
+    usePatternCollection,
+    usePatternStore,
 } from "../components";
 
 export const ProjectHeader: FC = () => {
     const navigate = useNavigate();
-    const { name, setPatternName } = usePattern();
+    const { name, getPattern, setPatternName } = usePattern();
+    const { savePattern } = usePatternCollection();
+    const { resetDirty } = usePatternStore();
+    const [isDirty, setIsDirty] = useState(false);
+
+    useEffect(() => {
+        return usePatternStore.subscribe(
+            (state) => state.isDirty,
+            (isDirty) => setIsDirty(isDirty)
+        );
+    }, [usePatternStore]);
 
     const handleOnChangeName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setPatternName(event.target.value);
@@ -31,6 +43,12 @@ export const ProjectHeader: FC = () => {
     const handleOnGoBackClick = useCallback(() => {
         navigate(-1);
     }, [navigate]);
+
+    const handleOnSyncClick = useCallback(() => {
+        const pattern = getPattern();
+        savePattern(pattern);
+        resetDirty();
+    }, [getPattern, resetDirty, savePattern]);
 
     return (
         <Header>
@@ -49,6 +67,15 @@ export const ProjectHeader: FC = () => {
                 </Editable>
             </HStack>
             <ButtonGroup id={"header-actions-group"} mr={2} size={"sm"} variant={"ghost"}>
+                <IconButton
+                    aria-label={"sync"}
+                    icon={isDirty ? <CloudSync /> : <CloudCheck />}
+                    color={isDirty ? "yellow.500" : "green.500"}
+                    size={"sm"}
+                    title={isDirty ? "pending changes" : "synchronized"}
+                    variant={"ghost"}
+                    onClick={handleOnSyncClick}
+                />
                 <Popover size={"xs"}>
                     <PopoverTrigger>
                         <IconButton
