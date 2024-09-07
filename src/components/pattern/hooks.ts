@@ -35,6 +35,10 @@ export const usePattern = () => {
         dispatch({ type: "setPatternCover", payload: { coverUrl } });
     }, [dispatch]);
 
+    const changePatternColor = useCallback((oldColor: string, newColor: string) => {
+        dispatch({ type: "changePatternColor", payload: { oldColor, newColor } });
+    }, [dispatch]);
+
     const setGridCellColor = useCallback((name: string, cell: BeadingGridCellState) => {
         dispatch({ type: "setGridCellColor", payload: { name, cell } });
     }, [dispatch]);
@@ -127,6 +131,7 @@ export const usePattern = () => {
         options,
         setPatternName,
         setPatternCover,
+        changePatternColor,
         setGridCellColor,
         addGrid,
         deleteGrid,

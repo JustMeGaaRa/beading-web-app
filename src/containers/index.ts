@@ -1,4 +1,5 @@
 export * from "./BeadingPattern";
+export * from "./ColorPalettePopover";
 export * from "./PatternCollectionExplorer";
 export * from "./ProjectHeader";
 export * from "./ProjectPropertiesPanel";

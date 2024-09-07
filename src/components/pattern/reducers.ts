@@ -11,6 +11,20 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
             return { ...state, name: action.payload.name };
         case "setPatternCover":
             return { ...state, coverUrl: action.payload.coverUrl };
+        case "changePatternColor":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => ({
+                    ...grid,
+                    rows: grid.rows.map((row) => ({
+                        ...row,
+                        cells: row.cells.map((cell) => cell === action.payload.oldColor
+                            ? action.payload.newColor
+                            : cell
+                        )
+                    }))
+                }))
+            };
         case "setGridCellColor":
             return {
                 ...state,

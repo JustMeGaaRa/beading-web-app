@@ -20,6 +20,7 @@ import {
     BeadingLayoutOptionsPanel,
     ColorPalette,
     usePattern,
+    useColorPalette,
 } from "../components";
 
 type BeadingGridConfiguration = Omit<BeadingGridState, "rows">;
@@ -33,6 +34,7 @@ export const ProjectPropertiesPanel: FC = () => {
         applyPatternOptions,
         applyGridOptions
     } = usePattern();
+    const { setSelectedColor } = useColorPalette();
 
     const handleOnAddGridClick = useCallback(() => {
         addGrid();
@@ -77,7 +79,7 @@ export const ProjectPropertiesPanel: FC = () => {
                             <AccordionIcon />
                         </AccordionButton>
                         <AccordionPanel maxHeight={"40vh"} overflowY={"scroll"}>
-                            <ColorPalette />
+                            <ColorPalette onSelect={setSelectedColor} />
                         </AccordionPanel>
                     </AccordionItem>
                 </Accordion>
