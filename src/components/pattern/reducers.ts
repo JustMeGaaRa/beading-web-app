@@ -1,7 +1,7 @@
-import { ApplyGridOptionsAction, ApplyPatternOptionsAction, PatternActions } from "./actions";
+import { ApplyGridOptionsAction, ApplyPatternOptionsAction, ChangePatternColorAction, PatternActions } from "./actions";
 import { DefaultGridOptions } from "./constants";
 import { PatternState } from "./types";
-import { applyGridOptions, createBeadingGrid, setGridCell } from "./utils";
+import { applyBeadingGridOptions, createBeadingGrid, setBeadingGridCell } from "./utils";
 
 export const patternReducer = (state: PatternState, action: PatternActions): PatternState => {
     switch (action.type) {
@@ -12,24 +12,12 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "setPatternCover":
             return { ...state, coverUrl: action.payload.coverUrl };
         case "changePatternColor":
-            return {
-                ...state,
-                grids: state.grids.map((grid) => ({
-                    ...grid,
-                    rows: grid.rows.map((row) => ({
-                        ...row,
-                        cells: row.cells.map((cell) => cell === action.payload.oldColor
-                            ? action.payload.newColor
-                            : cell
-                        )
-                    }))
-                }))
-            };
+            return changePatternColorReducer(state, action);
         case "setGridCellColor":
             return {
                 ...state,
                 grids: state.grids.map((grid) => grid.name === action.payload.name
-                    ? setGridCell(grid, action.payload.cell)
+                    ? setBeadingGridCell(grid, action.payload.cell)
                     : grid
                 )
             }
@@ -58,13 +46,32 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
     }
 };
 
+const changePatternColorReducer = (
+    state: PatternState,
+    action: ChangePatternColorAction
+): PatternState => {
+    return {
+        ...state,
+        grids: state.grids.map((grid) => ({
+            ...grid,
+            rows: grid.rows.map((row) => ({
+                ...row,
+                cells: row.cells.map((cell) => cell === action.payload.oldColor
+                    ? action.payload.newColor
+                    : cell
+                )
+            }))
+        }))
+    }
+}
+
 const applyPatternOptionsReducer = (
     state: PatternState,
     action: ApplyPatternOptionsAction
 ): PatternState => {
     return {
         ...state,
-        grids: state.grids.map((grid) => applyGridOptions(grid, grid.options, action.payload.options)),
+        grids: state.grids.map((grid) => applyBeadingGridOptions(grid, grid.options, action.payload.options)),
         options: action.payload.options
     };
 };
@@ -76,7 +83,7 @@ const applyGridOptionsReducer = (
     return {
         ...state,
         grids: state.grids.map((grid) => grid.name === action.payload.name
-            ? applyGridOptions(grid, action.payload.options, state.options)
+            ? applyBeadingGridOptions(grid, action.payload.options, state.options)
             : grid
         )
     };

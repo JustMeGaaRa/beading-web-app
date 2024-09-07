@@ -8,13 +8,19 @@ import {
     Undo,
 } from "iconoir-react";
 import { FC, useCallback } from "react";
-import { ColorBox, usePatterHistory, usePattern, useTools } from "../components";
+import { useHotkeys } from "react-hotkeys-hook";
+import { usePatterHistory, usePattern, useTools } from "../components";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 export const ProjectToolsPanel: FC = () => {
     const { selectedTool, setSelectedTool } = useTools();
     const { getSummary } = usePattern();
     const { undo, redo } = usePatterHistory();
+
+    useHotkeys("ctrl+1", () => setSelectedTool("cursor"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+2", () => setSelectedTool("pencil"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+3", () => setSelectedTool("eraser"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+4", () => setSelectedTool("picker"), { preventDefault: true }, [setSelectedTool]);
 
     const handleOnUndoClick = useCallback(() => undo(), [undo]);
 
@@ -74,7 +80,7 @@ export const ProjectToolsPanel: FC = () => {
                 </ButtonGroup>
                 {getSummary().beads.length > 0 && (
                     <VStack position={"relative"} gap={1} marginY={2}>
-                        {getSummary().beads.slice(0, 5).map((bead, index) => (
+                        {getSummary().beads.map((bead, index) => (
                             <ColorPalettePopover key={index} {...bead} />
                         ))}
                     </VStack>

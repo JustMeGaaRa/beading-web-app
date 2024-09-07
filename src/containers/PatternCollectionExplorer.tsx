@@ -45,7 +45,7 @@ export const PatternCollectionExplorer: FC = () => {
             <Box background={"blue.100"} borderRadius={8} padding={4} mb={4}>
                 <Text color={"blackAlpha.900"} fontWeight={600}>Please Note:</Text>
                 <Text color={"blackAlpha.700"}>
-                    All your projects are saved locally in your browser. This means they may be lost at any time, especially if you clear your browser data or use private/incognito tabs. In private tabs, all data will be lost when the tab is closed. To avoid losing your work, please make sure to save each file from your project card regularly.
+                    All your projects are saved locally in your browser. This means they may be lost at any time, especially if you clear your browser data or use private/incognito tabs. To avoid losing your work, please make sure to save each file from your project card regularly.
                     Thank you for understanding and happy creating! 😊
                 </Text>
             </Box>

@@ -1,6 +1,17 @@
 import { v6 } from "uuid";
-import { CellBlankColor, DefaultPatternOptions } from "./constants";
-import { BeadingGridCellState, BeadingGridProperties, BeadingGridRow, BeadingGridState, PatternOptions, PatternState } from "./types";
+import {
+    CellBlankColor,
+    CellPixelRatio,
+    DefaultPatternOptions
+} from "./constants";
+import {
+    BeadingGridCellState,
+    BeadingGridProperties,
+    BeadingGridRow,
+    BeadingGridState,
+    PatternOptions,
+    PatternState
+} from "./types";
 
 export const createDefaultPattern = () => {
     return {
@@ -107,23 +118,23 @@ export const createBeadingGrid = (
     }
 };
 
-export const setGridCell = (
+export const setBeadingGridCell = (
     grid: BeadingGridState,
     cell: BeadingGridCellState
 ): BeadingGridState => {
     return {
         ...grid,
         rows: grid.rows.map((gridRow, rowIndex) => ({
-        cells: gridRow.cells.map((gridCell, columnIndex) =>
-            rowIndex === cell.row && columnIndex === cell.column
-            ? cell.color
-            : gridCell
-        ),
-        })),
+            cells: gridRow.cells.map((gridCell, columnIndex) =>
+                rowIndex === cell.row && columnIndex === cell.column
+                ? cell.color
+                : gridCell
+            )
+        }))
     };
 };
 
-export const applyGridOptions = (
+export const applyBeadingGridOptions = (
     grid: BeadingGridState,
     modifiedGridOptions: BeadingGridProperties,
     options: PatternOptions
@@ -144,8 +155,69 @@ export const applyGridOptions = (
     return modifiedGrid;
 };
 
-export const getGridMetadata = (grid: BeadingGridState, options: PatternOptions) => {
+export type PatternMetadata = Record<string, {
+    position: { x: number; y: number };
+    size: { height: number; width: number };
+    divider: { isVisible: boolean; points: Array<number> };
+}>;
 
+export const getPatternMetadata = (pattern: PatternState, options: PatternOptions) => {
+    let offsetX = 0;
+    let offsetY = 0;
+    const initialMetadata = {} as PatternMetadata;
+    const isHorizontal = options.layout.orientation === "horizontal";
+
+    const metadata = pattern.grids.reduce((metadata, grid, index) => {
+        const gridPosition = { x: offsetX, y: offsetY };
+        const gridSize = getBeadingGridSize(grid, options);
+        const dividerPoints = isHorizontal
+            ? [gridSize.width, 0, gridSize.width, gridSize.height]
+            : [0, gridSize.height, gridSize.width, gridSize.height];
+        const isGridDividerVisible = index < pattern.grids.length - 1;
+
+        const gridMetadata = {
+            ...metadata,
+            [grid.name]: {
+                position: gridPosition,
+                size: gridSize,
+                divider: {
+                    isVisible: isGridDividerVisible,
+                    points: dividerPoints,
+                },
+            },
+        };
+
+        offsetX = isHorizontal ? offsetX + gridSize.width : 0;
+        offsetY = isHorizontal ? 0 : offsetY + gridSize.height;
+
+        return gridMetadata;
+    }, initialMetadata);
+
+    return { metadata };
+};
+
+export const getBeadingGridSize = (
+    grid: BeadingGridState,
+    options: PatternOptions,
+) => {
+    const isHorizontal = options.layout.orientation === "horizontal";
+    const isBrickType = grid.options.type === "brick";
+
+    const cellHeight = isBrickType
+        ? options.layout.beadSize.width
+        : options.layout.beadSize.height;
+    const cellWidth = isBrickType
+        ? options.layout.beadSize.height
+        : options.layout.beadSize.width;
+
+    const height = isHorizontal
+        ? options.layout.height * cellHeight * CellPixelRatio
+        : grid.options.height * cellHeight * CellPixelRatio;
+    const width = isHorizontal
+        ? grid.options.width * cellWidth * CellPixelRatio
+        : options.layout.width * cellWidth * CellPixelRatio;
+
+    return { height, width };
 };
 
 export const isNullOrEmpty = (str?: string) => {
