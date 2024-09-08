@@ -155,21 +155,43 @@ export const applyBeadingGridOptions = (
     return modifiedGrid;
 };
 
-export type PatternMetadata = Record<string, {
+export type BeadingGridMetadata = {
     position: { x: number; y: number };
     size: { height: number; width: number };
     divider: { isVisible: boolean; points: Array<number> };
-}>;
+};
 
-export const getPatternMetadata = (pattern: PatternState, options: PatternOptions) => {
+export type PatternMetadata = {
+    size: { height: number; width: number };
+    grids: Record<string, BeadingGridMetadata>;
+};
+
+export const getPatternSize = (pattern: PatternState, options: PatternOptions) => {
+    const isHorizontal = options.layout.orientation === "horizontal";
+    const height = isHorizontal
+        ? options.layout.height
+        : pattern.grids.reduce((totalHeight, grid) =>
+            totalHeight + grid.options.height,
+            0
+        );
+    const width = isHorizontal
+        ? pattern.grids.reduce((totalWidth, grid) =>
+            totalWidth + grid.options.width,
+            0
+        )
+        : options.layout.width;
+
+    return { height, width };
+};
+
+export const getPatternMetadata = (pattern: PatternState, options: PatternOptions): PatternMetadata => {
     let offsetX = 0;
     let offsetY = 0;
-    const initialMetadata = {} as PatternMetadata;
     const isHorizontal = options.layout.orientation === "horizontal";
 
-    const metadata = pattern.grids.reduce((metadata, grid, index) => {
+    const gridMetadata = pattern.grids.reduce((metadata, grid, index) => {
         const gridPosition = { x: offsetX, y: offsetY };
-        const gridSize = getBeadingGridSize(grid, options);
+        const gridSize = getBeadingGridRenderSize(grid, options);
         const dividerPoints = isHorizontal
             ? [gridSize.width, 0, gridSize.width, gridSize.height]
             : [0, gridSize.height, gridSize.width, gridSize.height];
@@ -191,12 +213,15 @@ export const getPatternMetadata = (pattern: PatternState, options: PatternOption
         offsetY = isHorizontal ? 0 : offsetY + gridSize.height;
 
         return gridMetadata;
-    }, initialMetadata);
+    }, {} as Record<string, BeadingGridMetadata>);
 
-    return { metadata };
+    return {
+        size: { height: offsetX, width: offsetY },
+        grids: gridMetadata
+    };
 };
 
-export const getBeadingGridSize = (
+export const getBeadingGridRenderSize = (
     grid: BeadingGridState,
     options: PatternOptions,
 ) => {

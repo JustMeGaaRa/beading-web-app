@@ -5,6 +5,7 @@ export const CellStrokeColor = "#718096";
 export const CellDotColor = "#000000A3";
 export const CellBlankColor = "";
 export const DividerStrokeColor = "#00000029";
+export const FrameTextColor = "#718096";
 
 export const DefaultGridOptions: BeadingGridProperties = {
     type: "brick",

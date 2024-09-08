@@ -14,6 +14,7 @@ import {
 } from "iconoir-react";
 import {
     FC,
+    PropsWithChildren,
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -39,6 +40,9 @@ import {
     BeadingGridState,
     BrickGridProperties,
     getPatternMetadata,
+    PatternOptions,
+    FrameTextColor,
+    getPatternSize,
 } from "../components";
 import {
     CellBlankColor,
@@ -187,7 +191,7 @@ export const BeadingPattern: FC = () => {
         onOpen();
     }, [onOpen]);
 
-    const { metadata } = useMemo(() => getPatternMetadata(getPattern(), options), [getPattern, options]);
+    const metadata = useMemo(() => getPatternMetadata(getPattern(), options), [getPattern, options]);
 
     const handleOnWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
         event.evt.preventDefault();
@@ -262,86 +266,89 @@ export const BeadingPattern: FC = () => {
                 onTouchEnd={handleOnTouchEnd}
                 onWheel={handleOnWheel}
             >
-            {grids.map((grid) => {
-                switch (grid.options.type) {
-                    case "square":
-                        return (
-                            <Layer
-                                key={grid.name}
-                                x={metadata[grid.name].position.x}
-                                y={metadata[grid.name].position.y}
-                            >
-                                <SquareGrid
-                                    grid={grid}
-                                    beadSize={options.layout.beadSize}
-                                    onBeadingClick={handleOnBeadingClick}
-                                    onBeadingPointerDown={handleOnBeadingPointerDown}
-                                    onBeadingPointerUp={handleOnBeadingPointerUp}
-                                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                                />
-                                <Text text={grid.name} fill={DividerStrokeColor} />
-                                {metadata[grid.name].divider.isVisible && (
-                                    <Line
-                                        points={metadata[grid.name].divider.points}
-                                        stroke={DividerStrokeColor}
-                                        strokeWidth={1}
+                <Layer>
+                    <PatternFrame
+                        {...getPatternSize(getPattern(), options)}
+                        options={options}
+                    />
+                </Layer>
+                {grids.map((grid) => {
+                    switch (grid.options.type) {
+                        case "square":
+                            return (
+                                <Layer
+                                    key={grid.name}
+                                    x={metadata.grids[grid.name].position.x}
+                                    y={metadata.grids[grid.name].position.y}
+                                >
+                                    <SquareGrid
+                                        grid={grid}
+                                        beadSize={options.layout.beadSize}
+                                        onBeadingClick={handleOnBeadingClick}
+                                        onBeadingPointerDown={handleOnBeadingPointerDown}
+                                        onBeadingPointerUp={handleOnBeadingPointerUp}
+                                        onBeadingPointerEnter={handleOnBeadingPointerEnter}
                                     />
-                                )}
-                            </Layer>
-                        );
-                    case "peyote":
-                        return (
-                            <Layer
-                                key={grid.name}
-                                x={metadata[grid.name].position.x}
-                                y={metadata[grid.name].position.y}
-                            >
-                                <PeyoteGrid
-                                    grid={grid}
-                                    beadSize={options.layout.beadSize}
-                                    onBeadingClick={handleOnBeadingClick}
-                                    onBeadingPointerDown={handleOnBeadingPointerDown}
-                                    onBeadingPointerUp={handleOnBeadingPointerUp}
-                                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                                />
-                                <Text text={grid.name} fill={DividerStrokeColor} />
-                                {metadata[grid.name].divider.isVisible && (
-                                    <Line
-                                        points={metadata[grid.name].divider.points}
-                                        stroke={DividerStrokeColor}
-                                        strokeWidth={1}
+                                    {metadata.grids[grid.name].divider.isVisible && (
+                                        <Line
+                                            points={metadata.grids[grid.name].divider.points}
+                                            stroke={DividerStrokeColor}
+                                            strokeWidth={1}
+                                        />
+                                    )}
+                                </Layer>
+                            );
+                        case "peyote":
+                            return (
+                                <Layer
+                                    key={grid.name}
+                                    x={metadata.grids[grid.name].position.x}
+                                    y={metadata.grids[grid.name].position.y}
+                                >
+                                    <PeyoteGrid
+                                        grid={grid}
+                                        beadSize={options.layout.beadSize}
+                                        onBeadingClick={handleOnBeadingClick}
+                                        onBeadingPointerDown={handleOnBeadingPointerDown}
+                                        onBeadingPointerUp={handleOnBeadingPointerUp}
+                                        onBeadingPointerEnter={handleOnBeadingPointerEnter}
                                     />
-                                )}
-                            </Layer>
-                        );
-                    case "brick":
-                        return (
-                            <Layer
-                                key={grid.name}
-                                x={metadata[grid.name].position.x}
-                                y={metadata[grid.name].position.y}
-                            >
-                                <BrickGrid
-                                    grid={grid}
-                                    beadSize={options.layout.beadSize}
-                                    options={grid.options}
-                                    onBeadingClick={handleOnBeadingClick}
-                                    onBeadingPointerDown={handleOnBeadingPointerDown}
-                                    onBeadingPointerUp={handleOnBeadingPointerUp}
-                                    onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                                />
-                                <Text text={grid.name} fill={DividerStrokeColor} />
-                                {metadata[grid.name].divider.isVisible && (
-                                    <Line
-                                        points={metadata[grid.name].divider.points}
-                                        stroke={DividerStrokeColor}
-                                        strokeWidth={1}
+                                    {metadata.grids[grid.name].divider.isVisible && (
+                                        <Line
+                                            points={metadata.grids[grid.name].divider.points}
+                                            stroke={DividerStrokeColor}
+                                            strokeWidth={1}
+                                        />
+                                    )}
+                                </Layer>
+                            );
+                        case "brick":
+                            return (
+                                <Layer
+                                    key={grid.name}
+                                    x={metadata.grids[grid.name].position.x}
+                                    y={metadata.grids[grid.name].position.y}
+                                >
+                                    <BrickGrid
+                                        grid={grid}
+                                        beadSize={options.layout.beadSize}
+                                        options={grid.options}
+                                        onBeadingClick={handleOnBeadingClick}
+                                        onBeadingPointerDown={handleOnBeadingPointerDown}
+                                        onBeadingPointerUp={handleOnBeadingPointerUp}
+                                        onBeadingPointerEnter={handleOnBeadingPointerEnter}
                                     />
-                                )}
-                            </Layer>
-                        );
-                }
-            })}
+                                    {metadata.grids[grid.name].divider.isVisible && (
+                                        <Line
+                                            points={metadata.grids[grid.name].divider.points}
+                                            stroke={DividerStrokeColor}
+                                            strokeWidth={1}
+                                        />
+                                    )}
+                                </Layer>
+                            );
+                    }
+                })}
             </Stage>
             <Menu isOpen={isOpen} onClose={onClose} closeOnBlur closeOnSelect>
                 <MenuList>
@@ -372,6 +379,76 @@ export const BeadingPattern: FC = () => {
                 document.getElementById("header-actions-group") as any
             )}
         </Box>
+    );
+};
+
+const PatternFrame: FC<{
+    width: number;
+    height: number;
+    options: PatternOptions;
+}> = ({
+    width: columns,
+    height: rows,
+    options
+}) => {
+    const cellWidth = options.layout.beadSize.width * CellPixelRatio;
+    const cellHeight = options.layout.beadSize.height * CellPixelRatio;
+    
+    return (
+        <Group>
+            {Array.from({ length: columns }, (_, index) => (
+                <>
+                    <Text
+                        key={`top-column-${index}`}
+                        x={index * cellWidth}
+                        y={-cellWidth * 1.5}
+                        text={(index + 1).toString()}
+                        align={"center"}
+                        verticalAlign={"middle"}
+                        height={cellHeight}
+                        width={cellWidth}
+                        fill={FrameTextColor}
+                    />
+                    <Text
+                        key={`bottom-column-${index}`}
+                        x={index * cellWidth}
+                        y={rows * cellHeight}
+                        text={(index + 1).toString()}
+                        align={"center"}
+                        verticalAlign={"middle"}
+                        height={cellHeight}
+                        width={cellWidth}
+                        fill={FrameTextColor}
+                    />
+                </>
+            ))}
+            {Array.from({ length: rows }, (_, index) => (
+                <>
+                    <Text
+                        key={`left-row-${index}`}
+                        x={-cellWidth * 1.5}
+                        y={index * cellHeight}
+                        align={"right"}
+                        verticalAlign={"middle"}
+                        height={cellHeight}
+                        width={cellWidth}
+                        text={(index + 1).toString()}
+                        fill={FrameTextColor}
+                    />
+                    <Text
+                        key={`right-row-${index}`}
+                        x={columns * cellWidth}
+                        y={index * cellHeight}
+                        align={"right"}
+                        verticalAlign={"middle"}
+                        height={cellHeight}
+                        width={cellWidth}
+                        text={(index + 1).toString()}
+                        fill={FrameTextColor}
+                    />
+                </>
+            ))}
+        </Group>
     );
 };
 
@@ -436,6 +513,7 @@ const SquareGrid: FC<{
                     />
                 ))
             )}
+            <Text text={grid.name} fill={DividerStrokeColor} />
         </Group>
     );
 };
@@ -501,6 +579,7 @@ const PeyoteGrid: FC<{
                     />
                 ))
             )}
+            <Text text={grid.name} fill={DividerStrokeColor} />
         </Group>
     );
 };
@@ -574,6 +653,7 @@ const BrickGrid: FC<{
                     />
                 ))
             )}
+            <Text text={grid.name} fill={DividerStrokeColor} />
         </Group>
     );
 };
