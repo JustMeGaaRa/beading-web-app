@@ -3,25 +3,13 @@ import { usePatternStore } from "./store";
 import {
     BeadingGridCellState,
     BeadingGridProperties,
-    BeadSize,
     PatternOptions,
     PatternState,
-    PatternSummary
 } from "./types";
-import { isNullOrEmpty } from "./utils";
 import { useStore } from "zustand";
 
 export const usePattern = () => {
-    const {
-        patternId,
-        lastModified,
-        coverUrl,
-        name,
-        grids,
-        options,
-        gridCount,
-        dispatch
-    } = usePatternStore();
+    const { pattern, dispatch } = usePatternStore();
 
     const setPattern = useCallback((pattern: PatternState) => {
         dispatch({ type: "setPattern", payload: { pattern } });
@@ -59,76 +47,40 @@ export const usePattern = () => {
         dispatch({ type: "applyGridOptions", payload: { name, options } });
     }, [dispatch]);
 
-    const getPattern = useCallback((): PatternState => {
-        return {
-            patternId,
-            name,
-            lastModified,
-            coverUrl,
-            options,
-            grids,
-            gridCount,
-        }
-    }, [patternId, name, lastModified, coverUrl, options, grids, gridCount]);
+    const addGridColumnLeft = useCallback((name: string, column: number) => {
+        dispatch({ type: "addGridColumnLeft", payload: { name, column } });
+    }, [dispatch]);
 
-    const getSummary = useCallback((): PatternSummary => {
-        const beadItems = new Map<string, number>();
-        grids.forEach((gridState) => {
-            gridState.rows.forEach((rowState) => {
-                rowState.cells
-                    .filter((cell) => !isNullOrEmpty(cell))
-                    .forEach((cell) =>
-                        beadItems.set(cell, (beadItems.get(cell) || 0) + 1)
-                    );
-            });
-        });
-        const beads = Array.from(beadItems.keys()).map((key) => ({
-            color: key,
-            colorName: key,
-            number: beadItems.get(key) || 0,
-        }));
-        const totalBeads = grids.reduce((patternTotal, gridState) => {
-            const gridTotal = gridState.rows.reduce((gridTotal, rowState) => {
-                const rowTotal = rowState.cells.filter((cell) => !isNullOrEmpty(cell)).length;
-                return gridTotal + rowTotal;
-            }, 0);
-            return patternTotal + gridTotal;
-        }, 0);
-        const totalHeight =
-        options.layout.orientation === "vertical"
-            ? grids
-                .reduce((totalHeight, gridState) =>
-                    totalHeight + gridState.options.height * options.layout.beadSize.height,
-                    0
-                )
-            : grids
-                .map((gridState) => gridState.rows.length)
-                .reduce((max, height) =>
-                    max > height ? max : height * options.layout.beadSize.height,
-                    0
-                );
-        const totalWidth =
-        options.layout.orientation === "vertical"
-            ? options.layout.width
-            : options.layout.width * grids.length * options.layout.beadSize.width;
-        const totalSize: BeadSize = {
-            title: `${totalHeight.toFixed(2)} x ${totalWidth.toFixed(2)} mm`,
-            height: totalHeight,
-            width: totalWidth,
-        };
+    const addGridColumnRight = useCallback((name: string, column: number) => {
+        dispatch({ type: "addGridColumnRight", payload: { name, column } });
+    }, [dispatch]);
 
-        return {
-            totalBeads,
-            beadSize: options.layout.beadSize,
-            totalSize,
-            beads,
-        };
-    }, [grids, options]);
+    const deleteGridColumn = useCallback((name: string, column: number) => {
+        dispatch({ type: "deleteGridColumn", payload: { name, column } });
+    }, [dispatch]);
+
+    const clearGridColumn = useCallback((name: string, column: number) => {
+        dispatch({ type: "clearGridColumn", payload: { name, column } });
+    }, [dispatch]);
+
+    const addGridRowAbove = useCallback((name: string, row: number) => {
+        dispatch({ type: "addGridRowAbove", payload: { name, row } });
+    }, [dispatch]);
+
+    const addGridRowBelow = useCallback((name: string, row: number) => {
+        dispatch({ type: "addGridRowBelow", payload: { name, row } });
+    }, [dispatch]);
+
+    const deleteGridRow = useCallback((name: string, row: number) => {
+        dispatch({ type: "deleteGridRow", payload: { name, row } });
+    }, [dispatch]);
+
+    const clearGridRow = useCallback((name: string, row: number) => {
+        dispatch({ type: "clearGridRow", payload: { name, row } });
+    }, [dispatch]);
 
     return {
-        name,
-        grids,
-        options,
+        pattern,
         setPatternName,
         setPatternCover,
         changePatternColor,
@@ -138,8 +90,14 @@ export const usePattern = () => {
         setPattern,
         applyPatternOptions,
         applyGridOptions,
-        getPattern,
-        getSummary,
+        addGridColumnLeft,
+        addGridColumnRight,
+        deleteGridColumn,
+        clearGridColumn,
+        addGridRowAbove,
+        addGridRowBelow,
+        deleteGridRow,
+        clearGridRow,
     };
 };
 

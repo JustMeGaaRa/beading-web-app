@@ -7,7 +7,8 @@ import { patternReducer } from "./reducers";
 import { createDefaultPattern } from "./utils";
 import debounce from "just-debounce-it";
 
-export type PatternStore = PatternState & {
+export type PatternStore = {
+    pattern: PatternState;
     isDirty: boolean;
     resetDirty: () => void;
     dispatch: (action: PatternActions) => void;
@@ -17,10 +18,14 @@ export const usePatternStore = create(
     temporal(
         subscribeWithSelector<PatternStore>(
             (set) => ({
-                ...createDefaultPattern(),
+                pattern: createDefaultPattern(),
                 isDirty: false,
                 resetDirty: () => set({ isDirty: false }),
-                dispatch: (action) => set((state) => ({ ...patternReducer(state, action), isDirty: true }))
+                dispatch: (action) => set((state) => ({
+                    ...state,
+                    pattern: patternReducer(state.pattern, action),
+                    isDirty: true
+                }))
             })
         ), {
             limit: 100,

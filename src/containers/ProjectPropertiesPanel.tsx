@@ -27,8 +27,7 @@ type BeadingGridConfiguration = Omit<BeadingGridState, "rows">;
 
 export const ProjectPropertiesPanel: FC = () => {
     const {
-        grids,
-        options,
+        pattern,
         addGrid,
         deleteGrid,
         applyPatternOptions,
@@ -58,11 +57,12 @@ export const ProjectPropertiesPanel: FC = () => {
             height={"100%"}
             padding={3}
             position={"absolute"}
+            pointerEvents={"none"}
             right={0}
             top={0}
             zIndex={1}
         >
-            <Box borderRadius={"md"} height={"100%"} width={220}>
+            <Box pointerEvents={"auto"} width={220}>
                 <Accordion
                     allowToggle
                     backgroundColor={"white"}
@@ -105,14 +105,14 @@ export const ProjectPropertiesPanel: FC = () => {
                                 spacing={4}
                             >
                                 <BeadingLayoutOptionsPanel
-                                    layout={options.layout}
+                                    layout={pattern.options.layout}
                                     onChange={handleOnLayoutChange}
                                 />
-                                {grids.map((grid) => (
+                                {pattern.grids.map((grid) => (
                                     <BeadingGridOptionsPanel
                                         key={grid.name}
-                                        canDelete={grids.length > 1}
-                                        isHorizontal={options.layout.orientation === "horizontal"}
+                                        canDelete={pattern.grids.length > 1}
+                                        isHorizontal={pattern.options.layout.orientation === "horizontal"}
                                         name={grid.name}
                                         options={grid.options}
                                         onChange={handleOnOptionsChange}

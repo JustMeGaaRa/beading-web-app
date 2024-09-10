@@ -4,13 +4,11 @@ import { FC, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
     createDefaultPattern,
-    downloadUri,
     PatternCard,
     PatternState,
-    toJsonUri,
-    usePattern,
     usePatternCollection
 } from "../components";
+import { downloadUri, toJsonUri } from "../utils";
 
 export type PatternCollectionState = {
     patterns: Array<PatternState>;
@@ -20,11 +18,9 @@ export const PatternCollectionExplorer: FC = () => {
     const navigate = useNavigate();
     const gridColumns = useBreakpointValue({ base: 1, md: 2, lg: 3, xl: 4, "2xl": 5 });
     const { patterns, addPattern, deletePattern } = usePatternCollection();
-    const { setPattern } = usePattern();
 
     const handleOnPatternClick = useCallback((pattern: PatternState) => {
         navigate(`/patterns/${pattern.patternId}`);
-        setPattern(pattern);
     }, [navigate]);
 
     const handleOnPatternDelete = useCallback((pattern: PatternState) => {

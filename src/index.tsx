@@ -8,14 +8,14 @@ const rootElement = document.getElementById("root")!;
 const root = ReactDOM.createRoot(rootElement);
 
 const theme = extendTheme({
-  initialColorMode: "light",
-  useSystemColorMode: false,
+    initialColorMode: "light",
+    useSystemColorMode: false,
 });
 
 root.render(
-  <React.StrictMode>
-    <ChakraProvider resetCSS theme={theme}>
-      <RouterProvider router={routes} />
-    </ChakraProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <ChakraProvider resetCSS theme={theme}>
+            <RouterProvider router={routes} />
+        </ChakraProvider>
+    </React.StrictMode>
 );

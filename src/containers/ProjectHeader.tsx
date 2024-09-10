@@ -12,7 +12,7 @@ import {
     PopoverTrigger,
 } from "@chakra-ui/react";
 import { ArrowLeft, CloudCheck, CloudSync, Page } from "iconoir-react";
-import { FC, ChangeEvent, useCallback, useEffect, useState } from "react";
+import { FC, ChangeEvent, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
     Header,
@@ -24,31 +24,34 @@ import {
 
 export const ProjectHeader: FC = () => {
     const navigate = useNavigate();
-    const { name, getPattern, setPatternName } = usePattern();
+    const editableRef = useRef<HTMLInputElement>(null);
+    const { pattern, setPatternName } = usePattern();
     const { savePattern } = usePatternCollection();
-    const { resetDirty } = usePatternStore();
-    const [isDirty, setIsDirty] = useState(false);
+    const { isDirty, resetDirty } = usePatternStore();
 
     useEffect(() => {
-        return usePatternStore.subscribe(
-            (state) => state.isDirty,
-            (isDirty) => setIsDirty(isDirty)
-        );
-    }, [usePatternStore]);
+        const intervalId = setInterval(() => {
+            if (isDirty) {
+                savePattern(pattern);
+                resetDirty();
+            }
+        }, 5000);
+            
+        return () => clearInterval(intervalId);
+    }, [pattern, isDirty, savePattern, resetDirty]);
 
     const handleOnChangeName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setPatternName(event.target.value);
     }, [setPatternName]);
 
     const handleOnGoBackClick = useCallback(() => {
-        navigate(-1);
+        navigate("/");
     }, [navigate]);
 
     const handleOnSyncClick = useCallback(() => {
-        const pattern = getPattern();
         savePattern(pattern);
         resetDirty();
-    }, [getPattern, resetDirty, savePattern]);
+    }, [pattern, resetDirty, savePattern]);
 
     return (
         <Header>
@@ -61,9 +64,9 @@ export const ProjectHeader: FC = () => {
                     variant={"ghost"}
                     onClick={handleOnGoBackClick}
                 />
-                <Editable value={name} ml={2}>
+                <Editable value={pattern.name} ml={2}>
                     <EditablePreview />
-                    <EditableInput onChange={handleOnChangeName} />
+                    <EditableInput ref={editableRef} onChange={handleOnChangeName} />
                 </Editable>
             </HStack>
             <ButtonGroup id={"header-actions-group"} mr={2} size={"sm"} variant={"ghost"}>

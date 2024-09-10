@@ -2,6 +2,7 @@ import { Box, ButtonGroup, IconButton, StackDivider, VStack } from "@chakra-ui/r
 import {
     ColorPicker,
     CursorPointer,
+    DragHandGesture,
     EditPencil,
     Erase,
     Redo,
@@ -9,18 +10,19 @@ import {
 } from "iconoir-react";
 import { FC, useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { usePatterHistory, usePattern, useTools } from "../components";
+import { getSummary, PatternSummary, usePatterHistory, usePattern, useTools } from "../components";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 export const ProjectToolsPanel: FC = () => {
     const { selectedTool, setSelectedTool } = useTools();
-    const { getSummary } = usePattern();
+    const { pattern } = usePattern();
     const { undo, redo } = usePatterHistory();
 
-    useHotkeys("ctrl+1", () => setSelectedTool("cursor"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+2", () => setSelectedTool("pencil"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+3", () => setSelectedTool("eraser"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+4", () => setSelectedTool("picker"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+1", () => setSelectedTool("drag"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+2", () => setSelectedTool("cursor"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+3", () => setSelectedTool("pencil"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+4", () => setSelectedTool("eraser"), { preventDefault: true }, [setSelectedTool]);
+    useHotkeys("ctrl+5", () => setSelectedTool("picker"), { preventDefault: true }, [setSelectedTool]);
 
     const handleOnUndoClick = useCallback(() => undo(), [undo]);
 
@@ -30,6 +32,7 @@ export const ProjectToolsPanel: FC = () => {
         <Box
             padding={3}
             position={"absolute"}
+            pointerEvents={"none"}
             left={0}
             top={"50%"}
             transform={"translate(0, -50%)"}
@@ -40,7 +43,7 @@ export const ProjectToolsPanel: FC = () => {
                 borderRadius={"md"}
                 divider={<StackDivider borderColor={"blackAlpha.300"} />}
                 padding={1}
-                position={"relative"}
+                pointerEvents={"auto"}
             >
                 <ButtonGroup
                     colorScheme={"gray"}
@@ -49,6 +52,13 @@ export const ProjectToolsPanel: FC = () => {
                     size={"sm"}
                     variant={"ghost"}
                 >
+                    <IconButton
+                        aria-label={"drag"}
+                        icon={<DragHandGesture />}
+                        isActive={selectedTool === "drag"}
+                        title={"Drag"}
+                        onClick={() => setSelectedTool("drag")}
+                    />
                     <IconButton
                         aria-label={"cursor"}
                         icon={<CursorPointer />}
@@ -78,13 +88,7 @@ export const ProjectToolsPanel: FC = () => {
                         onClick={() => setSelectedTool("picker")}
                     />
                 </ButtonGroup>
-                {getSummary().beads.length > 0 && (
-                    <VStack position={"relative"} gap={1} marginY={2}>
-                        {getSummary().beads.map((bead, index) => (
-                            <ColorPalettePopover key={index} {...bead} />
-                        ))}
-                    </VStack>
-                )}
+                <BeadColorStack summary={getSummary(pattern)} />
                 <ButtonGroup
                     colorScheme={"gray"}
                     orientation={"vertical"}
@@ -107,5 +111,21 @@ export const ProjectToolsPanel: FC = () => {
                 </ButtonGroup>
             </VStack>
         </Box>
+    );
+};
+
+export const BeadColorStack: FC<{
+    summary: PatternSummary;
+}> = ({
+    summary
+}) => {
+    if (!summary || summary.beads.length === 0) return null;
+
+    return (
+        <VStack position={"relative"} gap={1} marginY={2}>
+            {summary.beads.map((bead, index) => (
+                <ColorPalettePopover key={index} {...bead} />
+            ))}
+        </VStack>
     );
 };

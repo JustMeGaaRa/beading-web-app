@@ -1,7 +1,7 @@
-import { ApplyGridOptionsAction, ApplyPatternOptionsAction, ChangePatternColorAction, PatternActions } from "./actions";
+import { PatternActions } from "./actions";
 import { DefaultGridOptions } from "./constants";
 import { PatternState } from "./types";
-import { applyBeadingGridOptions, createBeadingGrid, setBeadingGridCell } from "./utils";
+import { applyBeadingGridOptions, applyPatternOptions, changePatternColor, clearGridColumn, clearGridRow, createBeadingGrid, deleteGridColumn, deleteGridRow, insertGridColumn, insertGridRow, setBeadingGridCell } from "./utils";
 
 export const patternReducer = (state: PatternState, action: PatternActions): PatternState => {
     switch (action.type) {
@@ -12,24 +12,23 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "setPatternCover":
             return { ...state, coverUrl: action.payload.coverUrl };
         case "changePatternColor":
-            return changePatternColorReducer(state, action);
-        case "setGridCellColor":
-            return {
-                ...state,
-                grids: state.grids.map((grid) => grid.name === action.payload.name
-                    ? setBeadingGridCell(grid, action.payload.cell)
-                    : grid
-                )
-            }
-        case "addGrid":
-            const grid = createBeadingGrid(
-                `Grid ${state.gridCount + 1}`,
-                DefaultGridOptions,
-                state.options
+            return changePatternColor(
+                state,
+                action.payload.oldColor,
+                action.payload.newColor
             );
+        case "applyPatternOptions":
+            return applyPatternOptions(
+                state,
+                action.payload.options
+            );
+        case "addGrid":
             return {
                 ...state,
-                grids: [...state.grids, grid],
+                grids: [
+                    ...state.grids,
+                    createBeadingGrid(state.gridCount, DefaultGridOptions, state.options)
+                ],
                 gridCount: state.gridCount + 1
             };
         case "deleteGrid":
@@ -37,54 +36,149 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
                 ...state,
                 grids: state.grids.filter((grid) => grid.name !== action.payload.name)
             };
-        case "applyPatternOptions":
-            return applyPatternOptionsReducer(state, action);
+        case "setGridCellColor":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => grid.name === action.payload.name
+                    ? setBeadingGridCell(grid, action.payload.cell)
+                    : grid
+                )
+            };
         case "applyGridOptions":
-            return applyGridOptionsReducer(state, action);
+            return {
+                ...state,
+                grids: state.grids.map((grid) => grid.name === action.payload.name
+                    ? applyBeadingGridOptions(grid, action.payload.options, state.options)
+                    : grid
+                )
+            };
+        case "addGridRowAbove":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? insertGridRow(grid, action.payload.row)
+                        : grid
+                ),
+                options: {
+                    ...state.options,
+                    layout: {
+                        ...state.options.layout,
+                        height: action.payload.name === "all"
+                            ? state.options.layout.height + 1
+                            : state.options.layout.height
+                    }
+                }
+            };
+        case "addGridRowBelow":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? insertGridRow(grid, action.payload.row + 1)
+                        : grid
+                ),
+                options: {
+                    ...state.options,
+                    layout: {
+                        ...state.options.layout,
+                        height: action.payload.name === "all"
+                            ? state.options.layout.height + 1
+                            : state.options.layout.height
+                    }
+                }
+            };
+        case "deleteGridRow":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? deleteGridRow(grid, action.payload.row)
+                        : grid
+                ),
+                options: {
+                    ...state.options,
+                    layout: {
+                        ...state.options.layout,
+                        height: action.payload.name === "all"
+                            ? state.options.layout.height - 1
+                            : state.options.layout.height
+                    }
+                }
+            };
+        case "clearGridRow":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? clearGridRow(grid, action.payload.row)
+                        : grid
+                )
+            };
+        case "addGridColumnLeft":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? insertGridColumn(grid, action.payload.column)
+                        : grid
+                ),
+                options: {
+                    ...state.options,
+                    layout: {
+                        ...state.options.layout,
+                        width: action.payload.name === "all"
+                            ? state.options.layout.width + 1
+                            : state.options.layout.width
+                    }
+                }
+            };
+        case "addGridColumnRight":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? insertGridColumn(grid, action.payload.column + 1)
+                        : grid
+                ),
+                options: {
+                    ...state.options,
+                    layout: {
+                        ...state.options.layout,
+                        width: action.payload.name === "all"
+                            ? state.options.layout.width + 1
+                            : state.options.layout.width
+                    }
+                }
+            };
+        case "deleteGridColumn":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? deleteGridColumn(grid, action.payload.column)
+                        : grid
+                ),
+                options: {
+                    ...state.options,
+                    layout: {
+                        ...state.options.layout,
+                        width: action.payload.name === "all"
+                            ? state.options.layout.width - 1
+                            : state.options.layout.width
+                    }
+                }
+            };
+        case "clearGridColumn":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => 
+                    action.payload.name === "all" || grid.name === action.payload.name
+                        ? clearGridColumn(grid, action.payload.column)
+                        : grid
+                )
+            };
         default:
             return state;
     }
-};
-
-const changePatternColorReducer = (
-    state: PatternState,
-    action: ChangePatternColorAction
-): PatternState => {
-    return {
-        ...state,
-        grids: state.grids.map((grid) => ({
-            ...grid,
-            rows: grid.rows.map((row) => ({
-                ...row,
-                cells: row.cells.map((cell) => cell === action.payload.oldColor
-                    ? action.payload.newColor
-                    : cell
-                )
-            }))
-        }))
-    }
-}
-
-const applyPatternOptionsReducer = (
-    state: PatternState,
-    action: ApplyPatternOptionsAction
-): PatternState => {
-    return {
-        ...state,
-        grids: state.grids.map((grid) => applyBeadingGridOptions(grid, grid.options, action.payload.options)),
-        options: action.payload.options
-    };
-};
-
-const applyGridOptionsReducer = (
-    state: PatternState,
-    action: ApplyGridOptionsAction
-): PatternState => {
-    return {
-        ...state,
-        grids: state.grids.map((grid) => grid.name === action.payload.name
-            ? applyBeadingGridOptions(grid, action.payload.options, state.options)
-            : grid
-        )
-    };
 };

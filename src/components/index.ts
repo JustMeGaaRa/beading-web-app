@@ -8,5 +8,6 @@ export * from "./Page";
 export * from "./PatternCard";
 export * from "./pattern";
 export * from "./pattern-collection";
+export * from "./PatternSelectionProvider";
 export * from "./PatternSummaryPanel";
 export * from "./ToolsProvider";

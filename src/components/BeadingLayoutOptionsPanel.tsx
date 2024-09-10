@@ -83,9 +83,11 @@ export const BeadingLayoutOptionsPanel: FC<{
                 <InputGroup size={"xs"}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
                     <Input
-                    type={"number"}
-                    value={layout.height}
-                    onChange={handleOnHeightChange}
+                        min={1}
+                        max={100}
+                        type={"number"}
+                        value={layout.height}
+                        onChange={handleOnHeightChange}
                     />
                 </InputGroup>
             )}
@@ -93,9 +95,11 @@ export const BeadingLayoutOptionsPanel: FC<{
                 <InputGroup size={"xs"}>
                     <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
                     <Input
-                    type={"number"}
-                    value={layout.width}
-                    onChange={handleOnWidthChange}
+                        min={1}
+                        max={100}
+                        type={"number"}
+                        value={layout.width}
+                        onChange={handleOnWidthChange}
                     />
                 </InputGroup>
             )}

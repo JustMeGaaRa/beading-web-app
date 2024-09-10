@@ -3,6 +3,7 @@ import {
     Button,
     Menu,
     MenuButton,
+    MenuDivider,
     MenuItem,
     MenuList,
     useDisclosure
@@ -14,7 +15,7 @@ import {
 } from "iconoir-react";
 import {
     FC,
-    PropsWithChildren,
+    Fragment,
     useCallback,
     useEffect,
     useLayoutEffect,
@@ -38,11 +39,15 @@ import {
     useTools,
     BeadSize,
     BeadingGridState,
-    BrickGridProperties,
     getPatternMetadata,
     PatternOptions,
     FrameTextColor,
     getPatternSize,
+    FrameSelectedColor,
+    usePatternSelection,
+    usePatternStore,
+    BeadingGridMetadata,
+    PatternState,
 } from "../components";
 import {
     CellBlankColor,
@@ -51,10 +56,10 @@ import {
     CellStrokeColor,
     DividerStrokeColor,
     usePattern,
-    downloadUri,
     isNullOrEmpty,
-    toJsonUri
 } from "../components";
+import { KonvaEventObject } from "konva/lib/Node";
+import { downloadUri, toJsonUri } from "../utils";
 
 type BeadingPointerEvent = {
     row: number;
@@ -113,8 +118,32 @@ export const BeadingPattern: FC = () => {
     const lastDist = useRef(0);
     const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
     const [isPointerDown, setIsPointerDown] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+    const [columnState, setColumnState] = useState<TextState | null>(null);
+    const [rowState, setRowState] = useState<TextState | null>();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { name, grids, options, setPatternCover, setGridCellColor, getPattern } = usePattern();
+    const {
+        pattern,
+        setPatternCover,
+        setGridCellColor,
+        addGridColumnLeft,
+        addGridColumnRight,
+        clearGridColumn,
+        deleteGridColumn,
+        addGridRowAbove,
+        addGridRowBelow,
+        clearGridRow,
+        deleteGridRow,
+    } = usePattern();
+    const {
+        selectedCells,
+        selectedColumn,
+        selectedRow,
+        setSelectedCells,
+        setSelectedColumn,
+        setSelectedRow
+    } = usePatternSelection();
+    const { isDirty } = usePatternStore();
     const { selectedTool } = useTools();
     const { selectedColor, setSelectedColor } = useColorPalette();
 
@@ -138,16 +167,23 @@ export const BeadingPattern: FC = () => {
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            const imageUri = stageRef.current?.toDataURL() ?? "";
-            setPatternCover(imageUri);
+            if (isDirty) {
+                const imageUri = stageRef.current?.toDataURL() ?? "";
+                setPatternCover(imageUri);
+            }
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [stageRef.current, setPatternCover]);
+    }, [stageRef.current, isDirty, setPatternCover]);
+
+    const metadata = useMemo(() => getPatternMetadata(pattern, pattern.options), [pattern]);
 
     const handleOnBeadingClick = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         const { row, column } = event;
 
+        if (selectedTool === "cursor") {
+            setSelectedCells([{ row: event.row, column: event.column }]);
+        }
         if (selectedTool === "pencil") {
             setGridCellColor(source.name, { row, column, color: selectedColor });
         }
@@ -159,13 +195,13 @@ export const BeadingPattern: FC = () => {
         }
     }, [selectedTool, selectedColor, setSelectedColor]);
 
-    const handleOnBeadingPointerDown = useCallback(() => {
+    const handleOnBeadingPointerDown = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         setIsPointerDown(true);
-    }, [setIsPointerDown]);
+    }, []);
 
     const handleOnBeadingPointerUp = useCallback(() => {
         setIsPointerDown(false);
-    }, [setIsPointerDown]);
+    }, []);
 
     const handleOnBeadingPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         if (isPointerDown) {
@@ -186,14 +222,7 @@ export const BeadingPattern: FC = () => {
         }
     }, [isPointerDown, setGridCellColor]);
 
-    const handleOnContextMenu = useCallback((event: Konva.KonvaEventObject<PointerEvent>) => {
-        event.evt.preventDefault();
-        onOpen();
-    }, [onOpen]);
-
-    const metadata = useMemo(() => getPatternMetadata(getPattern(), options), [getPattern, options]);
-
-    const handleOnWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
+    const handleOnStageWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
         event.evt.preventDefault();
 
         const stage = stageRef.current;
@@ -211,7 +240,7 @@ export const BeadingPattern: FC = () => {
         applyTransform(stage, newScale, newPosition);
     }, [stageRef]);
 
-    const handleOnTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
+    const handleOnStageTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
         event.evt.preventDefault();
 
         const stage = stageRef.current;
@@ -239,122 +268,190 @@ export const BeadingPattern: FC = () => {
         lastDist.current = dist;
     }, [stageRef]);
 
-    const handleOnTouchEnd = useCallback(() => {
+    const handleOnStageTouchEnd = useCallback(() => {
         lastDist.current = 0;
     }, []);
 
+    const handleOnStageClick = useCallback(() => {
+        setSelectedColumn(-1);
+        setSelectedRow(-1);
+    }, [setSelectedColumn, setSelectedRow]);
+
+    const handleOnStageContextMenu = useCallback((event: KonvaEventObject<MouseEvent>) => {
+        event.evt.preventDefault();
+    }, [onOpen]);
+
+    const handleOnPatternColumnClick = useCallback((event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
+        setColumnState(columnState);
+    }, []);
+
+    const handleOnPatternRowClick = useCallback((event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
+        setRowState(rowState);
+    }, []);
+
+    const handleOnPatternContextMenu = useCallback((event: KonvaEventObject<MouseEvent>) => {
+        event.evt.preventDefault();
+        const bbox = containerRef.current?.getBoundingClientRect();
+        setMenuPosition({
+            x: event.evt.pageX - (bbox?.left ?? 0),
+            y: event.evt.pageY - (bbox?.top ?? 0)
+        });
+        onOpen();
+    }, [containerRef, onOpen]);
+
     const handleOnSaveImageClick = useCallback(() => {
         const imageUri = stageRef.current?.toDataURL() ?? "";
-        downloadUri(imageUri, `${name}.png`);
-    }, [name, stageRef.current]);
+        downloadUri(imageUri, `${pattern.name}.png`);
+    }, [pattern, stageRef.current]);
 
     const handleOnSavePatternClick = useCallback(() => {
-        const pattern = getPattern();
         const patternUri = toJsonUri(pattern);
-        downloadUri(patternUri, `${name}.json`);
-    }, [name, grids, options]);
+        downloadUri(patternUri, `${pattern.name}.json`);
+    }, [pattern]);
+
+    const handleOnGridAddRowAbove = useCallback(() => {
+        if (rowState) {
+            addGridRowAbove(rowState?.gridName, rowState?.gridIndex);
+        }
+    }, [columnState, addGridRowAbove]);
+
+    const handleOnGridAddRowBelow = useCallback(() => {
+        if (rowState) {
+            addGridRowBelow(rowState?.gridName, rowState?.gridIndex);
+        }
+    }, [rowState, addGridRowBelow]);
+
+    const handleOnGridClearRow = useCallback(() => {
+        if (rowState) {
+            clearGridRow(rowState?.gridName, rowState?.gridIndex);
+        }
+    }, [rowState, clearGridRow]);
+
+    const handleOnGridDeleteRow = useCallback(() => {
+        if (rowState) {
+            deleteGridRow(rowState?.gridName, rowState?.gridIndex);
+        }
+    }, [rowState, deleteGridRow]);
+
+    const handleOnGridAddColumnLeft = useCallback(() => {
+        if (columnState) {
+            addGridColumnLeft(columnState?.gridName, columnState?.gridIndex);
+        }
+    }, [columnState, addGridColumnLeft]);
+
+    const handleOnGridAddColumnRight = useCallback(() => {
+        if (columnState) {
+            addGridColumnRight(columnState?.gridName, columnState?.gridIndex);
+        }
+    }, [columnState, addGridColumnRight]);
+
+    const handleOnGridClearColumn = useCallback(() => {
+        if (columnState) {
+            clearGridColumn(columnState?.gridName, columnState?.gridIndex);
+        }
+    }, [columnState, clearGridColumn]);
+
+    const handleOnGridDeleteColumn = useCallback(() => {
+        if (columnState) {
+            deleteGridColumn(columnState?.gridName, columnState?.gridIndex);
+        }
+    }, [columnState, deleteGridColumn]);
 
     return (
-        <Box ref={containerRef} height={"100%"} width={"100%"}>
+        <Box
+            cursor={selectedTool === "drag"
+                ? "move"
+                : selectedTool === "cursor"
+                    ? "cell"
+                    : "cursor"
+            }
+            height={"100%"}
+            width={"100%"}
+            ref={containerRef}
+        >
             <Stage
                 ref={stageRef}
-                draggable={selectedTool === "cursor"}
+                draggable={selectedTool === "drag"}
                 height={stageSize.height}
                 width={stageSize.width}
-                onContextMenu={handleOnContextMenu}
-                onTouchMove={handleOnTouchMove}
-                onTouchEnd={handleOnTouchEnd}
-                onWheel={handleOnWheel}
+                onClick={handleOnStageClick}
+                onContextMenu={handleOnStageContextMenu}
+                onTouchMove={handleOnStageTouchMove}
+                onTouchEnd={handleOnStageTouchEnd}
+                onWheel={handleOnStageWheel}
             >
                 <Layer>
-                    <PatternFrame
-                        {...getPatternSize(getPattern(), options)}
-                        options={options}
-                    />
+                    {pattern.grids.map((grid) => (
+                        <BeadingGrid
+                            key={grid.name}
+                            grid={grid}
+                            metadata={metadata.grids[grid.name]}
+                            position={metadata.grids[grid.name].position}
+                            beadSize={pattern.options.layout.beadSize}
+                            onBeadingClick={handleOnBeadingClick}
+                            onBeadingPointerDown={handleOnBeadingPointerDown}
+                            onBeadingPointerUp={handleOnBeadingPointerUp}
+                            onBeadingPointerEnter={handleOnBeadingPointerEnter}
+                        />
+                    ))}
+                    {pattern.grids.length > 0 && (
+                        <PatternFrame
+                            pattern={pattern}
+                            options={pattern.options}
+                            onColumnClick={handleOnPatternColumnClick}
+                            onRowClick={handleOnPatternRowClick}
+                            onContextMenu={handleOnPatternContextMenu}
+                        />
+                    )}
+                    {selectedCells && selectedCells.length > 0 && (
+                        <Rect
+                            stroke={FrameSelectedColor}
+                            strokeWidth={2}
+                        />
+                    )}
                 </Layer>
-                {grids.map((grid) => {
-                    switch (grid.options.type) {
-                        case "square":
-                            return (
-                                <Layer
-                                    key={grid.name}
-                                    x={metadata.grids[grid.name].position.x}
-                                    y={metadata.grids[grid.name].position.y}
-                                >
-                                    <SquareGrid
-                                        grid={grid}
-                                        beadSize={options.layout.beadSize}
-                                        onBeadingClick={handleOnBeadingClick}
-                                        onBeadingPointerDown={handleOnBeadingPointerDown}
-                                        onBeadingPointerUp={handleOnBeadingPointerUp}
-                                        onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                                    />
-                                    {metadata.grids[grid.name].divider.isVisible && (
-                                        <Line
-                                            points={metadata.grids[grid.name].divider.points}
-                                            stroke={DividerStrokeColor}
-                                            strokeWidth={1}
-                                        />
-                                    )}
-                                </Layer>
-                            );
-                        case "peyote":
-                            return (
-                                <Layer
-                                    key={grid.name}
-                                    x={metadata.grids[grid.name].position.x}
-                                    y={metadata.grids[grid.name].position.y}
-                                >
-                                    <PeyoteGrid
-                                        grid={grid}
-                                        beadSize={options.layout.beadSize}
-                                        onBeadingClick={handleOnBeadingClick}
-                                        onBeadingPointerDown={handleOnBeadingPointerDown}
-                                        onBeadingPointerUp={handleOnBeadingPointerUp}
-                                        onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                                    />
-                                    {metadata.grids[grid.name].divider.isVisible && (
-                                        <Line
-                                            points={metadata.grids[grid.name].divider.points}
-                                            stroke={DividerStrokeColor}
-                                            strokeWidth={1}
-                                        />
-                                    )}
-                                </Layer>
-                            );
-                        case "brick":
-                            return (
-                                <Layer
-                                    key={grid.name}
-                                    x={metadata.grids[grid.name].position.x}
-                                    y={metadata.grids[grid.name].position.y}
-                                >
-                                    <BrickGrid
-                                        grid={grid}
-                                        beadSize={options.layout.beadSize}
-                                        options={grid.options}
-                                        onBeadingClick={handleOnBeadingClick}
-                                        onBeadingPointerDown={handleOnBeadingPointerDown}
-                                        onBeadingPointerUp={handleOnBeadingPointerUp}
-                                        onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                                    />
-                                    {metadata.grids[grid.name].divider.isVisible && (
-                                        <Line
-                                            points={metadata.grids[grid.name].divider.points}
-                                            stroke={DividerStrokeColor}
-                                            strokeWidth={1}
-                                        />
-                                    )}
-                                </Layer>
-                            );
-                    }
-                })}
             </Stage>
-            <Menu isOpen={isOpen} onClose={onClose} closeOnBlur closeOnSelect>
-                <MenuList>
-                    <MenuItem>Select All</MenuItem>
-                    <MenuItem>Clear</MenuItem>
-                </MenuList>
+            <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>
+                <MenuButton
+                    left={menuPosition.x}
+                    position={"absolute"}
+                    top={menuPosition.y}
+                    visibility={"hidden"}
+                />
+                {selectedRow >= 0 && (
+                    <MenuList>
+                        <MenuItem onClick={handleOnGridAddRowAbove}>
+                            Add row above
+                        </MenuItem>
+                        <MenuItem onClick={handleOnGridAddRowBelow}>
+                            Add row below
+                        </MenuItem>
+                        <MenuDivider />
+                        <MenuItem onClick={handleOnGridClearRow}>
+                            Clear row
+                        </MenuItem>
+                        <MenuItem color={"red.600"} onClick={handleOnGridDeleteRow}>
+                            Delete row
+                        </MenuItem>
+                    </MenuList>
+                )}
+                {selectedColumn >= 0 && (
+                    <MenuList>
+                        <MenuItem onClick={handleOnGridAddColumnLeft}>
+                            Add column before
+                        </MenuItem>
+                        <MenuItem onClick={handleOnGridAddColumnRight}>
+                            Add column after
+                        </MenuItem>
+                        <MenuDivider />
+                        <MenuItem onClick={handleOnGridClearColumn}>
+                            Clear column
+                        </MenuItem>
+                        <MenuItem color={"red.600"} onClick={handleOnGridDeleteColumn}>
+                            Delete column
+                        </MenuItem>
+                    </MenuList>
+                )}
             </Menu>
             {stageRef.current && createPortal(
                 <Menu>
@@ -382,231 +479,242 @@ export const BeadingPattern: FC = () => {
     );
 };
 
+type TextState = {
+    gridName: string;
+    gridIndex: number;
+    patternIndex: number;
+}
+
 const PatternFrame: FC<{
-    width: number;
-    height: number;
+    pattern: PatternState;
     options: PatternOptions;
+    onColumnClick?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
+    onRowClick?: (event: KonvaEventObject<MouseEvent>, rowState: TextState) => void;
+    onContextMenu?: (event: KonvaEventObject<MouseEvent>) => void;
 }> = ({
-    width: columns,
-    height: rows,
-    options
+    pattern,
+    options,
+    onColumnClick,
+    onRowClick,
+    onContextMenu,
 }) => {
-    const cellWidth = options.layout.beadSize.width * CellPixelRatio;
-    const cellHeight = options.layout.beadSize.height * CellPixelRatio;
+    const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow} = usePatternSelection();
+
+    const cellHeight = pattern.grids.some((grid) => grid.options.type === "brick")
+        ? options.layout.beadSize.width * CellPixelRatio
+        : options.layout.beadSize.height * CellPixelRatio;
+    const cellWidth = pattern.grids.some((grid) => grid.options.type === "brick")
+        ? options.layout.beadSize.height * CellPixelRatio
+        : options.layout.beadSize.width * CellPixelRatio;
+
+    const { height: rows, width: columns } = getPatternSize(pattern, pattern.options);
+    
+    const frameMarginX = cellWidth / 2;
+    const frameMarginY = cellHeight / 4;
+
+    const frameTextOffsetX = cellWidth + frameMarginX;
+    const frameTextOffsetY = cellHeight + frameMarginY;
+
+    const selectedColumnPositionX = selectedColumn * cellWidth;
+    const selectedColumnPositionY = -frameTextOffsetY;
+    const selectedColumnHeight = cellHeight * rows + 2 * frameTextOffsetY;
+    const selectedColumnWidth = cellWidth;
+
+    const selectedRowPositionX = -frameTextOffsetX;
+    const selectedRowPositionY = selectedRow * cellHeight;
+    const selectedRowHeight = cellHeight;
+    const selectedRowWidth = cellWidth * columns + 2 * frameTextOffsetX;
+
+    const handleOnRowClick = useCallback((event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
+        event.evt.preventDefault();
+        event.cancelBubble = true;
+        setSelectedColumn(-1);
+        setSelectedRow(rowState.patternIndex);
+        onRowClick?.(event, rowState);
+    }, [setSelectedColumn, setSelectedRow, onRowClick]);
+
+    const handleOnColumnClick = useCallback((event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
+        event.evt.preventDefault();
+        event.cancelBubble = true;
+        setSelectedColumn(columnState.patternIndex);
+        setSelectedRow(-1);
+        onColumnClick?.(event, columnState);
+    }, [setSelectedColumn, setSelectedRow, onColumnClick]);
+
+    const isHorizontal = pattern.options.layout.orientation === "horizontal";
+    const columnsTextArray: Array<TextState> = isHorizontal
+        ? pattern.grids
+            .flatMap((grid) => 
+                grid.rows[0].cells.map((_, columnIndex) => 
+                    ({ gridIndex: columnIndex, gridName: grid.name })
+            ))
+            .map((columnState, columnIndex) => ({ ...columnState, patternIndex: columnIndex }))
+        : Array.from({ length: columns }, (_, index) => 
+            ({ gridIndex: index, gridName: "all", patternIndex: index })
+        );
+    const rowTextArray: Array<TextState> = isHorizontal
+        ? Array.from({ length: rows }, (_, index) => 
+            ({ gridIndex: index, gridName: "all", patternIndex: index })
+        )
+        : pattern.grids
+            .flatMap((grid) => 
+                grid.rows.map((_, rowIndex) => 
+                    ({ gridIndex: rowIndex, gridName: grid.name })
+            ))
+            .map((rowState, rowIndex) => ({ ...rowState, patternIndex: rowIndex }))
     
     return (
         <Group>
-            {Array.from({ length: columns }, (_, index) => (
-                <>
+            {columnsTextArray.map((column) => (
+                <Fragment key={`column-number-${column.patternIndex}`}>
                     <Text
-                        key={`top-column-${index}`}
-                        x={index * cellWidth}
-                        y={-cellWidth * 1.5}
-                        text={(index + 1).toString()}
+                        key={`column-top-number-${column.patternIndex}`}
                         align={"center"}
-                        verticalAlign={"middle"}
-                        height={cellHeight}
-                        width={cellWidth}
                         fill={FrameTextColor}
+                        height={cellHeight}
+                        text={(column.patternIndex + 1).toString()}
+                        verticalAlign={"middle"}
+                        width={cellWidth}
+                        x={column.patternIndex * cellWidth}
+                        y={-frameTextOffsetY}
+                        onClick={(event) => handleOnColumnClick(event, column)}
+                        onContextMenu={onContextMenu}
                     />
                     <Text
-                        key={`bottom-column-${index}`}
-                        x={index * cellWidth}
-                        y={rows * cellHeight}
-                        text={(index + 1).toString()}
+                        key={`column-bottom-number-${column.patternIndex}`}
                         align={"center"}
-                        verticalAlign={"middle"}
-                        height={cellHeight}
-                        width={cellWidth}
                         fill={FrameTextColor}
+                        height={cellHeight} 
+                        text={(column.patternIndex + 1).toString()}
+                        verticalAlign={"middle"}
+                        width={cellWidth}
+                        x={column.patternIndex * cellWidth}
+                        y={rows * cellHeight + frameMarginY}
+                        onClick={(event) => handleOnColumnClick(event, column)}
+                        onContextMenu={onContextMenu}
                     />
-                </>
+                </Fragment>
             ))}
-            {Array.from({ length: rows }, (_, index) => (
-                <>
+            {rowTextArray.map((row) => (
+                <Fragment key={`row-number-${row.patternIndex}`}>
                     <Text
-                        key={`left-row-${index}`}
-                        x={-cellWidth * 1.5}
-                        y={index * cellHeight}
+                        key={`row-left-number-${row.patternIndex}`}
                         align={"right"}
-                        verticalAlign={"middle"}
-                        height={cellHeight}
-                        width={cellWidth}
-                        text={(index + 1).toString()}
                         fill={FrameTextColor}
+                        height={cellHeight}
+                        text={(row.patternIndex + 1).toString()}
+                        verticalAlign={"middle"}
+                        width={cellWidth}
+                        x={-frameTextOffsetX}
+                        y={row.patternIndex * cellHeight}
+                        onClick={(event) => handleOnRowClick(event, row)}
+                        onContextMenu={onContextMenu}
                     />
                     <Text
-                        key={`right-row-${index}`}
-                        x={columns * cellWidth}
-                        y={index * cellHeight}
-                        align={"right"}
-                        verticalAlign={"middle"}
-                        height={cellHeight}
-                        width={cellWidth}
-                        text={(index + 1).toString()}
+                        key={`row-right-number-${row.patternIndex}`}
+                        align={"left"}
                         fill={FrameTextColor}
+                        height={cellHeight}
+                        text={(row.patternIndex + 1).toString()}
+                        verticalAlign={"middle"}
+                        width={cellWidth}
+                        x={columns * cellWidth + frameMarginX}
+                        y={row.patternIndex * cellHeight}
+                        onClick={(event) => handleOnRowClick(event, row)}
+                        onContextMenu={onContextMenu}
                     />
-                </>
+                </Fragment>
             ))}
+            <Rect
+                key={"selected-column-frame"}
+                cornerRadius={20}
+                height={selectedColumnHeight}
+                width={selectedColumnWidth}
+                stroke={FrameSelectedColor}
+                strokeWidth={2}
+                x={selectedColumnPositionX}
+                y={selectedColumnPositionY}
+                visible={selectedColumn >= 0}
+                onContextMenu={onContextMenu}
+            />
+            <Rect
+                key={"selected-row-frame"}
+                cornerRadius={20}
+                height={selectedRowHeight}
+                width={selectedRowWidth}
+                stroke={FrameSelectedColor}
+                strokeWidth={2}
+                x={selectedRowPositionX}
+                y={selectedRowPositionY}
+                visible={selectedRow >= 0}
+                onContextMenu={onContextMenu}
+            />
         </Group>
     );
 };
 
-const SquareGrid: FC<{
-    grid: BeadingGridState;
-    beadSize: BeadSize;
-    onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerOver?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-}> = ({
-    grid,
-    beadSize,
-    onBeadingClick,
-    onBeadingPointerDown,
-    onBeadingPointerUp,
-    onBeadingPointerOver,
-    onBeadingPointerEnter,
-}) => {
-    const cellHeight = beadSize.height * CellPixelRatio;
-    const cellWidth = beadSize.width * CellPixelRatio;
+const getCellPosition = (
+    grid: BeadingGridState,
+    cellHeight: number,
+    cellWidth: number,
+    rowIndex: number,
+    columnIndex: number
+) => {
+    const cellOffsetX = cellWidth / 2;
+    const cellOffsetY = cellHeight / 2;
 
-    const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
-        onBeadingClick?.(grid, event);
-    }, [grid, onBeadingClick]);
+    const getBrickOffsetX = (index: number, height: number, drop: number, fringe: number) => {
+        const dropOffsetNormal = Math.floor(index / drop) % 2;
+        const fringeOffsetNormal = index > height - fringe ? 0 : 1;
+        return cellOffsetX * dropOffsetNormal * fringeOffsetNormal;
+    };
+    const getPeyoteOffsetY = (index: number) => {
+        const columnOffsetNormal = index % 2;
+        return cellOffsetY * columnOffsetNormal;
+    };
 
-    const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerDown?.(grid, event);
-    }, [grid, onBeadingPointerDown]);
+    const x = grid.options.type === "brick"
+        ? cellWidth * columnIndex + getBrickOffsetX(
+            rowIndex,
+            grid.rows.length,
+            grid.options.drop,
+            grid.options.fringe
+        )
+        : cellWidth * columnIndex;
+    const y = grid.options.type === "brick"
+        ? cellHeight * rowIndex
+        : grid.options.type === "peyote"
+            ? cellHeight * rowIndex + getPeyoteOffsetY(columnIndex)
+            : cellHeight * rowIndex;
 
-    const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerUp?.(grid, event);
-    }, [grid, onBeadingPointerUp]);
-
-    const handleOnBeadingGridOver = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerOver?.(grid, event);
-    }, [grid, onBeadingPointerOver]);
-
-    const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerEnter?.(grid, event);
-    }, [grid, onBeadingPointerEnter]);
-
-    return (
-        <Group>
-            {grid.rows.map((row, rowIndex) =>
-                row.cells.map((cell, columnIndex) => (
-                    <GridCell
-                        key={`${rowIndex}-${columnIndex}`}
-                        fill={cell}
-                        row={rowIndex}
-                        column={columnIndex}
-                        height={cellHeight}
-                        width={cellWidth}
-                        x={cellWidth * columnIndex}
-                        y={cellHeight * rowIndex}
-                        onClick={handleOnBeadingGridClick}
-                        onPointerDown={handleOnBeadingGridDown}
-                        onPointerUp={handleOnBeadingGridUp}
-                        onPointerOver={handleOnBeadingGridOver}
-                        onPointerEnter={handleOnBeadingGridEnter}
-                    />
-                ))
-            )}
-            <Text text={grid.name} fill={DividerStrokeColor} />
-        </Group>
-    );
+    return { x, y };
 };
 
-const PeyoteGrid: FC<{
-    grid: BeadingGridState;
-    beadSize: BeadSize;
-    onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerOver?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-}> = ({
-    grid,
-    beadSize,
-    onBeadingClick,
-    onBeadingPointerDown,
-    onBeadingPointerUp,
-    onBeadingPointerOver,
-    onBeadingPointerEnter,
-}) => {
-    const cellHeight = beadSize.height * CellPixelRatio;
-    const cellWidth = beadSize.width * CellPixelRatio;
-
-    const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
-        onBeadingClick?.(grid, event);
-    }, [grid, onBeadingClick]);
-
-    const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerDown?.(grid, event);
-    }, [grid, onBeadingPointerDown]);
-
-    const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerUp?.(grid, event);
-    }, [grid, onBeadingPointerUp]);
-
-    const handleOnBeadingGridOver = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerOver?.(grid, event);
-    }, [grid, onBeadingPointerOver]);
-
-    const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerEnter?.(grid, event);
-    }, [grid, onBeadingPointerEnter]);
-
-    return (
-        <Group>
-            {grid.rows.map((row, rowIndex) =>
-                row.cells.map((cell, columnIndex) => (
-                    <GridCell
-                        key={`${rowIndex}-${columnIndex}`}
-                        fill={cell}
-                        row={rowIndex}
-                        column={columnIndex}
-                        height={cellHeight}
-                        width={cellWidth}
-                        x={cellWidth * columnIndex}
-                        y={cellHeight * rowIndex + (cellHeight / 2) * (columnIndex % 2)}
-                        onClick={handleOnBeadingGridClick}
-                        onPointerDown={handleOnBeadingGridDown}
-                        onPointerUp={handleOnBeadingGridUp}
-                        onPointerOver={handleOnBeadingGridOver}
-                        onPointerEnter={handleOnBeadingGridEnter}
-                    />
-                ))
-            )}
-            <Text text={grid.name} fill={DividerStrokeColor} />
-        </Group>
-    );
-};
-
-const BrickGrid: FC<{
+const BeadingGrid: FC<{
     position?: { x: number; y: number };
     grid: BeadingGridState;
+    metadata: BeadingGridMetadata;
     beadSize: BeadSize;
-    options: BrickGridProperties;
     onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
     onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
     onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerOver?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
     onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
 }> = ({
     position,
     grid,
+    metadata,
     beadSize,
-    options,
     onBeadingClick,
     onBeadingPointerDown,
     onBeadingPointerUp,
-    onBeadingPointerOver,
     onBeadingPointerEnter,
 }) => {
-    const cellHeight = beadSize.width * CellPixelRatio;
-    const cellWidth = beadSize.height * CellPixelRatio;
+    const cellHeight = grid.options.type === "brick"
+        ? beadSize.width * CellPixelRatio
+        : beadSize.height * CellPixelRatio;
+    const cellWidth = grid.options.type === "brick"
+        ? beadSize.height * CellPixelRatio
+        : beadSize.width * CellPixelRatio;
 
     const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
         onBeadingClick?.(grid, event);
@@ -620,38 +728,35 @@ const BrickGrid: FC<{
         onBeadingPointerUp?.(grid, event);
     }, [grid, onBeadingPointerUp]);
 
-    const handleOnBeadingGridOver = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerOver?.(grid, event);
-    }, [grid, onBeadingPointerOver]);
-
     const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
         onBeadingPointerEnter?.(grid, event);
     }, [grid, onBeadingPointerEnter]);
 
     return (
-        <Group>
+        <Group x={position?.x ?? 0} y={position?.y ?? 0}>
             {grid.rows.map((row, rowIndex) =>
                 row.cells.map((cell, columnIndex) => (
                     <GridCell
                         key={`${rowIndex}-${columnIndex}`}
-                        fill={cell}
-                        row={rowIndex}
-                        column={columnIndex}
+                        color={cell}
+                        rowIndex={rowIndex}
+                        columnIndex={columnIndex}
                         height={cellHeight}
                         width={cellWidth}
-                        x={
-                            cellWidth * columnIndex +
-                            (cellWidth / 2) * (Math.floor(rowIndex / options.drop) % 2 *
-                            (rowIndex > grid.rows.length - options.fringe ? 0 : 1))
-                        }
-                        y={cellHeight * rowIndex}
+                        position={getCellPosition(grid, cellHeight, cellWidth, rowIndex, columnIndex)}
                         onClick={handleOnBeadingGridClick}
                         onPointerDown={handleOnBeadingGridDown}
                         onPointerUp={handleOnBeadingGridUp}
-                        onPointerOver={handleOnBeadingGridOver}
                         onPointerEnter={handleOnBeadingGridEnter}
                     />
                 ))
+            )}
+            {metadata.divider.isVisible && (
+                <Line
+                    points={metadata.divider.points}
+                    stroke={DividerStrokeColor}
+                    strokeWidth={1}
+                />
             )}
             <Text text={grid.name} fill={DividerStrokeColor} />
         </Group>
@@ -659,26 +764,24 @@ const BrickGrid: FC<{
 };
 
 const GridCell: FC<{
-    fill?: string;
+    color?: string;
+    columnIndex: number;
+    rowIndex: number;
     height: number;
     width: number;
-    row: number;
-    column: number;
-    x: number;
-    y: number;
+    position: { x: number; y: number };
     onClick?: (event: BeadingPointerEvent) => void;
     onPointerDown?: (event: BeadingPointerEvent) => void;
     onPointerUp?: (event: BeadingPointerEvent) => void;
     onPointerOver?: (event: BeadingPointerEvent) => void;
     onPointerEnter?: (event: BeadingPointerEvent) => void;
 }> = ({
-    fill,
+    color,
+    columnIndex,
+    rowIndex,
     height,
     width,
-    row,
-    column,
-    x,
-    y,
+    position,
     onClick,
     onPointerDown,
     onPointerUp,
@@ -686,36 +789,36 @@ const GridCell: FC<{
     onPointerEnter,
 }) => {
     const handleOnClick = useCallback(() => {
-        onClick?.({ row, column, x, y });
-    }, [row, column, x, y, onClick]);
+        onClick?.({ row: rowIndex, column: columnIndex, ...position });
+    }, [rowIndex, columnIndex, position, onClick]);
 
     const handleOnPointerDown = useCallback(() => {
-        onPointerDown?.({ row, column, x, y });
-    }, [row, column, x, y, onPointerDown]);
+        onPointerDown?.({ row: rowIndex, column: columnIndex, ...position });
+    }, [rowIndex, columnIndex, position, onPointerDown]);
 
     const handleOnPointerUp = useCallback(() => {
-        onPointerUp?.({ row, column, x, y });
-    }, [row, column, x, y, onPointerUp]);
+        onPointerUp?.({ row: rowIndex, column: columnIndex, ...position });
+    }, [rowIndex, columnIndex, position, onPointerUp]);
 
     const handleOnPointerOver = useCallback(() => {
-        onPointerOver?.({ row, column, x, y });
-    }, [row, column, x, y, onPointerOver]);
+        onPointerOver?.({ row: rowIndex, column: columnIndex, ...position });
+    }, [rowIndex, columnIndex, position, onPointerOver]);
 
     const handleOnPointerEnter = useCallback(() => {
-        onPointerEnter?.({ row, column, x, y });
-    }, [row, column, x, y, onPointerEnter]);
+        onPointerEnter?.({ row: rowIndex, column: columnIndex, ...position });
+    }, [rowIndex, columnIndex, position, onPointerEnter]);
 
     return (
-        <>
+        <Fragment>
             <Rect
                 cornerRadius={2}
-                fill={fill}
+                fill={color}
                 height={height}
-                stroke={isNullOrEmpty(fill) ? CellBlankColor : CellStrokeColor}
+                stroke={isNullOrEmpty(color) ? CellBlankColor : CellStrokeColor}
                 strokeWidth={1}
                 width={width}
-                x={x}
-                y={y}
+                x={position.x}
+                y={position.y}
                 onClick={handleOnClick}
                 onTap={handleOnClick}
                 onPointerDown={handleOnPointerDown}
@@ -723,16 +826,16 @@ const GridCell: FC<{
                 onPointerOver={handleOnPointerOver}
                 onPointerEnter={handleOnPointerEnter}
             />
-            {isNullOrEmpty(fill) && (
+            {isNullOrEmpty(color) && (
                 <Circle
                     fill={CellDotColor}
                     height={2}
                     width={2}
-                    x={x + width / 2}
-                    y={y + height / 2}
+                    x={position.x + width / 2}
+                    y={position.y + height / 2}
                     onClick={handleOnClick}
                 />
             )}
-        </>
+        </Fragment>
     );
 };

@@ -1,15 +1,14 @@
-import { useToken } from "@chakra-ui/react";
+import { useToast, useToken } from "@chakra-ui/react";
 import { FC, useEffect } from "react";
 import { useParams } from "react-router";
+import { PatternSelectionProvider, PatternState } from "../components";
 import {
-    PatternProvider,
     ColorPaletteProvider,
     Content,
     Page,
     ToolsProvider,
     usePattern,
     usePatternCollection,
-    usePatternStore,
 } from "../components";
 import {
     BeadingPattern,
@@ -17,6 +16,7 @@ import {
     ProjectPropertiesPanel,
     ProjectToolsPanel,
 } from "../containers";
+import { deepClone } from "../utils";
 
 export const ProjectPage: FC = () => {
     const colors = useToken("colors", [
@@ -71,23 +71,32 @@ export const ProjectPage: FC = () => {
         "pink.300",
         "pink.100",
     ]);
+    const toast = useToast();
     const { patternId } = useParams();
-    const { savePattern } = usePatternCollection();
-    const { getPattern } = usePattern();
-    const { resetDirty } = usePatternStore();
+    const { patterns } = usePatternCollection();
+    const { setPattern } = usePattern();
 
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            const pattern = getPattern();
-            savePattern(pattern);
-            resetDirty();
-        }, 5000);
+        const pattern = patterns.find((pattern) => pattern.patternId === patternId);
 
-        return () => clearInterval(intervalId);
-    }, [getPattern, savePattern, resetDirty]);
+        if (pattern) {
+            setPattern(deepClone<PatternState>(pattern));
+        }
+        else {
+            toast({
+                title: "Pattern not found",
+                description: "The pattern you are looking for does not exist.",
+                status: "error",
+                duration: 10000,
+                position: "bottom-right",
+                variant: "subtle",
+                isClosable: true,
+            });
+        }
+    }, [patternId]);
 
     return (
-        <PatternProvider>
+        <PatternSelectionProvider>
             <ToolsProvider>
                 <ColorPaletteProvider colors={colors}>
                     <Page>
@@ -100,6 +109,6 @@ export const ProjectPage: FC = () => {
                     </Page>
                 </ColorPaletteProvider>
             </ToolsProvider>
-        </PatternProvider>
+        </PatternSelectionProvider>
     );
 };

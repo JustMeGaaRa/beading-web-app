@@ -6,7 +6,7 @@ import {
     useState,
 } from "react";
 
-export type ToolType = "cursor" | "pencil" | "eraser" | "picker";
+export type ToolType = "drag" | "cursor" | "pencil" | "eraser" | "picker";
 
 const ToolsContext = createContext<{
     selectedTool: ToolType;

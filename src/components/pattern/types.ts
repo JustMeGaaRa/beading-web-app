@@ -1,5 +1,3 @@
-import { SetStateAction } from "react";
-
 export type LayoutOrientation = "vertical" | "horizontal";
 
 export type BeadSize = {
@@ -81,4 +79,15 @@ export type PatternState = {
     options: PatternOptions;
     grids: Array<BeadingGridState>;
     gridCount: number;
+};
+
+export type BeadingGridMetadata = {
+    position: { x: number; y: number };
+    size: { height: number; width: number };
+    divider: { isVisible: boolean; points: Array<number> };
+};
+
+export type PatternMetadata = {
+    size: { height: number; width: number };
+    grids: Record<string, BeadingGridMetadata>;
 };
