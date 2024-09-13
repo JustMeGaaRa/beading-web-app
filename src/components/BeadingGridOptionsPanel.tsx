@@ -14,7 +14,7 @@ import {
     BeadingGridState,
     BeadingGridType,
     BeadingGridTypes,
-} from "./pattern";
+} from "./beading-grid";
 
 export const BeadingGridOptionsPanel: FC<{
     canDelete?: boolean;

@@ -1,31 +1,50 @@
-import { Box, ButtonGroup, IconButton, StackDivider, VStack } from "@chakra-ui/react";
+import {
+    Box,
+    ButtonGroup,
+    IconButton,
+    StackDivider,
+    Tooltip,
+    VStack
+} from "@chakra-ui/react";
 import {
     ColorPicker,
     CursorPointer,
-    DragHandGesture,
     EditPencil,
     Erase,
+    FillColor,
     Redo,
     Undo,
 } from "iconoir-react";
-import { FC, useCallback } from "react";
+import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { getSummary, PatternSummary, usePatterHistory, usePattern, useTools } from "../components";
+import {
+    getPatternSummary,
+    Shortcuts,
+    usePatterHistory, 
+    usePattern,
+    useTools
+} from "../components";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 export const ProjectToolsPanel: FC = () => {
-    const { selectedTool, setSelectedTool } = useTools();
+    const { tool, setTool } = useTools();
     const { pattern } = usePattern();
     const { undo, redo } = usePatterHistory();
 
-    useHotkeys("ctrl+1", () => setSelectedTool("drag"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+2", () => setSelectedTool("cursor"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+3", () => setSelectedTool("pencil"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+4", () => setSelectedTool("eraser"), { preventDefault: true }, [setSelectedTool]);
-    useHotkeys("ctrl+5", () => setSelectedTool("picker"), { preventDefault: true }, [setSelectedTool]);
+    const onSetCursorTool = useCallback(() => setTool({ name: "cursor", state: { currentAction: "default" } }), [setTool]);
+    const onSetPencilTool = useCallback(() => setTool({ name: "pencil", state: { currentAction: "default" } }), [setTool]);
+    const onSetFillTool = useCallback(() => setTool({ name: "fill", state: { currentAction: "default" } }), [setTool]);
+    const onSetEraserTool = useCallback(() => setTool({ name: "eraser", state: { currentAction: "default" } }), [setTool]);
+    const onSetPickerTool = useCallback(() => setTool({ name: "picker", state: { currentAction: "default" } }), [setTool]);
 
+    useHotkeys(Shortcuts.toolCursor.keyString, onSetCursorTool, { preventDefault: true }, [onSetCursorTool]);
+    useHotkeys(Shortcuts.toolPencil.keyString, onSetPencilTool, { preventDefault: true }, [onSetPencilTool]);
+    useHotkeys(Shortcuts.toolEraser.keyString, onSetEraserTool, { preventDefault: true }, [onSetEraserTool]);
+    useHotkeys(Shortcuts.toolPicker.keyString, onSetPickerTool, { preventDefault: true }, [onSetPickerTool]);
+
+    const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
+    
     const handleOnUndoClick = useCallback(() => undo(), [undo]);
-
     const handleOnRedoClick = useCallback(() => redo(), [redo]);
 
     return (
@@ -40,7 +59,7 @@ export const ProjectToolsPanel: FC = () => {
         >
             <VStack
                 backgroundColor={"white"}
-                borderRadius={"md"}
+                borderRadius={"lg"}
                 divider={<StackDivider borderColor={"blackAlpha.300"} />}
                 padding={1}
                 pointerEvents={"auto"}
@@ -49,83 +68,81 @@ export const ProjectToolsPanel: FC = () => {
                     colorScheme={"gray"}
                     orientation={"vertical"}
                     spacing={1}
-                    size={"sm"}
+                    size={"md"}
                     variant={"ghost"}
                 >
-                    <IconButton
-                        aria-label={"drag"}
-                        icon={<DragHandGesture />}
-                        isActive={selectedTool === "drag"}
-                        title={"Drag"}
-                        onClick={() => setSelectedTool("drag")}
-                    />
-                    <IconButton
-                        aria-label={"cursor"}
-                        icon={<CursorPointer />}
-                        isActive={selectedTool === "cursor"}
-                        title={"Cursor"}
-                        onClick={() => setSelectedTool("cursor")}
-                    />
-                    <IconButton
-                        aria-label={"pencil"}
-                        icon={<EditPencil />}
-                        isActive={selectedTool === "pencil"}
-                        title={"Pencil"}
-                        onClick={() => setSelectedTool("pencil")}
-                    />
-                    <IconButton
-                        aria-label={"eraser"}
-                        icon={<Erase />}
-                        isActive={selectedTool === "eraser"}
-                        title={"Eraser"}
-                        onClick={() => setSelectedTool("eraser")}
-                    />
-                    <IconButton
-                        aria-label={"picker"}
-                        icon={<ColorPicker />}
-                        isActive={selectedTool === "picker"}
-                        title={"Color Picker"}
-                        onClick={() => setSelectedTool("picker")}
-                    />
+                    <Tooltip label={"Cursor"} placement={"right"}>
+                        <IconButton
+                            aria-label={"cursor"}
+                            icon={<CursorPointer />}
+                            isActive={tool.name === "cursor"}
+                            onClick={onSetCursorTool}
+                        />
+                    </Tooltip>
+                    <Tooltip label={"Pencil"} placement={"right"}>
+                        <IconButton
+                            aria-label={"pencil"}
+                            icon={<EditPencil />}
+                            isActive={tool.name === "pencil"}
+                            onClick={onSetPencilTool}
+                        />
+                    </Tooltip>
+                    <Tooltip label={"Fill"} placement={"right"}>
+                        <IconButton
+                            aria-label={"fill"}
+                            icon={<FillColor />}
+                            isActive={tool.name === "fill"}
+                            isDisabled
+                            onClick={onSetFillTool}
+                        />
+                    </Tooltip>
+                    <Tooltip label={"Eraser"} placement={"right"}>
+                        <IconButton
+                            aria-label={"eraser"}
+                            icon={<Erase />}
+                            isActive={tool.name === "eraser"}
+                            onClick={onSetEraserTool}
+                        />
+                    </Tooltip>
+                    <Tooltip label={"Color Picker"} placement={"right"}>
+                        <IconButton
+                            aria-label={"picker"}
+                            icon={<ColorPicker />}
+                            isActive={tool.name === "picker"}
+                            onClick={onSetPickerTool}
+                        />
+                    </Tooltip>
                 </ButtonGroup>
-                <BeadColorStack summary={getSummary(pattern)} />
+                {summary && summary.beads.length > 0 && (
+                    <VStack position={"relative"} gap={1} marginY={2}>
+                        {summary.beads.map((bead, index) => (
+                            <ColorPalettePopover key={index} {...bead} />
+                        ))}
+                    </VStack>
+                )}
                 <ButtonGroup
                     colorScheme={"gray"}
                     orientation={"vertical"}
                     spacing={1}
-                    size={"sm"}
+                    size={"md"}
                     variant={"ghost"}
                 >
-                    <IconButton
-                        aria-label={"undo"}
-                        icon={<Undo />}
-                        title={"Undo"}
-                        onClick={handleOnUndoClick}
-                    />
-                    <IconButton
-                        aria-label={"redo"}
-                        icon={<Redo />}
-                        title={"Redo"}
-                        onClick={handleOnRedoClick}
-                    />
+                    <Tooltip label={"Undo"} placement={"right"}>
+                        <IconButton
+                            aria-label={"undo"}
+                            icon={<Undo />}
+                            onClick={handleOnUndoClick}
+                        />
+                    </Tooltip>
+                    <Tooltip label={"Redo"} placement={"right"}>
+                        <IconButton
+                            aria-label={"redo"}
+                            icon={<Redo />}
+                            onClick={handleOnRedoClick}
+                        />
+                    </Tooltip>
                 </ButtonGroup>
             </VStack>
         </Box>
-    );
-};
-
-export const BeadColorStack: FC<{
-    summary: PatternSummary;
-}> = ({
-    summary
-}) => {
-    if (!summary || summary.beads.length === 0) return null;
-
-    return (
-        <VStack position={"relative"} gap={1} marginY={2}>
-            {summary.beads.map((bead, index) => (
-                <ColorPalettePopover key={index} {...bead} />
-            ))}
-        </VStack>
     );
 };

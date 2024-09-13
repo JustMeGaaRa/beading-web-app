@@ -1,11 +1,11 @@
 import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import { FC, useMemo } from "react";
-import { getSummary, usePattern } from "./pattern";
+import { getPatternSummary, usePattern } from "./pattern";
 
 export const PatternSummaryPanel: FC<{}> = ({}) => {
     const { pattern } = usePattern();
 
-    const summary = useMemo(() => getSummary(pattern), [pattern]);
+    const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
 
     return (
         <Flex flexDirection={"column"} color={"gray.600"} fontSize={"sm"} gap={2}>

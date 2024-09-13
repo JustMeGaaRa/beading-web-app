@@ -12,7 +12,8 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { Palette, Plus, Settings } from "iconoir-react";
-import { FC, useCallback } from "react";
+import { FC, useCallback, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import {
     BeadingGridOptionsPanel,
     BeadingGridState,
@@ -21,6 +22,7 @@ import {
     ColorPalette,
     usePattern,
     useColorPalette,
+    Shortcuts,
 } from "../components";
 
 type BeadingGridConfiguration = Omit<BeadingGridState, "rows">;
@@ -34,6 +36,15 @@ export const ProjectPropertiesPanel: FC = () => {
         applyGridOptions
     } = usePattern();
     const { setSelectedColor } = useColorPalette();
+    const [colorPaletteIndex, setColorPaletteIndex] = useState<number | number[]>(0);
+    const [gridOptionsIndex, setGridOptionsIndex] = useState<number | number[]>(0);
+
+    const togglePanels = useCallback(() => {
+        setColorPaletteIndex((prev) => (prev === 0 ? 1 : 0));
+        setGridOptionsIndex((prev) => (prev === 0 ? 1 : 0));
+    }, [setColorPaletteIndex, setGridOptionsIndex]);
+
+    useHotkeys(Shortcuts.panelToggleAll.keyString, () => togglePanels(), { preventDefault: true }, [togglePanels]);
 
     const handleOnAddGridClick = useCallback(() => {
         addGrid();
@@ -67,8 +78,9 @@ export const ProjectPropertiesPanel: FC = () => {
                     allowToggle
                     backgroundColor={"white"}
                     borderRadius={8}
-                    defaultIndex={[0]}
+                    index={colorPaletteIndex}
                     mt={2}
+                    onChange={setColorPaletteIndex}
                 >
                     <AccordionItem>
                         <AccordionButton>
@@ -87,8 +99,9 @@ export const ProjectPropertiesPanel: FC = () => {
                     allowToggle
                     backgroundColor={"white"}
                     borderRadius={8}
-                    defaultIndex={[0]}
+                    index={gridOptionsIndex}
                     mt={2}
+                    onChange={setGridOptionsIndex}
                 >
                     <AccordionItem>
                         <AccordionButton>

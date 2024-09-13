@@ -1,16 +1,17 @@
-import { createContext, SetStateAction } from "react";
+import { createContext, Dispatch, SetStateAction } from "react";
+import { BeadingGridCellState, BeadingGridState } from "../beading-grid";
 import { DefaultPatternOptions } from "./constants";
-import { BeadingGridState, PatternOptions } from "./types";
+import { PatternOptions } from "./types";
 
 export const PatternContext = createContext<{
     name: string;
     options: PatternOptions;
     grids: Array<BeadingGridState>;
     gridCount: number;
-    setName: React.Dispatch<SetStateAction<string>>;
-    setOptions: React.Dispatch<SetStateAction<PatternOptions>>;
-    setGrids: React.Dispatch<SetStateAction<Array<BeadingGridState>>>;
-    setGridCount: React.Dispatch<SetStateAction<number>>;
+    setName: Dispatch<SetStateAction<string>>;
+    setOptions: Dispatch<SetStateAction<PatternOptions>>;
+    setGrids: Dispatch<SetStateAction<Array<BeadingGridState>>>;
+    setGridCount: Dispatch<SetStateAction<number>>;
 }>({
     name: "Untitled pattern",
     options: DefaultPatternOptions,
@@ -20,4 +21,20 @@ export const PatternContext = createContext<{
     setOptions: () => {},
     setGrids: () => {},
     setGridCount: () => {},
+});
+
+export const PatternSelectionContext = createContext<{
+    selectedCells: Record<string, Array<BeadingGridCellState>>;
+    selectedColumn: number;
+    selectedRow: number;
+    setSelectedCells: Dispatch<SetStateAction<Record<string, Array<BeadingGridCellState>>>>;
+    setSelectedColumn: Dispatch<SetStateAction<number>>;
+    setSelectedRow: Dispatch<SetStateAction<number>>;
+}>({
+    selectedCells: {},
+    selectedColumn: -1,
+    selectedRow: -1,
+    setSelectedCells: () => {},
+    setSelectedColumn: () => {},
+    setSelectedRow: () => {},
 });

@@ -1,89 +1,23 @@
+import capitalize from "just-capitalize";
 import { v6 } from "uuid";
 import {
-    CellBlankColor,
-    CellPixelRatio,
-    DefaultPatternOptions
-} from "./constants";
-import {
-    BeadingGridCellState,
     BeadingGridMetadata,
     BeadingGridProperties,
     BeadingGridRow,
     BeadingGridState,
     BeadSize,
+    CellBlankColor,
+    CellPixelRatio,
+    getGridRenderSize,
+    isNullOrEmpty
+} from "../beading-grid";
+import { DefaultPatternOptions } from "./constants";
+import {
     PatternMetadata,
     PatternOptions,
     PatternState,
     PatternSummary
 } from "./types";
-
-export const createDefaultPattern = () => {
-    return {
-        patternId: `pattern-${v6()}`,
-        name: "Untitled pattern",
-        coverUrl: "",
-        lastModified: new Date(),
-        options: DefaultPatternOptions,
-        grids: [],
-        gridCount: 0,
-    };
-};
-
-export const getSummary = (pattern: PatternState): PatternSummary => {
-    const { grids, options } = pattern;
-    const beadItems = new Map<string, number>();
-
-    grids.forEach((gridState) => {
-        gridState.rows.forEach((rowState) => {
-            rowState.cells
-                .filter((cell) => !isNullOrEmpty(cell))
-                .forEach((cell) =>
-                    beadItems.set(cell, (beadItems.get(cell) || 0) + 1)
-                );
-        });
-    });
-    const beads = Array.from(beadItems.keys()).map((key) => ({
-        color: key,
-        colorName: key,
-        number: beadItems.get(key) || 0,
-    }));
-    const totalBeads = grids.reduce((patternTotal, gridState) => {
-        const gridTotal = gridState.rows.reduce((gridTotal, rowState) => {
-            const rowTotal = rowState.cells.filter((cell) => !isNullOrEmpty(cell)).length;
-            return gridTotal + rowTotal;
-        }, 0);
-        return patternTotal + gridTotal;
-    }, 0);
-    const totalHeight =
-    options.layout.orientation === "vertical"
-        ? grids
-            .reduce((totalHeight, gridState) =>
-                totalHeight + gridState.rows.length * options.layout.beadSize.height,
-                0
-            )
-        : grids
-            .map((gridState) => gridState.rows.length)
-            .reduce((max, height) =>
-                max > height ? max : height * options.layout.beadSize.height,
-                0
-            );
-    const totalWidth =
-    options.layout.orientation === "vertical"
-        ? options.layout.width
-        : options.layout.width * grids.length * options.layout.beadSize.width;
-    const totalSize: BeadSize = {
-        title: `${totalHeight.toFixed(2)} x ${totalWidth.toFixed(2)} mm`,
-        height: totalHeight,
-        width: totalWidth,
-    };
-
-    return {
-        totalBeads,
-        beadSize: options.layout.beadSize,
-        totalSize,
-        beads,
-    };
-};
 
 export const validatePattern = (data: any): data is PatternState => {
     if (typeof data !== "object" || data === null) {
@@ -132,15 +66,83 @@ export const validatePatternOptions = (data: any): data is PatternOptions => {
     return typeof data.layout.width === "number"
         && typeof data.layout.height === "number"
         && typeof data.layout.orientation === "string";
-}
+};
 
-export const createBeadingGrid = (
+export const createPattern = () => {
+    return {
+        patternId: `pattern-${v6()}`,
+        name: "Untitled pattern",
+        coverUrl: "",
+        lastModified: new Date(),
+        options: DefaultPatternOptions,
+        grids: [],
+        gridCount: 0,
+    };
+};
+
+export const getPatternSummary = (pattern: PatternState): PatternSummary => {
+    const { grids, options } = pattern;
+    const beadItems = new Map<string, number>();
+
+    grids.forEach((gridState) => 
+        gridState.rows.forEach((rowState) => 
+            rowState.cells
+                .filter((cell) => !isNullOrEmpty(cell))
+                .forEach((cell) => beadItems.set(cell, (beadItems.get(cell) || 0) + 1))
+        )
+    );
+
+    const beads = Array.from(beadItems.keys()).map((key) => ({
+        color: key,
+        colorName: key,
+        number: beadItems.get(key) || 0,
+    }));
+
+    const totalBeads = grids.reduce((patternTotal, gridState) => {
+        const gridTotal = gridState.rows.reduce((gridTotal, rowState) => {
+            const rowTotal = rowState.cells.filter((cell) => !isNullOrEmpty(cell)).length;
+            return gridTotal + rowTotal;
+        }, 0);
+        return patternTotal + gridTotal;
+    }, 0);
+
+    const totalHeight = options.layout.orientation === "vertical"
+        ? grids
+            .reduce((totalHeight, gridState) =>
+                totalHeight + gridState.rows.length * options.layout.beadSize.height,
+                0
+            )
+        : grids
+            .map((gridState) => gridState.rows.length)
+            .reduce((max, height) =>
+                max > height ? max : height * options.layout.beadSize.height,
+                0
+            );
+    const totalWidth = options.layout.orientation === "vertical"
+        ? options.layout.width
+        : options.layout.width * grids.length * options.layout.beadSize.width;
+    
+    const totalSize: BeadSize = {
+        title: `${totalHeight.toFixed(2)} x ${totalWidth.toFixed(2)} mm`,
+        height: totalHeight,
+        width: totalWidth,
+    };
+
+    return {
+        totalBeads,
+        beadSize: options.layout.beadSize,
+        totalSize,
+        beads,
+    };
+};
+
+export const createGrid = (
     gridCount: number,
     gridOptions: BeadingGridProperties,
     options: PatternOptions
 ): BeadingGridState => {
     const isHorizontal = options.layout.orientation === "horizontal";
-    const gridName = `Grid ${gridCount + 1}`;
+    const gridName = `${capitalize(gridOptions.type)} Grid ${gridCount + 1}`;
 
     switch (gridOptions.type) {
         case "square": {
@@ -214,125 +216,14 @@ export const applyPatternOptions = (
     };
 };
 
-export const insertGridRow = (state: BeadingGridState, rowIndex: number): BeadingGridState => {
-    return {
-        ...state,
-        rows: [
-            ...state.rows.slice(0, rowIndex),
-            { cells: Array.from({ length: state.options.width }, () => CellBlankColor) },
-            ...state.rows.slice(rowIndex)
-        ],
-        options: {
-            ...state.options,
-            height: state.options.height + 1
-        }
-    };
-};
-
-export const clearGridRow = (state: BeadingGridState, rowIndex: number): BeadingGridState => {
-    return {
-        ...state,
-        rows: state.rows.map((row, index) => index === rowIndex
-            ? { cells: row.cells.map(() => CellBlankColor) }
-            : row
-        ),
-        options: {
-            ...state.options,
-            height: state.options.height - 1
-        }
-    };
-};
-
-export const deleteGridRow = (state: BeadingGridState, rowIndex: number): BeadingGridState => {
-    return {
-        ...state,
-        rows: state.rows.filter((_, index) => index !== rowIndex),
-        options: {
-            ...state.options,
-            height: state.options.height - 1
-        }
-    };
-};
-
-export const insertGridColumn = (state: BeadingGridState, columnIndex: number): BeadingGridState => {
-    return {
-        ...state,
-        rows: state.rows.map((row) => ({
-            cells: [
-                ...row.cells.slice(0, columnIndex),
-                CellBlankColor,
-                ...row.cells.slice(columnIndex)
-            ]
-        })),
-        options: {
-            ...state.options,
-            width: state.options.width + 1
-        }
-    };
-};
-
-export const clearGridColumn = (state: BeadingGridState, columnIndex: number): BeadingGridState => {
-    return {
-        ...state,
-        rows: state.rows.map((row) => ({
-            cells: row.cells.map((cell, index) => index === columnIndex
-                ? CellBlankColor
-                : cell
-            )
-        })),
-        options: {
-            ...state.options,
-            width: state.options.width - 1
-        }
-    };
-};
-
-export const deleteGridColumn = (state: BeadingGridState, columnIndex: number): BeadingGridState => {
-    return {
-        ...state,
-        rows: state.rows.map((row) => ({
-            cells: row.cells.filter((_, index) => index !== columnIndex)
-        })),
-        options: {
-            ...state.options,
-            width: state.options.width - 1
-        }
-    };
-};
-
-export const setBeadingGridCell = (
-    grid: BeadingGridState,
-    cell: BeadingGridCellState
-): BeadingGridState => {
-    return {
-        ...grid,
-        rows: grid.rows.map((gridRow, rowIndex) => ({
-            cells: gridRow.cells.map((gridCell, columnIndex) =>
-                rowIndex === cell.row && columnIndex === cell.column
-                ? cell.color
-                : gridCell
-            )
-        }))
-    };
-};
-
 export const applyBeadingGridOptions = (
     grid: BeadingGridState,
     modifiedGridOptions: BeadingGridProperties,
     options: PatternOptions
 ): BeadingGridState => {
-    const modifiedGrid = {
-        ...createBeadingGrid(999, modifiedGridOptions, options),
-        name: grid.name
-    };
-    const minWidth = Math.min(
-        grid.rows[0].cells.length,
-        modifiedGrid.rows[0].cells.length
-    );
-    const minHeight = Math.min(
-        grid.rows.length,
-        modifiedGrid.rows.length
-    );
+    const modifiedGrid = { ...createGrid(999, modifiedGridOptions, options), name: grid.name };
+    const minWidth = Math.min(grid.rows[0].cells.length, modifiedGrid.rows[0].cells.length);
+    const minHeight = Math.min(grid.rows.length, modifiedGrid.rows.length);
 
     for (let row = 0; row < minHeight; row++) {
         for (let column = 0; column < minWidth; column++) {
@@ -345,7 +236,13 @@ export const applyBeadingGridOptions = (
 
 export const getPatternSize = (pattern: PatternState, options: PatternOptions) => {
     const isHorizontal = options.layout.orientation === "horizontal";
-    const maxFringe = Math.max(...pattern.grids.map(grid => grid.options.type === "brick" ? grid.options.fringe : 0));
+
+    const maxFringe = Math.max(
+        ...pattern.grids.map(grid => 
+            grid.options.type === "brick"
+            ? grid.options.fringe
+            : 0
+    ));
     const height = isHorizontal
         ? pattern.grids[0].rows.length + maxFringe
         : pattern.grids.reduce((totalHeight, grid) =>
@@ -364,63 +261,63 @@ export const getPatternSize = (pattern: PatternState, options: PatternOptions) =
     return { height, width };
 };
 
+export const getPatternRenderSize = (pattern: PatternState, options: PatternOptions) => {
+    const size = getPatternSize(pattern, pattern.options);
+    return {
+        height: size.height * CellPixelRatio * pattern.options.layout.beadSize.height,
+        width: size.width * CellPixelRatio * pattern.options.layout.beadSize.width
+    };
+};
+
 export const getPatternMetadata = (pattern: PatternState, options: PatternOptions): PatternMetadata => {
-    let offsetX = 0;
-    let offsetY = 0;
+    let offsetColumn = 0;
+    let offsetRow = 0;
     const isHorizontal = options.layout.orientation === "horizontal";
+    const textOffsetColumns = 4;
+    const textOffsetRows = 2;
 
     const gridMetadata = pattern.grids.reduce((metadata, grid, index) => {
-        const gridPosition = { x: offsetX, y: offsetY };
-        const gridSize = getBeadingGridRenderSize(grid, options);
-        const dividerPoints = isHorizontal
-            ? [gridSize.width, 0, gridSize.width, gridSize.height]
-            : [0, gridSize.height, gridSize.width, gridSize.height];
-        const isGridDividerVisible = index < pattern.grids.length - 1;
+        const dividerOffset = isHorizontal
+        ? {
+            columnIndex: offsetColumn,
+            rowIndex: offsetRow,
+        }
+        : {
+            columnIndex: offsetColumn - textOffsetColumns,
+            rowIndex: offsetRow,
+        };
+
+        const dividerLength = isHorizontal
+            ? grid.rows.length + textOffsetRows
+            : grid.rows[0].cells.length + textOffsetColumns;
+        
+        const textOffset = isHorizontal
+        ? {
+            columnIndex: offsetColumn,
+            rowIndex: offsetRow + grid.rows.length - 1 + textOffsetRows,
+        }
+        : {
+            columnIndex: offsetColumn - textOffsetColumns,
+            rowIndex: offsetRow,
+        };
 
         const gridMetadata = {
             ...metadata,
             [grid.name]: {
-                position: gridPosition,
-                size: gridSize,
+                offset: { rowIndex: offsetRow, columnIndex: offsetColumn },
                 divider: {
-                    isVisible: isGridDividerVisible,
-                    points: dividerPoints,
+                    offset: dividerOffset,
+                    length: dividerLength,
                 },
+                text: textOffset
             },
         };
 
-        offsetX = isHorizontal ? offsetX + gridSize.width : 0;
-        offsetY = isHorizontal ? 0 : offsetY + gridSize.height;
+        offsetColumn = isHorizontal ? offsetColumn + grid.rows[0].cells.length : 0;
+        offsetRow = isHorizontal ? 0 : offsetRow + grid.rows.length;
 
         return gridMetadata;
     }, {} as Record<string, BeadingGridMetadata>);
 
-    return {
-        size: { height: offsetX, width: offsetY },
-        grids: gridMetadata
-    };
-};
-
-export const getBeadingGridRenderSize = (
-    grid: BeadingGridState,
-    options: PatternOptions,
-) => {
-    const isHorizontal = options.layout.orientation === "horizontal";
-    const isBrickType = grid.options.type === "brick";
-
-    const cellHeight = isBrickType
-        ? options.layout.beadSize.width
-        : options.layout.beadSize.height;
-    const cellWidth = isBrickType
-        ? options.layout.beadSize.height
-        : options.layout.beadSize.width;
-
-    const height = grid.rows.length * cellHeight * CellPixelRatio;
-    const width = grid.rows[0].cells.length * cellWidth * CellPixelRatio;
-
-    return { height, width };
-};
-
-export const isNullOrEmpty = (str?: string) => {
-    return str === null || str === undefined || str === "";
+    return { grids: gridMetadata };
 };

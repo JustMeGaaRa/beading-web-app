@@ -38,16 +38,13 @@ export const ColorBox: FC<{
         <Box
             aria-selected={isSelected}
             backgroundColor={color}
+            borderColor={"gray.200"}
             borderRadius={4}
             borderWidth={1}
             height={8}
             width={8}
-            _hover={{
-                borderColor: "cyan.400",
-            }}
-            _selected={{
-                borderColor: "cyan.400",
-            }}
+            _hover={{ borderColor: "#FFFFFF", boxShadow: "0px 0px 0px 2px #0BC5EA;" }}
+            _selected={{ borderColor: "#FFFFFF", boxShadow: "0px 0px 0px 2px #0BC5EA;" }}
             onClick={handleOnClick}
         />
     );

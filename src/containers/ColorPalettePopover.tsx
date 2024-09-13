@@ -31,17 +31,17 @@ export const ColorPalettePopover: FC<PropsWithChildren<{
             <PopoverTrigger>
                 <Box
                     backgroundColor={color}
+                    borderColor={"gray.200"}
                     borderRadius={4}
                     borderWidth={1}
                     height={8}
                     width={8}
-                    _hover={{ borderColor: "cyan.400" }}
-                    _selected={{ borderColor: "cyan.400" }}
+                    _hover={{ borderColor: "#FFFFFF", boxShadow: "0px 0px 0px 2px #0BC5EA;" }}
                 />
             </PopoverTrigger>
             <PopoverContent borderRadius={12} width={220}>
                 <PopoverBody>
-                    <Flex flexDirection={"column"} gap={2} overflowY={"scroll"}>
+                    <Flex flexDirection={"column"} gap={2} overflowY={"scroll"} padding={1}>
                         <Text color={"gray.700"} fontSize={"sm"} fontWeight={600}>Select color</Text>
                         <BeadSummaryItem color={color} colorName={colorName} number={number} />
                         <Divider borderColor={"blackAlpha.200"} />

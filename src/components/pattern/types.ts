@@ -1,10 +1,6 @@
-export type LayoutOrientation = "vertical" | "horizontal";
+import { BeadingGridMetadata, BeadingGridState, BeadSize } from "../beading-grid";
 
-export type BeadSize = {
-    title: string;
-    height: number;
-    width: number;
-};
+export type LayoutOrientation = "vertical" | "horizontal";
 
 export type PatternLayoutOptions = {
     beadSize: BeadSize;
@@ -28,49 +24,6 @@ export type PatternSummary = {
     }>;
 };
 
-export type BeadingGridType = "square" | "peyote" | "brick";
-
-export type SquareGridProperties = {
-    type: "square";
-    height: number;
-    width: number;
-};
-
-export type PeyoteGridProperties = {
-    type: "peyote";
-    height: number;
-    width: number;
-};
-
-export type BrickGridProperties = {
-    type: "brick";
-    height: number;
-    width: number;
-    fringe: number;
-    drop: number;
-};
-
-export type BeadingGridProperties =
-    | SquareGridProperties
-    | PeyoteGridProperties
-    | BrickGridProperties;
-
-export type BeadingGridRow = {
-    cells: Array<string>;
-};
-
-export type BeadingGridCellState = {
-    row: number;
-    column: number;
-    color: string;
-};
-
-export type BeadingGridState = {
-    name: string;
-    rows: Array<BeadingGridRow>;
-    options: BeadingGridProperties;
-};
-
 export type PatternState = {
     patternId: string;
     coverUrl: string;
@@ -81,13 +34,12 @@ export type PatternState = {
     gridCount: number;
 };
 
-export type BeadingGridMetadata = {
-    position: { x: number; y: number };
-    size: { height: number; width: number };
-    divider: { isVisible: boolean; points: Array<number> };
+export type PatternMetadata = {
+    grids: Record<string, BeadingGridMetadata>;
 };
 
-export type PatternMetadata = {
-    size: { height: number; width: number };
-    grids: Record<string, BeadingGridMetadata>;
+export type TextState = {
+    gridName: string;
+    gridIndex: number;
+    patternIndex: number;
 };

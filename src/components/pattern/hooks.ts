@@ -1,11 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
+import { PatternSelectionContext } from "./context";
 import { usePatternStore } from "./store";
-import {
-    BeadingGridCellState,
-    BeadingGridProperties,
-    PatternOptions,
-    PatternState,
-} from "./types";
+import { PatternOptions, PatternState } from "./types";
+import { BeadingGridCellState, BeadingGridProperties, GridCellPosition, GridSection } from "../beading-grid";
 import { useStore } from "zustand";
 
 export const usePattern = () => {
@@ -27,8 +24,8 @@ export const usePattern = () => {
         dispatch({ type: "changePatternColor", payload: { oldColor, newColor } });
     }, [dispatch]);
 
-    const setGridCellColor = useCallback((name: string, cell: BeadingGridCellState) => {
-        dispatch({ type: "setGridCellColor", payload: { name, cell } });
+    const setGridCell = useCallback((name: string, cell: BeadingGridCellState) => {
+        dispatch({ type: "setGridCell", payload: { name, cell } });
     }, [dispatch]);
     
     const addGrid = useCallback(() => {
@@ -45,6 +42,10 @@ export const usePattern = () => {
 
     const applyGridOptions = useCallback((name: string, options: BeadingGridProperties) => {
         dispatch({ type: "applyGridOptions", payload: { name, options } });
+    }, [dispatch]);
+
+    const clearGridCells = useCallback((name: string, cells: Array<BeadingGridCellState>) => {
+        dispatch({ type: "clearGridCells", payload: { name, cells } });
     }, [dispatch]);
 
     const addGridColumnLeft = useCallback((name: string, column: number) => {
@@ -79,17 +80,22 @@ export const usePattern = () => {
         dispatch({ type: "clearGridRow", payload: { name, row } });
     }, [dispatch]);
 
+    const setGridSection = useCallback((name: string, section: GridSection, cellPosition: GridCellPosition) => {
+        dispatch({ type: "setGridSection", payload: { name, section, cellPosition } });
+    }, [dispatch]);
+
     return {
         pattern,
         setPatternName,
         setPatternCover,
         changePatternColor,
-        setGridCellColor,
+        setGridCell,
         addGrid,
         deleteGrid,
         setPattern,
         applyPatternOptions,
         applyGridOptions,
+        clearGridCells,
         addGridColumnLeft,
         addGridColumnRight,
         deleteGridColumn,
@@ -98,7 +104,12 @@ export const usePattern = () => {
         addGridRowBelow,
         deleteGridRow,
         clearGridRow,
+        setGridSection
     };
+};
+
+export const usePatternSelection = () => {
+    return useContext(PatternSelectionContext);
 };
 
 export const usePatterHistory = () => {

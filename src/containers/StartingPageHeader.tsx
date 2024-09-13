@@ -1,13 +1,28 @@
-import { Button, ButtonGroup, Flex, Input, Text, useToast } from "@chakra-ui/react";
+import { Button, ButtonGroup, Flex, Input, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { v6 } from "uuid";
-import { createDefaultPattern, Header, usePatternCollection, validatePattern } from "../components";
+import { createPattern, Header, Shortcuts, ShortcutTableModal, usePatternCollection, validatePattern } from "../components";
 
 export const StartingPageHeader: FC = () => {
-    const { addPattern } = usePatternCollection();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
+    const { addPattern } = usePatternCollection();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const peekShortcuts = useCallback((keyboardEvent: KeyboardEvent, hotkeysEvent: any) => {
+        if (keyboardEvent.type === "keydown") {
+            onOpen();
+        }
+        if (keyboardEvent.type === "keyup") {
+            onClose();
+        }
+    }, [onOpen, onClose]);
+
+    useHotkeys(Shortcuts.help.keyString, peekShortcuts, { preventDefault: true, keydown: true, keyup: true }, []);
+    useHotkeys(Shortcuts.patternCreate.keyString, () => addPattern(createPattern()), { preventDefault: true }, [addPattern]);
+    useHotkeys(Shortcuts.patternOpen.keyString, () => fileInputRef.current?.click(), { preventDefault: true }, [fileInputRef.current]);
 
     const handleFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -65,7 +80,7 @@ export const StartingPageHeader: FC = () => {
     }, [addPattern, fileInputRef.current]);
     
     const handleOnCreatePatternClick = useCallback(() => {
-        addPattern(createDefaultPattern());
+        addPattern(createPattern());
     }, [addPattern]);
     
     return (
@@ -94,11 +109,21 @@ export const StartingPageHeader: FC = () => {
                     rightIcon={<Plus />}
                     variant={"solid"}
                     title={"create pattern"}
+                    backgroundColor={"gray.900"}
+                    color={"white"}
+                    _hover={{ backgroundColor: "gray.700" }}
+                    _active={{ backgroundColor: "gray.600" }}
                     onClick={handleOnCreatePatternClick}
                 >
                     Create pattern
                 </Button>
             </ButtonGroup>
+            
+            <ShortcutTableModal
+                scope={"page.starting"}
+                isOpen={isOpen}
+                onClose={onClose}
+            />
         </Header>
     );
 };

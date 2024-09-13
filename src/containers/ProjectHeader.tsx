@@ -10,12 +10,15 @@ import {
     PopoverCloseButton,
     PopoverContent,
     PopoverTrigger,
+    Tooltip,
 } from "@chakra-ui/react";
 import { ArrowLeft, CloudCheck, CloudSync, Page } from "iconoir-react";
 import { FC, ChangeEvent, useCallback, useEffect, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate } from "react-router";
 import {
     Header,
+    Shortcuts,
     PatternSummaryPanel,
     usePattern,
     usePatternCollection,
@@ -28,6 +31,8 @@ export const ProjectHeader: FC = () => {
     const { pattern, setPatternName } = usePattern();
     const { savePattern } = usePatternCollection();
     const { isDirty, resetDirty } = usePatternStore();
+
+    useHotkeys(Shortcuts.patternRename.keyString, () => editableRef.current?.focus(), { preventDefault: true }, [editableRef.current]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -48,7 +53,7 @@ export const ProjectHeader: FC = () => {
         navigate("/");
     }, [navigate]);
 
-    const handleOnSyncClick = useCallback(() => {
+    const handleOnBackupClick = useCallback(() => {
         savePattern(pattern);
         resetDirty();
     }, [pattern, resetDirty, savePattern]);
@@ -56,35 +61,36 @@ export const ProjectHeader: FC = () => {
     return (
         <Header>
             <HStack ml={2}>
-                <IconButton
-                    aria-label={"go back"}
-                    icon={<ArrowLeft />}
-                    size={"sm"}
-                    title={"go back"}
-                    variant={"ghost"}
-                    onClick={handleOnGoBackClick}
-                />
+                <Tooltip label={"Navigate to homepage"} placement={"bottom"}>
+                    <IconButton
+                        aria-label={"navigate to homepage"}
+                        icon={<ArrowLeft />}
+                        size={"sm"}
+                        variant={"ghost"}
+                        onClick={handleOnGoBackClick}
+                    />
+                </Tooltip>
                 <Editable value={pattern.name} ml={2}>
                     <EditablePreview />
                     <EditableInput ref={editableRef} onChange={handleOnChangeName} />
                 </Editable>
             </HStack>
             <ButtonGroup id={"header-actions-group"} mr={2} size={"sm"} variant={"ghost"}>
-                <IconButton
-                    aria-label={"sync"}
-                    icon={isDirty ? <CloudSync /> : <CloudCheck />}
-                    color={isDirty ? "yellow.500" : "green.500"}
-                    size={"sm"}
-                    title={isDirty ? "pending changes" : "synchronized"}
-                    variant={"ghost"}
-                    onClick={handleOnSyncClick}
-                />
+                <Tooltip label={`Periodic backup: ${isDirty ? "Pending" : "Done"}`} placement={"bottom"}>
+                    <IconButton
+                        aria-label={"periodic backup"}
+                        icon={isDirty ? <CloudSync /> : <CloudCheck />}
+                        colorScheme={isDirty ? "blue" : "gray"}
+                        size={"sm"}
+                        variant={"ghost"}
+                        onClick={handleOnBackupClick}
+                    />
+                </Tooltip>
                 <Popover size={"xs"}>
                     <PopoverTrigger>
                         <IconButton
                             aria-label={"summary"}
                             icon={<Page />}
-                            title={"summary"}
                         />
                     </PopoverTrigger>
                     <PopoverContent>

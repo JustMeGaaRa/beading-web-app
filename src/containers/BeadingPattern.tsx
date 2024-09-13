@@ -6,7 +6,8 @@ import {
     MenuDivider,
     MenuItem,
     MenuList,
-    useDisclosure
+    useDisclosure,
+    useToast
 } from "@chakra-ui/react";
 import {
     MediaImage,
@@ -15,58 +16,57 @@ import {
 } from "iconoir-react";
 import {
     FC,
-    Fragment,
     useCallback,
     useEffect,
-    useLayoutEffect,
     useMemo,
     useRef,
     useState,
 } from "react";
 import { createPortal } from "react-dom";
 import {
-    Circle,
-    Group,
     Layer,
-    Line,
-    Rect,
     Stage,
-    Text,
 } from "react-konva";
 import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
 import {
     useColorPalette,
     useTools,
-    BeadSize,
-    BeadingGridState,
     getPatternMetadata,
-    PatternOptions,
-    FrameTextColor,
-    getPatternSize,
-    FrameSelectedColor,
     usePatternSelection,
     usePatternStore,
-    BeadingGridMetadata,
     PatternState,
+    usePatternCollection,
+    usePatterHistory,
+    TextState,
+    PatternFrame,
+    CellBlankColor,
+    BeadingGridState,
+    BeadingPointerEvent,
+    BeadingGrid,
+    FrameSelectedBorderColor,
+    FrameSelectedFillColor,
+    CellPixelRatio,
+    getGridSectionRenderArea,
+    getGridMirrorSections,
+    getPatternRenderSize,
+    GridOptionsProvider,
+    DividerStrokeColor,
+    GridDivider,
+    GridText,
+    HighlightedArea,
+    GridSection,
+    GridMirrorSections,
+    GridCellPosition,
 } from "../components";
 import {
-    CellBlankColor,
-    CellDotColor,
-    CellPixelRatio,
-    CellStrokeColor,
-    DividerStrokeColor,
+    Shortcuts,
     usePattern,
-    isNullOrEmpty,
 } from "../components";
-import { KonvaEventObject } from "konva/lib/Node";
 import { downloadUri, toJsonUri } from "../utils";
-
-type BeadingPointerEvent = {
-    row: number;
-    column: number;
-    x?: number;
-    y?: number;
-};
+import { useHotkeys } from "react-hotkeys-hook";
+import { useParams } from "react-router";
+import { PatternActionToolbar } from "./PatternActionToolbar";
 
 const ZOOM_FACTOR = 1.1;
 
@@ -112,20 +112,50 @@ const applyTransform = (
     stage.batchDraw();
 };
 
+const isInBounds = (rowIndex: number, columnIndex: number, size: { width: number; height: number }) => {
+    return columnIndex >= 0 && rowIndex >= 0 && columnIndex < size.width && rowIndex < size.height;
+};
+
+const getCellFromPointerPosition = (stage: Konva.Stage | null, pattern: PatternState) => {
+    if (!stage) return undefined;
+
+    const pointerPosition = stage.getPointerPosition();
+    const stageTransform = stage.getAbsoluteTransform().copy().invert();
+    
+    if (!stageTransform || !pointerPosition) return undefined;
+
+    const stagePointerPosition = stageTransform.point(pointerPosition);
+
+    const columnIndex = Math.floor(stagePointerPosition.x / pattern.options.layout.beadSize.width / CellPixelRatio);
+    const rowIndex = Math.floor(stagePointerPosition.y / pattern.options.layout.beadSize.height / CellPixelRatio);
+    
+    const patternSize = getPatternRenderSize(pattern, pattern.options);
+
+    if (!isInBounds(rowIndex, columnIndex, patternSize)) return undefined;
+
+    return { columnIndex, rowIndex };
+}
+
 export const BeadingPattern: FC = () => {
+    const toast = useToast();
     const containerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<Konva.Stage>(null);
-    const lastDist = useRef(0);
+    const stageLastDistanceRef = useRef(0);
     const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
     const [isPointerDown, setIsPointerDown] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+    const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | null>(null);
     const [rowState, setRowState] = useState<TextState | null>();
+    const [startingCell, setStartingCell] = useState<GridCellPosition | undefined>();
+    const [gridMirrorSections, setGridMirrorSections] = useState<GridMirrorSections | undefined>();
+    const { patternId } = useParams();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const {
         pattern,
+        setPattern,
         setPatternCover,
-        setGridCellColor,
+        setGridCell,
         addGridColumnLeft,
         addGridColumnRight,
         clearGridColumn,
@@ -134,9 +164,10 @@ export const BeadingPattern: FC = () => {
         addGridRowBelow,
         clearGridRow,
         deleteGridRow,
+        setGridSection
     } = usePattern();
+    const { patterns } = usePatternCollection();
     const {
-        selectedCells,
         selectedColumn,
         selectedRow,
         setSelectedCells,
@@ -144,10 +175,29 @@ export const BeadingPattern: FC = () => {
         setSelectedRow
     } = usePatternSelection();
     const { isDirty } = usePatternStore();
-    const { selectedTool } = useTools();
+    const { undo, redo } = usePatterHistory();
+    const { tool, setTool } = useTools();
     const { selectedColor, setSelectedColor } = useColorPalette();
 
-    useLayoutEffect(() => {
+    const metadata = useMemo(() => getPatternMetadata(pattern, pattern.options), [pattern]);
+    
+    const setStageCentered = useCallback((pattern: PatternState) => {
+        if (containerRef.current && stageRef.current && pattern?.grids.length > 0) {
+            const size = getPatternRenderSize(pattern, pattern.options);
+            const position = {
+                x: containerRef.current.offsetWidth / 2 - size.width / 2,
+                y: containerRef.current.offsetHeight / 2 - size.height / 2,
+            };
+            stageRef.current.position(position);
+            stageRef.current.scale({ x: 1, y: 1 });
+        }
+    }, [containerRef.current, stageRef.current]);
+
+    useHotkeys(Shortcuts.patternCenter.keyString, () => setStageCentered(pattern), { preventDefault: true }, [setStageCentered, pattern]);
+    useHotkeys(Shortcuts.patternUndo.keyString, () => undo(), { preventDefault: true }, [undo]);
+    useHotkeys(Shortcuts.patternRedo.keyString, () => redo(), { preventDefault: true }, [redo]);
+
+    useEffect(() => {
         const resizeStage = () => {
             if (containerRef.current) {
                 setStageSize({
@@ -160,12 +210,32 @@ export const BeadingPattern: FC = () => {
         resizeStage();
         window.addEventListener("resize", resizeStage);
 
-        return () => {
-            window.removeEventListener("resize", resizeStage);
-        };
+        return () => window.removeEventListener("resize", resizeStage);
     }, [containerRef.current]);
 
     useEffect(() => {
+        // NOTE: intialize pattern from URL
+        const pattern = patterns.find((pattern) => pattern.patternId === patternId);
+
+        if (pattern) {
+            setPattern(pattern);
+            setStageCentered(pattern);
+        }
+        else {
+            toast({
+                title: "Pattern not found",
+                description: "The pattern you are looking for does not exist.",
+                status: "error",
+                duration: 10000,
+                position: "bottom-right",
+                variant: "subtle",
+                isClosable: true,
+            });
+        }
+    }, [patternId]);
+
+    useEffect(() => {
+        // NOTE: auto save pattern cover every 5 seconds
         const intervalId = setInterval(() => {
             if (isDirty) {
                 const imageUri = stageRef.current?.toDataURL() ?? "";
@@ -176,52 +246,7 @@ export const BeadingPattern: FC = () => {
         return () => clearInterval(intervalId);
     }, [stageRef.current, isDirty, setPatternCover]);
 
-    const metadata = useMemo(() => getPatternMetadata(pattern, pattern.options), [pattern]);
-
-    const handleOnBeadingClick = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
-        const { row, column } = event;
-
-        if (selectedTool === "cursor") {
-            setSelectedCells([{ row: event.row, column: event.column }]);
-        }
-        if (selectedTool === "pencil") {
-            setGridCellColor(source.name, { row, column, color: selectedColor });
-        }
-        if (selectedTool === "eraser") {
-            setGridCellColor(source.name, { row, column, color: CellBlankColor });
-        }
-        if (selectedTool === "picker") {
-            setSelectedColor(source.rows[row].cells[column]);
-        }
-    }, [selectedTool, selectedColor, setSelectedColor]);
-
-    const handleOnBeadingPointerDown = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
-        setIsPointerDown(true);
-    }, []);
-
-    const handleOnBeadingPointerUp = useCallback(() => {
-        setIsPointerDown(false);
-    }, []);
-
-    const handleOnBeadingPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
-        if (isPointerDown) {
-            if (selectedTool === "pencil") {
-                setGridCellColor(source.name, {
-                    row: event.row,
-                    column: event.column,
-                    color: selectedColor,
-                });
-            }
-            if (selectedTool === "eraser") {
-                setGridCellColor(source.name, {
-                    row: event.row,
-                    column: event.column,
-                    color: CellBlankColor,
-                });
-            }
-        }
-    }, [isPointerDown, setGridCellColor]);
-
+    // SECTION: stage event handlers
     const handleOnStageWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
         event.evt.preventDefault();
 
@@ -254,33 +279,36 @@ export const BeadingPattern: FC = () => {
             touch2.clientY - touch1.clientY
         );
 
-        if (lastDist.current === 0) {
-            lastDist.current = dist;
+        if (stageLastDistanceRef.current === 0) {
+            stageLastDistanceRef.current = dist;
             return;
         }
 
         const oldScale = stage.scaleX();
-        const newScale = oldScale * (dist / lastDist.current);
+        const newScale = oldScale * (dist / stageLastDistanceRef.current);
 
         stage.scale({ x: newScale, y: newScale });
         stage.batchDraw();
 
-        lastDist.current = dist;
+        stageLastDistanceRef.current = dist;
     }, [stageRef]);
 
     const handleOnStageTouchEnd = useCallback(() => {
-        lastDist.current = 0;
+        stageLastDistanceRef.current = 0;
     }, []);
 
     const handleOnStageClick = useCallback(() => {
+        setSelectedCells({})
         setSelectedColumn(-1);
         setSelectedRow(-1);
-    }, [setSelectedColumn, setSelectedRow]);
+        setGridMirrorSections(undefined);
+    }, [setSelectedCells, setSelectedColumn, setSelectedRow]);
 
     const handleOnStageContextMenu = useCallback((event: KonvaEventObject<MouseEvent>) => {
         event.evt.preventDefault();
     }, [onOpen]);
 
+    // SECTION: pattern event handlers
     const handleOnPatternColumnClick = useCallback((event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
         setColumnState(columnState);
     }, []);
@@ -299,15 +327,64 @@ export const BeadingPattern: FC = () => {
         onOpen();
     }, [containerRef, onOpen]);
 
-    const handleOnSaveImageClick = useCallback(() => {
+    const handleOnPatternSavePngClick = useCallback(() => {
         const imageUri = stageRef.current?.toDataURL() ?? "";
         downloadUri(imageUri, `${pattern.name}.png`);
     }, [pattern, stageRef.current]);
 
-    const handleOnSavePatternClick = useCallback(() => {
+    const handleOnPatternSaveJsonClick = useCallback(() => {
         const patternUri = toJsonUri(pattern);
         downloadUri(patternUri, `${pattern.name}.json`);
     }, [pattern]);
+
+    // SECTION: grid event handlers
+    const handleOnGridCellClick = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+        if (tool.name === "pencil") {
+            setGridCell(source.name, { ...event.cell, color: selectedColor });
+        }
+        if (tool.name === "eraser") {
+            setGridCell(source.name, { ...event.cell, color: CellBlankColor });
+        }
+        if (tool.name === "picker") {
+            setSelectedColor(source.rows[event.cell.rowIndex].cells[event.cell.columnIndex]);
+            setTool({ name: "pencil", state: { currentAction: "default" } });
+        }
+    }, [tool, selectedColor, setSelectedColor]);
+
+    const handleOnGridCellPointerDown = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+        setIsPointerDown(true);
+        setStartingCell(event.cell);
+    }, [tool, setStartingCell]);
+
+    const handleOnGridCellPointerUp = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+        setIsPointerDown(false);
+    }, [tool]);
+
+    const handleOnGridCellPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+        if (isPointerDown) {
+            if (tool.name === "pencil") {
+                setGridCell(source.name, { ...event.cell, color: selectedColor });
+            }
+            if (tool.name === "eraser") {
+                setGridCell(source.name, { ...event.cell, color: CellBlankColor });
+            }
+            if (tool.name === "cursor" && tool.state.currentAction === "default" && startingCell) {
+                const gridSection = getGridMirrorSections(source, startingCell, event.cell);
+                setGridMirrorSections(gridSection);
+
+                const beadSize = pattern.options.layout.beadSize;
+                const gridHighlightArea = getGridSectionRenderArea(source, beadSize, gridSection.center);
+                
+                const toolbarPositionX = (stageRef.current?.x() ?? 0)
+                    + gridHighlightArea.position.x
+                    + gridHighlightArea.width / 2;
+                const toolbarPositionY = (stageRef.current?.y() ?? 0)
+                    + gridHighlightArea.position.y;
+                
+                setToolbarPosition({ x: toolbarPositionX, y: toolbarPositionY });
+            }
+        }
+    }, [tool, isPointerDown, setGridCell]);
 
     const handleOnGridAddRowAbove = useCallback(() => {
         if (rowState) {
@@ -357,21 +434,24 @@ export const BeadingPattern: FC = () => {
         }
     }, [columnState, deleteGridColumn]);
 
+    const handleOnMirrorAreaClick = useCallback((event: KonvaEventObject<MouseEvent>, grid: BeadingGridState, section: GridSection) => {
+        event.cancelBubble = true;
+        setGridSection(grid.name, section, section.topLeft);
+    }, [setGridSection]);
+
+    const isLayoutHorizontal = pattern.options.layout.orientation === "horizontal";
+    const isCursorEnabled = tool.name === "cursor";
+    const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
+
     return (
         <Box
-            cursor={selectedTool === "drag"
-                ? "move"
-                : selectedTool === "cursor"
-                    ? "cell"
-                    : "cursor"
-            }
+            ref={containerRef}
+            cursor={tool.name === "cursor" ? "crosshair" : "cursor"}
             height={"100%"}
             width={"100%"}
-            ref={containerRef}
         >
             <Stage
                 ref={stageRef}
-                draggable={selectedTool === "drag"}
                 height={stageSize.height}
                 width={stageSize.width}
                 onClick={handleOnStageClick}
@@ -380,19 +460,64 @@ export const BeadingPattern: FC = () => {
                 onTouchEnd={handleOnStageTouchEnd}
                 onWheel={handleOnStageWheel}
             >
-                <Layer>
+                <Layer >
                     {pattern.grids.map((grid) => (
-                        <BeadingGrid
+                        <GridOptionsProvider
                             key={grid.name}
-                            grid={grid}
-                            metadata={metadata.grids[grid.name]}
-                            position={metadata.grids[grid.name].position}
-                            beadSize={pattern.options.layout.beadSize}
-                            onBeadingClick={handleOnBeadingClick}
-                            onBeadingPointerDown={handleOnBeadingPointerDown}
-                            onBeadingPointerUp={handleOnBeadingPointerUp}
-                            onBeadingPointerEnter={handleOnBeadingPointerEnter}
-                        />
+                            cellHeight={grid.options.type === "brick"
+                                ? pattern.options.layout.beadSize.width
+                                : pattern.options.layout.beadSize.height
+                            }
+                            cellWidth={grid.options.type === "brick"
+                                ? pattern.options.layout.beadSize.height
+                                : pattern.options.layout.beadSize.width
+                            }
+                            pointPixelRatio={CellPixelRatio}
+                        >
+                            <BeadingGrid
+                                grid={grid}
+                                offset={metadata.grids[grid.name].offset}
+                                beadSize={pattern.options.layout.beadSize}
+                                onBeadingClick={handleOnGridCellClick}
+                                onBeadingPointerDown={handleOnGridCellPointerDown}
+                                onBeadingPointerUp={handleOnGridCellPointerUp}
+                                onBeadingPointerEnter={handleOnGridCellPointerEnter}
+                            />
+                            <GridText
+                                color={DividerStrokeColor}
+                                offset={metadata.grids[grid.name].text}
+                                padding={6}
+                                text={grid.name}
+                            />
+                            <GridDivider
+                                length={metadata.grids[grid.name].divider.length}
+                                offset={metadata.grids[grid.name].divider.offset}
+                                orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
+                                strokeColor={DividerStrokeColor}
+                                strokeWidth={1}
+                            />
+                            {isCursorEnabled && gridMirrorSections?.center && (
+                                <HighlightedArea
+                                    borderColor={FrameSelectedBorderColor}
+                                    borderWidth={4}
+                                    offset={gridMirrorSections?.center.topLeft}
+                                    height={gridMirrorSections?.center.height}
+                                    width={gridMirrorSections?.center.width}
+                                />
+                            )}
+                            {isMirroringEnabled && gridMirrorSections?.mirrors.map((area, index) => (
+                                <HighlightedArea
+                                    key={index}
+                                    backgroundColor={FrameSelectedFillColor}
+                                    borderColor={FrameSelectedBorderColor}
+                                    borderWidth={2}
+                                    offset={area.topLeft}
+                                    height={area.height}
+                                    width={area.width}
+                                    onClick={(event) => handleOnMirrorAreaClick(event, grid, area)}
+                                />
+                            ))}
+                        </GridOptionsProvider>
                     ))}
                     {pattern.grids.length > 0 && (
                         <PatternFrame
@@ -403,14 +528,14 @@ export const BeadingPattern: FC = () => {
                             onContextMenu={handleOnPatternContextMenu}
                         />
                     )}
-                    {selectedCells && selectedCells.length > 0 && (
-                        <Rect
-                            stroke={FrameSelectedColor}
-                            strokeWidth={2}
-                        />
-                    )}
                 </Layer>
             </Stage>
+            {tool.name === "cursor" && (
+                <PatternActionToolbar
+                    left={toolbarPosition.x}
+                    top={toolbarPosition.y}
+                />
+            )}
             <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>
                 <MenuButton
                     left={menuPosition.x}
@@ -461,14 +586,18 @@ export const BeadingPattern: FC = () => {
                         rightIcon={<NavArrowDown />}
                         size={"sm"}
                         variant={"solid"}
+                        backgroundColor={"gray.900"}
+                        color={"white"}
+                        _hover={{ backgroundColor: "gray.700" }}
+                        _active={{ backgroundColor: "gray.600" }}
                     >
                         Save As
                     </MenuButton>
                     <MenuList zIndex={1000}>
-                        <MenuItem icon={<MediaImage />} onClick={handleOnSaveImageClick}>
+                        <MenuItem icon={<MediaImage />} onClick={handleOnPatternSavePngClick}>
                             Image (.png)
                         </MenuItem>
-                        <MenuItem icon={<Page />} onClick={handleOnSavePatternClick}>
+                        <MenuItem icon={<Page />} onClick={handleOnPatternSaveJsonClick}>
                             Pattern (.json)
                         </MenuItem>
                     </MenuList>
@@ -476,366 +605,5 @@ export const BeadingPattern: FC = () => {
                 document.getElementById("header-actions-group") as any
             )}
         </Box>
-    );
-};
-
-type TextState = {
-    gridName: string;
-    gridIndex: number;
-    patternIndex: number;
-}
-
-const PatternFrame: FC<{
-    pattern: PatternState;
-    options: PatternOptions;
-    onColumnClick?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
-    onRowClick?: (event: KonvaEventObject<MouseEvent>, rowState: TextState) => void;
-    onContextMenu?: (event: KonvaEventObject<MouseEvent>) => void;
-}> = ({
-    pattern,
-    options,
-    onColumnClick,
-    onRowClick,
-    onContextMenu,
-}) => {
-    const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow} = usePatternSelection();
-
-    const cellHeight = pattern.grids.some((grid) => grid.options.type === "brick")
-        ? options.layout.beadSize.width * CellPixelRatio
-        : options.layout.beadSize.height * CellPixelRatio;
-    const cellWidth = pattern.grids.some((grid) => grid.options.type === "brick")
-        ? options.layout.beadSize.height * CellPixelRatio
-        : options.layout.beadSize.width * CellPixelRatio;
-
-    const { height: rows, width: columns } = getPatternSize(pattern, pattern.options);
-    
-    const frameMarginX = cellWidth / 2;
-    const frameMarginY = cellHeight / 4;
-
-    const frameTextOffsetX = cellWidth + frameMarginX;
-    const frameTextOffsetY = cellHeight + frameMarginY;
-
-    const selectedColumnPositionX = selectedColumn * cellWidth;
-    const selectedColumnPositionY = -frameTextOffsetY;
-    const selectedColumnHeight = cellHeight * rows + 2 * frameTextOffsetY;
-    const selectedColumnWidth = cellWidth;
-
-    const selectedRowPositionX = -frameTextOffsetX;
-    const selectedRowPositionY = selectedRow * cellHeight;
-    const selectedRowHeight = cellHeight;
-    const selectedRowWidth = cellWidth * columns + 2 * frameTextOffsetX;
-
-    const handleOnRowClick = useCallback((event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
-        event.evt.preventDefault();
-        event.cancelBubble = true;
-        setSelectedColumn(-1);
-        setSelectedRow(rowState.patternIndex);
-        onRowClick?.(event, rowState);
-    }, [setSelectedColumn, setSelectedRow, onRowClick]);
-
-    const handleOnColumnClick = useCallback((event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
-        event.evt.preventDefault();
-        event.cancelBubble = true;
-        setSelectedColumn(columnState.patternIndex);
-        setSelectedRow(-1);
-        onColumnClick?.(event, columnState);
-    }, [setSelectedColumn, setSelectedRow, onColumnClick]);
-
-    const isHorizontal = pattern.options.layout.orientation === "horizontal";
-    const columnsTextArray: Array<TextState> = isHorizontal
-        ? pattern.grids
-            .flatMap((grid) => 
-                grid.rows[0].cells.map((_, columnIndex) => 
-                    ({ gridIndex: columnIndex, gridName: grid.name })
-            ))
-            .map((columnState, columnIndex) => ({ ...columnState, patternIndex: columnIndex }))
-        : Array.from({ length: columns }, (_, index) => 
-            ({ gridIndex: index, gridName: "all", patternIndex: index })
-        );
-    const rowTextArray: Array<TextState> = isHorizontal
-        ? Array.from({ length: rows }, (_, index) => 
-            ({ gridIndex: index, gridName: "all", patternIndex: index })
-        )
-        : pattern.grids
-            .flatMap((grid) => 
-                grid.rows.map((_, rowIndex) => 
-                    ({ gridIndex: rowIndex, gridName: grid.name })
-            ))
-            .map((rowState, rowIndex) => ({ ...rowState, patternIndex: rowIndex }))
-    
-    return (
-        <Group>
-            {columnsTextArray.map((column) => (
-                <Fragment key={`column-number-${column.patternIndex}`}>
-                    <Text
-                        key={`column-top-number-${column.patternIndex}`}
-                        align={"center"}
-                        fill={FrameTextColor}
-                        height={cellHeight}
-                        text={(column.patternIndex + 1).toString()}
-                        verticalAlign={"middle"}
-                        width={cellWidth}
-                        x={column.patternIndex * cellWidth}
-                        y={-frameTextOffsetY}
-                        onClick={(event) => handleOnColumnClick(event, column)}
-                        onContextMenu={onContextMenu}
-                    />
-                    <Text
-                        key={`column-bottom-number-${column.patternIndex}`}
-                        align={"center"}
-                        fill={FrameTextColor}
-                        height={cellHeight} 
-                        text={(column.patternIndex + 1).toString()}
-                        verticalAlign={"middle"}
-                        width={cellWidth}
-                        x={column.patternIndex * cellWidth}
-                        y={rows * cellHeight + frameMarginY}
-                        onClick={(event) => handleOnColumnClick(event, column)}
-                        onContextMenu={onContextMenu}
-                    />
-                </Fragment>
-            ))}
-            {rowTextArray.map((row) => (
-                <Fragment key={`row-number-${row.patternIndex}`}>
-                    <Text
-                        key={`row-left-number-${row.patternIndex}`}
-                        align={"right"}
-                        fill={FrameTextColor}
-                        height={cellHeight}
-                        text={(row.patternIndex + 1).toString()}
-                        verticalAlign={"middle"}
-                        width={cellWidth}
-                        x={-frameTextOffsetX}
-                        y={row.patternIndex * cellHeight}
-                        onClick={(event) => handleOnRowClick(event, row)}
-                        onContextMenu={onContextMenu}
-                    />
-                    <Text
-                        key={`row-right-number-${row.patternIndex}`}
-                        align={"left"}
-                        fill={FrameTextColor}
-                        height={cellHeight}
-                        text={(row.patternIndex + 1).toString()}
-                        verticalAlign={"middle"}
-                        width={cellWidth}
-                        x={columns * cellWidth + frameMarginX}
-                        y={row.patternIndex * cellHeight}
-                        onClick={(event) => handleOnRowClick(event, row)}
-                        onContextMenu={onContextMenu}
-                    />
-                </Fragment>
-            ))}
-            <Rect
-                key={"selected-column-frame"}
-                cornerRadius={20}
-                height={selectedColumnHeight}
-                width={selectedColumnWidth}
-                stroke={FrameSelectedColor}
-                strokeWidth={2}
-                x={selectedColumnPositionX}
-                y={selectedColumnPositionY}
-                visible={selectedColumn >= 0}
-                onContextMenu={onContextMenu}
-            />
-            <Rect
-                key={"selected-row-frame"}
-                cornerRadius={20}
-                height={selectedRowHeight}
-                width={selectedRowWidth}
-                stroke={FrameSelectedColor}
-                strokeWidth={2}
-                x={selectedRowPositionX}
-                y={selectedRowPositionY}
-                visible={selectedRow >= 0}
-                onContextMenu={onContextMenu}
-            />
-        </Group>
-    );
-};
-
-const getCellPosition = (
-    grid: BeadingGridState,
-    cellHeight: number,
-    cellWidth: number,
-    rowIndex: number,
-    columnIndex: number
-) => {
-    const cellOffsetX = cellWidth / 2;
-    const cellOffsetY = cellHeight / 2;
-
-    const getBrickOffsetX = (index: number, height: number, drop: number, fringe: number) => {
-        const dropOffsetNormal = Math.floor(index / drop) % 2;
-        const fringeOffsetNormal = index > height - fringe ? 0 : 1;
-        return cellOffsetX * dropOffsetNormal * fringeOffsetNormal;
-    };
-    const getPeyoteOffsetY = (index: number) => {
-        const columnOffsetNormal = index % 2;
-        return cellOffsetY * columnOffsetNormal;
-    };
-
-    const x = grid.options.type === "brick"
-        ? cellWidth * columnIndex + getBrickOffsetX(
-            rowIndex,
-            grid.rows.length,
-            grid.options.drop,
-            grid.options.fringe
-        )
-        : cellWidth * columnIndex;
-    const y = grid.options.type === "brick"
-        ? cellHeight * rowIndex
-        : grid.options.type === "peyote"
-            ? cellHeight * rowIndex + getPeyoteOffsetY(columnIndex)
-            : cellHeight * rowIndex;
-
-    return { x, y };
-};
-
-const BeadingGrid: FC<{
-    position?: { x: number; y: number };
-    grid: BeadingGridState;
-    metadata: BeadingGridMetadata;
-    beadSize: BeadSize;
-    onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-}> = ({
-    position,
-    grid,
-    metadata,
-    beadSize,
-    onBeadingClick,
-    onBeadingPointerDown,
-    onBeadingPointerUp,
-    onBeadingPointerEnter,
-}) => {
-    const cellHeight = grid.options.type === "brick"
-        ? beadSize.width * CellPixelRatio
-        : beadSize.height * CellPixelRatio;
-    const cellWidth = grid.options.type === "brick"
-        ? beadSize.height * CellPixelRatio
-        : beadSize.width * CellPixelRatio;
-
-    const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
-        onBeadingClick?.(grid, event);
-    }, [grid, onBeadingClick]);
-
-    const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerDown?.(grid, event);
-    }, [grid, onBeadingPointerDown]);
-
-    const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerUp?.(grid, event);
-    }, [grid, onBeadingPointerUp]);
-
-    const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerEnter?.(grid, event);
-    }, [grid, onBeadingPointerEnter]);
-
-    return (
-        <Group x={position?.x ?? 0} y={position?.y ?? 0}>
-            {grid.rows.map((row, rowIndex) =>
-                row.cells.map((cell, columnIndex) => (
-                    <GridCell
-                        key={`${rowIndex}-${columnIndex}`}
-                        color={cell}
-                        rowIndex={rowIndex}
-                        columnIndex={columnIndex}
-                        height={cellHeight}
-                        width={cellWidth}
-                        position={getCellPosition(grid, cellHeight, cellWidth, rowIndex, columnIndex)}
-                        onClick={handleOnBeadingGridClick}
-                        onPointerDown={handleOnBeadingGridDown}
-                        onPointerUp={handleOnBeadingGridUp}
-                        onPointerEnter={handleOnBeadingGridEnter}
-                    />
-                ))
-            )}
-            {metadata.divider.isVisible && (
-                <Line
-                    points={metadata.divider.points}
-                    stroke={DividerStrokeColor}
-                    strokeWidth={1}
-                />
-            )}
-            <Text text={grid.name} fill={DividerStrokeColor} />
-        </Group>
-    );
-};
-
-const GridCell: FC<{
-    color?: string;
-    columnIndex: number;
-    rowIndex: number;
-    height: number;
-    width: number;
-    position: { x: number; y: number };
-    onClick?: (event: BeadingPointerEvent) => void;
-    onPointerDown?: (event: BeadingPointerEvent) => void;
-    onPointerUp?: (event: BeadingPointerEvent) => void;
-    onPointerOver?: (event: BeadingPointerEvent) => void;
-    onPointerEnter?: (event: BeadingPointerEvent) => void;
-}> = ({
-    color,
-    columnIndex,
-    rowIndex,
-    height,
-    width,
-    position,
-    onClick,
-    onPointerDown,
-    onPointerUp,
-    onPointerOver,
-    onPointerEnter,
-}) => {
-    const handleOnClick = useCallback(() => {
-        onClick?.({ row: rowIndex, column: columnIndex, ...position });
-    }, [rowIndex, columnIndex, position, onClick]);
-
-    const handleOnPointerDown = useCallback(() => {
-        onPointerDown?.({ row: rowIndex, column: columnIndex, ...position });
-    }, [rowIndex, columnIndex, position, onPointerDown]);
-
-    const handleOnPointerUp = useCallback(() => {
-        onPointerUp?.({ row: rowIndex, column: columnIndex, ...position });
-    }, [rowIndex, columnIndex, position, onPointerUp]);
-
-    const handleOnPointerOver = useCallback(() => {
-        onPointerOver?.({ row: rowIndex, column: columnIndex, ...position });
-    }, [rowIndex, columnIndex, position, onPointerOver]);
-
-    const handleOnPointerEnter = useCallback(() => {
-        onPointerEnter?.({ row: rowIndex, column: columnIndex, ...position });
-    }, [rowIndex, columnIndex, position, onPointerEnter]);
-
-    return (
-        <Fragment>
-            <Rect
-                cornerRadius={2}
-                fill={color}
-                height={height}
-                stroke={isNullOrEmpty(color) ? CellBlankColor : CellStrokeColor}
-                strokeWidth={1}
-                width={width}
-                x={position.x}
-                y={position.y}
-                onClick={handleOnClick}
-                onTap={handleOnClick}
-                onPointerDown={handleOnPointerDown}
-                onPointerUp={handleOnPointerUp}
-                onPointerOver={handleOnPointerOver}
-                onPointerEnter={handleOnPointerEnter}
-            />
-            {isNullOrEmpty(color) && (
-                <Circle
-                    fill={CellDotColor}
-                    height={2}
-                    width={2}
-                    x={position.x + width / 2}
-                    y={position.y + height / 2}
-                    onClick={handleOnClick}
-                />
-            )}
-        </Fragment>
     );
 };

@@ -1,10 +1,9 @@
 import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
 import { temporal } from "zundo";
 import { PatternState } from "./types";
 import { PatternActions } from "./actions";
 import { patternReducer } from "./reducers";
-import { createDefaultPattern } from "./utils";
+import { createPattern } from "./utils";
 import debounce from "just-debounce-it";
 
 export type PatternStore = {
@@ -15,22 +14,18 @@ export type PatternStore = {
 }
 
 export const usePatternStore = create(
-    temporal(
-        subscribeWithSelector<PatternStore>(
-            (set) => ({
-                pattern: createDefaultPattern(),
-                isDirty: false,
-                resetDirty: () => set({ isDirty: false }),
-                dispatch: (action) => set((state) => ({
-                    ...state,
-                    pattern: patternReducer(state.pattern, action),
-                    isDirty: true
-                }))
-            })
-        ), {
+    temporal<PatternStore>((set) => ({
+            pattern: createPattern(),
+            isDirty: false,
+            resetDirty: () => set({ isDirty: false }),
+            dispatch: (action) => set((state) => ({
+                pattern: patternReducer(state.pattern, action),
+                isDirty: true
+            }))
+        }), {
             limit: 100,
             handleSet: (handleSet) => {
-                const debounceSetter = debounce<typeof handleSet>(handleSet, 100, true);
+                const debounceSetter = debounce<typeof handleSet>(handleSet, 200, true);
                 return debounceSetter;
             }
         }

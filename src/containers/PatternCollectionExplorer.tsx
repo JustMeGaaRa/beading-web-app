@@ -3,7 +3,7 @@ import { Plus } from "iconoir-react";
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
-    createDefaultPattern,
+    createPattern,
     PatternCard,
     PatternState,
     usePatternCollection
@@ -33,7 +33,7 @@ export const PatternCollectionExplorer: FC = () => {
     }, [deletePattern]);
     
     const handleOnCreatePatternClick = useCallback(() => {
-        addPattern(createDefaultPattern());
+        addPattern(createPattern());
     }, [addPattern]);
     
     return patterns.length > 0 ? (
@@ -64,6 +64,10 @@ export const PatternCollectionExplorer: FC = () => {
                 rightIcon={<Plus />}
                 variant={"solid"}
                 title={"create pattern"}
+                backgroundColor={"gray.900"}
+                color={"white"}
+                _hover={{ backgroundColor: "gray.700" }}
+                _active={{ backgroundColor: "gray.600" }}
                 onClick={handleOnCreatePatternClick}
             >
                 Create first pattern

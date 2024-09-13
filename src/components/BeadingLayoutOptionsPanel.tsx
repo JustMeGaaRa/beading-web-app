@@ -9,7 +9,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FC, ChangeEvent, useCallback } from "react";
-import { BeadSizeOptions, PatternLayoutOptions } from "./pattern";
+import { BeadSizeOptions } from "./beading-grid";
+import { PatternLayoutOptions } from "./pattern";
 
 export const BeadingLayoutOptionsPanel: FC<{
     layout: PatternLayoutOptions;
@@ -52,7 +53,7 @@ export const BeadingLayoutOptionsPanel: FC<{
             ...layout,
             beadSize: beadSize!,
         });
-    }, [onChange]);
+    }, [onChange, layout]);
 
     const isHorizontal = layout.orientation === "horizontal";
 

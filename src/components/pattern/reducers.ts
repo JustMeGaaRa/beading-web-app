@@ -1,7 +1,7 @@
+import { clearGridColumn, clearGridRow, DefaultGridOptions, deleteGridColumn, deleteGridRow, insertGridColumn, insertGridRow, insertGridSection, setGridCell } from "../beading-grid";
 import { PatternActions } from "./actions";
-import { DefaultGridOptions } from "./constants";
 import { PatternState } from "./types";
-import { applyBeadingGridOptions, applyPatternOptions, changePatternColor, clearGridColumn, clearGridRow, createBeadingGrid, deleteGridColumn, deleteGridRow, insertGridColumn, insertGridRow, setBeadingGridCell } from "./utils";
+import { applyBeadingGridOptions, applyPatternOptions, changePatternColor, createGrid } from "./utils";
 
 export const patternReducer = (state: PatternState, action: PatternActions): PatternState => {
     switch (action.type) {
@@ -27,7 +27,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
                 ...state,
                 grids: [
                     ...state.grids,
-                    createBeadingGrid(state.gridCount, DefaultGridOptions, state.options)
+                    createGrid(state.gridCount, DefaultGridOptions, state.options)
                 ],
                 gridCount: state.gridCount + 1
             };
@@ -36,11 +36,11 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
                 ...state,
                 grids: state.grids.filter((grid) => grid.name !== action.payload.name)
             };
-        case "setGridCellColor":
+        case "setGridCell":
             return {
                 ...state,
                 grids: state.grids.map((grid) => grid.name === action.payload.name
-                    ? setBeadingGridCell(grid, action.payload.cell)
+                    ? setGridCell(grid, action.payload.cell)
                     : grid
                 )
             };
@@ -176,6 +176,14 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? clearGridColumn(grid, action.payload.column)
                         : grid
+                )
+            };
+        case "setGridSection":
+            return {
+                ...state,
+                grids: state.grids.map((grid) => grid.name === action.payload.name
+                    ? insertGridSection(grid, action.payload.section, action.payload.cellPosition)
+                    : grid
                 )
             };
         default:

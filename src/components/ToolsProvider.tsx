@@ -1,26 +1,45 @@
 import {
     createContext,
+    Dispatch,
     FC,
     PropsWithChildren,
+    SetStateAction,
     useContext,
     useState,
 } from "react";
 
-export type ToolType = "drag" | "cursor" | "pencil" | "eraser" | "picker";
+export type ToolName = "cursor" | "pencil" | "fill" | "eraser" | "picker";
+export type ToolDefaultActionName = "default";
+export type CursorActionName = ToolDefaultActionName | "mirror" | "copy" | "cut" | "paste";
+
+export type ToolInfo<TTool extends string, TState extends { currentAction: string | "default" }> = {
+    name: TTool;
+    state: TState;
+};
+
+export type ToolState = 
+    | ToolInfo<"cursor", { currentAction: CursorActionName }>
+    | ToolInfo<"pencil", { currentAction: ToolDefaultActionName }>
+    | ToolInfo<"fill", { currentAction: ToolDefaultActionName }>
+    | ToolInfo<"eraser", { currentAction: ToolDefaultActionName }>
+    | ToolInfo<"picker", { currentAction: ToolDefaultActionName }>;
 
 const ToolsContext = createContext<{
-    selectedTool: ToolType;
-    setSelectedTool: (tool: ToolType) => void;
+    tool: ToolState;
+    setTool: Dispatch<SetStateAction<ToolState>>;
 }>({
-    selectedTool: "pencil",
-    setSelectedTool: () => {},
+    tool: { name: "pencil", state: { currentAction: "default" } },
+    setTool: () => {},
 });
 
 export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [selectedTool, setSelectedTool] = useState<ToolType>("pencil");
+    const [tool, setTool] = useState<ToolState>({
+        name: "pencil",
+        state: { currentAction: "default" }
+    });
 
     return (
-        <ToolsContext.Provider value={{ selectedTool, setSelectedTool }}>
+        <ToolsContext.Provider value={{ tool, setTool }}>
             {children}
         </ToolsContext.Provider>
     );
