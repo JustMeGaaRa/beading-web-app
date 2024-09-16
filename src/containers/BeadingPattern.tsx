@@ -146,14 +146,13 @@ export const BeadingPattern: FC = () => {
     const { selectedColor } = useColorPalette();
     const { tool } = useTools();
     const { patterns, savePattern } = usePatternCollection();
-    const { pattern, dispatch } = usePatternStore();
+    const { pattern, isDirty, dispatch, resetDirty } = usePatternStore();
     const {
         selectedColumn,
         selectedRow,
         setSelectedColumn,
         setSelectedRow
     } = usePatternSelection();
-    const { isDirty, resetDirty } = usePatternStore();
     const { undo, redo } = usePatterHistory();
 
     const isLayoutHorizontal = pattern.options.layout.orientation === "horizontal";
@@ -388,12 +387,12 @@ export const BeadingPattern: FC = () => {
 
     const handleOnGridCellPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         if (isPointerDown && isPencilEnabled) {
-            setBeadingGridCell(source.name, { ...event.cell, color: selectedColor });
+            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: selectedColor }));
         }
         if (isPointerDown && isEraserEnabled) {
-            setBeadingGridCell(source.name, { ...event.cell, color: CellBlankColor });
+            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CellBlankColor }));
         }
-    }, [isPointerDown, isPencilEnabled, isEraserEnabled, setBeadingGridCell]);
+    }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch]);
 
     const handleOnGridSelectionChange = useCallback((source: BeadingGridState, event: GridSelectionChangeEvent) => {
         if (isPointerDown && isCursorEnabled) {
