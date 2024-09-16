@@ -9,7 +9,12 @@ import {
     Text
 } from "@chakra-ui/react";
 import { FC, PropsWithChildren, useCallback } from "react";
-import { BeadSummaryItem, ColorPalette, usePattern } from "../components";
+import {
+    BeadSummaryItem,
+    ColorPalette,
+    usePatternStore
+} from "../components";
+import { changePatternColor } from "../components/pattern/actionCreators";
 
 export const ColorPalettePopover: FC<PropsWithChildren<{
     color: string;
@@ -20,11 +25,11 @@ export const ColorPalettePopover: FC<PropsWithChildren<{
     colorName,
     number
 }) => {
-    const { changePatternColor } = usePattern();
+    const { dispatch } = usePatternStore();
 
     const handleOnColorPaletteSelect = useCallback((newColor: string) => {
-        changePatternColor(color, newColor);
-    }, [changePatternColor, color]);
+        dispatch(changePatternColor(color, newColor));
+    }, [color, dispatch]);
 
     return (
         <Popover placement={"right-end"} closeOnBlur>
@@ -36,7 +41,10 @@ export const ColorPalettePopover: FC<PropsWithChildren<{
                     borderWidth={1}
                     height={8}
                     width={8}
-                    _hover={{ borderColor: "#FFFFFF", boxShadow: "0px 0px 0px 2px #0BC5EA;" }}
+                    _hover={{
+                        borderColor: "#FFFFFF",
+                        boxShadow: "0px 0px 0px 2px #0BC5EA;"
+                    }}
                 />
             </PopoverTrigger>
             <PopoverContent borderRadius={12} width={220}>

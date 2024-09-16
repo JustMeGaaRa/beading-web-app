@@ -5,9 +5,11 @@ import {
     BeadingGridProperties,
     BeadingGridRow,
     BeadingGridState,
+    BeadingGridType,
     BeadSize,
     CellBlankColor,
     CellPixelRatio,
+    DefaultGridOptions,
     getGridRenderSize,
     isNullOrEmpty
 } from "../beading-grid";
@@ -68,15 +70,17 @@ export const validatePatternOptions = (data: any): data is PatternOptions => {
         && typeof data.layout.orientation === "string";
 };
 
-export const createPattern = () => {
+export const createPattern = (initialGridType?: BeadingGridType): PatternState => {
     return {
         patternId: `pattern-${v6()}`,
         name: "Untitled pattern",
         coverUrl: "",
         lastModified: new Date(),
         options: DefaultPatternOptions,
-        grids: [],
-        gridCount: 0,
+        grids: initialGridType
+            ? [createGrid(0, DefaultGridOptions, DefaultPatternOptions)]
+            : [],
+        gridCount: initialGridType ? 1 : 0,
     };
 };
 

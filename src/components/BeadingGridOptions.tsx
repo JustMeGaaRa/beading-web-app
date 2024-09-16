@@ -1,50 +1,28 @@
 import {
-    Button,
-    ButtonGroup,
     Flex,
     Input,
     InputGroup,
     InputLeftAddon,
-    Text,
 } from "@chakra-ui/react";
-import { Xmark } from "iconoir-react";
 import { ChangeEvent, FC, useCallback } from "react";
 import {
     BeadingGridProperties,
     BeadingGridState,
-    BeadingGridType,
-    BeadingGridTypes,
 } from "./beading-grid";
 
 export const BeadingGridOptionsPanel: FC<{
-    canDelete?: boolean;
-    isHorizontal?: boolean;
     name: string;
     options: BeadingGridProperties;
+    orientation: "vertical" | "horizontal";
+    size?: "xs" | "sm" | "md" | "lg";
     onChange?: (grid: Omit<BeadingGridState, "rows">) => void;
-    onDelete?: (grid: Omit<BeadingGridState, "rows">) => void;
 }> = ({
-    canDelete,
-    isHorizontal,
     name,
     options,
+    orientation,
+    size = "xs",
     onChange,
-    onDelete
 }) => {
-    const handleOnDeleteClick = useCallback(() => {
-        onDelete?.({ name, options });
-    }, [onDelete, name, options]);
-
-    const handleOnTypeClick = useCallback((type: BeadingGridType) => {
-        onChange?.({
-            name: name,
-            options: {
-                ...options,
-                type: type,
-            } as any,
-        });
-    }, [onChange, name, options]);
-
     const handleOnHeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
             onChange?.({
                 name: name,
@@ -88,38 +66,14 @@ export const BeadingGridOptionsPanel: FC<{
             });
         }
     }, [onChange, name, options]);
+    
+    const isHorizontal = orientation === "horizontal";
+    const isBrickGrid = options.type === "brick";
 
     return (
         <Flex flexDirection={"column"} gap={2} w={"100%"}>
-            <Flex alignItems={"center"} justifyContent={"space-between"}>
-            <Text as={"b"} fontSize={"xs"}>
-                {name}
-            </Text>
-            {canDelete && (
-                <Button
-                    rightIcon={<Xmark />}
-                    size={"xs"}
-                    variant={"ghost"}
-                    onClick={handleOnDeleteClick}
-                >
-                    Delete
-                </Button>
-            )}
-            </Flex>
-            <ButtonGroup isAttached size={"xs"} variant={"outline"}>
-                {BeadingGridTypes.map((type) => (
-                    <Button
-                        key={type}
-                        isActive={options.type === type}
-                        width={"34%"}
-                        onClick={() => handleOnTypeClick(type)}
-                    >
-                        {type}
-                    </Button>
-                ))}
-            </ButtonGroup>
             {!isHorizontal && (
-                <InputGroup size={"xs"}>
+                <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
                     <Input
                         min={1}
@@ -131,7 +85,7 @@ export const BeadingGridOptionsPanel: FC<{
                 </InputGroup>
             )}
             {isHorizontal && (
-                <InputGroup size={"xs"}>
+                <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
                     <Input
                         min={1}
@@ -142,8 +96,8 @@ export const BeadingGridOptionsPanel: FC<{
                     />
                 </InputGroup>
             )}
-            {options.type === "brick" && (
-                <InputGroup size={"xs"}>
+            {isBrickGrid && (
+                <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Drop</InputLeftAddon>
                     <Input
                         min={1}
@@ -154,8 +108,8 @@ export const BeadingGridOptionsPanel: FC<{
                     />
                 </InputGroup>
             )}
-            {options.type === "brick" && (
-                <InputGroup size={"xs"}>
+            {isBrickGrid && (
+                <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Fringe</InputLeftAddon>
                     <Input
                         min={0}

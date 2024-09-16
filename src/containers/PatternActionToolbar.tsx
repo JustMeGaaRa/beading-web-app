@@ -1,18 +1,16 @@
 import { Box, Button, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
-import { Check, Flip, XmarkCircle } from "iconoir-react";
+import { Check, Flip, XmarkCircle, Copy } from "iconoir-react";
 import { FC, useCallback } from "react";
-import { usePattern, usePatternSelection, useTools } from "../components";
+import { usePatternStore, useTools } from "../components";
 
 export const PatternActionToolbar: FC<{
     left?: number;
     top?: number;
-    isVisible?: boolean;
 }> = ({
     left = 0,
     top = 0,
 }) => {
-    const { clearGridCells } = usePattern();
-    const { selectedCells } = usePatternSelection();
+    const { dispatch } = usePatternStore();
     const { tool, setTool } = useTools();
 
     const handleOnMirrorSelectionClick = useCallback(() => {
@@ -22,9 +20,16 @@ export const PatternActionToolbar: FC<{
         });
     }, [setTool]);
 
+    const handleOnDuplicateSelectionClick = useCallback(() => {
+        setTool?.({
+            name: "cursor",
+            state: { currentAction: "duplicate" }
+        });
+    }, [setTool]);
+
     const handleOnClearSelectionClick = useCallback(() => {
-        clearGridCells("default", []);
-    }, [clearGridCells]);
+        // dispatch(clearGridSection(grid.name, selectedSection));
+    }, [dispatch]);
 
     const handleOnDoneClick = useCallback(() => {
         setTool?.({
@@ -32,6 +37,10 @@ export const PatternActionToolbar: FC<{
             state: { currentAction: "default" }
         });
     }, [setTool]);
+
+    const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
+    const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
+    const isDuplicatingEnabled = tool.name === "cursor" && tool.state.currentAction === "duplicate";
 
     return (
         <Box
@@ -45,13 +54,23 @@ export const PatternActionToolbar: FC<{
                 backgroundColor={"gray.900"}
                 borderRadius={"md"}
             >
-                {tool.name === "cursor" && tool.state.currentAction === "default" && (
+                {isCursorEnabled && (
                     <ButtonGroup
                         colorScheme={"gray"}
                         orientation={"horizontal"}
-                        size={"sm"}
+                        size={"md"}
                         variant={"ghost"}
                     >
+                        <Tooltip label={"Duplicate selection"}>
+                            <IconButton
+                                aria-label={"duplicate selection"}
+                                icon={<Copy />}
+                                color={"white"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{ backgroundColor: "gray.600" }}
+                                onClick={handleOnDuplicateSelectionClick}
+                            />
+                        </Tooltip>
                         <Tooltip label={"Mirror selection"}>
                             <IconButton
                                 aria-label={"mirror selection"}
@@ -74,13 +93,13 @@ export const PatternActionToolbar: FC<{
                         </Tooltip>
                     </ButtonGroup>
                 )}
-                <ButtonGroup
-                    colorScheme={"gray"}
-                    orientation={"horizontal"}
-                    size={"sm"}
-                    variant={"ghost"}
-                >
-                    {tool.name === "cursor" && tool.state.currentAction === "mirror" && (
+                {(isMirroringEnabled || isDuplicatingEnabled) && (
+                    <ButtonGroup
+                        colorScheme={"gray"}
+                        orientation={"horizontal"}
+                        size={"sm"}
+                        variant={"ghost"}
+                    >
                         <Button
                             rightIcon={<Check />}
                             color={"white"}
@@ -90,8 +109,8 @@ export const PatternActionToolbar: FC<{
                         >
                             Done
                         </Button>
-                    )}
-                </ButtonGroup>
+                    </ButtonGroup>
+                )}
             </Box>
         </Box>
     );

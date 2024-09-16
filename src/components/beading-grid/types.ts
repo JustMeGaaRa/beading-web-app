@@ -1,10 +1,15 @@
+export type Cell = string;
+
 export type BeadSize = {
     title: string;
     height: number;
     width: number;
 };
 
-export type BeadingGridType = "square" | "peyote" | "brick";
+export type BeadingGridType =
+    | "square"
+    | "peyote"
+    | "brick";
 
 export type SquareGridProperties = {
     type: "square";
@@ -61,25 +66,26 @@ export type GridCellPosition = {
     columnIndex: number;
 };
 
-export type GridSection = {
-    topLeft: GridCellPosition;
+export type GridWindow = {
+    offset: GridCellPosition;
     height: number;
     width: number;
-    bottomRight: GridCellPosition;
-    rows: Array<BeadingGridRow>;
 };
 
-export type GridMirrorSections = {
-    center: GridSection;
-    mirrors: Array<GridSection>;
+export type GridWindowSet = {
+    center: GridWindow;
+    other: Array<GridWindow>;
+};
+
+export type GridSection = {
+    offset: GridCellPosition;
+    height: number;
+    width: number;
+    rows: Array<BeadingGridRow>;
 };
 
 export type RenderArea = {
     position: { x: number; y: number };
     width: number;
     height: number;
-};
-
-export type BeadingPointerEvent = {
-    cell: BeadingGridCellState;
 };

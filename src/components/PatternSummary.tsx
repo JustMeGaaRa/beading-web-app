@@ -1,9 +1,9 @@
 import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import { FC, useMemo } from "react";
-import { getPatternSummary, usePattern } from "./pattern";
+import { getPatternSummary, usePatternStore } from "./pattern";
 
-export const PatternSummaryPanel: FC<{}> = ({}) => {
-    const { pattern } = usePattern();
+export const PatternSummaryPanel: FC = () => {
+    const { pattern } = usePatternStore();
 
     const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
 
@@ -41,7 +41,12 @@ export const BeadSummaryItem: FC<{
             gap={2}
             width={"100%"}
         >
-            <Box backgroundColor={color} borderRadius={4} height={8} width={8} />
+            <Box
+                backgroundColor={color}
+                borderRadius={4}
+                height={8}
+                width={8}
+            />
             <Flex flexDirection={"column"}>
                 <Text color={"gray.800"} fontWeight={"semibold"}>
                     {colorName}

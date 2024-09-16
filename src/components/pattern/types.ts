@@ -1,8 +1,9 @@
-import { BeadingGridMetadata, BeadingGridState, BeadSize } from "../beading-grid";
+import { BeadingGridMetadata, BeadingGridState, BeadingGridType, BeadSize } from "../beading-grid";
 
 export type LayoutOrientation = "vertical" | "horizontal";
 
 export type PatternLayoutOptions = {
+    type: BeadingGridType;
     beadSize: BeadSize;
     orientation: LayoutOrientation;
     height: number;

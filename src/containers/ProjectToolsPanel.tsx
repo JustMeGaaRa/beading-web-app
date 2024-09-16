@@ -6,30 +6,29 @@ import {
     Tooltip,
     VStack
 } from "@chakra-ui/react";
-import {
-    ColorPicker,
-    CursorPointer,
-    EditPencil,
-    Erase,
-    FillColor,
-    Redo,
-    Undo,
-} from "iconoir-react";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
     getPatternSummary,
     Shortcuts,
-    usePatterHistory, 
-    usePattern,
+    usePatterHistory,
+    usePatternStore,
     useTools
 } from "../components";
+import {
+    ColorPickerIcon,
+    EraserIcon,
+    NavigationIcon,
+    PencilIcon,
+    ReverseLeftIcon,
+    ReverseRightIcon
+} from "../components/icons";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 export const ProjectToolsPanel: FC = () => {
     const { tool, setTool } = useTools();
-    const { pattern } = usePattern();
-    const { undo, redo } = usePatterHistory();
+    const { pattern } = usePatternStore();
+    const { pastStates, futureStates, undo, redo } = usePatterHistory();
 
     const onSetCursorTool = useCallback(() => setTool({ name: "cursor", state: { currentAction: "default" } }), [setTool]);
     const onSetPencilTool = useCallback(() => setTool({ name: "pencil", state: { currentAction: "default" } }), [setTool]);
@@ -66,6 +65,7 @@ export const ProjectToolsPanel: FC = () => {
             >
                 <ButtonGroup
                     colorScheme={"gray"}
+                    color={"white"}
                     orientation={"vertical"}
                     spacing={1}
                     size={"md"}
@@ -74,7 +74,7 @@ export const ProjectToolsPanel: FC = () => {
                     <Tooltip label={"Cursor"} placement={"right"}>
                         <IconButton
                             aria-label={"cursor"}
-                            icon={<CursorPointer />}
+                            icon={<NavigationIcon boxSize={5} />}
                             isActive={tool.name === "cursor"}
                             onClick={onSetCursorTool}
                         />
@@ -82,12 +82,12 @@ export const ProjectToolsPanel: FC = () => {
                     <Tooltip label={"Pencil"} placement={"right"}>
                         <IconButton
                             aria-label={"pencil"}
-                            icon={<EditPencil />}
+                            icon={<PencilIcon boxSize={5} />}
                             isActive={tool.name === "pencil"}
                             onClick={onSetPencilTool}
                         />
                     </Tooltip>
-                    <Tooltip label={"Fill"} placement={"right"}>
+                    {/* <Tooltip label={"Fill"} placement={"right"}>
                         <IconButton
                             aria-label={"fill"}
                             icon={<FillColor />}
@@ -95,11 +95,11 @@ export const ProjectToolsPanel: FC = () => {
                             isDisabled
                             onClick={onSetFillTool}
                         />
-                    </Tooltip>
+                    </Tooltip> */}
                     <Tooltip label={"Eraser"} placement={"right"}>
                         <IconButton
                             aria-label={"eraser"}
-                            icon={<Erase />}
+                            icon={<EraserIcon boxSize={5} />}
                             isActive={tool.name === "eraser"}
                             onClick={onSetEraserTool}
                         />
@@ -107,7 +107,7 @@ export const ProjectToolsPanel: FC = () => {
                     <Tooltip label={"Color Picker"} placement={"right"}>
                         <IconButton
                             aria-label={"picker"}
-                            icon={<ColorPicker />}
+                            icon={<ColorPickerIcon boxSize={5} />}
                             isActive={tool.name === "picker"}
                             onClick={onSetPickerTool}
                         />
@@ -130,14 +130,16 @@ export const ProjectToolsPanel: FC = () => {
                     <Tooltip label={"Undo"} placement={"right"}>
                         <IconButton
                             aria-label={"undo"}
-                            icon={<Undo />}
+                            icon={<ReverseLeftIcon boxSize={5} />}
+                            isDisabled={pastStates.length === 0}
                             onClick={handleOnUndoClick}
                         />
                     </Tooltip>
                     <Tooltip label={"Redo"} placement={"right"}>
                         <IconButton
                             aria-label={"redo"}
-                            icon={<Redo />}
+                            icon={<ReverseRightIcon boxSize={5} />}
+                            isDisabled={futureStates.length === 0}
                             onClick={handleOnRedoClick}
                         />
                     </Tooltip>

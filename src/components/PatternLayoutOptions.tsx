@@ -2,20 +2,28 @@ import {
   Button,
   ButtonGroup,
   Flex,
+  Icon,
   Input,
   InputGroup,
   InputLeftAddon,
   Select,
   Text,
 } from "@chakra-ui/react";
-import { FC, ChangeEvent, useCallback } from "react";
+import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 import { BeadSizeOptions } from "./beading-grid";
+import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "./icons";
 import { PatternLayoutOptions } from "./pattern";
 
-export const BeadingLayoutOptionsPanel: FC<{
+export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
+    mode?: "initialization" | "configuration";
+    size?: "xs" | "sm" | "md" | "lg";
+    title?: string;
     layout: PatternLayoutOptions;
     onChange?: (layout: PatternLayoutOptions) => void;
-}> = ({
+}>> = ({
+    mode = "configuration",
+    size = "xs",
+    title,
     layout,
     onChange
 }) => {
@@ -55,33 +63,46 @@ export const BeadingLayoutOptionsPanel: FC<{
         });
     }, [onChange, layout]);
 
-    const isHorizontal = layout.orientation === "horizontal";
-
     return (
         <Flex flexDirection={"column"} gap={2} w={"100%"}>
-            <Flex alignItems={"center"} justifyContent={"space-between"}>
-                <Text as={"b"} fontSize={"xs"}>
-                    Layout
-                </Text>
-            </Flex>
-            <ButtonGroup isAttached size={"xs"} variant={"outline"}>
+            <ButtonGroup isAttached size={size} variant={"outline"}>
                 <Button
-                    isActive={!isHorizontal}
+                    aria-selected={layout.orientation === "vertical"}
+                    borderColor={"gray.400"}
+                    leftIcon={<Icon as={VerticalAlignBottomIcon} />}
                     width={"50%"}
+                    _selected={{
+                        backgroundColor: "gray.900",
+                        color: "gray.50",
+                    }}
+                    _hover={{
+                        backgroundColor: "gray.700",
+                        color: "gray.50",
+                    }}
                     onClick={handleOnVerticalClick}
                 >
                     Vertical
                 </Button>
                 <Button
-                    isActive={isHorizontal}
+                    aria-selected={layout.orientation === "horizontal"}
+                    borderColor={"gray.400"}
+                    leftIcon={<Icon as={HorizontalAlignRightIcon} />}
                     width={"50%"}
+                    _selected={{
+                        backgroundColor: "gray.900",
+                        color: "gray.50",
+                    }}
+                    _hover={{
+                        backgroundColor: "gray.700",
+                        color: "gray.50",
+                    }}
                     onClick={handleOnHorizontalClick}
                 >
                     Horizontal
                 </Button>
             </ButtonGroup>
-            {isHorizontal && (
-                <InputGroup size={"xs"}>
+            {layout.orientation === "horizontal" && (
+                <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
                     <Input
                         min={1}
@@ -92,8 +113,8 @@ export const BeadingLayoutOptionsPanel: FC<{
                     />
                 </InputGroup>
             )}
-            {!isHorizontal && (
-                <InputGroup size={"xs"}>
+            {layout.orientation === "vertical" && (
+                <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
                     <Input
                         min={1}
@@ -104,9 +125,9 @@ export const BeadingLayoutOptionsPanel: FC<{
                     />
                 </InputGroup>
             )}
-            <InputGroup size={"xs"}>
+            <InputGroup borderColor={"gray.400"} size={size}>
                 <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
-                <Select onChange={handleOnBeadSizeChange}>
+                <Select borderColor={"gray.400"} onChange={handleOnBeadSizeChange}>
                     {BeadSizeOptions.map((beadSize, index) => (
                         <option key={index} value={beadSize.title}>
                             {beadSize.title}

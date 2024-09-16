@@ -1,3 +1,4 @@
+import { createIcon } from "@chakra-ui/react";
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, Fragment, PropsWithChildren, useCallback } from "react";
 import { Circle, Group, Line, Rect, Text } from "react-konva";
@@ -15,7 +16,6 @@ import {
     BeadingGridCellState,
     BeadingGridMetadata,
     BeadingGridState,
-    BeadingPointerEvent,
     BeadSize,
     GridCellPosition
 } from "./types";
@@ -41,40 +41,43 @@ export const GridOptionsProvider: FC<PropsWithChildren<{
     );
 };
 
-export const BeadingGrid: FC<{
+export type BeadingPointerEvent = {
+    cell: BeadingGridCellState;
+};
+
+export const BeadingGrid: FC<PropsWithChildren<{
     offset?: GridCellPosition;
     grid: BeadingGridState;
-    beadSize: BeadSize;
-    onBeadingClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onBeadingPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-}> = ({
+    onCellClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onCellPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onCellPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onCellPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+}>> = ({
+    children,
     offset,
     grid,
-    beadSize,
-    onBeadingClick,
-    onBeadingPointerDown,
-    onBeadingPointerUp,
-    onBeadingPointerEnter,
+    onCellClick,
+    onCellPointerDown,
+    onCellPointerUp,
+    onCellPointerEnter,
 }) => {
     const { cellHeight, cellWidth, pointPixelRatio } = useGridOptions();
 
-    const handleOnBeadingGridClick = useCallback((event: BeadingPointerEvent) => {
-        onBeadingClick?.(grid, event);
-    }, [grid, onBeadingClick]);
+    const handleOnCellClick = useCallback((event: BeadingPointerEvent) => {
+        onCellClick?.(grid, event);
+    }, [grid, onCellClick]);
 
-    const handleOnBeadingGridDown = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerDown?.(grid, event);
-    }, [grid, onBeadingPointerDown]);
+    const handleOnCellPointerDown = useCallback((event: BeadingPointerEvent) => {
+        onCellPointerDown?.(grid, event);
+    }, [grid, onCellPointerDown]);
 
-    const handleOnBeadingGridUp = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerUp?.(grid, event);
-    }, [grid, onBeadingPointerUp]);
+    const handleOnCellPointerUp = useCallback((event: BeadingPointerEvent) => {
+        onCellPointerUp?.(grid, event);
+    }, [grid, onCellPointerUp]);
 
-    const handleOnBeadingGridEnter = useCallback((event: BeadingPointerEvent) => {
-        onBeadingPointerEnter?.(grid, event);
-    }, [grid, onBeadingPointerEnter]);
+    const handleOnCellPointerEnter = useCallback((event: BeadingPointerEvent) => {
+        onCellPointerEnter?.(grid, event);
+    }, [grid, onCellPointerEnter]);
 
     const positionX = (offset?.columnIndex ?? 0) * cellWidth * pointPixelRatio;
     const positionY = (offset?.rowIndex ?? 0) * cellHeight * pointPixelRatio;
@@ -94,11 +97,11 @@ export const BeadingGrid: FC<{
                         columnIndex={columnIndex}
                         height={cellHeight * pointPixelRatio}
                         width={cellWidth * pointPixelRatio}
-                        position={getGridCellRenderPosition(grid, beadSize, rowIndex, columnIndex)}
-                        onClick={handleOnBeadingGridClick}
-                        onPointerDown={handleOnBeadingGridDown}
-                        onPointerUp={handleOnBeadingGridUp}
-                        onPointerEnter={handleOnBeadingGridEnter}
+                        position={getGridCellRenderPosition(grid, { height: cellHeight, width: cellWidth }, rowIndex, columnIndex)}
+                        onClick={handleOnCellClick}
+                        onPointerDown={handleOnCellPointerDown}
+                        onPointerUp={handleOnCellPointerUp}
+                        onPointerEnter={handleOnCellPointerEnter}
                     />
                 ))
             )}
@@ -111,6 +114,7 @@ export const BeadingGrid: FC<{
                     strokeWidth={1}
                 />
             )}
+            {children}
         </Group>
     );
 };
@@ -182,6 +186,7 @@ export const HighlightedArea: FC<{
     offset: GridCellPosition;
     height: number;
     width: number;
+    grid: BeadingGridState
     onClick?: (event: KonvaEventObject<MouseEvent>) => void;
 }> = ({
     backgroundColor,
@@ -190,14 +195,25 @@ export const HighlightedArea: FC<{
     offset,
     height,
     width,
+    grid,
     onClick,
 }) => {
     const { cellHeight, cellWidth, pointPixelRatio } = useGridOptions();
 
-    const areaX = offset.columnIndex * cellWidth * pointPixelRatio;
-    const areaY = offset.rowIndex * cellHeight * pointPixelRatio;
-    const areaHeight = height * cellHeight * pointPixelRatio;
-    const areaWidth = width * cellWidth * pointPixelRatio;
+    const topBoundary = 0;
+    const leftBoundary = 0;
+    const rightBoundary = grid.rows.length - offset.rowIndex;
+    const bottomBoundary = grid.rows[0].cells.length - offset.columnIndex;
+
+    const truncatedColumnIndex = Math.min(Math.max(topBoundary, offset.columnIndex), grid.rows[0].cells.length);
+    const truncatedRowIndex = Math.min(Math.max(leftBoundary, offset.rowIndex), grid.rows.length);
+    const truncatedHeight = Math.min(offset.rowIndex < 0 ? height + offset.rowIndex : height, rightBoundary);
+    const truncatedWidth = Math.min(offset.columnIndex < 0 ? width + offset.columnIndex : width, bottomBoundary);
+
+    const areaX = truncatedColumnIndex * cellWidth * pointPixelRatio;
+    const areaY = truncatedRowIndex * cellHeight * pointPixelRatio;
+    const areaHeight = truncatedHeight * cellHeight * pointPixelRatio;
+    const areaWidth = truncatedWidth * cellWidth * pointPixelRatio;
 
     return (
         <Rect
@@ -314,3 +330,58 @@ export const GridCell: FC<{
         </Fragment>
     );
 };
+
+export const LoomIcon = createIcon({
+    displayName: "LoomIcon",
+    viewBox: "0 0 32 32",
+    defaultProps: {
+        fill: "#1A202C"
+    },
+    path: [
+        <rect x="7.5" y="3" width="5" height="8" rx="2" fill="#A0AEC0"/>,
+        <rect x="7.5" y="12" width="5" height="8" rx="2" fill="#A0AEC0"/>,
+        <rect x="7.5" y="21" width="5" height="8" rx="2" fill="#A0AEC0"/>,
+        <rect x="13.5" y="3" width="5" height="8" rx="2" fill="currentColor"/>,
+        <rect x="13.5" y="12" width="5" height="8" rx="2" fill="currentColor"/>,
+        <rect x="13.5" y="21" width="5" height="8" rx="2" fill="currentColor"/>,
+        <rect x="19.5" y="3" width="5" height="8" rx="2" fill="#A0AEC0"/>,
+        <rect x="19.5" y="12" width="5" height="8" rx="2" fill="#A0AEC0"/>,
+        <rect x="19.5" y="21" width="5" height="8" rx="2" fill="#A0AEC0"/>
+    ]
+});
+
+export const PeyoteIcon = createIcon({
+    displayName: "PeyoteIcon",
+    viewBox: "0 0 32 32",
+    defaultProps: {
+        fill: "#1A202C"
+    },
+    path: [
+        <rect x="18.5" y="24" width="5" height="8" rx="2" transform="rotate(180 18.5 24)" fill="currentColor"/>,
+        <rect x="18.5" y="15" width="5" height="8" rx="2" transform="rotate(180 18.5 15)" fill="currentColor"/>,
+        <rect x="24.5" y="28.5" width="5" height="8" rx="2" transform="rotate(180 24.5 28.5)" fill="#A0AEC0"/>,
+        <rect x="24.5" y="19.5" width="5" height="8" rx="2" transform="rotate(180 24.5 19.5)" fill="currentColor"/>,
+        <rect x="24.5" y="10.5" width="5" height="8" rx="2" transform="rotate(180 24.5 10.5)" fill="#A0AEC0"/>,
+        <rect x="12.5" y="28.5" width="5" height="8" rx="2" transform="rotate(180 12.5 28.5)" fill="#A0AEC0"/>,
+        <rect x="12.5" y="19.5" width="5" height="8" rx="2" transform="rotate(180 12.5 19.5)" fill="currentColor"/>,
+        <rect x="12.5" y="10.5" width="5" height="8" rx="2" transform="rotate(180 12.5 10.5)" fill="#A0AEC0"/>
+    ]
+});
+
+export const BrickIcon = createIcon({
+    displayName: "BrickIcon",
+    viewBox: "0 0 32 32",
+    defaultProps: {
+        fill: "#1A202C"
+    },
+    path: [
+        <rect x="7.5" y="18" width="5" height="8" rx="2" transform="rotate(-90 7.5 18)" fill="currentColor"/>,
+        <rect x="16.5" y="18" width="5" height="8" rx="2" transform="rotate(-90 16.5 18)" fill="currentColor"/>,
+        <rect x="3" y="24" width="5" height="8" rx="2" transform="rotate(-90 3 24)" fill="#A0AEC0"/>,
+        <rect x="12" y="24" width="5" height="8" rx="2" transform="rotate(-90 12 24)" fill="currentColor"/>,
+        <rect x="21" y="24" width="5" height="8" rx="2" transform="rotate(-90 21 24)" fill="#A0AEC0"/>,
+        <rect x="3" y="12" width="5" height="8" rx="2" transform="rotate(-90 3 12)" fill="#A0AEC0"/>,
+        <rect x="12" y="12" width="5" height="8" rx="2" transform="rotate(-90 12 12)" fill="currentColor"/>,
+        <rect x="21" y="12" width="5" height="8" rx="2" transform="rotate(-90 21 12)" fill="#A0AEC0"/>
+    ]
+});

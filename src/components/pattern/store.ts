@@ -13,8 +13,8 @@ export type PatternStore = {
     dispatch: (action: PatternActions) => void;
 }
 
-export const usePatternStore = create(
-    temporal<PatternStore>((set) => ({
+export const usePatternStore = create<PatternStore>()(
+    temporal((set) => ({
             pattern: createPattern(),
             isDirty: false,
             resetDirty: () => set({ isDirty: false }),
@@ -24,9 +24,12 @@ export const usePatternStore = create(
             }))
         }), {
             limit: 100,
+            partialize: (state) => {
+                const { isDirty, ...rest } = state;
+                return rest;
+            },
             handleSet: (handleSet) => {
-                const debounceSetter = debounce<typeof handleSet>(handleSet, 200, true);
-                return debounceSetter;
+                return debounce<typeof handleSet>(handleSet, 200, true);
             }
         }
     )

@@ -1,23 +1,16 @@
-import { Box, Button, Flex, Grid, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, Text, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import { Plus } from "iconoir-react";
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router";
-import {
-    createPattern,
-    PatternCard,
-    PatternState,
-    usePatternCollection
-} from "../components";
+import { PatternCard, PatternState, usePatternCollection } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
-
-export type PatternCollectionState = {
-    patterns: Array<PatternState>;
-}
+import { CreatePatternModal } from "./CreatePatternModal";
 
 export const PatternCollectionExplorer: FC = () => {
     const navigate = useNavigate();
     const gridColumns = useBreakpointValue({ base: 1, md: 2, lg: 3, xl: 4, "2xl": 5 });
-    const { patterns, addPattern, deletePattern } = usePatternCollection();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { patterns, deletePattern } = usePatternCollection();
 
     const handleOnPatternClick = useCallback((pattern: PatternState) => {
         navigate(`/patterns/${pattern.patternId}`);
@@ -33,8 +26,8 @@ export const PatternCollectionExplorer: FC = () => {
     }, [deletePattern]);
     
     const handleOnCreatePatternClick = useCallback(() => {
-        addPattern(createPattern());
-    }, [addPattern]);
+        onOpen();
+    }, [onOpen]);
     
     return patterns.length > 0 ? (
         <Box height={"100%"} overflowY={"scroll"} padding={6} width={"100%"}>
@@ -72,6 +65,8 @@ export const PatternCollectionExplorer: FC = () => {
             >
                 Create first pattern
             </Button>
+
+            <CreatePatternModal isOpen={isOpen} onClose={onClose} />
         </Flex>
     );
 };

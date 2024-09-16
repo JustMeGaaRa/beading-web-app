@@ -8,11 +8,27 @@ import {
     useState,
 } from "react";
 
-export type ToolName = "cursor" | "pencil" | "fill" | "eraser" | "picker";
-export type ToolDefaultActionName = "default";
-export type CursorActionName = ToolDefaultActionName | "mirror" | "copy" | "cut" | "paste";
+export type ToolName = 
+    | "cursor"
+    | "pencil"
+    | "fill"
+    | "eraser"
+    | "picker";
 
-export type ToolInfo<TTool extends string, TState extends { currentAction: string | "default" }> = {
+export type ToolDefaultActionName = "default";
+
+export type CursorActionName = 
+    | ToolDefaultActionName
+    | "mirror"
+    | "duplicate"
+    | "copy"
+    | "cut"
+    | "paste";
+
+export type ToolInfo<
+    TTool extends string,
+    TState extends { currentAction: string | "default" }
+> = {
     name: TTool;
     state: TState;
 };
@@ -20,7 +36,7 @@ export type ToolInfo<TTool extends string, TState extends { currentAction: strin
 export type ToolState = 
     | ToolInfo<"cursor", { currentAction: CursorActionName }>
     | ToolInfo<"pencil", { currentAction: ToolDefaultActionName }>
-    | ToolInfo<"fill", { currentAction: ToolDefaultActionName }>
+    | ToolInfo<"fill",   { currentAction: ToolDefaultActionName }>
     | ToolInfo<"eraser", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"picker", { currentAction: ToolDefaultActionName }>;
 

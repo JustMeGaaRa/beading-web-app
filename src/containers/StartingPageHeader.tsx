@@ -1,27 +1,43 @@
-import { Button, ButtonGroup, Flex, Input, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import {
+    Button,
+    ButtonGroup,
+    Flex,
+    Input,
+    Text,
+    useDisclosure,
+    useToast
+} from "@chakra-ui/react";
 import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { v6 } from "uuid";
-import { createPattern, Header, Shortcuts, ShortcutTableModal, usePatternCollection, validatePattern } from "../components";
+import {
+    Header,
+    Shortcuts,
+    ShortcutTableModal,
+    usePatternCollection,
+    validatePattern
+} from "../components";
+import { CreatePatternModal } from "./CreatePatternModal";
 
 export const StartingPageHeader: FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
     const { addPattern } = usePatternCollection();
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isHelpOpen, onOpen: onHelpOpen, onClose: onHelpClose } = useDisclosure();
+    const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
 
-    const peekShortcuts = useCallback((keyboardEvent: KeyboardEvent, hotkeysEvent: any) => {
+    const onPeekShortcuts = useCallback((keyboardEvent: KeyboardEvent) => {
         if (keyboardEvent.type === "keydown") {
-            onOpen();
+            onHelpOpen();
         }
         if (keyboardEvent.type === "keyup") {
-            onClose();
+            onHelpClose();
         }
-    }, [onOpen, onClose]);
+    }, [onHelpOpen, onHelpClose]);
 
-    useHotkeys(Shortcuts.help.keyString, peekShortcuts, { preventDefault: true, keydown: true, keyup: true }, []);
-    useHotkeys(Shortcuts.patternCreate.keyString, () => addPattern(createPattern()), { preventDefault: true }, [addPattern]);
+    useHotkeys(Shortcuts.help.keyString, onPeekShortcuts, { preventDefault: true, keydown: true, keyup: true }, []);
+    useHotkeys(Shortcuts.patternCreate.keyString, () => onModalOpen(), { preventDefault: true }, [addPattern]);
     useHotkeys(Shortcuts.patternOpen.keyString, () => fileInputRef.current?.click(), { preventDefault: true }, [fileInputRef.current]);
 
     const handleFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +96,8 @@ export const StartingPageHeader: FC = () => {
     }, [addPattern, fileInputRef.current]);
     
     const handleOnCreatePatternClick = useCallback(() => {
-        addPattern(createPattern());
-    }, [addPattern]);
+        onModalOpen();
+    }, [onModalOpen]);
     
     return (
         <Header>
@@ -118,12 +134,9 @@ export const StartingPageHeader: FC = () => {
                     Create pattern
                 </Button>
             </ButtonGroup>
-            
-            <ShortcutTableModal
-                scope={"page.starting"}
-                isOpen={isOpen}
-                onClose={onClose}
-            />
+
+            <CreatePatternModal isOpen={isModalOpen} onClose={onModalClose} />
+            <ShortcutTableModal scope={"page.starting"} isOpen={isHelpOpen} onClose={onHelpClose} />
         </Header>
     );
 };

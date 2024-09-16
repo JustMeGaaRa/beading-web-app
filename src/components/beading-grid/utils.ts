@@ -1,12 +1,16 @@
+import { grid } from "@chakra-ui/react";
 import { CellBlankColor, CellPixelRatio } from "./constants";
 import {
     BeadingGridCellState,
+    BeadingGridRow,
     BeadingGridState,
     BeadSize,
+    Cell,
     GridCellPosition,
-    GridMirrorSections,
+    GridWindowSet,
     GridSection,
-    RenderArea
+    RenderArea,
+    GridWindow
 } from "./types";
 
 export const isNullOrEmpty = (str?: string) => {
@@ -115,150 +119,153 @@ export const setGridCell = (
     };
 };
 
-export const getGridSection = (
-    grid: BeadingGridState,
+export const getGridWindow = (
     startCell: GridCellPosition,
     endCell: GridCellPosition
-): GridSection => {
+) => {
     const topLeftRowIndex = Math.min(startCell.rowIndex, endCell.rowIndex);
     const topLeftColumnIndex = Math.min(startCell.columnIndex, endCell.columnIndex);
     const bottomRightRowIndex = Math.max(startCell.rowIndex, endCell.rowIndex);
     const bottomRightColumnIndex = Math.max(startCell.columnIndex, endCell.columnIndex);
 
-    const rows = grid.rows
-        .slice(topLeftRowIndex, bottomRightRowIndex + 1)
-        .map((row) => ({
-            cells: row.cells
-                .slice(topLeftColumnIndex, bottomRightColumnIndex + 1)
-                .map((cell) => cell)
-    }));
-    
     return {
-        topLeft: { rowIndex: topLeftRowIndex, columnIndex: topLeftColumnIndex },
+        offset: { rowIndex: topLeftRowIndex, columnIndex: topLeftColumnIndex },
         height: bottomRightRowIndex - topLeftRowIndex + 1,
-        width: bottomRightColumnIndex - topLeftColumnIndex + 1,
-        bottomRight: { rowIndex: bottomRightRowIndex, columnIndex: bottomRightColumnIndex },
-        rows
+        width: bottomRightColumnIndex - topLeftColumnIndex + 1
     };
 };
 
-export const getGridMirrorSections = (
+export const getGridWindowSet = (
     grid: BeadingGridState,
-    startCell: GridCellPosition,
-    endCell: GridCellPosition
-): GridMirrorSections => {
+    centerSection: GridWindow
+): GridWindowSet => {
     const gridHeight = grid.rows.length - 1;
     const gridWidth = grid.rows[0].cells.length - 1;
+    const mirrors: GridWindow[] = [];
 
-    const centerSection = getGridSection(grid, startCell, endCell);
-    const sectionHeight = centerSection.bottomRight.rowIndex - centerSection.topLeft.rowIndex + 1;
-    const sectionWidth = centerSection.bottomRight.columnIndex - centerSection.topLeft.columnIndex + 1;
-
-    const getMirrorSection = (
-        topLeft: GridCellPosition,
-        bottomRight: GridCellPosition,
-        direction: "left" | "right" | "top" | "bottom"
-    ) => {
-        const section = getGridSection(grid, topLeft, bottomRight);
-        return mirrorCopyGridSection(centerSection, section, direction);
+    // left window
+    if (centerSection.offset.columnIndex > 0) {
+        const leftTopLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex - centerSection.width,
+            rowIndex: centerSection.offset.rowIndex
+        };
+        const leftBottomLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex - 1,
+            rowIndex: centerSection.offset.rowIndex + centerSection.height - 1
+        };
+        mirrors.push(getGridWindow(leftTopLeftCell, leftBottomLeftCell));
     }
 
-    const topTopLeftCell: GridCellPosition = {
-        columnIndex: centerSection.topLeft.columnIndex,
-        rowIndex: Math.max(0, centerSection.topLeft.rowIndex - sectionHeight)
-    };
-    const topBottomLeftCell: GridCellPosition = {
-        columnIndex: centerSection.bottomRight.columnIndex,
-        rowIndex: centerSection.topLeft.rowIndex - 1
-    };
+    // top window
+    if (centerSection.offset.rowIndex > 0) {
+        const topTopLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex,
+            rowIndex: centerSection.offset.rowIndex - centerSection.height
+        };
+        const topBottomLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex + centerSection.width - 1,
+            rowIndex: centerSection.offset.rowIndex - 1
+        };
+        mirrors.push(getGridWindow(topTopLeftCell, topBottomLeftCell));
+    }
 
-    const leftTopLeftCell: GridCellPosition = {
-        columnIndex: Math.max(0, centerSection.topLeft.columnIndex - sectionWidth),
-        rowIndex: centerSection.topLeft.rowIndex
-    };
-    const leftBottomLeftCell: GridCellPosition = {
-        columnIndex: centerSection.topLeft.columnIndex - 1,
-        rowIndex: centerSection.bottomRight.rowIndex
-    };
-    
-    const rightTopLeftCell: GridCellPosition = {
-        columnIndex: Math.min(gridWidth, centerSection.bottomRight.columnIndex + 1),
-        rowIndex: centerSection.topLeft.rowIndex
-    };
-    const rightBottomRightCell: GridCellPosition = {
-        columnIndex: Math.min(gridWidth, centerSection.bottomRight.columnIndex + sectionWidth),
-        rowIndex: centerSection.bottomRight.rowIndex
-    };
+    // right window
+    if (centerSection.offset.columnIndex + centerSection.height < gridWidth) {
+        const rightTopLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex + centerSection.width,
+            rowIndex: centerSection.offset.rowIndex
+        };
+        const rightBottomRightCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex + centerSection.width * 2 - 1,
+            rowIndex: centerSection.offset.rowIndex + centerSection.height - 1
+        };
+        mirrors.push(getGridWindow(rightTopLeftCell, rightBottomRightCell));
+    }
 
-    const bottomTopLeftCell: GridCellPosition = {
-        columnIndex: centerSection.topLeft.columnIndex,
-        rowIndex: Math.min(gridHeight, centerSection.bottomRight.rowIndex + 1)
-    };
-    const bottomBottomLeftCell: GridCellPosition = {
-        columnIndex: centerSection.bottomRight.columnIndex,
-        rowIndex: Math.min(gridHeight, centerSection.bottomRight.rowIndex + sectionHeight)
-    };
+    // bottom window
+    if (centerSection.offset.rowIndex + centerSection.height < gridHeight) {
+        const bottomTopLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex,
+            rowIndex: centerSection.offset.rowIndex + centerSection.height
+        };
+        const bottomBottomLeftCell: GridCellPosition = {
+            columnIndex: centerSection.offset.columnIndex + centerSection.width - 1,
+            rowIndex: centerSection.offset.rowIndex + centerSection.height * 2 - 1
+        };
+        mirrors.push(getGridWindow(bottomTopLeftCell, bottomBottomLeftCell));
+    }
     
     return {
         center: centerSection,
-        mirrors: [
-            getMirrorSection(topTopLeftCell, topBottomLeftCell, "bottom"),
-            getMirrorSection(leftTopLeftCell, leftBottomLeftCell, "left"),
-            getMirrorSection(rightTopLeftCell, rightBottomRightCell, "right"),
-            getMirrorSection(bottomTopLeftCell, bottomBottomLeftCell, "top")
-        ]
+        other: mirrors
     };
 };
 
-export const mirrorCopyGridSection = (
-    sourceSection: GridSection,
-    targetSection: GridSection,
-    direction: "left" | "right" | "top" | "bottom"
+export const getGridSection = (
+    grid: BeadingGridState,
+    window: GridWindow
 ): GridSection => {
-    const targetHeight = targetSection.bottomRight.rowIndex - targetSection.topLeft.rowIndex + 1;
-    const targetWidth = targetSection.bottomRight.columnIndex - targetSection.topLeft.columnIndex + 1;
-    const sourceHeight = sourceSection.bottomRight.rowIndex - sourceSection.topLeft.rowIndex + 1;
-    const sourceWidth = sourceSection.bottomRight.columnIndex - sourceSection.topLeft.columnIndex + 1;
-
-    const minHeight = Math.min(targetHeight, sourceHeight);
-    const minWidth = Math.min(targetWidth, sourceWidth);
-
-    const copyCell = (sourceRow: number, sourceColumn: number, targetRow: number, targetColumn: number) => {
-        targetSection.rows[targetRow].cells[targetColumn] = sourceSection.rows[sourceRow].cells[sourceColumn];
+    return {
+        ...window,
+        rows: grid.rows
+            .slice(window.offset.rowIndex, window.offset.rowIndex + window.height)
+            .map((row) => ({
+                cells: row.cells
+                    .slice(window.offset.columnIndex, window.offset.columnIndex + window.width)
+                    .map((cell) => cell)
+        }))
     };
+};
 
-    for (let rowIndex = 0; rowIndex < minHeight; rowIndex++) {
-        for (let columnIndex = 0; columnIndex < minWidth; columnIndex++) {
-            switch (direction) {
-                case "left":
-                    copyCell(rowIndex, columnIndex, rowIndex, targetWidth - columnIndex - 1);
-                    break;
-                case "right":
-                    copyCell(rowIndex, sourceWidth - columnIndex - 1, rowIndex, columnIndex);
-                    break;
-                case "top":
-                    copyCell(rowIndex, columnIndex, targetHeight - rowIndex - 1, columnIndex);
-                    break;
-                case "bottom":
-                    copyCell(sourceHeight - rowIndex - 1, columnIndex, rowIndex, columnIndex);
-                    break;
+export const flipSection = (
+    section: GridSection,
+    direction: "horizontal" | "vertical"
+): GridSection => {
+    if (direction === "vertical") {
+        for (let rowIndex = 0; rowIndex < section.height / 2; rowIndex++) {
+            const currentRow = section.rows[rowIndex];
+            const oppositeRow = section.rows[section.height - rowIndex - 1];
+            section.rows[rowIndex] = oppositeRow;
+            section.rows[section.height - rowIndex - 1] = currentRow;
+        }
+    }
+
+    if (direction === "horizontal") {
+        for (let rowIndex = 0; rowIndex < section.height; rowIndex++) {
+            for (let columnIndex = 0; columnIndex < section.width / 2; columnIndex++) {
+                const currentCell = section.rows[rowIndex].cells[columnIndex];
+                const oppositeCell = section.rows[rowIndex].cells[section.width - columnIndex - 1];
+                section.rows[rowIndex].cells[columnIndex] = oppositeCell;
+                section.rows[rowIndex].cells[section.width - columnIndex - 1] = currentCell;
             }
         }
     }
 
-    return targetSection;
+    return section;
 };
 
-export const insertGridSection = (
+export const isPositionInBounds = (
     grid: BeadingGridState,
-    section: GridSection,
-    cellPosition: GridCellPosition
+    offset: GridCellPosition,
+    columnIndex: number,
+    rowIndex: number
 ) => {
-    section.rows.forEach((row, rowIndex) => {
+    return offset.rowIndex + rowIndex >= 0
+        && offset.rowIndex + rowIndex < grid.rows.length
+        && offset.columnIndex + columnIndex >= 0
+        && offset.columnIndex + columnIndex < grid.rows[0].cells.length;
+};
+
+export const mergeSection = (
+    grid: BeadingGridState,
+    targetWindow: GridWindow,
+    sourceWindow: GridSection,
+) => {
+    sourceWindow.rows.forEach((row, rowIndex) => {
         row.cells.forEach((cell, columnIndex) => {
-            if (cell !== CellBlankColor) {
-                const targetRowIndex = rowIndex + cellPosition.rowIndex;
-                const targetColumnIndex = columnIndex + cellPosition.columnIndex;
+            if (isPositionInBounds(grid, targetWindow.offset, columnIndex, rowIndex) && cell !== CellBlankColor) {
+                const targetRowIndex = targetWindow.offset.rowIndex + rowIndex;
+                const targetColumnIndex = targetWindow.offset.columnIndex + columnIndex;
                 grid.rows[targetRowIndex].cells[targetColumnIndex] = cell;
             }
         });
@@ -266,46 +273,70 @@ export const insertGridSection = (
 
     return {
         ...grid,
-        rows: grid.rows.map((row) => ({
-            cells: row.cells.map((cell) => cell)
+        rows: grid.rows.map((row, rowIndex) => ({
+            cells: row.cells.map((cell, columnIndex) => {
+
+                
+                return cell;
+            })
         }))
     };
 };
 
+export const mirrorSection = (
+    grid: BeadingGridState,
+    targetWindow: GridWindow,
+    sourceWindow: GridWindow,
+    direction: "horizontal" | "vertical"
+) => {
+    const sourceSection = getGridSection(grid, sourceWindow);
+    const flippedSection = flipSection(sourceSection, direction);
+    const modifiedGrid = mergeSection(grid, targetWindow, flippedSection);
+    return modifiedGrid;
+};
+
+export const dulicateSection = (
+    grid: BeadingGridState,
+    targetWindow: GridWindow,
+    sourceWindow: GridWindow,
+) => {
+    const sourceSection = getGridSection(grid, sourceWindow);
+    const modifiedGrid = mergeSection(grid, targetWindow, sourceSection);
+    return modifiedGrid;
+};
+
+export const clearSection = (
+    grid: BeadingGridState,
+    targetWindow: GridWindow,
+) => {
+    return grid;
+};
 
 // SECTION: render utility functions
 
 export const getGridSectionRenderArea = (
     grid: BeadingGridState,
-    beadSize: BeadSize,
-    section: GridSection
+    beadSize: { height: number; width: number },
+    section: GridWindow
 ): RenderArea => {
     const cellSize = getGridCellRenderSize(grid, beadSize);
     const topLeftPosition = getGridCellRenderPosition(
         grid,
         beadSize,
-        section.topLeft.rowIndex,
-        section.topLeft.columnIndex
+        section.offset.rowIndex,
+        section.offset.columnIndex
     );
-    const bottomRightPosition = getGridCellRenderPosition(
-        grid,
-        beadSize,
-        section.bottomRight.rowIndex,
-        section.bottomRight.columnIndex
-    );
-    const height = bottomRightPosition.y - topLeftPosition.y + cellSize.height;
-    const width = bottomRightPosition.x - topLeftPosition.x + cellSize.width;
 
     return {
         position: topLeftPosition,
-        width: width,
-        height: height,
+        width: section.width * cellSize.width,
+        height: section.height * cellSize.height,
     };
 };
 
 export const getGridCellRenderSize = (
     grid: BeadingGridState,
-    beadSize: BeadSize
+    beadSize: { height: number; width: number }
 ) => {
     const height = grid.options.type === "brick"
         ? beadSize.width * CellPixelRatio
@@ -319,7 +350,7 @@ export const getGridCellRenderSize = (
 
 export const getGridCellRenderPosition = (
     grid: BeadingGridState,
-    beadSize: BeadSize,
+    beadSize: { height: number; width: number },
     rowIndex: number,
     columnIndex: number,
 ) => {
@@ -350,7 +381,6 @@ export const getGridCellRenderPosition = (
 
     return { x, y };
 };
-
 
 export const getGridRenderSize = (
     grid: BeadingGridState,

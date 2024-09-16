@@ -1,6 +1,7 @@
 import {
     Box,
     ButtonGroup,
+    Icon,
     IconButton,
     Tooltip,
     useDisclosure,
@@ -52,7 +53,7 @@ export const ProjectHelpPanel: FC = () => {
                     <Tooltip label={"Show help"} placement={"right"}>
                         <IconButton
                             aria-label={"help"}
-                            icon={<HelpCircle />}
+                            icon={<Icon as={HelpCircle} boxSize={5} />}
                             onClick={onOpen}
                         />
                     </Tooltip>
