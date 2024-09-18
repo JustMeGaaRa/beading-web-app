@@ -1,6 +1,6 @@
 import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import { FC, useMemo } from "react";
-import { getPatternSummary, usePatternStore } from "./pattern";
+import { formatPatternSize, getPatternSummary, usePatternStore } from "./pattern";
 
 export const PatternSummaryPanel: FC = () => {
     const { pattern } = usePatternStore();
@@ -14,7 +14,7 @@ export const PatternSummaryPanel: FC = () => {
             </Text>
             <Text>{`Total beads: ${summary.totalBeads}`}</Text>
             <Text>{`Bead size: ${summary.beadSize.title}`}</Text>
-            <Text>{`Total size: ${summary.totalSize.title}`}</Text>
+            <Text>{`Total size: ${formatPatternSize(summary.totalSize)}`}</Text>
             <VStack maxHeight={"400px"} overflowY={"scroll"}>
                 {summary.beads.map((beadSummary) => (
                     <BeadSummaryItem key={beadSummary.color} {...beadSummary} />

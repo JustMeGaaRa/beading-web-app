@@ -25,10 +25,13 @@ import {
     useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useHotkeys } from "react-hotkeys-hook";
 import {
     Layer,
     Stage,
 } from "react-konva";
+import { Html } from "react-konva-utils";
+import { useParams } from "react-router";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import {
@@ -49,20 +52,21 @@ import {
     FrameSelectedFillColor,
     CellPixelRatio,
     getGridSectionRenderArea,
-    getGridWindowSet,
+    getGridWindowProjection,
     getPatternRenderSize,
     GridOptionsProvider,
     DividerStrokeColor,
     GridDivider,
     GridText,
     HighlightedArea,
-    GridCellPosition,
-    GridWindow,
+    BeadingGridOffset,
+    BeadingGridWindow,
     getGridWindow,
     BeadingGridMetadata,
     usePointerDisclosure,
     BeadingPointerEvent,
     Shortcuts,
+    useGridOptions,
 } from "../components";
 import {
     addBeadingGridColumnAfter,
@@ -76,57 +80,20 @@ import {
     setPattern,
     mirrorBeadingGridSection,
     duplicateBeadingGridSection,
+    clearBeadingGridSection,
 } from "../components/pattern/actionCreators"
-import { downloadUri, toJsonUri } from "../utils";
+import {
+    applyTransform,
+    calculateNewPosition,
+    calculateNewScale,
+    downloadUri,
+    getPointerOffset,
+    toJsonUri,
+    ZOOM_FACTOR
+} from "../utils";
 import { PatternActionToolbar } from "./PatternActionToolbar";
-import { useHotkeys } from "react-hotkeys-hook";
-import { useParams } from "react-router";
 
-const ZOOM_FACTOR = 1.1;
-
-const calculateNewScale = (
-    currentScale: number,
-    deltaY: number,
-    scaleBy: number
-) => {
-    return deltaY > 0
-        ? currentScale / scaleBy
-        : currentScale * scaleBy;
-};
-
-const getPointerOffset = (
-    pointerPosition: Konva.Vector2d,
-    stage: Konva.Stage,
-    scale: number
-) => {
-    return {
-        x: (pointerPosition.x - stage.x()) / scale,
-        y: (pointerPosition.y - stage.y()) / scale,
-    };
-};
-
-const calculateNewPosition = (
-    pointerOffset: Konva.Vector2d,
-    pointerPosition: Konva.Vector2d,
-    scale: number
-) => {
-    return {
-        x: pointerPosition.x - pointerOffset.x * scale,
-        y: pointerPosition.y - pointerOffset.y * scale,
-    };
-};
-
-const applyTransform = (
-    stage: Konva.Stage,
-    scale: number,
-    position: Konva.Vector2d
-) => {
-    stage.scale({ x: scale, y: scale });
-    stage.position(position);
-    stage.batchDraw();
-};
-
-export const BeadingPattern: FC = () => {
+export const PatternContainer: FC = () => {
     const toast = useToast();
     const containerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<Konva.Stage>(null);
@@ -137,7 +104,6 @@ export const BeadingPattern: FC = () => {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | null>(null);
     const [rowState, setRowState] = useState<TextState | null>();
-    const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
@@ -164,7 +130,7 @@ export const BeadingPattern: FC = () => {
     
     const onStageCentered = useCallback((pattern: PatternState) => {
         if (containerRef.current && stageRef.current && pattern?.grids.length > 0) {
-            const size = getPatternRenderSize(pattern, pattern.options);
+            const size = getPatternRenderSize(pattern);
             const position = {
                 x: containerRef.current.offsetWidth / 2 - size.width / 2,
                 y: containerRef.current.offsetHeight / 2 - size.height / 2,
@@ -377,11 +343,11 @@ export const BeadingPattern: FC = () => {
     }, [columnState, dispatch]);
 
     // SECTION: grid event handlers
-    const handleOnGridCellPointerDown = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+    const handleOnGridCellPointerDown = useCallback(() => {
         onPointerDown();
     }, [onPointerDown]);
 
-    const handleOnGridCellPointerUp = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+    const handleOnGridCellPointerUp = useCallback(() => {
         onPointerUp();
     }, [onPointerUp]);
 
@@ -394,18 +360,8 @@ export const BeadingPattern: FC = () => {
         }
     }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch]);
 
-    const handleOnGridSelectionChange = useCallback((source: BeadingGridState, event: GridSelectionChangeEvent) => {
+    const handleOnGridSelectionChange = useCallback((source: BeadingGridState) => {
         if (isPointerDown && isCursorEnabled) {
-            const beadSize = pattern.options.layout.beadSize;
-            const renderSection = getGridSectionRenderArea(source, beadSize, event.selection);
-            
-            const toolbarPositionX = (stageRef.current?.x() ?? 0)
-                + renderSection.position.x
-                + renderSection.width / 2;
-            const toolbarPositionY = (stageRef.current?.y() ?? 0)
-                + renderSection.position.y;
-            
-            setToolbarPosition({ x: toolbarPositionX, y: toolbarPositionY });
             onResetGridsSelection(source);
         }
     }, [isPointerDown, isCursorEnabled, onResetGridsSelection]);
@@ -476,12 +432,6 @@ export const BeadingPattern: FC = () => {
                     )}
                 </Layer>
             </Stage>
-            {tool.name === "cursor" && (
-                <PatternActionToolbar
-                    left={toolbarPosition.x}
-                    top={toolbarPosition.y}
-                />
-            )}
             <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>
                 <MenuButton
                     left={menuPosition.x}
@@ -555,7 +505,7 @@ export const BeadingPattern: FC = () => {
 };
 
 type GridSelectionChangeEvent = {
-    selection: GridWindow;
+    selection: BeadingGridWindow;
 };
 
 type GridProps = {
@@ -581,28 +531,35 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     onPointerEnter: onPointerEnterCallback,
     onSelectionChange
 }, ref) => {
-    const [startingCell, setStartingCell] = useState<GridCellPosition | undefined>();
-    const [selectedSection, setSelectedSection] = useState<GridWindow | undefined>();
+    const [startingCell, setStartingCell] = useState<BeadingGridOffset | undefined>();
+    const [selectedSection, setSelectedSection] = useState<BeadingGridWindow | undefined>();
+    const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
     
     const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
     const { selectedColor, setSelectedColor } = useColorPalette();
+    const { cellHeight, cellWidth } = useGridOptions();
     const { tool, setTool } = useTools();
     const { dispatch } = usePatternStore();
 
     const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
     const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
     const isDuplicatingEnabled = tool.name === "cursor" && tool.state.currentAction === "duplicate";
+    const showCentralArea = isCursorEnabled && selectedSection;
+    const showOtherAreas = (isMirroringEnabled || isDuplicatingEnabled) && selectedSection;
 
     const onResetSelection = useCallback(() => {
         setStartingCell(undefined);
         setSelectedSection(undefined);
-    }, [setSelectedSection]);
+    }, [setStartingCell, setSelectedSection]);
 
     useImperativeHandle(ref, () => ({
         onResetSelection
     }));
     
-    const handleOnGridCellClick = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+    const handleOnGridCellClick = useCallback((
+        source: BeadingGridState,
+        event: BeadingPointerEvent
+    ) => {
         onClick?.(source, event);
 
         if (tool.name === "pencil") {
@@ -612,42 +569,93 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CellBlankColor }));
         }
         if (tool.name === "picker") {
-            setSelectedColor(source.rows[event.cell.rowIndex].cells[event.cell.columnIndex]);
+            setSelectedColor(source.rows[event.cell.offset.rowIndex].cells[event.cell.offset.columnIndex]);
             setTool({ name: "pencil", state: { currentAction: "default" } });
         }
     }, [tool, selectedColor, dispatch, setSelectedColor, setTool, onClick]);
 
-    const handleOnGridCellPointerDown = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+    const handleOnGridCellPointerDown = useCallback((
+        source: BeadingGridState,
+        event: BeadingPointerEvent
+    ) => {
         onPointerDownCallback?.(source, event);
-        setStartingCell(event.cell);
+        setStartingCell(event.cell.offset);
         onPointerDown();
     }, [onPointerDown, onPointerDownCallback]);
 
-    const handleOnGridCellPointerUp = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+    const handleOnGridCellPointerUp = useCallback((
+        source: BeadingGridState,
+        event: BeadingPointerEvent
+    ) => {
         onPointerUpCallback?.(source, event);
         onPointerUp();
     }, [onPointerUp, onPointerUpCallback]);
 
-    const handleOnGridCellPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
+    const handleOnGridCellPointerEnter = useCallback((
+        source: BeadingGridState,
+        event: BeadingPointerEvent
+    ) => {
         onPointerEnterCallback?.(source, event);
         
         if (isPointerDown && isCursorEnabled && startingCell) {
-            const selectedSection = getGridWindow(startingCell, event.cell);
+            const selectedSection = getGridWindow(startingCell, event.cell.offset);
+
+            const beadSize = { height: cellHeight, width: cellWidth };
+            const renderSection = getGridSectionRenderArea(source, beadSize, selectedSection);
+            
+            const toolbarPositionX = renderSection.position.x + renderSection.width / 2;
+            const toolbarPositionY = renderSection.position.y - 20;
+            
             setSelectedSection(selectedSection);
+            setToolbarPosition({ x: toolbarPositionX, y: toolbarPositionY });
+
             onSelectionChange?.(source, { selection: selectedSection });
         }
     }, [isCursorEnabled, isPointerDown, onPointerEnterCallback, setBeadingGridCell]);
 
-    const handleOnMirrorAreaClick = useCallback((event: KonvaEventObject<MouseEvent>, grid: BeadingGridState, target: GridWindow) => {
+    const handleOnClearClick = useCallback(() => {
+        if (isMirroringEnabled && selectedSection) {
+            dispatch(clearBeadingGridSection(grid.name, selectedSection));
+        }
+    }, [dispatch, grid.name, selectedSection]);
+
+    const onMirrorVerticalClick = (
+        event: KonvaEventObject<MouseEvent>,
+        target: BeadingGridWindow
+    ) => {
         event.cancelBubble = true;
 
         if (isMirroringEnabled && selectedSection) {
-            dispatch(mirrorBeadingGridSection(grid.name, target, selectedSection));
+            dispatch(mirrorBeadingGridSection(
+                grid.name,
+                target,
+                selectedSection,
+                "vertical"
+            ));
         }
         if (isDuplicatingEnabled && selectedSection) {
             dispatch(duplicateBeadingGridSection(grid.name, target, selectedSection));
         }
-    }, [isMirroringEnabled, isDuplicatingEnabled, selectedSection, dispatch]);
+    };
+
+    const onMirrorHorizontalClick = (
+        event: KonvaEventObject<MouseEvent>,
+        target: BeadingGridWindow
+    ) => {
+        event.cancelBubble = true;
+
+        if (isMirroringEnabled && selectedSection) {
+            dispatch(mirrorBeadingGridSection(
+                grid.name,
+                target,
+                selectedSection,
+                "horizontal"
+            ));
+        }
+        if (isDuplicatingEnabled && selectedSection) {
+            dispatch(duplicateBeadingGridSection(grid.name, target, selectedSection));
+        }
+    };
 
     return (
         <BeadingGrid
@@ -658,7 +666,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             onCellPointerUp={handleOnGridCellPointerUp}
             onCellPointerEnter={handleOnGridCellPointerEnter}
         >
-            {isCursorEnabled && selectedSection && (
+            {showCentralArea && (
                 <HighlightedArea
                     borderColor={FrameSelectedBorderColor}
                     borderWidth={4}
@@ -668,7 +676,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
                     grid={grid}
                 />
             )}
-            {(isMirroringEnabled || isDuplicatingEnabled) && selectedSection && getGridWindowSet(grid, selectedSection).other.map((area, index) => (
+            {showOtherAreas && getGridWindowProjection(grid, selectedSection, "vertical").map((area, index) => (
                 <HighlightedArea
                     key={index}
                     backgroundColor={FrameSelectedFillColor}
@@ -678,9 +686,31 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
                     height={area.height}
                     width={area.width}
                     grid={grid}
-                    onClick={(event) => handleOnMirrorAreaClick(event, grid, area)}
+                    onClick={(event) => onMirrorVerticalClick(event, area)}
                 />
             ))}
+            {showOtherAreas && getGridWindowProjection(grid, selectedSection, "horizontal").map((area, index) => (
+                <HighlightedArea
+                    key={index}
+                    backgroundColor={FrameSelectedFillColor}
+                    borderColor={FrameSelectedBorderColor}
+                    borderWidth={2}
+                    offset={area.offset}
+                    height={area.height}
+                    width={area.width}
+                    grid={grid}
+                    onClick={(event) => onMirrorHorizontalClick(event, area)}
+                />
+            ))}
+            {isCursorEnabled && selectedSection && (
+                <Html
+                    groupProps={{ ...toolbarPosition }}
+                    transform
+                    transformFunc={attr => ({ ...attr, scaleX: 1, scaleY: 1 })}
+                >
+                    <PatternActionToolbar onClear={handleOnClearClick} />
+                </Html>
+            )}
         </BeadingGrid>
     );
 });

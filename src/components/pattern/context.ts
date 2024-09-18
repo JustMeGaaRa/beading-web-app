@@ -1,5 +1,5 @@
 import { createContext, Dispatch, SetStateAction } from "react";
-import { BeadingGridCellState, BeadingGridState } from "../beading-grid";
+import { BeadingGridCell, BeadingGridState } from "../beading-grid";
 import { DefaultPatternOptions } from "./constants";
 import { PatternOptions } from "./types";
 
@@ -24,10 +24,10 @@ export const PatternContext = createContext<{
 });
 
 export const PatternSelectionContext = createContext<{
-    selectedCells: Record<string, Array<BeadingGridCellState>>;
+    selectedCells: Record<string, Array<BeadingGridCell>>;
     selectedColumn: number;
     selectedRow: number;
-    setSelectedCells: Dispatch<SetStateAction<Record<string, Array<BeadingGridCellState>>>>;
+    setSelectedCells: Dispatch<SetStateAction<Record<string, Array<BeadingGridCell>>>>;
     setSelectedColumn: Dispatch<SetStateAction<number>>;
     setSelectedRow: Dispatch<SetStateAction<number>>;
 }>({

@@ -72,6 +72,7 @@ export const validatePatternOptions = (data: any): data is PatternOptions => {
 
 export const createPattern = (initialGridType?: BeadingGridType): PatternState => {
     return {
+        version: "1.0.0",
         patternId: `pattern-${v6()}`,
         name: "Untitled pattern",
         coverUrl: "",
@@ -82,6 +83,31 @@ export const createPattern = (initialGridType?: BeadingGridType): PatternState =
             : [],
         gridCount: initialGridType ? 1 : 0,
     };
+};
+
+export const formatPatternSize = (size: { height: number, width: number }) => {
+    return `${size.height.toFixed(2)} x ${size.width.toFixed(2)} mm`;
+}
+
+export const getPatternSize = (pattern: PatternState) => {
+    const isHorizontal = pattern.options.layout.orientation === "horizontal";
+    
+    const height = isHorizontal
+        ? Math.max(...pattern.grids.map(grid => grid.rows.length))
+        : pattern.grids.reduce((totalHeight, grid) =>
+            grid.options.type === "brick"
+                ? totalHeight + grid.rows.length + grid.options.fringe
+                : totalHeight + grid.rows.length,
+            0
+        );
+    const width = isHorizontal
+        ? pattern.grids.reduce((totalWidth, grid) =>
+            totalWidth + grid.rows[0].cells.length,
+            0
+        )
+        : pattern.grids[0].rows[0].cells.length;
+
+    return { height, width };
 };
 
 export const getPatternSummary = (pattern: PatternState): PatternSummary => {
@@ -109,28 +135,7 @@ export const getPatternSummary = (pattern: PatternState): PatternSummary => {
         }, 0);
         return patternTotal + gridTotal;
     }, 0);
-
-    const totalHeight = options.layout.orientation === "vertical"
-        ? grids
-            .reduce((totalHeight, gridState) =>
-                totalHeight + gridState.rows.length * options.layout.beadSize.height,
-                0
-            )
-        : grids
-            .map((gridState) => gridState.rows.length)
-            .reduce((max, height) =>
-                max > height ? max : height * options.layout.beadSize.height,
-                0
-            );
-    const totalWidth = options.layout.orientation === "vertical"
-        ? options.layout.width
-        : options.layout.width * grids.length * options.layout.beadSize.width;
-    
-    const totalSize: BeadSize = {
-        title: `${totalHeight.toFixed(2)} x ${totalWidth.toFixed(2)} mm`,
-        height: totalHeight,
-        width: totalWidth,
-    };
+    const totalSize = getPatternRealSize(pattern);
 
     return {
         totalBeads,
@@ -192,6 +197,7 @@ export const changePatternColor = (
 ): PatternState => {
     return {
         ...state,
+        lastModified: new Date(),
         grids: state.grids.map((grid) => ({
             ...grid,
             rows: grid.rows.map((row) => ({
@@ -211,6 +217,7 @@ export const applyPatternOptions = (
 ): PatternState => {
     return {
         ...state,
+        lastModified: new Date(),
         grids: state.grids.map((grid) => applyBeadingGridOptions(
             grid,
             grid.options,
@@ -238,38 +245,24 @@ export const applyBeadingGridOptions = (
     return modifiedGrid;
 };
 
-export const getPatternSize = (pattern: PatternState, options: PatternOptions) => {
-    const isHorizontal = options.layout.orientation === "horizontal";
+export const getPatternRealSize = (pattern: PatternState) => {
+    const patternSize = getPatternSize(pattern);
+    const beadSize = pattern.options.layout.type === "brick"
+        ? { height: pattern.options.layout.beadSize.height, width: pattern.options.layout.beadSize.width }
+        : { height: pattern.options.layout.beadSize.width, width: pattern.options.layout.beadSize.height };
 
-    const maxFringe = Math.max(
-        ...pattern.grids.map(grid => 
-            grid.options.type === "brick"
-            ? grid.options.fringe
-            : 0
-    ));
-    const height = isHorizontal
-        ? pattern.grids[0].rows.length + maxFringe
-        : pattern.grids.reduce((totalHeight, grid) =>
-            grid.options.type === "brick"
-                ? totalHeight + grid.rows.length + grid.options.fringe
-                : totalHeight + grid.rows.length,
-            0
-        );
-    const width = isHorizontal
-        ? pattern.grids.reduce((totalWidth, grid) =>
-            totalWidth + grid.rows[0].cells.length,
-            0
-        )
-        : pattern.grids[0].rows[0].cells.length;
-
-    return { height, width };
-};
-
-export const getPatternRenderSize = (pattern: PatternState, options: PatternOptions) => {
-    const size = getPatternSize(pattern, pattern.options);
     return {
-        height: size.height * CellPixelRatio * pattern.options.layout.beadSize.height,
-        width: size.width * CellPixelRatio * pattern.options.layout.beadSize.width
+        height: patternSize.height * beadSize.height,
+        width: patternSize.width * beadSize.width
+    };
+}
+
+export const getPatternRenderSize = (pattern: PatternState) => {
+    const patternSize = getPatternRealSize(pattern);
+
+    return {
+        height: patternSize.height * CellPixelRatio,
+        width: patternSize.width * CellPixelRatio
     };
 };
 
@@ -280,7 +273,7 @@ export const getPatternMetadata = (pattern: PatternState, options: PatternOption
     const textOffsetColumns = 4;
     const textOffsetRows = 2;
 
-    const gridMetadata = pattern.grids.reduce((metadata, grid, index) => {
+    const gridMetadata = pattern.grids.reduce((metadata, grid) => {
         const dividerOffset = isHorizontal
         ? {
             columnIndex: offsetColumn,

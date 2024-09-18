@@ -8,7 +8,11 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "PATTERN_RESET":
             return { ...action.payload.pattern };
         case "PATTERN_CHANGE_NAME":
-            return { ...state, name: action.payload.name };
+            return {
+                ...state,
+                lastModified: new Date(),
+                name: action.payload.name
+            };
         case "PATTERN_CHANGE_COLOR":
             return changePatternColor(
                 state,
@@ -23,6 +27,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_ADD":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: [
                     ...state.grids,
                     createGrid(state.gridCount, { ...DefaultGridOptions, type: state.options.layout.type } as any, state.options)
@@ -32,11 +37,13 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_DELETE":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.filter((grid) => grid.name !== action.payload.name)
             };
         case "BEADING_GRID_SET_CELL":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => grid.name === action.payload.name
                     ? setGridCell(grid, action.payload.cell)
                     : grid
@@ -45,6 +52,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_APPLY_OPTIONS":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => grid.name === action.payload.name
                     ? applyBeadingGridOptions(grid, action.payload.options, state.options)
                     : grid
@@ -53,6 +61,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_ADD_COLUMN_BEFORE":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? insertGridColumn(grid, action.payload.column)
@@ -71,6 +80,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_ADD_COLUMN_AFTER":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? insertGridColumn(grid, action.payload.column + 1)
@@ -89,6 +99,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_DELETE_COLUMN":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? deleteGridColumn(grid, action.payload.column)
@@ -107,6 +118,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_CLEAR_COLUMN":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? clearGridColumn(grid, action.payload.column)
@@ -116,6 +128,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_ADD_ROW_BEFORE":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? insertGridRow(grid, action.payload.row)
@@ -134,6 +147,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_ADD_ROW_AFTER":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? insertGridRow(grid, action.payload.row + 1)
@@ -152,6 +166,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_DELETE_ROW":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? deleteGridRow(grid, action.payload.row)
@@ -170,6 +185,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_CLEAR_ROW":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => 
                     action.payload.name === "all" || grid.name === action.payload.name
                         ? clearGridRow(grid, action.payload.row)
@@ -179,6 +195,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_MIRROR_SECTION":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => grid.name === action.payload.name
                     ? mirrorSection(grid, action.payload.target, action.payload.source, "horizontal")
                     : grid
@@ -187,6 +204,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_DUPLICATE_SECTION":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => grid.name === action.payload.name
                     ? dulicateSection(grid, action.payload.target, action.payload.source)
                     : grid
@@ -195,6 +213,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
         case "BEADING_GRID_CLEAR_SECTION":
             return {
                 ...state,
+                lastModified: new Date(),
                 grids: state.grids.map((grid) => grid.name === action.payload.name
                     ? clearSection(grid, action.payload.section)
                     : grid

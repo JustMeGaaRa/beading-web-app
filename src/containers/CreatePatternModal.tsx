@@ -1,5 +1,6 @@
 import {
     Button,
+    ButtonGroup,
     Divider,
     Flex,
     Icon,
@@ -16,6 +17,8 @@ import {
 import capitalize from "just-capitalize";
 import { FC, useCallback, useEffect, useState } from "react";
 import {
+    applyBeadingGridOptions,
+    applyPatternOptions,
     BeadingGridOptionsPanel,
     BeadingGridState,
     BeadingGridType,
@@ -24,8 +27,11 @@ import {
     BrickIcon,
     createGrid,
     createPattern,
+    formatPatternSize,
+    getPatternRealSize,
     LoomIcon,
     PatternLayoutOptions,
+    PatternState,
     PeyoteIcon,
     usePatternCollection
 } from "../components";
@@ -51,38 +57,45 @@ export const CreatePatternModal: FC<{
     }, []);
 
     const handleOnPatternTypeSelected = useCallback((type: BeadingGridType) => {
-        setPattern(state => ({
-            ...state,
-            options: {
+        setPattern(state => {
+            const modifiedGridOptions = {
+                ...state.grids[0].options,
+                type
+            } as any;
+            const modifiedPatternOptions = {
                 ...state.options,
-                layout: {
-                    ...state.options.layout,
-                    type: type
-                }
-            },
-            grids: [createGrid(0, { ...state.grids[0].options, type } as any, state.options)]
-        }));
+                layout: { ...state.options.layout, type: type }
+            };
+            return {
+                ...state,
+                options: modifiedPatternOptions,
+                grids: [createGrid(0, modifiedGridOptions, modifiedPatternOptions)]
+            };
+        });
     }, []);
 
     const handleOnPatternChange = useCallback((layout: PatternLayoutOptions) => {
-        setPattern((state) => ({ ...state, layout }));
+        setPattern((state) => {
+            const modifiedPatternOptions = { ...state.options, layout };
+            return {
+                ...state,
+                options: modifiedPatternOptions,
+                grids: [createGrid(0, state.grids[0].options, modifiedPatternOptions)]
+            };
+        });
     }, []);
 
     const handleOnGridChange = useCallback((grid: Omit<BeadingGridState, "rows">) => {
         setPattern((state) => ({
             ...state,
-            grids: state.grids.map((currentGrid) => (
-                currentGrid.name === grid.name
-                    ? { ...currentGrid, options: grid.options }
-                    : currentGrid
-            )),
+            grids: [createGrid(0, grid.options, state.options)],
         }))
     }, []);
 
     const handleOnCreateClick = useCallback(() => {
         addPattern(pattern);
         onClose();
-    }, [pattern, onClose]);
+    }, [pattern, addPattern, onClose]);
 
     return (
         <Modal isCentered isOpen={isOpen} size={"sm"} onClose={onClose}>
@@ -95,7 +108,7 @@ export const CreatePatternModal: FC<{
                 <ModalBody>
                     <VStack gap={2} width={"100%"}>
                         <Flex mb={2} justifyContent={"space-between"} w={"100%"}>
-                            {BeadingGridTypes.map((type, index) => (
+                            {BeadingGridTypes.map((type) => (
                                 <Flex
                                     key={type}
                                     aria-selected={pattern.grids[0].options.type === type}
@@ -139,16 +152,12 @@ export const CreatePatternModal: FC<{
                             onChange={handleOnGridChange}
                         />
                         <Text color={"gray.700"} fontSize={"small"} mt={4}>
-                            {`Finished size: ${
-                                    pattern.options.layout.width * pattern.options.layout.beadSize.width
-                                } x ${
-                                    pattern.options.layout.height * pattern.options.layout.beadSize.height
-                            } cm`}
+                            {`Finished size: ${formatPatternSize(getPatternRealSize(pattern))}`}
                         </Text>
                     </VStack>
                 </ModalBody>
                 <ModalFooter>
-                    <Flex flexDirection={"column"} width={"100%"}>
+                    <ButtonGroup width={"100%"}>
                         <Button
                             width={"100%"}
                             backgroundColor={"gray.900"}
@@ -159,7 +168,77 @@ export const CreatePatternModal: FC<{
                         >
                             Create
                         </Button>
-                    </Flex>
+                    </ButtonGroup>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
+    );
+};
+
+export const DeletePatternModal: FC<{
+    pattern: PatternState | null;
+    isOpen: boolean;
+    onClose: () => void;
+}> = ({
+    pattern,
+    isOpen,
+    onClose,
+}) => {
+    const { deletePattern } = usePatternCollection();
+
+    const handleOnPatterDeleteConfirm = useCallback(() => {
+        if (pattern) {
+            deletePattern(pattern.patternId);
+        }
+        onClose();
+    }, [pattern, deletePattern, onClose]);
+
+    return (
+        <Modal isCentered isOpen={isOpen} size={"sm"} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent padding={2}>
+                <ModalHeader fontSize={"x-large"} fontWeight={600}>
+                    Delete pattern
+                </ModalHeader>
+                <ModalBody>
+                    <Text color={"gray.700"} fontSize={"small"}>
+                        Are you sure you want to delete <Text as={"span"} fontWeight={600}>{pattern?.name}</Text>?
+                    </Text>
+                </ModalBody>
+                <ModalFooter>
+                    <ButtonGroup width={"100%"}>
+                        <Button
+                            width={"50%"}
+                            backgroundColor={"gray.900"}
+                            color={"gray.50"}
+                            _active={{
+                                backgroundColor: "gray.600",
+                                color: "gray.50",
+                            }}
+                            _hover={{
+                                backgroundColor: "gray.700",
+                                color: "gray.50",
+                            }}
+                            onClick={handleOnPatterDeleteConfirm}
+                        >
+                            Delete
+                        </Button>
+                        <Button
+                            width={"50%"}
+                            color={"gray.800"}
+                            _active={{
+                                backgroundColor: "gray.600",
+                                color: "gray.50",
+                            }}
+                            _hover={{
+                                backgroundColor: "gray.700",
+                                color: "gray.50",
+                            }}
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </Button>
+                    </ButtonGroup>
                 </ModalFooter>
             </ModalContent>
         </Modal>

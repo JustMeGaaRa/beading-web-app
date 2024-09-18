@@ -7,7 +7,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { getPatternSize } from "./utils";
 import { usePatternSelection } from "./hooks";
 import {
-    BeadingGridCellState,
+    BeadingGridCell,
     BeadingGridState,
     CellPixelRatio,
     FrameSelectedBorderColor,
@@ -39,7 +39,7 @@ export const PatternProvider: FC<PropsWithChildren> = ({ children }) => {
 };
 
 export const PatternSelectionProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [selectedCells, setSelectedCells] = useState<Record<string, Array<BeadingGridCellState>>>({});
+    const [selectedCells, setSelectedCells] = useState<Record<string, Array<BeadingGridCell>>>({});
     const [selectedColumn, setSelectedColumn] = useState(-1);
     const [selectedRow, setSelectedRow] = useState(-1);
     
@@ -79,7 +79,7 @@ export const PatternFrame: FC<{
         ? options.layout.beadSize.height * CellPixelRatio
         : options.layout.beadSize.width * CellPixelRatio;
 
-    const { height: rows, width: columns } = getPatternSize(pattern, pattern.options);
+    const { height: rows, width: columns } = getPatternSize(pattern);
     
     const frameTextMarginX = cellWidth / 2;
     const frameTextMarginY = cellHeight / 4;

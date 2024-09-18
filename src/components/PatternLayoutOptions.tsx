@@ -6,6 +6,11 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Select,
   Text,
 } from "@chakra-ui/react";
@@ -41,26 +46,34 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
         });
     }, [onChange, layout]);
 
-    const handleOnHeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        onChange?.({
-            ...layout,
-            height: parseInt(event.target.value),
-        });
+    const handleOnHeightChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+        const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+        if (isValidInteger) {
+            onChange?.({
+                ...layout,
+                height: Number.parseInt(event.target.value),
+            });
+        }
     }, [onChange, layout]);
 
-    const handleOnWidthChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        onChange?.({
-            ...layout,
-            width: parseInt(event.target.value),
-        });
+    const handleOnWidthChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+        const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+        if (isValidInteger) {
+            onChange?.({
+                ...layout,
+                width: Number.parseInt(event.target.value),
+            });
+        }
     }, [onChange, layout]);
 
     const handleOnBeadSizeChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const beadSize = BeadSizeOptions.find((beadSize) => beadSize.title === event.target.value);
-        onChange?.({
-            ...layout,
-            beadSize: beadSize!,
-        });
+        if (beadSize) {
+            onChange?.({
+                ...layout,
+                beadSize: beadSize,
+            });
+        }
     }, [onChange, layout]);
 
     return (
@@ -104,25 +117,45 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
             {layout.orientation === "horizontal" && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
-                    <Input
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={layout.height}
+                        keepWithinRange
                         min={1}
                         max={100}
-                        type={"number"}
-                        value={layout.height}
-                        onChange={handleOnHeightChange}
-                    />
+                        width={"100%"}
+                        onBlur={handleOnHeightChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
             )}
             {layout.orientation === "vertical" && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
-                    <Input
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={layout.width}
+                        keepWithinRange
                         min={1}
                         max={100}
-                        type={"number"}
-                        value={layout.width}
-                        onChange={handleOnWidthChange}
-                    />
+                        width={"100%"}
+                        onBlur={handleOnWidthChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
             )}
             <InputGroup borderColor={"gray.400"} size={size}>

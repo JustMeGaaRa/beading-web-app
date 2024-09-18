@@ -1,6 +1,6 @@
-export * from "./BeadingPattern";
 export * from "./ColorPalettePopover";
 export * from "./PatternActionToolbar";
+export * from "./PatternContainer";
 export * from "./PatternExplorer";
 export * from "./ProjectHeader";
 export * from "./ProjectHelpPanel";

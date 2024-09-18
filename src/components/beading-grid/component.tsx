@@ -13,11 +13,9 @@ import {
 import { GridOptionsContext } from "./context";
 import { useGridOptions } from "./hooks";
 import {
-    BeadingGridCellState,
-    BeadingGridMetadata,
+    BeadingGridCell,
     BeadingGridState,
-    BeadSize,
-    GridCellPosition
+    BeadingGridOffset
 } from "./types";
 import {
     getGridCellRenderPosition,
@@ -42,11 +40,11 @@ export const GridOptionsProvider: FC<PropsWithChildren<{
 };
 
 export type BeadingPointerEvent = {
-    cell: BeadingGridCellState;
+    cell: BeadingGridCell;
 };
 
 export const BeadingGrid: FC<PropsWithChildren<{
-    offset?: GridCellPosition;
+    offset?: BeadingGridOffset;
     grid: BeadingGridState;
     onCellClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
     onCellPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
@@ -121,7 +119,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
 
 export const GridDivider: FC<{
     length: number;
-    offset: GridCellPosition;
+    offset: BeadingGridOffset;
     orientation: "horizontal" | "vertical";
     strokeColor?: string;
     strokeWidth?: number;
@@ -154,7 +152,7 @@ export const GridDivider: FC<{
 
 export const GridText: FC<{
     color?: string;
-    offset: GridCellPosition;
+    offset: BeadingGridOffset;
     padding?: number;
     text: string;
 }> = ({
@@ -183,7 +181,7 @@ export const HighlightedArea: FC<{
     backgroundColor?: string;
     borderColor?: string;
     borderWidth?: number;
-    offset: GridCellPosition;
+    offset: BeadingGridOffset;
     height: number;
     width: number;
     grid: BeadingGridState
@@ -261,23 +259,23 @@ export const GridCell: FC<{
     const { cellHeight, cellWidth, pointPixelRatio } = useGridOptions();
 
     const handleOnClick = useCallback(() => {
-        onClick?.({ cell: { rowIndex, columnIndex, color }});
+        onClick?.({ cell: { offset: { rowIndex, columnIndex }, color }});
     }, [rowIndex, columnIndex, position, onClick]);
 
     const handleOnPointerDown = useCallback(() => {
-        onPointerDown?.({ cell: { rowIndex, columnIndex, color }});
+        onPointerDown?.({ cell: { offset: { rowIndex, columnIndex }, color }});
     }, [rowIndex, columnIndex, position, onPointerDown]);
 
     const handleOnPointerUp = useCallback(() => {
-        onPointerUp?.({ cell: { rowIndex, columnIndex, color }});
+        onPointerUp?.({ cell: { offset: { rowIndex, columnIndex }, color }});
     }, [rowIndex, columnIndex, position, onPointerUp]);
 
     const handleOnPointerOver = useCallback(() => {
-        onPointerOver?.({ cell: { rowIndex, columnIndex, color }});
+        onPointerOver?.({ cell: { offset: { rowIndex, columnIndex }, color }});
     }, [rowIndex, columnIndex, position, onPointerOver]);
 
     const handleOnPointerEnter = useCallback(() => {
-        onPointerEnter?.({ cell: { rowIndex, columnIndex, color }});
+        onPointerEnter?.({ cell: { offset: { rowIndex, columnIndex }, color }});
     }, [rowIndex, columnIndex, position, onPointerEnter]);
 
     return (

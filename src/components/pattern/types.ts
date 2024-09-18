@@ -1,3 +1,4 @@
+import { type } from "os";
 import { BeadingGridMetadata, BeadingGridState, BeadingGridType, BeadSize } from "../beading-grid";
 
 export type LayoutOrientation = "vertical" | "horizontal";
@@ -17,7 +18,7 @@ export type PatternOptions = {
 export type PatternSummary = {
     totalBeads: number;
     beadSize: BeadSize;
-    totalSize: BeadSize;
+    totalSize: PatternSize;
     beads: Array<{
         color: string;
         colorName: string;
@@ -25,7 +26,11 @@ export type PatternSummary = {
     }>;
 };
 
+export type PatternVersion = 
+    | "1.0.0";
+
 export type PatternState = {
+    version: PatternVersion;
     patternId: string;
     coverUrl: string;
     lastModified: Date;
@@ -33,6 +38,11 @@ export type PatternState = {
     options: PatternOptions;
     grids: Array<BeadingGridState>;
     gridCount: number;
+};
+
+export type PatternSize = {
+    height: number;
+    width: number;
 };
 
 export type PatternMetadata = {

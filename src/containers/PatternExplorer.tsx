@@ -1,33 +1,40 @@
 import { Box, Button, Flex, Grid, Text, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import { Plus } from "iconoir-react";
-import { FC, useCallback } from "react";
+import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { PatternCard, PatternState, usePatternCollection } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
-import { CreatePatternModal } from "./CreatePatternModal";
+import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
+
+const comparePatterns = (a: PatternState, b: PatternState) => {
+    return new Date(b.lastModified).valueOf() - new Date(a.lastModified).valueOf();
+}
 
 export const PatternCollectionExplorer: FC = () => {
     const navigate = useNavigate();
     const gridColumns = useBreakpointValue({ base: 1, md: 2, lg: 3, xl: 4, "2xl": 5 });
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const { patterns, deletePattern } = usePatternCollection();
+    const [deletingPattern, setDeletingPattern] = useState<PatternState | null>(null);
+    const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+    const { patterns } = usePatternCollection();
 
     const handleOnPatternClick = useCallback((pattern: PatternState) => {
         navigate(`/patterns/${pattern.patternId}`);
     }, [navigate]);
+    
+    const handleOnCreatePatternClick = useCallback(() => {
+        onCreateOpen();
+    }, [onCreateOpen]);
 
     const handleOnPatternDelete = useCallback((pattern: PatternState) => {
-        deletePattern(pattern.patternId);
-    }, [deletePattern]);
+        setDeletingPattern(pattern);
+        onDeleteOpen();
+    }, [onDeleteOpen]);
 
     const handleOnPatternSave = useCallback((pattern: PatternState) => {
         const patternUri = toJsonUri(pattern);
         downloadUri(patternUri, `${pattern.name}.json`);
-    }, [deletePattern]);
-    
-    const handleOnCreatePatternClick = useCallback(() => {
-        onOpen();
-    }, [onOpen]);
+    }, []);
     
     return patterns.length > 0 ? (
         <Box height={"100%"} overflowY={"scroll"} padding={6} width={"100%"}>
@@ -39,7 +46,7 @@ export const PatternCollectionExplorer: FC = () => {
                 </Text>
             </Box>
             <Grid gridTemplateColumns={`repeat(${gridColumns}, 1fr)`} gap={6}>
-                {patterns.map((pattern) => (
+                {patterns.sort(comparePatterns).map((pattern) => (
                     <PatternCard
                         key={pattern.patternId}
                         pattern={pattern}
@@ -49,6 +56,8 @@ export const PatternCollectionExplorer: FC = () => {
                     />
                 ))}
             </Grid>
+
+            <DeletePatternModal pattern={deletingPattern} isOpen={isDeleteOpen} onClose={onDeleteClose} />
         </Box>
     ) : (
         <Flex alignItems={"center"} justifyContent={"center"} height={"100%"} width={"100%"}>
@@ -66,7 +75,7 @@ export const PatternCollectionExplorer: FC = () => {
                 Create first pattern
             </Button>
 
-            <CreatePatternModal isOpen={isOpen} onClose={onClose} />
+            <CreatePatternModal isOpen={isCreateOpen} onClose={onCreateClose} />
         </Flex>
     );
 };

@@ -1,10 +1,14 @@
 import {
     Flex,
-    Input,
     InputGroup,
     InputLeftAddon,
+    NumberDecrementStepper,
+    NumberIncrementStepper,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
 } from "@chakra-ui/react";
-import { ChangeEvent, FC, useCallback } from "react";
+import { FC, useCallback } from "react";
 import {
     BeadingGridProperties,
     BeadingGridState,
@@ -23,45 +27,53 @@ export const BeadingGridOptionsPanel: FC<{
     size = "xs",
     onChange,
 }) => {
-    const handleOnHeightChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const handleOnHeightChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+        const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+        if (isValidInteger) {
             onChange?.({
                 name: name,
                 options: {
                     ...options,
-                    height: parseInt(event.target.value),
-                },
-            });
-    }, [onChange, name, options]);
-
-    const handleOnWidthChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-            onChange?.({
-                name: name,
-                options: {
-                    ...options,
-                    width: parseInt(event.target.value),
-                },
-            });
-    }, [onChange, name, options]);
-
-    const handleOnDropChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        if (options.type === "brick") {
-            onChange?.({
-                    name: name,
-                    options: {
-                    ...options,
-                    drop: parseInt(event.target.value),
+                    height: Number.parseInt(event.target.value),
                 },
             });
         }
     }, [onChange, name, options]);
 
-    const handleOnFringeChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        if (options.type === "brick") {
+    const handleOnWidthChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+        const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+        if (isValidInteger) {
+            onChange?.({
+                name: name,
+                options: {
+                    ...options,
+                    width: Number.parseInt(event.target.value),
+                },
+            });
+        }
+    }, [onChange, name, options]);
+
+    const handleOnDropChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+        const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+        if (options.type === "brick" && isValidInteger) {
             onChange?.({
                     name: name,
                     options: {
                     ...options,
-                    fringe: parseInt(event.target.value),
+                    drop: Number.parseInt(event.target.value),
+                },
+            });
+        }
+    }, [onChange, name, options]);
+
+    const handleOnFringeChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+        const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+        if (options.type === "brick" && isValidInteger) {
+            onChange?.({
+                    name: name,
+                    options: {
+                    ...options,
+                    fringe: Number.parseInt(event.target.value),
                 },
             });
         }
@@ -75,49 +87,89 @@ export const BeadingGridOptionsPanel: FC<{
             {!isHorizontal && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
-                    <Input
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={options.height}
+                        keepWithinRange
                         min={1}
                         max={100}
-                        type={"number"}
-                        value={options.height}
-                        onChange={handleOnHeightChange}
-                    />
+                        width={"100%"}
+                        onBlur={handleOnHeightChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
             )}
             {isHorizontal && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
-                    <Input
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={options.width}
+                        keepWithinRange
                         min={1}
                         max={100}
-                        type={"number"}
-                        value={options.width}
-                        onChange={handleOnWidthChange}
-                    />
+                        width={"100%"}
+                        onBlur={handleOnWidthChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
             )}
             {isBrickGrid && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Drop</InputLeftAddon>
-                    <Input
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={options.drop}
+                        keepWithinRange
                         min={1}
                         max={100}
-                        type={"number"}
-                        value={options.drop}
-                        onChange={handleOnDropChange}
-                    />
+                        width={"100%"}
+                        onBlur={handleOnDropChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
             )}
             {isBrickGrid && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Fringe</InputLeftAddon>
-                    <Input
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={options.fringe}
+                        keepWithinRange
                         min={0}
                         max={100}
-                        type={"number"}
-                        value={options.fringe}
-                        onChange={handleOnFringeChange}
-                    />
+                        width={"100%"}
+                        onBlur={handleOnFringeChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
             )}
         </Flex>

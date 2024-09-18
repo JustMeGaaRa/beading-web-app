@@ -1,5 +1,3 @@
-export type Cell = string;
-
 export type BeadSize = {
     title: string;
     height: number;
@@ -36,14 +34,18 @@ export type BeadingGridProperties =
     | PeyoteGridProperties
     | BrickGridProperties;
 
+export type BeadingGridOffset = {
+    columnIndex: number;
+    rowIndex: number;
+};
+
 export type BeadingGridRow = {
     cells: Array<string>;
 };
 
-export type BeadingGridCellState = {
+export type BeadingGridCell = {
     color: string;
-    columnIndex: number;
-    rowIndex: number;
+    offset: BeadingGridOffset;
 };
 
 export type BeadingGridState = {
@@ -53,38 +55,28 @@ export type BeadingGridState = {
 };
 
 export type BeadingGridMetadata = {
-    offset: GridCellPosition;
+    offset: BeadingGridOffset;
     divider: {
-        offset: GridCellPosition;
+        offset: BeadingGridOffset;
         length: number;
     };
-    text: GridCellPosition;
+    text: BeadingGridOffset;
 };
 
-export type GridCellPosition = {
-    rowIndex: number;
-    columnIndex: number;
-};
-
-export type GridWindow = {
-    offset: GridCellPosition;
+export type BeadingGridWindow = {
+    offset: BeadingGridOffset;
     height: number;
     width: number;
 };
 
-export type GridWindowSet = {
-    center: GridWindow;
-    other: Array<GridWindow>;
-};
-
-export type GridSection = {
-    offset: GridCellPosition;
+export type BeadingGridSection = {
+    offset: BeadingGridOffset;
     height: number;
     width: number;
     rows: Array<BeadingGridRow>;
 };
 
-export type RenderArea = {
+export type BeadingGridRectangle = {
     position: { x: number; y: number };
     width: number;
     height: number;

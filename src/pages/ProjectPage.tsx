@@ -8,7 +8,7 @@ import {
     ToolsProvider,
 } from "../components";
 import {
-    BeadingPattern,
+    PatternContainer,
     ProjectHeader,
     ProjectHelpPanel,
     ProjectPropertiesPanel,
@@ -79,7 +79,7 @@ export const ProjectPage: FC = () => {
                             <ProjectToolsPanel />
                             <ProjectHelpPanel />
                             <ProjectPropertiesPanel />
-                            <BeadingPattern />
+                            <PatternContainer />
                         </Content>
                     </Page>
                 </ColorPaletteProvider>

@@ -1,16 +1,13 @@
 import { Box, Button, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
 import { Check, Flip, XmarkCircle, Copy } from "iconoir-react";
 import { FC, useCallback } from "react";
-import { usePatternStore, useTools } from "../components";
+import { useTools } from "../components";
 
 export const PatternActionToolbar: FC<{
-    left?: number;
-    top?: number;
+    onClear?: () => void;
 }> = ({
-    left = 0,
-    top = 0,
+    onClear
 }) => {
-    const { dispatch } = usePatternStore();
     const { tool, setTool } = useTools();
 
     const handleOnMirrorSelectionClick = useCallback(() => {
@@ -28,8 +25,8 @@ export const PatternActionToolbar: FC<{
     }, [setTool]);
 
     const handleOnClearSelectionClick = useCallback(() => {
-        // dispatch(clearGridSection(grid.name, selectedSection));
-    }, [dispatch]);
+        onClear?.();
+    }, [onClear]);
 
     const handleOnDoneClick = useCallback(() => {
         setTool?.({
@@ -44,8 +41,6 @@ export const PatternActionToolbar: FC<{
 
     return (
         <Box
-            left={left}
-            top={top}
             paddingBottom={4}
             position={"absolute"}
             transform={"translate(-50%, -100%)"}

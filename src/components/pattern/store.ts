@@ -15,7 +15,7 @@ export type PatternStore = {
 
 export const usePatternStore = create<PatternStore>()(
     temporal((set) => ({
-            pattern: createPattern(),
+            pattern: createPattern("brick"),
             isDirty: false,
             resetDirty: () => set({ isDirty: false }),
             dispatch: (action) => set((state) => ({
