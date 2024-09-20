@@ -6,11 +6,9 @@ import {
     BeadingGridRow,
     BeadingGridState,
     BeadingGridType,
-    BeadSize,
     CellBlankColor,
     CellPixelRatio,
     DefaultGridOptions,
-    getGridRenderSize,
     isNullOrEmpty
 } from "../beading-grid";
 import { DefaultPatternOptions } from "./constants";
@@ -26,7 +24,8 @@ export const validatePattern = (data: any): data is PatternState => {
         return false;
     }
 
-    return typeof data.patternId === "string"
+    return typeof data.version === "string"
+        && typeof data.patternId === "string"
         && typeof data.coverUrl === "string"
         && typeof data.lastModified === "string"
         && typeof data.name === "string"
@@ -65,7 +64,8 @@ export const validatePatternOptions = (data: any): data is PatternOptions => {
         return false;
     }
 
-    return typeof data.layout.width === "number"
+    return typeof data.layout.type === "string"
+        && typeof data.layout.width === "number"
         && typeof data.layout.height === "number"
         && typeof data.layout.orientation === "string";
 };

@@ -1,6 +1,5 @@
-import { FC, Fragment, PropsWithChildren, useCallback, useState } from "react";
-import { DefaultPatternOptions } from "./constants";
-import { PatternContext, PatternSelectionContext } from "./context";
+import { FC, Fragment, PropsWithChildren, useCallback, useRef, useState } from "react";
+import { PatternSelectionContext } from "./context";
 import { PatternOptions, PatternState, TextState } from "./types";
 import { Group, Rect, Text } from "react-konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -8,31 +7,26 @@ import { getPatternSize } from "./utils";
 import { usePatternSelection } from "./hooks";
 import {
     BeadingGridCell,
-    BeadingGridState,
     CellPixelRatio,
     FrameSelectedBorderColor,
     FrameTextColor
 } from "../beading-grid";
+import { createPatterStore, PatternContext, PatternTemporalStore } from "./store";
 
-export const PatternProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [name, setName] = useState<string>("Untitled pattern");
-    const [options, setOptions] = useState<PatternOptions>(DefaultPatternOptions);
-    const [grids, setGrids] = useState<Array<BeadingGridState>>([]);
-    const [gridCount, setGridCount] = useState(0);
+export const PatternProvider: FC<PropsWithChildren<{
+    pattern?: PatternState;
+}>> = ({
+    children,
+    pattern
+}) => {
+    const storeRef = useRef<PatternTemporalStore>();
 
-    return (
-        <PatternContext.Provider
-            value={{
-                name,
-                options,
-                grids,
-                gridCount,
-                setName,
-                setOptions,
-                setGrids,
-                setGridCount,
-            }}
-        >
+    if (!storeRef.current) {
+        storeRef.current = createPatterStore(pattern);
+    }
+
+    return storeRef.current && (
+        <PatternContext.Provider value={storeRef.current}>
             {children}
         </PatternContext.Provider>
     );

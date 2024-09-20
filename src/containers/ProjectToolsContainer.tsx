@@ -25,10 +25,12 @@ import {
 } from "../components/icons";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
-export const ProjectToolsPanel: FC = () => {
+const hotkeysOptions = { preventDefault: true };
+
+export const ProjectToolsContainer: FC = () => {
     const { tool, setTool } = useTools();
-    const { pattern } = usePatternStore();
     const { pastStates, futureStates, undo, redo } = usePatterHistory();
+    const pattern = usePatternStore(state => state.pattern);
 
     const onSetCursorTool = useCallback(() => setTool({ name: "cursor", state: { currentAction: "default" } }), [setTool]);
     const onSetPencilTool = useCallback(() => setTool({ name: "pencil", state: { currentAction: "default" } }), [setTool]);
@@ -36,10 +38,10 @@ export const ProjectToolsPanel: FC = () => {
     const onSetEraserTool = useCallback(() => setTool({ name: "eraser", state: { currentAction: "default" } }), [setTool]);
     const onSetPickerTool = useCallback(() => setTool({ name: "picker", state: { currentAction: "default" } }), [setTool]);
 
-    useHotkeys(Shortcuts.toolCursor.keyString, onSetCursorTool, { preventDefault: true }, [onSetCursorTool]);
-    useHotkeys(Shortcuts.toolPencil.keyString, onSetPencilTool, { preventDefault: true }, [onSetPencilTool]);
-    useHotkeys(Shortcuts.toolEraser.keyString, onSetEraserTool, { preventDefault: true }, [onSetEraserTool]);
-    useHotkeys(Shortcuts.toolPicker.keyString, onSetPickerTool, { preventDefault: true }, [onSetPickerTool]);
+    useHotkeys(Shortcuts.toolCursor.keyString, onSetCursorTool, hotkeysOptions, [onSetCursorTool]);
+    useHotkeys(Shortcuts.toolPencil.keyString, onSetPencilTool, hotkeysOptions, [onSetPencilTool]);
+    useHotkeys(Shortcuts.toolEraser.keyString, onSetEraserTool, hotkeysOptions, [onSetEraserTool]);
+    useHotkeys(Shortcuts.toolPicker.keyString, onSetPickerTool, hotkeysOptions, [onSetPickerTool]);
 
     const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
     

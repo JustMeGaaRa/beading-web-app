@@ -22,17 +22,9 @@ import {
     GridSetCellAction,
     PatternApplyOptionsAction,
     PatternChangeColorAction,
-    PatternResetAction,
     PatternSetNameAction
 } from "./actions";
-import { PatternOptions, PatternState } from "./types";
-
-export const setPattern = (
-    pattern: PatternState
-): PatternResetAction => ({
-    type: "PATTERN_RESET",
-    payload: { pattern }
-});
+import { PatternOptions } from "./types";
 
 export const changePatternName = (
     name: string

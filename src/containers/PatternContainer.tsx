@@ -41,7 +41,6 @@ import {
     usePatternSelection,
     usePatternStore,
     PatternState,
-    usePatternCollection,
     usePatterHistory,
     TextState,
     PatternFrame,
@@ -67,6 +66,11 @@ import {
     BeadingPointerEvent,
     Shortcuts,
     useGridOptions,
+    PatternActionToolbar,
+    savePattern,
+    putPattern,
+    patternSelector,
+    dirtyStateSelector,
 } from "../components";
 import {
     addBeadingGridColumnAfter,
@@ -77,11 +81,10 @@ import {
     deleteBeadingGridColumn,
     deleteBeadingGridRow,
     setBeadingGridCell,
-    setPattern,
     mirrorBeadingGridSection,
     duplicateBeadingGridSection,
     clearBeadingGridSection,
-} from "../components/pattern/actionCreators"
+} from "../components/pattern/creators"
 import {
     applyTransform,
     calculateNewPosition,
@@ -91,7 +94,8 @@ import {
     toJsonUri,
     ZOOM_FACTOR
 } from "../utils";
-import { PatternActionToolbar } from "./PatternActionToolbar";
+
+const hotkeysOptions = { preventDefault: true };
 
 export const PatternContainer: FC = () => {
     const toast = useToast();
@@ -111,8 +115,8 @@ export const PatternContainer: FC = () => {
     const { patternId } = useParams();
     const { selectedColor } = useColorPalette();
     const { tool } = useTools();
-    const { patterns, savePattern } = usePatternCollection();
-    const { pattern, isDirty, dispatch, resetDirty } = usePatternStore();
+    const { pattern, dispatch } = usePatternStore(patternSelector);
+    const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
     const {
         selectedColumn,
         selectedRow,
@@ -150,9 +154,9 @@ export const PatternContainer: FC = () => {
             });
     }, [gridRefs]);
 
-    useHotkeys(Shortcuts.patternCenter.keyString, () => onStageCentered(pattern), { preventDefault: true }, [onStageCentered, pattern]);
-    useHotkeys(Shortcuts.patternUndo.keyString, () => undo(), { preventDefault: true }, [undo]);
-    useHotkeys(Shortcuts.patternRedo.keyString, () => redo(), { preventDefault: true }, [redo]);
+    useHotkeys(Shortcuts.patternCenter.keyString, () => onStageCentered(pattern), hotkeysOptions, [onStageCentered, pattern]);
+    useHotkeys(Shortcuts.patternUndo.keyString, () => undo(), hotkeysOptions, [undo]);
+    useHotkeys(Shortcuts.patternRedo.keyString, () => redo(), hotkeysOptions, [redo]);
 
     useEffect(() => {
         const resizeStage = () => {
@@ -171,11 +175,8 @@ export const PatternContainer: FC = () => {
     }, [containerRef.current]);
 
     useEffect(() => {
-        // NOTE: intialize pattern from URL
-        const pattern = patterns.find((pattern) => pattern.patternId === patternId);
-
         if (pattern) {
-            dispatch(setPattern(pattern));
+            putPattern(pattern);
             onStageCentered(pattern);
         }
         else {
@@ -196,13 +197,13 @@ export const PatternContainer: FC = () => {
         const intervalId = setInterval(() => {
             if (isDirty) {
                 const imageUri = stageRef.current?.toDataURL() ?? "";
-                savePattern({ ...pattern, coverUrl: imageUri });
+                putPattern({ ...pattern, coverUrl: imageUri });
                 resetDirty();
             }
         }, 5000);
             
         return () => clearInterval(intervalId);
-    }, [pattern, isDirty, savePattern, resetDirty]);
+    }, [pattern, isDirty, resetDirty]);
 
     // SECTION: stage event handlers
     const handleOnStageWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
@@ -539,7 +540,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     const { selectedColor, setSelectedColor } = useColorPalette();
     const { cellHeight, cellWidth } = useGridOptions();
     const { tool, setTool } = useTools();
-    const { dispatch } = usePatternStore();
+    const dispatch = usePatternStore(state => state.dispatch);
 
     const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
     const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
@@ -613,11 +614,23 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         }
     }, [isCursorEnabled, isPointerDown, onPointerEnterCallback, setBeadingGridCell]);
 
+    const handleOnMirrorSelectionClick = useCallback(() => {
+        setTool?.({ name: "cursor", state: { currentAction: "mirror" } });
+    }, [setTool]);
+
+    const handleOnDuplicateSelectionClick = useCallback(() => {
+        setTool?.({ name: "cursor", state: { currentAction: "duplicate" } });
+    }, [setTool]);
+
     const handleOnClearClick = useCallback(() => {
         if (isMirroringEnabled && selectedSection) {
             dispatch(clearBeadingGridSection(grid.name, selectedSection));
         }
     }, [dispatch, grid.name, selectedSection]);
+
+    const handleOnDoneClick = useCallback(() => {
+        setTool?.({ name: "pencil", state: { currentAction: "default" } });
+    }, [setTool]);
 
     const onMirrorVerticalClick = (
         event: KonvaEventObject<MouseEvent>,
@@ -708,7 +721,13 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
                     transform
                     transformFunc={attr => ({ ...attr, scaleX: 1, scaleY: 1 })}
                 >
-                    <PatternActionToolbar onClear={handleOnClearClick} />
+                    <PatternActionToolbar
+                        tool={tool}
+                        onMirror={handleOnMirrorSelectionClick}
+                        onDuplicate={handleOnDuplicateSelectionClick}
+                        onClear={handleOnClearClick}
+                        onDone={handleOnDoneClick}
+                    />
                 </Html>
             )}
         </BeadingGrid>

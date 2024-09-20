@@ -28,13 +28,14 @@ import {
     BeadingGridType,
     PeyoteIcon,
     usePatternStore,
+    patternSelector,
 } from "../components";
 import {
     addBeadingGrid,
     applyPatternOptions,
     deleteBeadingGrid,
     applyBeadingGridOptions,
-} from "../components/pattern/actionCreators";
+} from "../components/pattern/creators";
 import {
     CloseIcon,
     InfoCircleIcon,
@@ -43,20 +44,23 @@ import {
     SettingsIcon
 } from "../components/icons";
 
+const hotkeysOptions = { preventDefault: true };
+
 type BeadingGridConfiguration = Omit<BeadingGridState, "rows">;
 
-export const ProjectPropertiesPanel: FC = () => {
-    const { setSelectedColor } = useColorPalette();
-    const { pattern, dispatch } = usePatternStore();
+export const ProjectSettingsContainer: FC = () => {
     const [colorPaletteIndex, setColorPaletteIndex] = useState<number | number[]>(0);
     const [gridOptionsIndex, setGridOptionsIndex] = useState<number | number[]>(0);
+
+    const { setSelectedColor } = useColorPalette();
+    const { pattern, dispatch } = usePatternStore(patternSelector);
 
     const togglePanels = useCallback(() => {
         setColorPaletteIndex((state) => (state === 0 ? 1 : 0));
         setGridOptionsIndex((state) => (state === 0 ? 1 : 0));
     }, [setColorPaletteIndex, setGridOptionsIndex]);
 
-    useHotkeys(Shortcuts.panelToggleAll.keyString, () => togglePanels(), { preventDefault: true }, [togglePanels]);
+    useHotkeys(Shortcuts.panelToggleAll.keyString, () => togglePanels(), hotkeysOptions, [togglePanels]);
 
     const handleOnAddGridClick = useCallback(() => {
         dispatch(addBeadingGrid());
@@ -141,7 +145,8 @@ export const ProjectPropertiesPanel: FC = () => {
 };
 
 const PatternOptionsContainer: FC = () => {
-    const { pattern, dispatch } = usePatternStore();
+    const pattern = usePatternStore(state => state.pattern);
+    const dispatch = usePatternStore(state => state.dispatch);
 
     const handleOnLayoutChange = useCallback((layout: PatternLayoutOptions) => {
         dispatch(applyPatternOptions({ layout }));
@@ -168,7 +173,7 @@ const PatternOptionsContainer: FC = () => {
 };
 
 const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({ grid }) => {
-    const { pattern, dispatch } = usePatternStore();
+    const { pattern, dispatch } = usePatternStore(patternSelector);
 
     const handleOnDeleteGridClick = useCallback(() => {
         dispatch(deleteBeadingGrid(grid.name));

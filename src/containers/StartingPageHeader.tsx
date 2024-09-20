@@ -12,20 +12,24 @@ import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { v6 } from "uuid";
 import {
+    addPattern,
     Header,
     Shortcuts,
     ShortcutTableModal,
-    usePatternCollection,
+    usePatternCollectionStore,
     validatePattern
 } from "../components";
 import { CreatePatternModal } from "./CreatePatternModal";
 
+const hotkeysOptions = { preventDefault: true };
+const hotkeysKeyOptions = { preventDefault: true, keydown: true, keyup: true };
+
 export const StartingPageHeader: FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
-    const { addPattern } = usePatternCollection();
     const { isOpen: isHelpOpen, onOpen: onHelpOpen, onClose: onHelpClose } = useDisclosure();
     const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
+    const { dispatch } = usePatternCollectionStore();
 
     const onPeekShortcuts = useCallback((keyboardEvent: KeyboardEvent) => {
         if (keyboardEvent.type === "keydown") {
@@ -36,9 +40,9 @@ export const StartingPageHeader: FC = () => {
         }
     }, [onHelpOpen, onHelpClose]);
 
-    useHotkeys(Shortcuts.help.keyString, onPeekShortcuts, { preventDefault: true, keydown: true, keyup: true }, []);
-    useHotkeys(Shortcuts.patternCreate.keyString, () => onModalOpen(), { preventDefault: true }, [addPattern]);
-    useHotkeys(Shortcuts.patternOpen.keyString, () => fileInputRef.current?.click(), { preventDefault: true }, [fileInputRef.current]);
+    useHotkeys(Shortcuts.help.keyString, onPeekShortcuts, hotkeysKeyOptions, []);
+    useHotkeys(Shortcuts.patternCreate.keyString, () => onModalOpen(), hotkeysOptions, []);
+    useHotkeys(Shortcuts.patternOpen.keyString, () => fileInputRef.current?.click(), hotkeysOptions, [fileInputRef.current]);
 
     const handleFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -52,10 +56,11 @@ export const StartingPageHeader: FC = () => {
                 const patternJson = JSON.parse(fileContent);
 
                 if (validatePattern(patternJson)) {
-                    addPattern({
+                    patternJson
+                    dispatch(addPattern({
                         ...patternJson,
                         patternId: `pattern-${v6()}`
-                    });
+                    }));
                     toast({
                         title: "Pattern import successful",
                         description: "The pattern has been successfully imported",
@@ -89,11 +94,11 @@ export const StartingPageHeader: FC = () => {
         };
 
         reader.readAsText(file);
-    }, [addPattern]);
+    }, [dispatch]);
     
     const handleOnOpenFileClick = useCallback(() => {
         fileInputRef.current?.click();
-    }, [addPattern, fileInputRef.current]);
+    }, [fileInputRef.current]);
     
     const handleOnCreatePatternClick = useCallback(() => {
         onModalOpen();

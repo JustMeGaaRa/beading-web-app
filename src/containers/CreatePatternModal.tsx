@@ -17,8 +17,6 @@ import {
 import capitalize from "just-capitalize";
 import { FC, useCallback, useEffect, useState } from "react";
 import {
-    applyBeadingGridOptions,
-    applyPatternOptions,
     BeadingGridOptionsPanel,
     BeadingGridState,
     BeadingGridType,
@@ -26,14 +24,16 @@ import {
     BeadingLayoutOptionsPanel,
     BrickIcon,
     createGrid,
-    createPattern,
+    addPattern,
     formatPatternSize,
     getPatternRealSize,
     LoomIcon,
     PatternLayoutOptions,
     PatternState,
     PeyoteIcon,
-    usePatternCollection
+    createPattern,
+    deletePattern,
+    usePatternCollectionStore
 } from "../components";
 
 const GridTypeIcons: Record<BeadingGridType, any> = {
@@ -50,7 +50,7 @@ export const CreatePatternModal: FC<{
     onClose
 }) => {
     const [pattern, setPattern] = useState(createPattern("brick"));
-    const { addPattern } = usePatternCollection();
+    const { dispatch } = usePatternCollectionStore();
 
     useEffect(() => {
         setPattern(createPattern("brick"));
@@ -93,9 +93,9 @@ export const CreatePatternModal: FC<{
     }, []);
 
     const handleOnCreateClick = useCallback(() => {
-        addPattern(pattern);
+        dispatch(addPattern(pattern));
         onClose();
-    }, [pattern, addPattern, onClose]);
+    }, [pattern, dispatch, onClose]);
 
     return (
         <Modal isCentered isOpen={isOpen} size={"sm"} onClose={onClose}>
@@ -184,14 +184,14 @@ export const DeletePatternModal: FC<{
     isOpen,
     onClose,
 }) => {
-    const { deletePattern } = usePatternCollection();
+    const { dispatch } = usePatternCollectionStore();
 
     const handleOnPatterDeleteConfirm = useCallback(() => {
         if (pattern) {
-            deletePattern(pattern.patternId);
+            dispatch(deletePattern(pattern.patternId));
         }
         onClose();
-    }, [pattern, deletePattern, onClose]);
+    }, [pattern, dispatch, onClose]);
 
     return (
         <Modal isCentered isOpen={isOpen} size={"sm"} onClose={onClose}>

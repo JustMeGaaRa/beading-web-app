@@ -5,8 +5,6 @@ import { applyBeadingGridOptions, applyPatternOptions, changePatternColor, creat
 
 export const patternReducer = (state: PatternState, action: PatternActions): PatternState => {
     switch (action.type) {
-        case "PATTERN_RESET":
-            return { ...action.payload.pattern };
         case "PATTERN_CHANGE_NAME":
             return {
                 ...state,

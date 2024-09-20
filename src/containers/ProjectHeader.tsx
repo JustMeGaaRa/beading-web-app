@@ -30,19 +30,25 @@ import {
     Header,
     Shortcuts,
     PatternSummaryPanel,
-    usePatternCollection,
-    usePatternStore
+    usePatternCollectionStore,
+    usePatternStore,
+    savePattern,
+    patternSelector,
+    dirtyStateSelector
 } from "../components";
-import { changePatternName } from "../components/pattern/actionCreators";
+import { changePatternName } from "../components/pattern/creators";
+
+const hotkeysOptions = { preventDefault: true };
 
 export const ProjectHeader: FC = () => {
     const navigate = useNavigate();
     const editableRef = useRef<HTMLInputElement>(null);
-    const { pattern, dispatch } = usePatternStore();
-    const { savePattern } = usePatternCollection();
-    const { isDirty, resetDirty } = usePatternStore();
+    const dispatchCollection = usePatternCollectionStore(state => state.dispatch);
 
-    useHotkeys(Shortcuts.patternRename.keyString, () => editableRef.current?.focus(), { preventDefault: true }, [editableRef.current]);
+    const { pattern, dispatch } = usePatternStore(patternSelector);
+    const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
+
+    useHotkeys(Shortcuts.patternRename.keyString, () => editableRef.current?.focus(), hotkeysOptions, [editableRef.current]);
 
     const handleOnChangeName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         dispatch(changePatternName(event.target.value));
@@ -53,9 +59,9 @@ export const ProjectHeader: FC = () => {
     }, [navigate]);
 
     const handleOnBackupClick = useCallback(() => {
-        savePattern(pattern);
+        dispatchCollection(savePattern(pattern));
         resetDirty();
-    }, [pattern, resetDirty, savePattern]);
+    }, [pattern, resetDirty, dispatchCollection]);
 
     return (
         <Header>
@@ -109,7 +115,7 @@ export const ProjectHeader: FC = () => {
                     <PopoverContent>
                         <PopoverCloseButton />
                         <PopoverBody>
-                            <PatternSummaryPanel />
+                            <PatternSummaryPanel pattern={pattern} />
                         </PopoverBody>
                     </PopoverContent>
                 </Popover>

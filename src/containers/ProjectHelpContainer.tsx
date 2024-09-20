@@ -11,10 +11,12 @@ import { FC, useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Shortcuts, ShortcutTableModal } from "../components";
 
-export const ProjectHelpPanel: FC = () => {
+const hotkeysOptions = { preventDefault: true, keydown: true, keyup: true };
+
+export const ProjectHelpContainer: FC = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const peekShortcuts = useCallback((keyboardEvent: KeyboardEvent, hotkeysEvent: any) => {
+    const peekShortcuts = useCallback((keyboardEvent: KeyboardEvent) => {
         if (keyboardEvent.type === "keydown") {
             onOpen();
         }
@@ -23,12 +25,7 @@ export const ProjectHelpPanel: FC = () => {
         }
     }, [onOpen, onClose]);
 
-    useHotkeys(
-        Shortcuts.help.keyString,
-        peekShortcuts,
-        { preventDefault: true, keydown: true, keyup: true },
-        [peekShortcuts]
-    );
+    useHotkeys(Shortcuts.help.keyString, peekShortcuts, hotkeysOptions, [peekShortcuts]);
 
     return (
         <Box

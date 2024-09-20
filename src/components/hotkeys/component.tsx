@@ -1,25 +1,19 @@
-import { Flex, HStack, Kbd, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, Text, VStack } from "@chakra-ui/react";
-import { createContext, FC, memo, PropsWithChildren } from "react";
+import {
+    Flex,
+    HStack,
+    Kbd,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    Text,
+    VStack
+} from "@chakra-ui/react";
+import { FC, memo } from "react";
 import { Shortcuts } from "./constants";
 import { ShortcutKeyArray, ShortcutScopes } from "./types";
-
-const HotkeysMapContext = createContext<{
-
-}>({
-
-});
-
-export const HotkeysMapProvider: FC<PropsWithChildren> = ({ children }) => {
-    return (
-        <HotkeysMapContext.Provider
-            value={{
-                
-            }}
-        >
-            {children}
-        </HotkeysMapContext.Provider>
-    );
-};
 
 export const ShortcutTableModal: FC<{
     scope: ShortcutScopes;

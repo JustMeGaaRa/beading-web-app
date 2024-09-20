@@ -3,17 +3,17 @@ import { PatternCollectionStore } from "./store";
 
 export const patternCollectionReducer = (state: PatternCollectionStore, action: PatternCollectionActions): PatternCollectionStore => {
     switch (action.type) {
-        case "addPattern":
+        case "PATTERN_ADD":
             return {
                 ...state,
                 patterns: [...state.patterns, action.payload.pattern]
             };
-        case "deletePattern":
+        case "PATTERN_DELETE":
             return {
                 ...state,
                 patterns: state.patterns.filter((pattern) => pattern.patternId !== action.payload.patternId)
             };
-        case "savePattern":
+        case "PATTERN_SAVE":
             return {
                 ...state,
                 patterns: state.patterns.map((pattern) => pattern.patternId === action.payload.pattern.patternId

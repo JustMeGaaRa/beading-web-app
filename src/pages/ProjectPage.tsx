@@ -1,6 +1,7 @@
 import { useToken } from "@chakra-ui/react";
 import { FC } from "react";
-import { PatternSelectionProvider } from "../components";
+import { useLoaderData } from "react-router";
+import { PatternProvider, PatternSelectionProvider, PatternState } from "../components";
 import {
     ColorPaletteProvider,
     Content,
@@ -10,12 +11,13 @@ import {
 import {
     PatternContainer,
     ProjectHeader,
-    ProjectHelpPanel,
-    ProjectPropertiesPanel,
-    ProjectToolsPanel,
+    ProjectHelpContainer,
+    ProjectSettingsContainer,
+    ProjectToolsContainer,
 } from "../containers";
 
 export const ProjectPage: FC = () => {
+    const pattern = useLoaderData() as PatternState;
     const colors = useToken("colors", [
         "gray.900",
         "gray.700",
@@ -70,20 +72,22 @@ export const ProjectPage: FC = () => {
     ]);
 
     return (
-        <PatternSelectionProvider>
-            <ToolsProvider>
-                <ColorPaletteProvider colors={colors}>
-                    <Page>
-                        <ProjectHeader />
-                        <Content>
-                            <ProjectToolsPanel />
-                            <ProjectHelpPanel />
-                            <ProjectPropertiesPanel />
-                            <PatternContainer />
-                        </Content>
-                    </Page>
-                </ColorPaletteProvider>
-            </ToolsProvider>
-        </PatternSelectionProvider>
+        <PatternProvider pattern={pattern}>
+            <ColorPaletteProvider colors={colors}>
+                <PatternSelectionProvider>
+                    <ToolsProvider>
+                        <Page>
+                            <ProjectHeader />
+                            <Content>
+                                <ProjectToolsContainer />
+                                <ProjectHelpContainer />
+                                <ProjectSettingsContainer />
+                                <PatternContainer />
+                            </Content>
+                        </Page>
+                    </ToolsProvider>
+                </PatternSelectionProvider>
+            </ColorPaletteProvider>
+        </PatternProvider>
     );
 };

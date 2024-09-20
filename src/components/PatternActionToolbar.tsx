@@ -1,40 +1,21 @@
 import { Box, Button, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
 import { Check, Flip, XmarkCircle, Copy } from "iconoir-react";
-import { FC, useCallback } from "react";
-import { useTools } from "../components";
+import { FC, memo } from "react";
+import { ToolState } from "./ToolsProvider";
 
 export const PatternActionToolbar: FC<{
+    tool: ToolState;
+    onMirror?: () => void;
+    onDuplicate?: () => void;
     onClear?: () => void;
-}> = ({
-    onClear
+    onDone?: () => void;
+}> = memo(({
+    tool,
+    onMirror,
+    onDuplicate,
+    onClear,
+    onDone
 }) => {
-    const { tool, setTool } = useTools();
-
-    const handleOnMirrorSelectionClick = useCallback(() => {
-        setTool?.({
-            name: "cursor",
-            state: { currentAction: "mirror" }
-        });
-    }, [setTool]);
-
-    const handleOnDuplicateSelectionClick = useCallback(() => {
-        setTool?.({
-            name: "cursor",
-            state: { currentAction: "duplicate" }
-        });
-    }, [setTool]);
-
-    const handleOnClearSelectionClick = useCallback(() => {
-        onClear?.();
-    }, [onClear]);
-
-    const handleOnDoneClick = useCallback(() => {
-        setTool?.({
-            name: "pencil",
-            state: { currentAction: "default" }
-        });
-    }, [setTool]);
-
     const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
     const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
     const isDuplicatingEnabled = tool.name === "cursor" && tool.state.currentAction === "duplicate";
@@ -63,7 +44,7 @@ export const PatternActionToolbar: FC<{
                                 color={"white"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}
-                                onClick={handleOnDuplicateSelectionClick}
+                                onClick={onDuplicate}
                             />
                         </Tooltip>
                         <Tooltip label={"Mirror selection"}>
@@ -73,7 +54,7 @@ export const PatternActionToolbar: FC<{
                                 color={"white"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}
-                                onClick={handleOnMirrorSelectionClick}
+                                onClick={onMirror}
                             />
                         </Tooltip>
                         <Tooltip label={"Clear selection"}>
@@ -83,7 +64,7 @@ export const PatternActionToolbar: FC<{
                                 color={"red.600"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}
-                                onClick={handleOnClearSelectionClick}
+                                onClick={onClear}
                             />
                         </Tooltip>
                     </ButtonGroup>
@@ -100,7 +81,7 @@ export const PatternActionToolbar: FC<{
                             color={"white"}
                             _hover={{ backgroundColor: "gray.700" }}
                             _active={{ backgroundColor: "gray.600" }}
-                            onClick={handleOnDoneClick}
+                            onClick={onDone}
                         >
                             Done
                         </Button>
@@ -109,4 +90,4 @@ export const PatternActionToolbar: FC<{
             </Box>
         </Box>
     );
-};
+});

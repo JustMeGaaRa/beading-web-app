@@ -1,10 +1,12 @@
 import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import { FC, useMemo } from "react";
-import { formatPatternSize, getPatternSummary, usePatternStore } from "./pattern";
+import { formatPatternSize, getPatternSummary, PatternState } from "./pattern";
 
-export const PatternSummaryPanel: FC = () => {
-    const { pattern } = usePatternStore();
-
+export const PatternSummaryPanel: FC<{
+    pattern: PatternState;
+}> = ({
+    pattern
+}) => {
     const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
 
     return (

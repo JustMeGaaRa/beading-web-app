@@ -5,11 +5,11 @@ type Action<TAction extends string, TPayload> = {
     payload: TPayload;
 }
 
-export type AddPatternAction = Action<"addPattern", { pattern: PatternState }>;
-export type DeletePatternAction = Action<"deletePattern", { patternId: string }>;
-export type SavePatternAction = Action<"savePattern", { pattern: PatternState }>;
+export type PatternAddAction = Action<"PATTERN_ADD", { pattern: PatternState }>;
+export type PatternDeleteAction = Action<"PATTERN_DELETE", { patternId: string }>;
+export type PatternSaveAction = Action<"PATTERN_SAVE", { pattern: PatternState }>;
 
 export type PatternCollectionActions = 
-    | AddPatternAction
-    | DeletePatternAction
-    | SavePatternAction;
+    | PatternAddAction
+    | PatternDeleteAction
+    | PatternSaveAction;

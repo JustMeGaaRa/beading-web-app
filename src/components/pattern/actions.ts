@@ -1,5 +1,5 @@
 import { BeadingGridCell, BeadingGridProperties, BeadingGridWindow } from "../beading-grid";
-import { PatternOptions, PatternState } from "./types";
+import { PatternOptions } from "./types";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;
@@ -8,7 +8,6 @@ type Action<TAction extends string, TPayload> = {
 
 type GridName = string | "all";
 
-export type PatternResetAction = Action<"PATTERN_RESET", { pattern: PatternState }>;
 export type PatternSetNameAction = Action<"PATTERN_CHANGE_NAME", { name: string }>;
 export type PatternChangeColorAction = Action<"PATTERN_CHANGE_COLOR", {
     oldColor: string;
@@ -57,7 +56,6 @@ export type GridClearSectionAction = Action<"BEADING_GRID_CLEAR_SECTION", {
 }>;
 
 export type PatternActions = 
-    | PatternResetAction
     | PatternSetNameAction
     | PatternChangeColorAction
     | PatternApplyOptionsAction

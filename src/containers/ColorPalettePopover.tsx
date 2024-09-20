@@ -14,7 +14,7 @@ import {
     ColorPalette,
     usePatternStore
 } from "../components";
-import { changePatternColor } from "../components/pattern/actionCreators";
+import { changePatternColor } from "../components/pattern/creators";
 
 export const ColorPalettePopover: FC<PropsWithChildren<{
     color: string;
@@ -25,7 +25,7 @@ export const ColorPalettePopover: FC<PropsWithChildren<{
     colorName,
     number
 }) => {
-    const { dispatch } = usePatternStore();
+    const dispatch = usePatternStore(state => state.dispatch);
 
     const handleOnColorPaletteSelect = useCallback((newColor: string) => {
         dispatch(changePatternColor(color, newColor));

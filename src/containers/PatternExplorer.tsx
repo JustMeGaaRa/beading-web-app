@@ -2,7 +2,7 @@ import { Box, Button, Flex, Grid, Text, useBreakpointValue, useDisclosure } from
 import { Plus } from "iconoir-react";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
-import { PatternCard, PatternState, usePatternCollection } from "../components";
+import { PatternCard, PatternState, usePatternCollectionStore } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
 import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
 
@@ -16,7 +16,7 @@ export const PatternCollectionExplorer: FC = () => {
     const [deletingPattern, setDeletingPattern] = useState<PatternState | null>(null);
     const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
-    const { patterns } = usePatternCollection();
+    const { patterns } = usePatternCollectionStore();
 
     const handleOnPatternClick = useCallback((pattern: PatternState) => {
         navigate(`/patterns/${pattern.patternId}`);

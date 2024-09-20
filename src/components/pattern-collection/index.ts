@@ -1,4 +1,4 @@
 export * from "./actions";
-export * from "./hooks";
+export * from "./creators";
 export * from "./store";
 export * from "./utils";

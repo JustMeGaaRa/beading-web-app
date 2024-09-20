@@ -8,6 +8,7 @@ export * from "./Header";
 export * from "./hotkeys";
 export * from "./icons";
 export * from "./Page";
+export * from "./PatternActionToolbar";
 export * from "./PatternCard";
 export * from "./pattern";
 export * from "./pattern-collection";
