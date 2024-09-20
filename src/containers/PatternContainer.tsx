@@ -126,6 +126,7 @@ export const PatternContainer: FC = () => {
     const { undo, redo } = usePatterHistory();
 
     const isLayoutHorizontal = pattern.options.layout.orientation === "horizontal";
+    const isMoveEnabled = tool.name === "move";
     const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
     const isPencilEnabled = tool.name === "pencil";
     const isEraserEnabled = tool.name === "eraser";
@@ -376,6 +377,7 @@ export const PatternContainer: FC = () => {
         >
             <Stage
                 ref={stageRef}
+                draggable={isMoveEnabled}
                 height={stageSize.height}
                 width={stageSize.width}
                 onClick={handleOnStageClick}

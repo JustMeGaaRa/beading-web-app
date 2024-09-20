@@ -9,6 +9,7 @@ import {
 } from "react";
 
 export type ToolName = 
+    | "move"
     | "cursor"
     | "pencil"
     | "fill"
@@ -34,6 +35,7 @@ export type ToolInfo<
 };
 
 export type ToolState = 
+    | ToolInfo<"move",   { currentAction: ToolDefaultActionName }>
     | ToolInfo<"cursor", { currentAction: CursorActionName }>
     | ToolInfo<"pencil", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"fill",   { currentAction: ToolDefaultActionName }>

@@ -1,11 +1,13 @@
 import {
     Box,
     ButtonGroup,
+    Icon,
     IconButton,
     StackDivider,
     Tooltip,
     VStack
 } from "@chakra-ui/react";
+import { DragHandGesture } from "iconoir-react";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
@@ -32,6 +34,7 @@ export const ProjectToolsContainer: FC = () => {
     const { pastStates, futureStates, undo, redo } = usePatterHistory();
     const pattern = usePatternStore(state => state.pattern);
 
+    const onSetMoveTool = useCallback(() => setTool({ name: "move", state: { currentAction: "default" } }), [setTool]);
     const onSetCursorTool = useCallback(() => setTool({ name: "cursor", state: { currentAction: "default" } }), [setTool]);
     const onSetPencilTool = useCallback(() => setTool({ name: "pencil", state: { currentAction: "default" } }), [setTool]);
     const onSetFillTool = useCallback(() => setTool({ name: "fill", state: { currentAction: "default" } }), [setTool]);
@@ -73,6 +76,14 @@ export const ProjectToolsContainer: FC = () => {
                     size={"md"}
                     variant={"ghost"}
                 >
+                    <Tooltip label={"Move"} placement={"right"}>
+                        <IconButton
+                            aria-label={"move"}
+                            icon={<Icon as={DragHandGesture} boxSize={5} />}
+                            isActive={tool.name === "move"}
+                            onClick={onSetMoveTool}
+                        />
+                    </Tooltip>
                     <Tooltip label={"Cursor"} placement={"right"}>
                         <IconButton
                             aria-label={"cursor"}
