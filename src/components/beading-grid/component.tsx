@@ -225,6 +225,7 @@ export const HighlightedArea: FC<{
             x={areaX}
             y={areaY}
             onClick={onClick}
+            onTap={onClick}
         />
     );
 };

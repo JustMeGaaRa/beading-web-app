@@ -23,7 +23,6 @@ export const PatternActionToolbar: FC<{
     return (
         <Box
             paddingBottom={4}
-            position={"absolute"}
             transform={"translate(-50%, -100%)"}
         >
             <Box

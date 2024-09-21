@@ -232,8 +232,13 @@ export const PatternContainer: FC = () => {
         if (!stage) return;
 
         if (event.evt.touches.length !== 2) return;
-
+        
         const [touch1, touch2] = event.evt.touches as any;
+        const oldScale = stage.scaleX();
+        const pointerPosition = {
+            x: (touch1.clientX + touch2.clientX) / 2,
+            y: (touch1.clientY + touch2.clientY) / 2,
+        }
         const dist = Math.hypot(
             touch2.clientX - touch1.clientX,
             touch2.clientY - touch1.clientY
@@ -244,13 +249,13 @@ export const PatternContainer: FC = () => {
             return;
         }
 
-        const oldScale = stage.scaleX();
         const newScale = oldScale * (dist / stageLastDistanceRef.current);
-
-        stage.scale({ x: newScale, y: newScale });
-        stage.batchDraw();
-
+        // const newScale = calculateNewScale(oldScale, event.evt.deltaY, ZOOM_FACTOR);
+        const pointerOffset = getPointerOffset(pointerPosition, stage, oldScale);
+        const newPosition = calculateNewPosition(pointerOffset, pointerPosition, newScale);
+        
         stageLastDistanceRef.current = dist;
+        applyTransform(stage, newScale, newPosition);
     }, [stageRef]);
 
     const handleOnStageTouchEnd = useCallback(() => {
@@ -544,7 +549,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     const { tool, setTool } = useTools();
     const dispatch = usePatternStore(state => state.dispatch);
 
-    const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
+    const isCursorEnabled = tool.name === "cursor";
     const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
     const isDuplicatingEnabled = tool.name === "cursor" && tool.state.currentAction === "duplicate";
     const showCentralArea = isCursorEnabled && selectedSection;
