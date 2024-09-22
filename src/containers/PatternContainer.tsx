@@ -90,9 +90,12 @@ import {
     calculateNewPosition,
     calculateNewScale,
     downloadUri,
+    getGravitationCenter,
+    getMinimumScale,
     getPointerOffset,
     toJsonUri,
-    ZOOM_FACTOR
+    ZOOM_FACTOR,
+    ZOOM_MAXIMUM
 } from "../utils";
 
 const hotkeysOptions = { preventDefault: true };
@@ -101,7 +104,7 @@ export const PatternContainer: FC = () => {
     const toast = useToast();
     const containerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<Konva.Stage>(null);
-    const stageLastDistanceRef = useRef(0);
+    const lastTouchDistanceRef = useRef(0);
     const gridRefs = useRef<Record<string, GridStateRef>>({});
 
     const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
@@ -112,7 +115,6 @@ export const PatternContainer: FC = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
     
-    const { patternId } = useParams();
     const { selectedColor } = useColorPalette();
     const { tool } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
@@ -135,10 +137,10 @@ export const PatternContainer: FC = () => {
     
     const onStageCentered = useCallback((pattern: PatternState) => {
         if (containerRef.current && stageRef.current && pattern?.grids.length > 0) {
-            const size = getPatternRenderSize(pattern);
+            const patternSize = getPatternRenderSize(pattern);
             const position = {
-                x: containerRef.current.offsetWidth / 2 - size.width / 2,
-                y: containerRef.current.offsetHeight / 2 - size.height / 2,
+                x: containerRef.current.offsetWidth / 2 - patternSize.width / 2,
+                y: containerRef.current.offsetHeight / 2 - patternSize.height / 2,
             };
             stageRef.current.position(position);
             stageRef.current.scale({ x: 1, y: 1 });
@@ -166,6 +168,7 @@ export const PatternContainer: FC = () => {
                     height: containerRef.current.offsetHeight,
                     width: containerRef.current.offsetWidth,
                 });
+                onStageCentered(pattern);
             }
         };
 
@@ -174,24 +177,6 @@ export const PatternContainer: FC = () => {
 
         return () => window.removeEventListener("resize", resizeStage);
     }, [containerRef.current]);
-
-    useEffect(() => {
-        if (pattern) {
-            putPattern(pattern);
-            onStageCentered(pattern);
-        }
-        else {
-            toast({
-                title: "Pattern not found",
-                description: "The pattern you are looking for does not exist.",
-                status: "error",
-                duration: 10000,
-                position: "bottom-right",
-                variant: "subtle",
-                isClosable: true,
-            });
-        }
-    }, [patternId]);
 
     useEffect(() => {
         // NOTE: auto save pattern cover every 5 seconds
@@ -210,56 +195,127 @@ export const PatternContainer: FC = () => {
     const handleOnStageWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
         event.evt.preventDefault();
 
+        const isZoomingOut = event.evt.deltaY > 0;
+
         const stage = stageRef.current;
         if (!stage) return;
 
-        const oldScale = stage.scaleX();
         const pointerPosition = stage.getPointerPosition();
 
         if (!pointerPosition) return;
+        
+        const patternSize = getPatternRenderSize(pattern);
+        const patternCenter = getGravitationCenter(stageSize, patternSize);
+        const minScale = getMinimumScale(stageSize, patternSize);
+        const maxScale = ZOOM_MAXIMUM;
+        const oldScale = stage.scaleX();
 
-        const newScale = calculateNewScale(oldScale, event.evt.deltaY, ZOOM_FACTOR);
-        const pointerOffset = getPointerOffset(pointerPosition, stage, oldScale);
-        const newPosition = calculateNewPosition(pointerOffset, pointerPosition, newScale);
+        let newScale = calculateNewScale(isZoomingOut, oldScale, ZOOM_FACTOR);
 
-        applyTransform(stage, newScale, newPosition);
-    }, [stageRef]);
+        if (isZoomingOut) {
+            // Zooming out: limit to minimum scale and gravitate toward rectangle center
+            newScale = Math.max(minScale, newScale);
+
+            // Calculate the interpolation factor
+            const interpolationFactor = (newScale - minScale) / (oldScale - minScale);
+
+            if (interpolationFactor > 0) {
+                const stagePosition = stage.position();
+    
+                // Calculate the new position interpolated toward the center of the stage
+                const newPosition = {
+                    x: stagePosition.x + (patternCenter.x - stagePosition.x) * (1 - interpolationFactor),
+                    y: stagePosition.y + (patternCenter.y - stagePosition.y) * (1 - interpolationFactor),
+                };
+    
+                stage.position(newPosition);
+            }
+        }
+        else {
+            // Zooming in: limit to maximum scale and gravitate toward mouse position
+            newScale = Math.min(maxScale, newScale);
+            
+            const targetPoint = getPointerOffset(pointerPosition, stage, oldScale);
+            const newPosition = calculateNewPosition(targetPoint, pointerPosition, newScale);
+
+            stage.position(newPosition);
+        }
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.batchDraw();
+    }, [stageRef, stageSize]);
 
     const handleOnStageTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
         event.evt.preventDefault();
 
-        const stage = stageRef.current;
-        if (!stage) return;
-
+        // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
         if (event.evt.touches.length !== 2) return;
         
-        const [touch1, touch2] = event.evt.touches as any;
-        const oldScale = stage.scaleX();
-        const pointerPosition = {
-            x: (touch1.clientX + touch2.clientX) / 2,
-            y: (touch1.clientY + touch2.clientY) / 2,
-        }
-        const dist = Math.hypot(
-            touch2.clientX - touch1.clientX,
-            touch2.clientY - touch1.clientY
+        const [touchPoint1, touchPoint2] = event.evt.touches as any;
+        const currentTouchDistance = Math.hypot(
+            touchPoint2.clientX - touchPoint1.clientX,
+            touchPoint2.clientY - touchPoint1.clientY
         );
 
-        if (stageLastDistanceRef.current === 0) {
-            stageLastDistanceRef.current = dist;
+        if (lastTouchDistanceRef.current === 0) {
+            lastTouchDistanceRef.current = currentTouchDistance;
             return;
         }
 
-        const newScale = oldScale * (dist / stageLastDistanceRef.current);
-        // const newScale = calculateNewScale(oldScale, event.evt.deltaY, ZOOM_FACTOR);
-        const pointerOffset = getPointerOffset(pointerPosition, stage, oldScale);
-        const newPosition = calculateNewPosition(pointerOffset, pointerPosition, newScale);
-        
-        stageLastDistanceRef.current = dist;
-        applyTransform(stage, newScale, newPosition);
+        const isZoomingOut = currentTouchDistance < lastTouchDistanceRef.current;
+
+        const stage = stageRef.current;
+        if (!stage) return;
+
+        const pointerPosition = {
+            x: (touchPoint1.clientX + touchPoint2.clientX) / 2,
+            y: (touchPoint1.clientY + touchPoint2.clientY) / 2,
+        }
+
+        const patternSize = getPatternRenderSize(pattern);
+        const patternCenter = getGravitationCenter(stageSize, patternSize);
+        const minScale = getMinimumScale(stageSize, patternSize);
+        const maxScale = ZOOM_MAXIMUM;
+        const oldScale = stage.scaleX();
+
+        let newScale = oldScale * (currentTouchDistance / lastTouchDistanceRef.current);
+
+        if (isZoomingOut) {
+            // Zooming out: limit to minimum scale and gravitate toward rectangle center
+            newScale = Math.max(minScale, newScale);
+
+            // Calculate the interpolation factor
+            const interpolationFactor = (newScale - minScale) / (oldScale - minScale);
+
+            if (interpolationFactor > 0) {
+                const stagePosition = stage.position();
+    
+                // Calculate the new position interpolated toward the center of the stage
+                const newPosition = {
+                    x: stagePosition.x + (patternCenter.x - stagePosition.x) * (1 - interpolationFactor),
+                    y: stagePosition.y + (patternCenter.y - stagePosition.y) * (1 - interpolationFactor),
+                };
+    
+                stage.position(newPosition);
+            }
+        }
+        else {
+            newScale = Math.min(maxScale, newScale);
+            
+            const targetPoint = getPointerOffset(pointerPosition, stage, oldScale);
+            const newPosition = calculateNewPosition(targetPoint, pointerPosition, newScale);
+
+            stage.position(newPosition);
+        }
+
+        stage.scale({ x: newScale, y: newScale });
+        stage.batchDraw();
+
+        lastTouchDistanceRef.current = currentTouchDistance;
     }, [stageRef]);
 
     const handleOnStageTouchEnd = useCallback(() => {
-        stageLastDistanceRef.current = 0;
+        lastTouchDistanceRef.current = 0;
     }, []);
 
     const handleOnStageClick = useCallback(() => {

@@ -247,9 +247,10 @@ export const applyBeadingGridOptions = (
 
 export const getPatternRealSize = (pattern: PatternState) => {
     const patternSize = getPatternSize(pattern);
+    const { height, width } = pattern.options.layout.beadSize;
     const beadSize = pattern.options.layout.type === "brick"
-        ? { height: pattern.options.layout.beadSize.height, width: pattern.options.layout.beadSize.width }
-        : { height: pattern.options.layout.beadSize.width, width: pattern.options.layout.beadSize.height };
+        ? { height: width, width: height }
+        : { height: height, width: width };
 
     return {
         height: patternSize.height * beadSize.height,

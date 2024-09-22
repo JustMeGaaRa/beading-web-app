@@ -20,13 +20,41 @@ export const downloadUri = (uri: string, name: string) => {
 };
 
 export const ZOOM_FACTOR = 1.1;
+export const ZOOM_MAXIMUM = 4;
+
+type Size = { height: number; width: number };
+
+export const getMinimumScale = (
+    stageSize: Size,
+    boundarySize: Size
+) => {
+    const ZOOM_OUTLINE_FACTOR = 0.9;
+    return Math.min(
+        stageSize.width / boundarySize.width,
+        stageSize.height / boundarySize.height
+    ) * ZOOM_OUTLINE_FACTOR;
+};
+
+export const getGravitationCenter = (
+    stageSize: Size,
+    boundarySize: Size
+) => {
+    const stageCenter = {
+        x: stageSize.width / 2,
+        y: stageSize.height / 2,
+    };
+    return {
+        x: stageCenter.x - boundarySize.width / 2,
+        y: stageCenter.y - boundarySize.height / 2
+    };
+};
 
 export const calculateNewScale = (
+    isZoomingOut: boolean,
     currentScale: number,
-    deltaY: number,
     scaleBy: number
 ) => {
-    return deltaY > 0
+    return isZoomingOut
         ? currentScale / scaleBy
         : currentScale * scaleBy;
 };
@@ -58,7 +86,7 @@ export const applyTransform = (
     scale: number,
     position: Konva.Vector2d
 ) => {
-    stage.scale({ x: scale, y: scale });
     stage.position(position);
+    stage.scale({ x: scale, y: scale });
     stage.batchDraw();
 };

@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import capitalize from "just-capitalize";
 import { FC, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import {
     BeadingGridOptionsPanel,
     BeadingGridState,
@@ -49,6 +50,7 @@ export const CreatePatternModal: FC<{
     isOpen,
     onClose
 }) => {
+    const navigate = useNavigate();
     const [pattern, setPattern] = useState(createPattern("brick"));
     const { dispatch } = usePatternCollectionStore();
 
@@ -95,6 +97,7 @@ export const CreatePatternModal: FC<{
     const handleOnCreateClick = useCallback(() => {
         dispatch(addPattern(pattern));
         onClose();
+        navigate(`/patterns/${pattern.patternId}`);
     }, [pattern, dispatch, onClose]);
 
     return (
