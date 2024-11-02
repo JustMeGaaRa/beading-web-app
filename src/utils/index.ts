@@ -19,60 +19,62 @@ export const downloadUri = (uri: string, name: string) => {
     document.body.removeChild(link);
 };
 
-export const ZOOM_FACTOR = 1.1;
-export const ZOOM_MAXIMUM = 4;
+export const SCALE_FACTOR = 1.1;
+export const SCALE_MAXIMUM = 4;
+export const SCALE_MARGIN_FACTOR = 0.9;
 
-type Size = { height: number; width: number };
-
-export const getMinimumScale = (
-    stageSize: Size,
-    boundarySize: Size
+export const getContentScale = (
+    originSize: { height: number; width: number },
+    currentSize: { height: number; width: number }
 ) => {
-    const ZOOM_OUTLINE_FACTOR = 0.9;
     return Math.min(
-        stageSize.width / boundarySize.width,
-        stageSize.height / boundarySize.height
-    ) * ZOOM_OUTLINE_FACTOR;
+        originSize.width / currentSize.width,
+        originSize.height / currentSize.height
+    ) * SCALE_MARGIN_FACTOR;
 };
 
-export const getGravitationCenter = (
-    stageSize: Size,
-    boundarySize: Size
+export const getContentOffset = (
+    viewportSize: { height: number; width: number },
+    contentSize: { height: number; width: number }
 ) => {
-    const stageCenter = {
-        x: stageSize.width / 2,
-        y: stageSize.height / 2,
+    const viewportCenter = {
+        x: viewportSize.width / 2,
+        y: viewportSize.height / 2,
     };
+    const contentCenter = {
+        x: contentSize.width / 2,
+        y: contentSize.height / 2,
+    }
     return {
-        x: stageCenter.x - boundarySize.width / 2,
-        y: stageCenter.y - boundarySize.height / 2
+        x: viewportCenter.x - contentCenter.x,
+        y: viewportCenter.y - contentCenter.y,
+    };
+};
+
+export const getPointerOffset = (
+    pointerPosition: { x: number, y: number },
+    viewportPosition: { x: number, y: number },
+    scale: number
+) => {
+    return {
+        x: (pointerPosition.x - viewportPosition.x) / scale,
+        y: (pointerPosition.y - viewportPosition.y) / scale,
     };
 };
 
 export const calculateNewScale = (
-    isZoomingOut: boolean,
+    isZoomOutAction: boolean,
     currentScale: number,
-    scaleBy: number
+    scaleFactor: number
 ) => {
-    return isZoomingOut
-        ? currentScale / scaleBy
-        : currentScale * scaleBy;
-};
-
-export const getPointerOffset = (
-    pointerPosition: Konva.Vector2d,
-    stage: Konva.Stage,
-    scale: number
-) => {
-    return {
-        x: (pointerPosition.x - stage.x()) / scale,
-        y: (pointerPosition.y - stage.y()) / scale,
-    };
+    return isZoomOutAction
+        ? currentScale / scaleFactor
+        : currentScale * scaleFactor;
 };
 
 export const calculateNewPosition = (
-    pointerOffset: Konva.Vector2d,
-    pointerPosition: Konva.Vector2d,
+    pointerOffset: { x: number, y: number },
+    pointerPosition: { x: number, y: number },
     scale: number
 ) => {
     return {
@@ -84,7 +86,7 @@ export const calculateNewPosition = (
 export const applyTransform = (
     stage: Konva.Stage,
     scale: number,
-    position: Konva.Vector2d
+    position: { x: number, y: number }
 ) => {
     stage.position(position);
     stage.scale({ x: scale, y: scale });

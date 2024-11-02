@@ -1,4 +1,4 @@
-import { clearGridColumn, clearGridRow, DefaultGridOptions, deleteGridColumn, deleteGridRow, insertGridColumn, insertGridRow, mergeSection, setGridCell, mirrorSection, dulicateSection, clearSection } from "../beading-grid";
+import { clearGridColumn, clearGridRow, DEFAULT_GRID_OPTIONS, deleteGridColumn, deleteGridRow, insertGridColumn, insertGridRow, mergeSection, setGridCell, mirrorSection, dulicateSection, clearSection } from "../beading-grid";
 import { PatternActions } from "./actions";
 import { PatternState } from "./types";
 import { applyBeadingGridOptions, applyPatternOptions, changePatternColor, createGrid } from "./utils";
@@ -28,7 +28,7 @@ export const patternReducer = (state: PatternState, action: PatternActions): Pat
                 lastModified: new Date(),
                 grids: [
                     ...state.grids,
-                    createGrid(state.gridCount, { ...DefaultGridOptions, type: state.options.layout.type } as any, state.options)
+                    createGrid(state.gridCount, { ...DEFAULT_GRID_OPTIONS, type: state.options.layout.type } as any, state.options)
                 ],
                 gridCount: state.gridCount + 1
             };

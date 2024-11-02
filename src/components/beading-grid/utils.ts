@@ -1,4 +1,4 @@
-import { CellBlankColor, CellPixelRatio } from "./constants";
+import { CELL_BLANK_COLOR, CELL_PIXEL_RATIO } from "./constants";
 import {
     BeadingGridCell,
     BeadingGridState,
@@ -18,7 +18,7 @@ export const insertGridRow = (state: BeadingGridState, rowIndex: number): Beadin
         ...state,
         rows: [
             ...state.rows.slice(0, rowIndex),
-            { cells: Array.from({ length: state.options.width }, () => CellBlankColor) },
+            { cells: Array.from({ length: state.options.width }, () => CELL_BLANK_COLOR) },
             ...state.rows.slice(rowIndex)
         ],
         options: {
@@ -32,7 +32,7 @@ export const clearGridRow = (state: BeadingGridState, rowIndex: number): Beading
     return {
         ...state,
         rows: state.rows.map((row, index) => index === rowIndex
-            ? { cells: row.cells.map(() => CellBlankColor) }
+            ? { cells: row.cells.map(() => CELL_BLANK_COLOR) }
             : row
         ),
         options: {
@@ -59,7 +59,7 @@ export const insertGridColumn = (state: BeadingGridState, columnIndex: number): 
         rows: state.rows.map((row) => ({
             cells: [
                 ...row.cells.slice(0, columnIndex),
-                CellBlankColor,
+                CELL_BLANK_COLOR,
                 ...row.cells.slice(columnIndex)
             ]
         })),
@@ -75,7 +75,7 @@ export const clearGridColumn = (state: BeadingGridState, columnIndex: number): B
         ...state,
         rows: state.rows.map((row) => ({
             cells: row.cells.map((cell, index) => index === columnIndex
-                ? CellBlankColor
+                ? CELL_BLANK_COLOR
                 : cell
             )
         })),
@@ -261,7 +261,7 @@ export const mergeSection = (
 
     sourceSection.rows.forEach((row, rowIndex) => {
         row.cells.forEach((cell, columnIndex) => {
-            if (isPositionInBounds(grid, targetWindow.offset, columnIndex, rowIndex) && cell !== CellBlankColor) {
+            if (isPositionInBounds(grid, targetWindow.offset, columnIndex, rowIndex) && cell !== CELL_BLANK_COLOR) {
                 const targetRowIndex = targetWindow.offset.rowIndex + rowIndex;
                 const targetColumnIndex = targetWindow.offset.columnIndex + columnIndex;
                 clonedRows[targetRowIndex].cells[targetColumnIndex] = cell;
@@ -329,8 +329,8 @@ export const getGridSectionRenderArea = (
 export const getGridCellRenderSize = (
     beadSize: { height: number; width: number }
 ) => {
-    const height = beadSize.height * CellPixelRatio;
-    const width = beadSize.width * CellPixelRatio;
+    const height = beadSize.height * CELL_PIXEL_RATIO;
+    const width = beadSize.width * CELL_PIXEL_RATIO;
 
     return { height, width };
 };
@@ -385,8 +385,8 @@ export const getGridRenderSize = (
 ) => {
     const { height: cellHeight, width: cellWidth } = getGridCellRenderSize(beadSize);
 
-    const height = grid.rows.length * cellHeight * CellPixelRatio;
-    const width = grid.rows[0].cells.length * cellWidth * CellPixelRatio;
+    const height = grid.rows.length * cellHeight * CELL_PIXEL_RATIO;
+    const width = grid.rows[0].cells.length * cellWidth * CELL_PIXEL_RATIO;
 
     return { height, width };
 };

@@ -30,16 +30,16 @@ import { ColorPalettePopover } from "./ColorPalettePopover";
 const hotkeysOptions = { preventDefault: true };
 
 export const ProjectToolsContainer: FC = () => {
-    const { tool, setTool } = useTools();
+    const { tool, toggleTool } = useTools();
     const { pastStates, futureStates, undo, redo } = usePatterHistory();
     const pattern = usePatternStore(state => state.pattern);
 
-    const onSetMoveTool = useCallback(() => setTool({ name: "move", state: { currentAction: "default" } }), [setTool]);
-    const onSetCursorTool = useCallback(() => setTool({ name: "cursor", state: { currentAction: "default" } }), [setTool]);
-    const onSetPencilTool = useCallback(() => setTool({ name: "pencil", state: { currentAction: "default" } }), [setTool]);
-    const onSetFillTool = useCallback(() => setTool({ name: "fill", state: { currentAction: "default" } }), [setTool]);
-    const onSetEraserTool = useCallback(() => setTool({ name: "eraser", state: { currentAction: "default" } }), [setTool]);
-    const onSetPickerTool = useCallback(() => setTool({ name: "picker", state: { currentAction: "default" } }), [setTool]);
+    const onSetMoveTool = useCallback(() => toggleTool({ name: "move", state: { currentAction: "default" } }), [toggleTool]);
+    const onSetCursorTool = useCallback(() => toggleTool({ name: "cursor", state: { currentAction: "default" } }), [toggleTool]);
+    const onSetPencilTool = useCallback(() => toggleTool({ name: "pencil", state: { currentAction: "default" } }), [toggleTool]);
+    const onSetFillTool = useCallback(() => toggleTool({ name: "fill", state: { currentAction: "default" } }), [toggleTool]);
+    const onSetEraserTool = useCallback(() => toggleTool({ name: "eraser", state: { currentAction: "default" } }), [toggleTool]);
+    const onSetPickerTool = useCallback(() => toggleTool({ name: "picker", state: { currentAction: "default" } }), [toggleTool]);
 
     useHotkeys(Shortcuts.toolCursor.keyString, onSetCursorTool, hotkeysOptions, [onSetCursorTool]);
     useHotkeys(Shortcuts.toolPencil.keyString, onSetPencilTool, hotkeysOptions, [onSetPencilTool]);
@@ -76,14 +76,6 @@ export const ProjectToolsContainer: FC = () => {
                     size={"md"}
                     variant={"ghost"}
                 >
-                    <Tooltip label={"Move"} placement={"right"}>
-                        <IconButton
-                            aria-label={"move"}
-                            icon={<Icon as={DragHandGesture} boxSize={5} />}
-                            isActive={tool.name === "move"}
-                            onClick={onSetMoveTool}
-                        />
-                    </Tooltip>
                     <Tooltip label={"Cursor"} placement={"right"}>
                         <IconButton
                             aria-label={"cursor"}
@@ -100,15 +92,6 @@ export const ProjectToolsContainer: FC = () => {
                             onClick={onSetPencilTool}
                         />
                     </Tooltip>
-                    {/* <Tooltip label={"Fill"} placement={"right"}>
-                        <IconButton
-                            aria-label={"fill"}
-                            icon={<FillColor />}
-                            isActive={tool.name === "fill"}
-                            isDisabled
-                            onClick={onSetFillTool}
-                        />
-                    </Tooltip> */}
                     <Tooltip label={"Eraser"} placement={"right"}>
                         <IconButton
                             aria-label={"eraser"}

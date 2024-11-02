@@ -44,17 +44,17 @@ import {
     usePatterHistory,
     TextState,
     PatternFrame,
-    CellBlankColor,
+    CELL_BLANK_COLOR,
     BeadingGridState,
     BeadingGrid,
-    FrameSelectedBorderColor,
-    FrameSelectedFillColor,
-    CellPixelRatio,
+    FRAME_SELECTED_BORDER_COLOR,
+    FRAME_SELECTED_FILL_COLOR,
+    CELL_PIXEL_RATIO,
     getGridSectionRenderArea,
     getGridWindowProjection,
     getPatternRenderSize,
     GridOptionsProvider,
-    DividerStrokeColor,
+    DIVIDER_STROKE_COLOR,
     GridDivider,
     GridText,
     HighlightedArea,
@@ -90,18 +90,17 @@ import {
     calculateNewPosition,
     calculateNewScale,
     downloadUri,
-    getGravitationCenter,
-    getMinimumScale,
+    getContentOffset,
+    getContentScale,
     getPointerOffset,
     toJsonUri,
-    ZOOM_FACTOR,
-    ZOOM_MAXIMUM
+    SCALE_FACTOR,
+    SCALE_MAXIMUM
 } from "../utils";
 
 const hotkeysOptions = { preventDefault: true };
 
 export const PatternContainer: FC = () => {
-    const toast = useToast();
     const containerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<Konva.Stage>(null);
     const lastTouchDistanceRef = useRef(0);
@@ -173,9 +172,13 @@ export const PatternContainer: FC = () => {
         };
 
         resizeStage();
+        window.addEventListener("mouseup", onPointerUp);
         window.addEventListener("resize", resizeStage);
 
-        return () => window.removeEventListener("resize", resizeStage);
+        return () => {
+            window.removeEventListener("resize", resizeStage);
+            window.removeEventListener("mouseup", onPointerUp);
+        };
     }, [containerRef.current]);
 
     useEffect(() => {
@@ -195,55 +198,86 @@ export const PatternContainer: FC = () => {
     const handleOnStageWheel = useCallback((event: Konva.KonvaEventObject<WheelEvent>) => {
         event.evt.preventDefault();
 
-        const isZoomingOut = event.evt.deltaY > 0;
-
         const stage = stageRef.current;
         if (!stage) return;
 
+        const currentScale = stage.scaleX();
         const pointerPosition = stage.getPointerPosition();
+        const stagePosition = stage.position();
 
         if (!pointerPosition) return;
         
         const patternSize = getPatternRenderSize(pattern);
-        const patternCenter = getGravitationCenter(stageSize, patternSize);
-        const minScale = getMinimumScale(stageSize, patternSize);
-        const maxScale = ZOOM_MAXIMUM;
-        const oldScale = stage.scaleX();
+        const minScale = getContentScale(stageSize, patternSize);
+        const maxScale = SCALE_MAXIMUM;
 
-        let newScale = calculateNewScale(isZoomingOut, oldScale, ZOOM_FACTOR);
+        const direction = event.evt.deltaY > 0 ? -1 : 1;
+        const scaleBy = 1.2;
+        let newScale = direction > 0
+            ? currentScale * scaleBy
+            : currentScale / scaleBy;
 
-        if (isZoomingOut) {
-            // Zooming out: limit to minimum scale and gravitate toward rectangle center
-            newScale = Math.max(minScale, newScale);
+        if (direction > 0) {
+            // Zoom In: Keep the point under cursor stationary
+            newScale = Math.min(maxScale, newScale);
 
-            // Calculate the interpolation factor
-            const interpolationFactor = (newScale - minScale) / (oldScale - minScale);
+            const mousePointTo = {
+                x: (pointerPosition.x - stagePosition.x) / currentScale,
+                y: (pointerPosition.y - stagePosition.y) / currentScale,
+            };
 
-            if (interpolationFactor > 0) {
-                const stagePosition = stage.position();
-    
-                // Calculate the new position interpolated toward the center of the stage
-                const newPosition = {
-                    x: stagePosition.x + (patternCenter.x - stagePosition.x) * (1 - interpolationFactor),
-                    y: stagePosition.y + (patternCenter.y - stagePosition.y) * (1 - interpolationFactor),
-                };
-    
-                stage.position(newPosition);
-            }
+            const newPos = {
+                x: pointerPosition.x - mousePointTo.x * newScale,
+                y: pointerPosition.y - mousePointTo.y * newScale,
+            };
+
+            stage.scale({ x: newScale, y: newScale });
+            stage.position(newPos);
         }
         else {
-            // Zooming in: limit to maximum scale and gravitate toward mouse position
-            newScale = Math.min(maxScale, newScale);
+            // Zoom Out: Return view towards center
+            newScale = Math.max(minScale, newScale);
             
-            const targetPoint = getPointerOffset(pointerPosition, stage, oldScale);
-            const newPosition = calculateNewPosition(targetPoint, pointerPosition, newScale);
+            const stageCenter = {
+                x: stageSize.width / 2,
+                y: stageSize.height / 2,
+            };
+            const patternCenter = {
+                x: patternSize.width / 2,
+                y: patternSize.height / 2,
+            }
 
-            stage.position(newPosition);
+            const newPos = {
+                x: stageCenter.x - patternCenter.x * newScale,
+                y: stageCenter.y - patternCenter.y * newScale,
+            };
+    
+            stage.scale({ x: newScale, y: newScale });
+            stage.position(newPos);
+            
+            // Zoom Out: Limit to minimum scale and gravitate toward rectangle center
+            // const maxNewScale = Math.max(minScale, newScale);
+            // const currentStagePos = stage.position();
+            // const targetPos = {
+            //     x: stageCenter.x - patternCenter.x * maxNewScale,
+            //     y: stageCenter.y - patternCenter.y * maxNewScale,
+            // };
+
+            // const interpolationFactor = currentScale !== minScale 
+            //     ? (maxNewScale - minScale) / (currentScale - minScale) 
+            //     : 0;
+            
+            // const interpolatedPos = {
+            //     x: currentStagePos.x + (targetPos.x - currentStagePos.x) * interpolationFactor,
+            //     y: currentStagePos.y + (targetPos.y - currentStagePos.y) * interpolationFactor,
+            // };
+
+            // stage.scale({ x: maxNewScale, y: maxNewScale });
+            // stage.position(interpolatedPos);
         }
-
-        stage.scale({ x: newScale, y: newScale });
+        
         stage.batchDraw();
-    }, [stageRef, stageSize]);
+    }, [stageRef, stageSize, pattern]);
 
     const handleOnStageTouchMove = useCallback((event: Konva.KonvaEventObject<TouchEvent>) => {
         event.evt.preventDefault();
@@ -272,10 +306,11 @@ export const PatternContainer: FC = () => {
             y: (touchPoint1.clientY + touchPoint2.clientY) / 2,
         }
 
+        const stagePosition = stage.position();
         const patternSize = getPatternRenderSize(pattern);
-        const patternCenter = getGravitationCenter(stageSize, patternSize);
-        const minScale = getMinimumScale(stageSize, patternSize);
-        const maxScale = ZOOM_MAXIMUM;
+        const patternCenter = getContentOffset(stageSize, patternSize);
+        const minScale = getContentScale(stageSize, patternSize);
+        const maxScale = SCALE_MAXIMUM;
         const oldScale = stage.scaleX();
 
         let newScale = oldScale * (currentTouchDistance / lastTouchDistanceRef.current);
@@ -288,7 +323,6 @@ export const PatternContainer: FC = () => {
             const interpolationFactor = (newScale - minScale) / (oldScale - minScale);
 
             if (interpolationFactor > 0) {
-                const stagePosition = stage.position();
     
                 // Calculate the new position interpolated toward the center of the stage
                 const newPosition = {
@@ -302,7 +336,7 @@ export const PatternContainer: FC = () => {
         else {
             newScale = Math.min(maxScale, newScale);
             
-            const targetPoint = getPointerOffset(pointerPosition, stage, oldScale);
+            const targetPoint = getPointerOffset(pointerPosition, stagePosition, oldScale);
             const newPosition = calculateNewPosition(targetPoint, pointerPosition, newScale);
 
             stage.position(newPosition);
@@ -419,7 +453,7 @@ export const PatternContainer: FC = () => {
             dispatch(setBeadingGridCell(source.name, { ...event.cell, color: selectedColor }));
         }
         if (isPointerDown && isEraserEnabled) {
-            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CellBlankColor }));
+            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
         }
     }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch]);
 
@@ -432,7 +466,12 @@ export const PatternContainer: FC = () => {
     return (
         <Box
             ref={containerRef}
-            cursor={tool.name === "cursor" ? "crosshair" : "cursor"}
+            cursor={tool.name === "move"
+                ? "grab"
+                : tool.name === "cursor"
+                    ? "crosshair"
+                    : "cursor"
+            }
             height={"100%"}
             width={"100%"}
         >
@@ -459,7 +498,7 @@ export const PatternContainer: FC = () => {
                                 ? pattern.options.layout.beadSize.height
                                 : pattern.options.layout.beadSize.width
                             }
-                            pointPixelRatio={CellPixelRatio}
+                            pointPixelRatio={CELL_PIXEL_RATIO}
                         >
                             <BeadingGridWrapper
                                 ref={(ref) => (ref && (gridRefs.current[grid.name] = ref))}
@@ -471,7 +510,7 @@ export const PatternContainer: FC = () => {
                                 onSelectionChange={handleOnGridSelectionChange}
                             />
                             <GridText
-                                color={DividerStrokeColor}
+                                color={DIVIDER_STROKE_COLOR}
                                 offset={metadata.grids[grid.name].text}
                                 padding={6}
                                 text={grid.name}
@@ -480,7 +519,7 @@ export const PatternContainer: FC = () => {
                                 length={metadata.grids[grid.name].divider.length}
                                 offset={metadata.grids[grid.name].divider.offset}
                                 orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
-                                strokeColor={DividerStrokeColor}
+                                strokeColor={DIVIDER_STROKE_COLOR}
                                 strokeWidth={1}
                             />
                         </GridOptionsProvider>
@@ -630,7 +669,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             dispatch(setBeadingGridCell(source.name, { ...event.cell, color: selectedColor }));
         }
         if (tool.name === "eraser") {
-            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CellBlankColor }));
+            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
         }
         if (tool.name === "picker") {
             setSelectedColor(source.rows[event.cell.offset.rowIndex].cells[event.cell.offset.columnIndex]);
@@ -666,9 +705,12 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
 
             const beadSize = { height: cellHeight, width: cellWidth };
             const renderSection = getGridSectionRenderArea(source, beadSize, selectedSection);
+            const TOOLBAR_OFFSET = 24;
             
-            const toolbarPositionX = renderSection.position.x + renderSection.width / 2;
-            const toolbarPositionY = renderSection.position.y - 20;
+            let toolbarPositionX = renderSection.position.x + renderSection.width / 2;
+            let toolbarPositionY = renderSection.position.y - TOOLBAR_OFFSET;
+
+            if (toolbarPositionY < 0) toolbarPositionY = renderSection.position.y + renderSection.height + TOOLBAR_OFFSET;
             
             setSelectedSection(selectedSection);
             setToolbarPosition({ x: toolbarPositionX, y: toolbarPositionY });
@@ -744,7 +786,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         >
             {showCentralArea && (
                 <HighlightedArea
-                    borderColor={FrameSelectedBorderColor}
+                    borderColor={FRAME_SELECTED_BORDER_COLOR}
                     borderWidth={4}
                     offset={selectedSection.offset}
                     height={selectedSection.height}
@@ -755,8 +797,8 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             {showOtherAreas && getGridWindowProjection(grid, selectedSection, "vertical").map((area, index) => (
                 <HighlightedArea
                     key={index}
-                    backgroundColor={FrameSelectedFillColor}
-                    borderColor={FrameSelectedBorderColor}
+                    backgroundColor={FRAME_SELECTED_FILL_COLOR}
+                    borderColor={FRAME_SELECTED_BORDER_COLOR}
                     borderWidth={2}
                     offset={area.offset}
                     height={area.height}
@@ -768,8 +810,8 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             {showOtherAreas && getGridWindowProjection(grid, selectedSection, "horizontal").map((area, index) => (
                 <HighlightedArea
                     key={index}
-                    backgroundColor={FrameSelectedFillColor}
-                    borderColor={FrameSelectedBorderColor}
+                    backgroundColor={FRAME_SELECTED_FILL_COLOR}
+                    borderColor={FRAME_SELECTED_BORDER_COLOR}
                     borderWidth={2}
                     offset={area.offset}
                     height={area.height}

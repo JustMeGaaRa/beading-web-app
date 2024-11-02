@@ -1,15 +1,18 @@
 import { FC, Fragment, PropsWithChildren, useCallback, useRef, useState } from "react";
 import { PatternSelectionContext } from "./context";
 import { PatternOptions, PatternState, TextState } from "./types";
-import { Group, Rect, Text } from "react-konva";
+import { Group, Line, Rect, Text } from "react-konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { getPatternSize } from "./utils";
 import { usePatternSelection } from "./hooks";
 import {
     BeadingGridCell,
-    CellPixelRatio,
-    FrameSelectedBorderColor,
-    FrameTextColor
+    CELL_BLANK_COLOR,
+    CELL_BORDER_COLOR,
+    CELL_DOT_COLOR,
+    CELL_PIXEL_RATIO,
+    FRAME_SELECTED_BORDER_COLOR,
+    FRAME_TEXT_COLOR
 } from "../beading-grid";
 import { createPatterStore, PatternContext, PatternTemporalStore } from "./store";
 
@@ -67,11 +70,11 @@ export const PatternFrame: FC<{
     const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow} = usePatternSelection();
 
     const cellHeight = pattern.grids.some((grid) => grid.options.type === "brick")
-        ? options.layout.beadSize.width * CellPixelRatio
-        : options.layout.beadSize.height * CellPixelRatio;
+        ? options.layout.beadSize.width * CELL_PIXEL_RATIO
+        : options.layout.beadSize.height * CELL_PIXEL_RATIO;
     const cellWidth = pattern.grids.some((grid) => grid.options.type === "brick")
-        ? options.layout.beadSize.height * CellPixelRatio
-        : options.layout.beadSize.width * CellPixelRatio;
+        ? options.layout.beadSize.height * CELL_PIXEL_RATIO
+        : options.layout.beadSize.width * CELL_PIXEL_RATIO;
 
     const { height: rows, width: columns } = getPatternSize(pattern);
     
@@ -148,9 +151,76 @@ export const PatternFrame: FC<{
                     onContextMenu={onContextMenu}
                 />
             ))}
+            <PatternMiddleMarker
+                orientation={"vertical"}
+                x={columns * cellWidth / 2 + cellWidth / 2}
+                y={-cellHeight * 2}
+                height={cellHeight}
+                width={cellWidth}
+            />
+            <PatternMiddleMarker
+                orientation={"horizontal"}
+                x={-cellWidth * 2}
+                y={rows * cellHeight / 2 + cellHeight / 2}
+                height={cellHeight}
+                width={cellWidth}
+            />
         </Group>
     );
 };
+
+export const PatternMiddleMarker: FC<{
+    orientation: "horizontal" | "vertical";
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+}> = ({
+    orientation,
+    x,
+    y,
+    height,
+    width
+}) => {
+    return (
+
+        <Group x={x} y={y}>
+            {orientation === "vertical" ? (
+                <Line
+                    points={[
+                        - width / 2,
+                        - height / 2,
+                        width / 2,
+                        - height / 2,
+                        0,
+                        height /2
+                    ]}
+                    closed
+                    fill={CELL_DOT_COLOR}
+                    stroke={CELL_BLANK_COLOR}
+                    strokeWidth={0}
+                    scale={{ x: 0.5, y: 0.7 }}
+                />
+            ) : (
+                <Line
+                    points={[
+                        -width / 2,
+                        - height / 2,
+                        width / 2,
+                        0,
+                        -width / 2,
+                        height / 2
+                    ]}
+                    closed
+                    fill={CELL_DOT_COLOR}
+                    stroke={CELL_BLANK_COLOR}
+                    strokeWidth={0}
+                    scale={{ x: 0.7, y: 0.5 }}
+                />
+            )}
+        </Group>
+    )
+}
 
 export const PatternFrameColumn: FC<{
     cellHeight: number;
@@ -194,7 +264,7 @@ export const PatternFrameColumn: FC<{
             <Text
                 key={`column-top-number-${patternIndex}`}
                 align={"center"}
-                fill={FrameTextColor}
+                fill={FRAME_TEXT_COLOR}
                 height={cellHeight}
                 text={(patternIndex + 1).toString()}
                 verticalAlign={"middle"}
@@ -207,7 +277,7 @@ export const PatternFrameColumn: FC<{
             <Text
                 key={`column-bottom-number-${patternIndex}`}
                 align={"center"}
-                fill={FrameTextColor}
+                fill={FRAME_TEXT_COLOR}
                 height={cellHeight} 
                 text={(patternIndex + 1).toString()}
                 verticalAlign={"middle"}
@@ -222,7 +292,7 @@ export const PatternFrameColumn: FC<{
                 cornerRadius={20}
                 height={selectedColumnHeight}
                 width={selectedColumnWidth}
-                stroke={FrameSelectedBorderColor}
+                stroke={FRAME_SELECTED_BORDER_COLOR}
                 strokeWidth={2}
                 x={selectedColumnPositionX}
                 y={selectedColumnPositionY}
@@ -276,7 +346,7 @@ export const PatternFrameRow: FC<{
             <Text
                 key={`row-left-number-${patternIndex}`}
                 align={"right"}
-                fill={FrameTextColor}
+                fill={FRAME_TEXT_COLOR}
                 height={cellHeight}
                 text={(patternIndex + 1).toString()}
                 verticalAlign={"middle"}
@@ -289,7 +359,7 @@ export const PatternFrameRow: FC<{
             <Text
                 key={`row-right-number-${patternIndex}`}
                 align={"left"}
-                fill={FrameTextColor}
+                fill={FRAME_TEXT_COLOR}
                 height={cellHeight}
                 text={(patternIndex + 1).toString()}
                 verticalAlign={"middle"}
@@ -304,7 +374,7 @@ export const PatternFrameRow: FC<{
                 cornerRadius={20}
                 height={selectedRowHeight}
                 width={selectedRowWidth}
-                stroke={FrameSelectedBorderColor}
+                stroke={FRAME_SELECTED_BORDER_COLOR}
                 strokeWidth={2}
                 x={selectedRowPositionX}
                 y={selectedRowPositionY}

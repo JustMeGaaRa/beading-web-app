@@ -15,7 +15,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
-import { BeadSizeOptions } from "./beading-grid";
+import { BEADING_SIZE_OPTIONS } from "./beading-grid";
 import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "./icons";
 import { PatternLayoutOptions } from "./pattern";
 
@@ -67,7 +67,7 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
     }, [onChange, layout]);
 
     const handleOnBeadSizeChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-        const beadSize = BeadSizeOptions.find((beadSize) => beadSize.title === event.target.value);
+        const beadSize = BEADING_SIZE_OPTIONS.find((beadSize) => beadSize.title === event.target.value);
         if (beadSize) {
             onChange?.({
                 ...layout,
@@ -114,6 +114,16 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
                     Horizontal
                 </Button>
             </ButtonGroup>
+            <InputGroup borderColor={"gray.400"} size={size}>
+                <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
+                <Select borderColor={"gray.400"} onChange={handleOnBeadSizeChange}>
+                    {BEADING_SIZE_OPTIONS.map((beadSize, index) => (
+                        <option key={index} value={beadSize.title}>
+                            {beadSize.title}
+                        </option>
+                    ))}
+                </Select>
+            </InputGroup>
             {layout.orientation === "horizontal" && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
@@ -158,16 +168,6 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
                     </NumberInput>
                 </InputGroup>
             )}
-            <InputGroup borderColor={"gray.400"} size={size}>
-                <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
-                <Select borderColor={"gray.400"} onChange={handleOnBeadSizeChange}>
-                    {BeadSizeOptions.map((beadSize, index) => (
-                        <option key={index} value={beadSize.title}>
-                            {beadSize.title}
-                        </option>
-                    ))}
-                </Select>
-            </InputGroup>
         </Flex>
     );
 };

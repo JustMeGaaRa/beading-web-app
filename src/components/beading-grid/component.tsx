@@ -3,12 +3,12 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { FC, Fragment, PropsWithChildren, useCallback } from "react";
 import { Circle, Group, Line, Rect, Text } from "react-konva";
 import {
-    CellBlankColor,
-    CellDotColor,
-    CellStrokeColor,
-    DividerStrokeColor,
-    FrameSelectedBorderColor,
-    FrameSelectedFillColor
+    CELL_BLANK_COLOR,
+    CELL_DOT_COLOR,
+    CELL_BORDER_COLOR,
+    DIVIDER_STROKE_COLOR,
+    FRAME_SELECTED_BORDER_COLOR,
+    FRAME_SELECTED_FILL_COLOR
 } from "./constants";
 import { GridOptionsContext } from "./context";
 import { useGridOptions } from "./hooks";
@@ -108,7 +108,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
                     length={grid.rows[0].cells.length}
                     offset={{ columnIndex: fringeColumnIndex, rowIndex: fringeRowIndex }}
                     orientation={"horizontal"}
-                    strokeColor={DividerStrokeColor}
+                    strokeColor={DIVIDER_STROKE_COLOR}
                     strokeWidth={1}
                 />
             )}
@@ -285,7 +285,7 @@ export const GridCell: FC<{
                 cornerRadius={2}
                 fill={color}
                 height={height}
-                stroke={isNullOrEmpty(color) ? CellBlankColor : CellStrokeColor}
+                stroke={isNullOrEmpty(color) ? CELL_BLANK_COLOR : CELL_BORDER_COLOR}
                 strokeWidth={1}
                 width={width}
                 x={position.x}
@@ -300,10 +300,10 @@ export const GridCell: FC<{
             {isSelected && (
                 <Rect
                     cornerRadius={2}
-                    fill={FrameSelectedFillColor}
+                    fill={FRAME_SELECTED_FILL_COLOR}
                     height={height}
                     opacity={0.3}
-                    stroke={FrameSelectedBorderColor}
+                    stroke={FRAME_SELECTED_BORDER_COLOR}
                     strokeWidth={2}
                     width={width}
                     x={position.x}
@@ -318,7 +318,7 @@ export const GridCell: FC<{
             )}
             {isNullOrEmpty(color) && (
                 <Circle
-                    fill={CellDotColor}
+                    fill={CELL_DOT_COLOR}
                     height={4}
                     width={4}
                     x={position.x + width / 2}

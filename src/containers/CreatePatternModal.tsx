@@ -21,7 +21,7 @@ import {
     BeadingGridOptionsPanel,
     BeadingGridState,
     BeadingGridType,
-    BeadingGridTypes,
+    BEADING_GRID_TYPES,
     BeadingLayoutOptionsPanel,
     BrickIcon,
     createGrid,
@@ -111,7 +111,7 @@ export const CreatePatternModal: FC<{
                 <ModalBody>
                     <VStack gap={2} width={"100%"}>
                         <Flex mb={2} justifyContent={"space-between"} w={"100%"}>
-                            {BeadingGridTypes.map((type) => (
+                            {BEADING_GRID_TYPES.map((type) => (
                                 <Flex
                                     key={type}
                                     aria-selected={pattern.grids[0].options.type === type}
@@ -146,7 +146,6 @@ export const CreatePatternModal: FC<{
                             layout={pattern.options.layout}
                             onChange={handleOnPatternChange}
                         />
-                        <Divider borderColor={"gray.200"} my={2} />
                         <BeadingGridOptionsPanel
                             name={pattern.grids[0]?.name}
                             options={pattern.grids[0]?.options}

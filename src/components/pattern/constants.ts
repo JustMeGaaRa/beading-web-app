@@ -1,10 +1,10 @@
-import { OneSixByOneThree } from "../beading-grid";
+import { ONE_SIX_BY_ONE_THREE } from "../beading-grid";
 import { PatternOptions } from "./types";
 
 export const DefaultPatternOptions: PatternOptions = {
     layout: {
         type: "brick",
-        beadSize: OneSixByOneThree,
+        beadSize: ONE_SIX_BY_ONE_THREE,
         orientation: "vertical",
         height: 16,
         width: 16,

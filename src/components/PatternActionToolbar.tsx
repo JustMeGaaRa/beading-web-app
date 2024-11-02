@@ -23,7 +23,7 @@ export const PatternActionToolbar: FC<{
     return (
         <Box
             paddingBottom={4}
-            transform={"translate(-50%, -100%)"}
+            transform={"translate(-50%, -50%)"}
         >
             <Box
                 backgroundColor={"gray.900"}

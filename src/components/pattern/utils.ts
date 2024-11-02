@@ -6,9 +6,9 @@ import {
     BeadingGridRow,
     BeadingGridState,
     BeadingGridType,
-    CellBlankColor,
-    CellPixelRatio,
-    DefaultGridOptions,
+    CELL_BLANK_COLOR,
+    CELL_PIXEL_RATIO,
+    DEFAULT_GRID_OPTIONS,
     isNullOrEmpty
 } from "../beading-grid";
 import { DefaultPatternOptions } from "./constants";
@@ -79,7 +79,7 @@ export const createPattern = (initialGridType?: BeadingGridType): PatternState =
         lastModified: new Date(),
         options: DefaultPatternOptions,
         grids: initialGridType
-            ? [createGrid(0, DefaultGridOptions, DefaultPatternOptions)]
+            ? [createGrid(0, DEFAULT_GRID_OPTIONS, DefaultPatternOptions)]
             : [],
         gridCount: initialGridType ? 1 : 0,
     };
@@ -160,7 +160,7 @@ export const createGrid = (
             return {
                 name: gridName,
                 rows: Array.from({ length: rowCount }, () => ({
-                    cells: Array.from({ length: columnCount }, () => CellBlankColor),
+                    cells: Array.from({ length: columnCount }, () => CELL_BLANK_COLOR),
                 })),
                 options: gridOptions,
             };
@@ -171,7 +171,7 @@ export const createGrid = (
             return {
                 name: gridName,
                 rows: Array.from({ length: rowCount }, () => ({
-                    cells: Array.from({ length: columnCount }, () => CellBlankColor),
+                    cells: Array.from({ length: columnCount }, () => CELL_BLANK_COLOR),
                 })),
                 options: gridOptions,
             };
@@ -182,7 +182,7 @@ export const createGrid = (
             return {
                 name: gridName,
                 rows: Array.from({ length: rowCount }, () => ({
-                    cells: Array.from({ length: columnCount }, () => CellBlankColor),
+                    cells: Array.from({ length: columnCount }, () => CELL_BLANK_COLOR),
                 })),
                 options: gridOptions,
             };
@@ -262,8 +262,8 @@ export const getPatternRenderSize = (pattern: PatternState) => {
     const patternSize = getPatternRealSize(pattern);
 
     return {
-        height: patternSize.height * CellPixelRatio,
-        width: patternSize.width * CellPixelRatio
+        height: patternSize.height * CELL_PIXEL_RATIO,
+        width: patternSize.width * CELL_PIXEL_RATIO
     };
 };
 

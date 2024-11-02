@@ -4,6 +4,7 @@ import {
     FC,
     PropsWithChildren,
     SetStateAction,
+    useCallback,
     useContext,
     useState,
 } from "react";
@@ -46,7 +47,7 @@ const ToolsContext = createContext<{
     tool: ToolState;
     setTool: Dispatch<SetStateAction<ToolState>>;
 }>({
-    tool: { name: "pencil", state: { currentAction: "default" } },
+    tool: { name: "move", state: { currentAction: "default" } },
     setTool: () => {},
 });
 
@@ -64,5 +65,18 @@ export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
 };
 
 export const useTools = () => {
-    return useContext(ToolsContext);
+    const { tool, setTool } = useContext(ToolsContext);
+
+    const toggleTool = useCallback((tool: ToolState) => {
+        setTool(state => state.name === tool.name
+            ? { name: "move", state: { currentAction: "default" } }
+            : tool
+        );
+    }, [setTool]);
+
+    return {
+        tool,
+        setTool,
+        toggleTool
+    }
 };
