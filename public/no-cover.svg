@@ -1,6 +1,0 @@
-<svg height="200" width="200" xmlns="http://www.w3.org/2000/svg">
-    <pattern id="diagonal-lines" height="10" width="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)" >
-        <line x1="0" y1="0" x2="0" y2="10" strokeWidth="2" stroke="lightgray" strokeOpacity="0.05" />
-    </pattern>
-    <rect height="100%" width="100%" fill="url(#diagonal-lines)" />
-</svg>
