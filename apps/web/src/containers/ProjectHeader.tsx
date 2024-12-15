@@ -35,10 +35,10 @@ import { useNavigate } from "react-router";
 import {
     Header,
     Shortcuts,
-    PatternSummaryPanel,
-    usePatternCollectionStore,
-    savePattern
+    PatternSummaryPanel
 } from "../components";
+import { usePatternCollectionStore } from "../store";
+import { savePattern } from "../creators";
 
 const hotkeysOptions = { preventDefault: true };
 

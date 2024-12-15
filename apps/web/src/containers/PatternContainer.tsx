@@ -9,30 +9,6 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import {
-    MediaImage,
-    NavArrowDown,
-    Page
-} from "iconoir-react";
-import {
-    FC,
-    forwardRef,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
-import { createPortal } from "react-dom";
-import { useHotkeys } from "react-hotkeys-hook";
-import {
-    Layer,
-    Stage,
-} from "react-konva";
-import { Html } from "react-konva-utils";
-import Konva from "konva";
-import { KonvaEventObject } from "konva/lib/Node";
-import {
     CELL_BLANK_COLOR,
     BeadingGridState,
     BeadingGrid,
@@ -78,11 +54,34 @@ import {
     clearBeadingGridSectionAction
 } from "@repo/bead-pattern-editor";
 import {
+    MediaImage,
+    NavArrowDown,
+    Page
+} from "iconoir-react";
+import {
+    FC,
+    forwardRef,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import { createPortal } from "react-dom";
+import { useHotkeys } from "react-hotkeys-hook";
+import {
+    Layer,
+    Stage,
+} from "react-konva";
+import { Html } from "react-konva-utils";
+import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
+import {
     useColorPalette,
     useTools,
     Shortcuts,
     PatternActionToolbar,
-    putPattern,
 } from "../components";
 import {
     calculateNewPosition,
@@ -93,6 +92,7 @@ import {
     toJsonUri,
     SCALE_MAXIMUM
 } from "../utils";
+import { putPattern } from "../api";
 
 const hotkeysOptions = { preventDefault: true };
 

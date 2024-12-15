@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { fetchPattern } from "./components";
+import { fetchPattern } from "./api";
 import { ProjectPage, StartingPage } from "./pages";
 
 export const routes = createBrowserRouter([

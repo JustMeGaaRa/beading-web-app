@@ -1,11 +1,12 @@
 import { Box, Button, Flex, Grid, Text, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import { PatternState } from "@repo/bead-pattern-editor";
 import { Plus } from "iconoir-react";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
-import { PatternCard, usePatternCollectionStore } from "../components";
-import { downloadUri, toJsonUri } from "../utils";
 import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
-import { PatternState } from "@repo/bead-pattern-editor";
+import { PatternCard } from "../components";
+import { downloadUri, toJsonUri } from "../utils";
+import { usePatternCollectionStore } from "../store";
 
 const comparePatterns = (a: PatternState, b: PatternState) => {
     return new Date(b.lastModified).valueOf() - new Date(a.lastModified).valueOf();

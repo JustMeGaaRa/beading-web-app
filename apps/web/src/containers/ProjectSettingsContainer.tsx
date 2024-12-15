@@ -14,8 +14,6 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import { FC, useCallback, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 import {
     BeadingGridState,
     BeadingGridType,
@@ -30,13 +28,6 @@ import {
     applyBeadingGridOptionsAction
 } from "@repo/bead-pattern-editor";
 import {
-    BeadingGridOptionsPanel,
-    BeadingLayoutOptionsPanel,
-    ColorPalette,
-    useColorPalette,
-    Shortcuts,
-} from "../components";
-import {
     LoomIcon,
     PeyoteIcon,
     CloseIcon,
@@ -45,6 +36,15 @@ import {
     PlusIcon,
     SettingsIcon
 } from "@repo/icons";
+import { FC, useCallback, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import {
+    BeadingGridOptionsPanel,
+    BeadingLayoutOptionsPanel,
+    ColorPalette,
+    useColorPalette,
+    Shortcuts,
+} from "../components";
 
 const hotkeysOptions = { preventDefault: true };
 

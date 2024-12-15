@@ -8,11 +8,11 @@ import {
     NumberInputField,
     NumberInputStepper,
 } from "@chakra-ui/react";
-import { FC, useCallback } from "react";
 import {
     BeadingGridProperties,
     BeadingGridState,
 } from "@repo/bead-grid";
+import { FC, useCallback } from "react";
 
 export const BeadingGridOptionsPanel: FC<{
     name: string;

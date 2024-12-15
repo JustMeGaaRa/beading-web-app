@@ -12,14 +12,14 @@ import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { v6 } from "uuid";
+import { CreatePatternModal } from "./CreatePatternModal";
 import {
-    addPattern,
     Header,
     Shortcuts,
-    ShortcutTableModal,
-    usePatternCollectionStore,
+    ShortcutTableModal
 } from "../components";
-import { CreatePatternModal } from "./CreatePatternModal";
+import { usePatternCollectionStore } from "../store";
+import { addPattern } from "../creators";
 
 const hotkeysOptions = { preventDefault: true };
 const hotkeysKeyOptions = { preventDefault: true, keydown: true, keyup: true };

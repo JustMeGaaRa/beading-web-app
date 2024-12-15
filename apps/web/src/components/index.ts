@@ -8,6 +8,5 @@ export * from "./hotkeys";
 export * from "./Page";
 export * from "./PatternActionToolbar";
 export * from "./PatternCard";
-export * from "./pattern-collection";
 export * from "./PatternSummary";
 export * from "./ToolsProvider";

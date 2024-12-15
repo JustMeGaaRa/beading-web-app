@@ -6,8 +6,11 @@ import {
     Tooltip,
     VStack
 } from "@chakra-ui/react";
-import { FC, useCallback, useMemo } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import {
+    getPatternSummary,
+    usePatterHistory,
+    usePatternStore
+} from "@repo/bead-pattern-editor";
 import {
     ColorPickerIcon,
     EraserIcon,
@@ -16,11 +19,8 @@ import {
     ReverseLeftIcon,
     ReverseRightIcon
 } from "@repo/icons";
-import {
-    getPatternSummary,
-    usePatterHistory,
-    usePatternStore
-} from "@repo/bead-pattern-editor";
+import { FC, useCallback, useMemo } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import {
     Shortcuts,
     useTools

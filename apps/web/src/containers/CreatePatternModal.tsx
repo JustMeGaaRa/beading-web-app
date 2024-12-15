@@ -13,9 +13,6 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import capitalize from "just-capitalize";
-import { FC, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import {
     BeadingGridState,
     BeadingGridType,
@@ -30,13 +27,15 @@ import {
     createPattern,
 } from "@repo/bead-pattern-editor";
 import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
+import capitalize from "just-capitalize";
+import { FC, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import {
     BeadingGridOptionsPanel,
     BeadingLayoutOptionsPanel,
-    addPattern,
-    deletePattern,
-    usePatternCollectionStore
 } from "../components";
+import { usePatternCollectionStore } from "../store";
+import { addPattern, deletePattern } from "../creators";
 
 const GridTypeIcons: Record<BeadingGridType, typeof LoomIcon> = {
     square: LoomIcon,
