@@ -8,12 +8,14 @@ import {
     PopoverTrigger,
     Text
 } from "@chakra-ui/react";
+import {
+    changePatternColorAction,
+    usePatternStore
+} from "@repo/bead-pattern-editor";
 import { FC, PropsWithChildren, useCallback } from "react";
 import {
     BeadSummaryItem,
-    changePatternColorAction,
     ColorPalette,
-    usePatternStore
 } from "../components";
 
 export const ColorPalettePopover: FC<PropsWithChildren<{

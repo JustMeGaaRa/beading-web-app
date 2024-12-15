@@ -1,5 +1,5 @@
 import { savePattern, usePatternCollectionStore } from "../pattern-collection";
-import { PatternState } from "./types";
+import { PatternState } from "@repo/bead-pattern-editor";
 
 export const fetchPattern = (
     patternId?: string

@@ -7,6 +7,7 @@ import {
     useDisclosure,
     useToast
 } from "@chakra-ui/react";
+import { validatePattern } from "@repo/bead-pattern-editor";
 import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -17,7 +18,6 @@ import {
     Shortcuts,
     ShortcutTableModal,
     usePatternCollectionStore,
-    validatePattern
 } from "../components";
 import { CreatePatternModal } from "./CreatePatternModal";
 

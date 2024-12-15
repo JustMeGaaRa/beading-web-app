@@ -14,9 +14,9 @@ import {
     MenuList,
     Text
 } from "@chakra-ui/react"
+import { PatternState } from "@repo/bead-pattern-editor";
 import { MoreHoriz } from "iconoir-react";
 import { FC, useCallback } from "react";
-import { PatternState } from "./pattern/types";
 
 export type PatternEventHandler<TEvent> = (source: PatternState, event: TEvent) => void;
 

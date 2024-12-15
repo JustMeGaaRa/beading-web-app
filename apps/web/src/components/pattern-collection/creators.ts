@@ -1,4 +1,4 @@
-import { PatternState } from "../pattern";
+import { PatternState } from "@repo/bead-pattern-editor";
 import {
     PatternAddAction,
     PatternDeleteAction,

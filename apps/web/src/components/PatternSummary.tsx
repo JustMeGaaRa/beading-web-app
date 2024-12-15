@@ -1,6 +1,6 @@
 import { Box, Flex, Text, VStack } from "@chakra-ui/react";
+import { formatPatternSize, getPatternSummary, PatternState } from "@repo/bead-pattern-editor";
 import { FC, useMemo } from "react";
-import { formatPatternSize, getPatternSummary, PatternState } from "./pattern";
 
 export const PatternSummaryPanel: FC<{
     pattern: PatternState;

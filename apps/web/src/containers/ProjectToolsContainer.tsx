@@ -9,13 +9,6 @@ import {
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
-    getPatternSummary,
-    Shortcuts,
-    usePatterHistory,
-    usePatternStore,
-    useTools
-} from "../components";
-import {
     ColorPickerIcon,
     EraserIcon,
     NavigationIcon,
@@ -23,6 +16,15 @@ import {
     ReverseLeftIcon,
     ReverseRightIcon
 } from "@repo/icons";
+import {
+    getPatternSummary,
+    usePatterHistory,
+    usePatternStore
+} from "@repo/bead-pattern-editor";
+import {
+    Shortcuts,
+    useTools
+} from "../components";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 const hotkeysOptions = { preventDefault: true };

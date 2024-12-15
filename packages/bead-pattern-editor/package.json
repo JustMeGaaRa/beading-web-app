@@ -10,6 +10,8 @@
         "lint": "eslint ."
     },
     "dependencies": {
+        "@repo/bead-grid": "*",
+        "just-capitalize": "^3.2.0",
         "just-debounce-it": "^3.2.0",
         "konva": "9.3.14",
         "react": "^18.3.1",

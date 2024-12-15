@@ -2,9 +2,10 @@ import { Box, Button, Flex, Grid, Text, useBreakpointValue, useDisclosure } from
 import { Plus } from "iconoir-react";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
-import { PatternCard, PatternState, usePatternCollectionStore } from "../components";
+import { PatternCard, usePatternCollectionStore } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
 import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
+import { PatternState } from "@repo/bead-pattern-editor";
 
 const comparePatterns = (a: PatternState, b: PatternState) => {
     return new Date(b.lastModified).valueOf() - new Date(a.lastModified).valueOf();
@@ -21,7 +22,7 @@ export const PatternCollectionExplorer: FC = () => {
     const handleOnPatternClick = useCallback((pattern: PatternState) => {
         navigate(`/patterns/${pattern.patternId}`);
     }, [navigate]);
-    
+
     const handleOnCreatePatternClick = useCallback(() => {
         onCreateOpen();
     }, [onCreateOpen]);
@@ -35,7 +36,7 @@ export const PatternCollectionExplorer: FC = () => {
         const patternUri = toJsonUri(pattern);
         downloadUri(patternUri, `${pattern.name}.json`);
     }, []);
-    
+
     return patterns.length > 0 ? (
         <Box height={"100%"} overflowY={"scroll"} padding={6} width={"100%"}>
             <Box background={"blue.100"} borderRadius={8} padding={4} mb={4}>

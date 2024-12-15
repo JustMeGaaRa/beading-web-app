@@ -1,7 +1,11 @@
 import { useToken } from "@chakra-ui/react";
 import { FC } from "react";
 import { useLoaderData } from "react-router";
-import { PatternProvider, PatternSelectionProvider, PatternState } from "../components";
+import {
+    PatternProvider,
+    PatternSelectionProvider,
+    PatternState
+} from "@repo/bead-pattern-editor";
 import {
     ColorPaletteProvider,
     Content,

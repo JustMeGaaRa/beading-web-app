@@ -21,21 +21,21 @@ import {
     BeadingGridType,
 } from "@repo/bead-grid";
 import {
-    BeadingGridOptionsPanel,
     PatternLayoutOptions,
+    usePatternStore,
+    patternSelector,
+    addBeadingGridAction,
+    applyPatternOptionsAction,
+    deleteBeadingGridAction,
+    applyBeadingGridOptionsAction
+} from "@repo/bead-pattern-editor";
+import {
+    BeadingGridOptionsPanel,
     BeadingLayoutOptionsPanel,
     ColorPalette,
     useColorPalette,
     Shortcuts,
-    usePatternStore,
-    patternSelector,
 } from "../components";
-import {
-    addBeadingGridAction,
-    applyPatternOptionsAction,
-    deleteBeadingGridAction,
-    applyBeadingGridOptionsAction,
-} from "../components/pattern/creators";
 import {
     LoomIcon,
     PeyoteIcon,

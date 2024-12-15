@@ -21,17 +21,19 @@ import {
     BeadingGridType,
     BEADING_GRID_TYPES,
 } from "@repo/bead-grid";
-import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
 import {
-    BeadingGridOptionsPanel,
-    BeadingLayoutOptionsPanel,
     createGrid,
-    addPattern,
     formatPatternSize,
     getPatternRealSize,
     PatternLayoutOptions,
     PatternState,
     createPattern,
+} from "@repo/bead-pattern-editor";
+import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
+import {
+    BeadingGridOptionsPanel,
+    BeadingLayoutOptionsPanel,
+    addPattern,
     deletePattern,
     usePatternCollectionStore
 } from "../components";

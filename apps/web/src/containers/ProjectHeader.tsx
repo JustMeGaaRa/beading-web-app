@@ -13,6 +13,12 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import {
+    changePatternNameAction,
+    dirtyStateSelector,
+    patternSelector,
+    usePatternStore
+} from "@repo/bead-pattern-editor";
+import {
     ArrowLeft,
     CloudCheck,
     CloudSync,
@@ -31,11 +37,7 @@ import {
     Shortcuts,
     PatternSummaryPanel,
     usePatternCollectionStore,
-    usePatternStore,
-    savePattern,
-    patternSelector,
-    dirtyStateSelector,
-    changePatternNameAction
+    savePattern
 } from "../components";
 
 const hotkeysOptions = { preventDefault: true };
