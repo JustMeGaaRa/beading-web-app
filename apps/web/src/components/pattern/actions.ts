@@ -2,7 +2,7 @@ import {
     BeadingGridCell,
     BeadingGridProperties,
     BeadingGridWindow,
-} from "../beading-grid";
+} from "beading-grid";
 import { PatternOptions } from "./types";
 
 type Action<TAction extends string, TPayload> = {

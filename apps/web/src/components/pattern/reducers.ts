@@ -10,7 +10,7 @@ import {
     mirrorSection,
     dulicateSection,
     clearSection,
-} from "../beading-grid";
+} from "beading-grid";
 import { PatternActions } from "./actions";
 import { PatternState } from "./types";
 import {

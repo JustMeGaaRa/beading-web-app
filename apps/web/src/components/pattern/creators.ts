@@ -2,7 +2,7 @@ import {
     BeadingGridCell,
     BeadingGridProperties,
     BeadingGridWindow,
-} from "../beading-grid";
+} from "beading-grid";
 import {
     GridAddColumnAfterAction,
     GridAddColumnBeforeAction,
@@ -26,12 +26,14 @@ import {
 } from "./actions";
 import { PatternOptions } from "./types";
 
-export const changePatternName = (name: string): PatternSetNameAction => ({
+export const changePatternNameAction = (
+    name: string
+): PatternSetNameAction => ({
     type: "PATTERN_CHANGE_NAME",
     payload: { name },
 });
 
-export const changePatternColor = (
+export const changePatternColorAction = (
     oldColor: string,
     newColor: string
 ): PatternChangeColorAction => ({
@@ -39,24 +41,24 @@ export const changePatternColor = (
     payload: { oldColor, newColor },
 });
 
-export const applyPatternOptions = (
+export const applyPatternOptionsAction = (
     options: PatternOptions
 ): PatternApplyOptionsAction => ({
     type: "PATTERN_APPLY_OPTIONS",
     payload: { options },
 });
 
-export const addBeadingGrid = (): GridAddNewAction => ({
+export const addBeadingGridAction = (): GridAddNewAction => ({
     type: "BEADING_GRID_ADD",
     payload: {},
 });
 
-export const deleteBeadingGrid = (name: string): GridDeleteAction => ({
+export const deleteBeadingGridAction = (name: string): GridDeleteAction => ({
     type: "BEADING_GRID_DELETE",
     payload: { name },
 });
 
-export const setBeadingGridCell = (
+export const setBeadingGridCellAction = (
     name: string,
     cell: BeadingGridCell
 ): GridSetCellAction => ({
@@ -64,7 +66,7 @@ export const setBeadingGridCell = (
     payload: { name, cell },
 });
 
-export const applyBeadingGridOptions = (
+export const applyBeadingGridOptionsAction = (
     name: string,
     options: BeadingGridProperties
 ): GridApplyOptionsAction => ({
@@ -72,7 +74,7 @@ export const applyBeadingGridOptions = (
     payload: { name, options },
 });
 
-export const clearBeadingGridCells = (
+export const clearBeadingGridCellsAction = (
     name: string,
     cells: Array<BeadingGridCell>
 ): GridClearCellsAction => ({
@@ -80,7 +82,7 @@ export const clearBeadingGridCells = (
     payload: { name, cells },
 });
 
-export const addBeadingGridColumnBefore = (
+export const addBeadingGridColumnBeforeAction = (
     name: string,
     column: number
 ): GridAddColumnBeforeAction => ({
@@ -88,7 +90,7 @@ export const addBeadingGridColumnBefore = (
     payload: { name, column },
 });
 
-export const addBeadingGridColumnAfter = (
+export const addBeadingGridColumnAfterAction = (
     name: string,
     column: number
 ): GridAddColumnAfterAction => ({
@@ -96,7 +98,7 @@ export const addBeadingGridColumnAfter = (
     payload: { name, column },
 });
 
-export const deleteBeadingGridColumn = (
+export const deleteBeadingGridColumnAction = (
     name: string,
     column: number
 ): GridDeleteColumnAction => ({
@@ -104,7 +106,7 @@ export const deleteBeadingGridColumn = (
     payload: { name, column },
 });
 
-export const clearBeadingGridColumn = (
+export const clearBeadingGridColumnAction = (
     name: string,
     column: number
 ): GridClearColumnAction => ({
@@ -112,7 +114,7 @@ export const clearBeadingGridColumn = (
     payload: { name, column },
 });
 
-export const addBeadingGridRowBefore = (
+export const addBeadingGridRowBeforeAction = (
     name: string,
     row: number
 ): GridAddRowBeforeAction => ({
@@ -120,7 +122,7 @@ export const addBeadingGridRowBefore = (
     payload: { name, row },
 });
 
-export const addBeadingGridRowAfter = (
+export const addBeadingGridRowAfterAction = (
     name: string,
     row: number
 ): GridAddRowAfterAction => ({
@@ -128,7 +130,7 @@ export const addBeadingGridRowAfter = (
     payload: { name, row },
 });
 
-export const deleteBeadingGridRow = (
+export const deleteBeadingGridRowAction = (
     name: string,
     row: number
 ): GridDeleteRowAction => ({
@@ -136,7 +138,7 @@ export const deleteBeadingGridRow = (
     payload: { name, row },
 });
 
-export const clearBeadingGridRow = (
+export const clearBeadingGridRowAction = (
     name: string,
     row: number
 ): GridClearRowAction => ({
@@ -144,7 +146,7 @@ export const clearBeadingGridRow = (
     payload: { name, row },
 });
 
-export const mirrorBeadingGridSection = (
+export const mirrorBeadingGridSectionAction = (
     name: string,
     target: BeadingGridWindow,
     source: BeadingGridWindow,
@@ -154,7 +156,7 @@ export const mirrorBeadingGridSection = (
     payload: { name, target, source, direction },
 });
 
-export const duplicateBeadingGridSection = (
+export const duplicateBeadingGridSectionAction = (
     name: string,
     target: BeadingGridWindow,
     source: BeadingGridWindow
@@ -163,7 +165,7 @@ export const duplicateBeadingGridSection = (
     payload: { name, target, source },
 });
 
-export const clearBeadingGridSection = (
+export const clearBeadingGridSectionAction = (
     name: string,
     section: BeadingGridWindow
 ): GridClearSectionAction => ({

@@ -33,15 +33,6 @@ import { Html } from "react-konva-utils";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import {
-    useColorPalette,
-    useTools,
-    getPatternMetadata,
-    usePatternSelection,
-    usePatternStore,
-    PatternState,
-    usePatterHistory,
-    TextState,
-    PatternFrame,
     CELL_BLANK_COLOR,
     BeadingGridState,
     BeadingGrid,
@@ -50,7 +41,6 @@ import {
     CELL_PIXEL_RATIO,
     getGridSectionRenderArea,
     getGridWindowProjection,
-    getPatternRenderSize,
     GridOptionsProvider,
     DIVIDER_STROKE_COLOR,
     GridDivider,
@@ -62,26 +52,37 @@ import {
     BeadingGridMetadata,
     usePointerDisclosure,
     BeadingPointerEvent,
-    Shortcuts,
     useGridOptions,
+
+} from "beading-grid";
+import {
+    useColorPalette,
+    useTools,
+    getPatternMetadata,
+    usePatternSelection,
+    usePatternStore,
+    PatternState,
+    usePatterHistory,
+    TextState,
+    PatternFrame,
+    getPatternRenderSize,
+    Shortcuts,
     PatternActionToolbar,
     putPattern,
     patternSelector,
     dirtyStateSelector,
+    addBeadingGridColumnAfterAction,
+    addBeadingGridColumnBeforeAction,
+    addBeadingGridRowBeforeAction,
+    clearBeadingGridColumnAction,
+    clearBeadingGridRowAction,
+    deleteBeadingGridColumnAction,
+    deleteBeadingGridRowAction,
+    setBeadingGridCellAction,
+    mirrorBeadingGridSectionAction,
+    duplicateBeadingGridSectionAction,
+    clearBeadingGridSectionAction,
 } from "../components";
-import {
-    addBeadingGridColumnAfter,
-    addBeadingGridColumnBefore,
-    addBeadingGridRowBefore,
-    clearBeadingGridColumn,
-    clearBeadingGridRow,
-    deleteBeadingGridColumn,
-    deleteBeadingGridRow,
-    setBeadingGridCell,
-    mirrorBeadingGridSection,
-    duplicateBeadingGridSection,
-    clearBeadingGridSection,
-} from "../components/pattern/creators"
 import {
     calculateNewPosition,
     downloadUri,
@@ -388,49 +389,49 @@ export const PatternContainer: FC = () => {
 
     const handleOnGridAddRowAbove = useCallback(() => {
         if (rowState) {
-            dispatch(addBeadingGridRowBefore(rowState?.gridName, rowState?.gridIndex));
+            dispatch(addBeadingGridRowBeforeAction(rowState?.gridName, rowState?.gridIndex));
         }
     }, [dispatch, rowState]);
 
     const handleOnGridAddRowBelow = useCallback(() => {
         if (rowState) {
-            dispatch(addBeadingGridColumnAfter(rowState?.gridName, rowState?.gridIndex));
+            dispatch(addBeadingGridColumnAfterAction(rowState?.gridName, rowState?.gridIndex));
         }
     }, [rowState, dispatch]);
 
     const handleOnGridClearRow = useCallback(() => {
         if (rowState) {
-            dispatch(clearBeadingGridRow(rowState?.gridName, rowState?.gridIndex));
+            dispatch(clearBeadingGridRowAction(rowState?.gridName, rowState?.gridIndex));
         }
     }, [rowState, dispatch]);
 
     const handleOnGridDeleteRow = useCallback(() => {
         if (rowState) {
-            dispatch(deleteBeadingGridRow(rowState?.gridName, rowState?.gridIndex));
+            dispatch(deleteBeadingGridRowAction(rowState?.gridName, rowState?.gridIndex));
         }
     }, [rowState, dispatch]);
 
     const handleOnGridAddColumnLeft = useCallback(() => {
         if (columnState) {
-            dispatch(addBeadingGridColumnBefore(columnState?.gridName, columnState?.gridIndex));
+            dispatch(addBeadingGridColumnBeforeAction(columnState?.gridName, columnState?.gridIndex));
         }
     }, [columnState, dispatch]);
 
     const handleOnGridAddColumnRight = useCallback(() => {
         if (columnState) {
-            dispatch(addBeadingGridColumnAfter(columnState?.gridName, columnState?.gridIndex));
+            dispatch(addBeadingGridColumnAfterAction(columnState?.gridName, columnState?.gridIndex));
         }
     }, [columnState, dispatch]);
 
     const handleOnGridClearColumn = useCallback(() => {
         if (columnState) {
-            dispatch(clearBeadingGridColumn(columnState?.gridName, columnState?.gridIndex));
+            dispatch(clearBeadingGridColumnAction(columnState?.gridName, columnState?.gridIndex));
         }
     }, [columnState, dispatch]);
 
     const handleOnGridDeleteColumn = useCallback(() => {
         if (columnState) {
-            dispatch(deleteBeadingGridColumn(columnState?.gridName, columnState?.gridIndex));
+            dispatch(deleteBeadingGridColumnAction(columnState?.gridName, columnState?.gridIndex));
         }
     }, [columnState, dispatch]);
 
@@ -445,10 +446,10 @@ export const PatternContainer: FC = () => {
 
     const handleOnGridCellPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         if (isPointerDown && isPencilEnabled) {
-            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: selectedColor }));
+            dispatch(setBeadingGridCellAction(source.name, { ...event.cell, color: selectedColor }));
         }
         if (isPointerDown && isEraserEnabled) {
-            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
+            dispatch(setBeadingGridCellAction(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
         }
     }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch, selectedColor]);
 
@@ -661,10 +662,10 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         onClick?.(source, event);
 
         if (tool.name === "pencil") {
-            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: selectedColor }));
+            dispatch(setBeadingGridCellAction(source.name, { ...event.cell, color: selectedColor }));
         }
         if (tool.name === "eraser") {
-            dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
+            dispatch(setBeadingGridCellAction(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
         }
         if (tool.name === "picker") {
             setSelectedColor(source.rows[event.cell.offset.rowIndex].cells[event.cell.offset.columnIndex]);
@@ -724,7 +725,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
 
     const handleOnClearClick = useCallback(() => {
         if (isMirroringEnabled && selectedSection) {
-            dispatch(clearBeadingGridSection(grid.name, selectedSection));
+            dispatch(clearBeadingGridSectionAction(grid.name, selectedSection));
         }
     }, [dispatch, grid?.name, isMirroringEnabled, selectedSection]);
 
@@ -739,7 +740,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         event.cancelBubble = true;
 
         if (isMirroringEnabled && selectedSection) {
-            dispatch(mirrorBeadingGridSection(
+            dispatch(mirrorBeadingGridSectionAction(
                 grid.name,
                 target,
                 selectedSection,
@@ -747,7 +748,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             ));
         }
         if (isDuplicatingEnabled && selectedSection) {
-            dispatch(duplicateBeadingGridSection(grid.name, target, selectedSection));
+            dispatch(duplicateBeadingGridSectionAction(grid.name, target, selectedSection));
         }
     };
 
@@ -758,7 +759,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         event.cancelBubble = true;
 
         if (isMirroringEnabled && selectedSection) {
-            dispatch(mirrorBeadingGridSection(
+            dispatch(mirrorBeadingGridSectionAction(
                 grid.name,
                 target,
                 selectedSection,
@@ -766,7 +767,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             ));
         }
         if (isDuplicatingEnabled && selectedSection) {
-            dispatch(duplicateBeadingGridSection(grid.name, target, selectedSection));
+            dispatch(duplicateBeadingGridSectionAction(grid.name, target, selectedSection));
         }
     };
 

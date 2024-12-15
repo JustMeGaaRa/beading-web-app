@@ -17,20 +17,22 @@ import capitalize from "just-capitalize";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
-    BeadingGridOptionsPanel,
     BeadingGridState,
     BeadingGridType,
     BEADING_GRID_TYPES,
-    BeadingLayoutOptionsPanel,
     BrickIcon,
+    LoomIcon,
+    PeyoteIcon,
+} from "beading-grid";
+import {
+    BeadingGridOptionsPanel,
+    BeadingLayoutOptionsPanel,
     createGrid,
     addPattern,
     formatPatternSize,
     getPatternRealSize,
-    LoomIcon,
     PatternLayoutOptions,
     PatternState,
-    PeyoteIcon,
     createPattern,
     deletePattern,
     usePatternCollectionStore

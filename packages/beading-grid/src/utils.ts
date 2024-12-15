@@ -132,7 +132,7 @@ export const isPositionInBounds = (
         offset.rowIndex + rowIndex >= 0 &&
         offset.rowIndex + rowIndex < grid.rows.length &&
         offset.columnIndex + columnIndex >= 0 &&
-        offset.columnIndex + columnIndex < grid.rows[0].cells.length
+        offset.columnIndex + columnIndex < (grid.rows[0]?.cells.length ?? 0)
     );
 };
 
@@ -143,16 +143,17 @@ export const setGridCell = (
     const { columnIndex, rowIndex } = cell.offset;
 
     // Check if the cell already has the desired color
-    if (grid.rows[rowIndex].cells[columnIndex] === cell.color) {
+    if (grid.rows[rowIndex]?.cells[columnIndex] === cell.color) {
         return grid;
     }
 
     // Create a new row with the updated cell
     const modifiedRow = {
         ...grid.rows[rowIndex],
-        cells: grid.rows[rowIndex].cells.map((gridCell, gridColumnIndex) =>
-            gridColumnIndex === columnIndex ? cell.color : gridCell
-        ),
+        cells:
+            grid.rows[rowIndex]?.cells.map((gridCell, gridColumnIndex) =>
+                gridColumnIndex === columnIndex ? cell.color : gridCell
+            ) ?? [],
     };
 
     return {
@@ -191,7 +192,7 @@ export const getGridWindowProjection = (
     projection: "horizontal" | "vertical"
 ): Array<BeadingGridWindow> => {
     const gridHeight = grid.rows.length - 1;
-    const gridWidth = grid.rows[0].cells.length - 1;
+    const gridWidth = (grid.rows[0]?.cells.length ?? 0) - 1;
     const mirrors: BeadingGridWindow[] = [];
 
     const { columnIndex, rowIndex } = centerSection.offset;
@@ -281,10 +282,12 @@ export const flipSection = (
     if (direction === "vertical") {
         for (let rowIndex = 0; rowIndex < section.height / 2; rowIndex++) {
             const oppositeRowIndex = section.height - rowIndex - 1;
-            [clonedRows[rowIndex], clonedRows[oppositeRowIndex]] = [
-                clonedRows[oppositeRowIndex],
-                clonedRows[rowIndex],
-            ];
+            if (clonedRows[rowIndex] && clonedRows[oppositeRowIndex]) {
+                [clonedRows[rowIndex], clonedRows[oppositeRowIndex]] = [
+                    clonedRows[oppositeRowIndex],
+                    clonedRows[rowIndex],
+                ];
+            }
         }
     }
 
@@ -334,7 +337,9 @@ export const mergeSection = (
                 const targetRowIndex = targetWindow.offset.rowIndex + rowIndex;
                 const targetColumnIndex =
                     targetWindow.offset.columnIndex + columnIndex;
-                clonedRows[targetRowIndex].cells[targetColumnIndex] = cell;
+                if (clonedRows[targetRowIndex]) {
+                    clonedRows[targetRowIndex].cells[targetColumnIndex] = cell;
+                }
             }
         });
     });
@@ -450,8 +455,8 @@ export const getGridCellRenderPosition = (
         grid.options.type === "brick"
             ? cellHeight * rowIndex
             : grid.options.type === "peyote"
-            ? cellHeight * rowIndex + peyoteOffsetY
-            : cellHeight * rowIndex;
+              ? cellHeight * rowIndex + peyoteOffsetY
+              : cellHeight * rowIndex;
 
     return { x, y };
 };
@@ -464,7 +469,8 @@ export const getGridRenderSize = (
         getGridCellRenderSize(beadSize);
 
     const height = grid.rows.length * cellHeight * CELL_PIXEL_RATIO;
-    const width = grid.rows[0].cells.length * cellWidth * CELL_PIXEL_RATIO;
+    const width =
+        (grid.rows[0]?.cells.length ?? 0) * cellWidth * CELL_PIXEL_RATIO;
 
     return { height, width };
 };

@@ -3,7 +3,7 @@ import {
     BeadingGridState,
     BeadingGridType,
     BeadSize,
-} from "../beading-grid";
+} from "beading-grid";
 
 export type LayoutOrientation = "vertical" | "horizontal";
 

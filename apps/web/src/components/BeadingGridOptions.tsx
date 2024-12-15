@@ -12,7 +12,7 @@ import { FC, useCallback } from "react";
 import {
     BeadingGridProperties,
     BeadingGridState,
-} from "./beading-grid";
+} from "beading-grid";
 
 export const BeadingGridOptionsPanel: FC<{
     name: string;

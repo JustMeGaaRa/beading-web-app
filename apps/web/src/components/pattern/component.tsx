@@ -12,7 +12,7 @@ import {
     CELL_PIXEL_RATIO,
     FRAME_SELECTED_BORDER_COLOR,
     FRAME_TEXT_COLOR
-} from "../beading-grid";
+} from "beading-grid";
 import { createPatterStore, PatternContext, PatternTemporalStore } from "./store";
 
 export const PatternProvider: FC<PropsWithChildren<{

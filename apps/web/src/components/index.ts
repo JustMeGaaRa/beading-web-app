@@ -1,4 +1,3 @@
-export * from "./beading-grid";
 export * from "./BeadingGridOptions";
 export * from "./PatternLayoutOptions";
 export * from "./ColorPalette";

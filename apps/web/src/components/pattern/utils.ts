@@ -10,7 +10,7 @@ import {
     CELL_PIXEL_RATIO,
     DEFAULT_GRID_OPTIONS,
     isNullOrEmpty,
-} from "../beading-grid";
+} from "beading-grid";
 import { DefaultPatternOptions } from "./constants";
 import {
     PatternMetadata,
@@ -324,50 +324,54 @@ export const getPatternMetadata = (
     const textOffsetColumns = 4;
     const textOffsetRows = 2;
 
-    const gridMetadata = pattern.grids.reduce((metadata, grid) => {
-        const dividerOffset = isHorizontal
-            ? {
-                  columnIndex: offsetColumn,
-                  rowIndex: offsetRow,
-              }
-            : {
-                  columnIndex: offsetColumn - textOffsetColumns,
-                  rowIndex: offsetRow,
-              };
+    const gridMetadata = pattern.grids.reduce(
+        (metadata, grid) => {
+            const dividerOffset = isHorizontal
+                ? {
+                      columnIndex: offsetColumn,
+                      rowIndex: offsetRow,
+                  }
+                : {
+                      columnIndex: offsetColumn - textOffsetColumns,
+                      rowIndex: offsetRow,
+                  };
 
-        const dividerLength = isHorizontal
-            ? grid.rows.length + textOffsetRows
-            : grid.rows[0].cells.length + textOffsetColumns;
+            const dividerLength = isHorizontal
+                ? grid.rows.length + textOffsetRows
+                : grid.rows[0].cells.length + textOffsetColumns;
 
-        const textOffset = isHorizontal
-            ? {
-                  columnIndex: offsetColumn,
-                  rowIndex: offsetRow + grid.rows.length - 1 + textOffsetRows,
-              }
-            : {
-                  columnIndex: offsetColumn - textOffsetColumns,
-                  rowIndex: offsetRow,
-              };
+            const textOffset = isHorizontal
+                ? {
+                      columnIndex: offsetColumn,
+                      rowIndex:
+                          offsetRow + grid.rows.length - 1 + textOffsetRows,
+                  }
+                : {
+                      columnIndex: offsetColumn - textOffsetColumns,
+                      rowIndex: offsetRow,
+                  };
 
-        const gridMetadata = {
-            ...metadata,
-            [grid.name]: {
-                offset: { rowIndex: offsetRow, columnIndex: offsetColumn },
-                divider: {
-                    offset: dividerOffset,
-                    length: dividerLength,
+            const gridMetadata = {
+                ...metadata,
+                [grid.name]: {
+                    offset: { rowIndex: offsetRow, columnIndex: offsetColumn },
+                    divider: {
+                        offset: dividerOffset,
+                        length: dividerLength,
+                    },
+                    text: textOffset,
                 },
-                text: textOffset,
-            },
-        };
+            };
 
-        offsetColumn = isHorizontal
-            ? offsetColumn + grid.rows[0].cells.length
-            : 0;
-        offsetRow = isHorizontal ? 0 : offsetRow + grid.rows.length;
+            offsetColumn = isHorizontal
+                ? offsetColumn + grid.rows[0].cells.length
+                : 0;
+            offsetRow = isHorizontal ? 0 : offsetRow + grid.rows.length;
 
-        return gridMetadata;
-    }, {} as Record<string, BeadingGridMetadata>);
+            return gridMetadata;
+        },
+        {} as Record<string, BeadingGridMetadata>
+    );
 
     return { grids: gridMetadata };
 };

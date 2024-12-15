@@ -17,24 +17,26 @@ import {
 import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
-    BeadingGridOptionsPanel,
     BeadingGridState,
+    LoomIcon,
+    BeadingGridType,
+    PeyoteIcon,
+} from "beading-grid";
+import {
+    BeadingGridOptionsPanel,
     PatternLayoutOptions,
     BeadingLayoutOptionsPanel,
     ColorPalette,
     useColorPalette,
     Shortcuts,
-    LoomIcon,
-    BeadingGridType,
-    PeyoteIcon,
     usePatternStore,
     patternSelector,
 } from "../components";
 import {
-    addBeadingGrid,
-    applyPatternOptions,
-    deleteBeadingGrid,
-    applyBeadingGridOptions,
+    addBeadingGridAction,
+    applyPatternOptionsAction,
+    deleteBeadingGridAction,
+    applyBeadingGridOptionsAction,
 } from "../components/pattern/creators";
 import {
     CloseIcon,
@@ -63,7 +65,7 @@ export const ProjectSettingsContainer: FC = () => {
     useHotkeys(Shortcuts.panelToggleAll.keyString, () => togglePanels(), hotkeysOptions, [togglePanels]);
 
     const handleOnAddGridClick = useCallback(() => {
-        dispatch(addBeadingGrid());
+        dispatch(addBeadingGridAction());
     }, [dispatch]);
 
     return (
@@ -149,7 +151,7 @@ const PatternOptionsContainer: FC = () => {
     const dispatch = usePatternStore(state => state.dispatch);
 
     const handleOnLayoutChange = useCallback((layout: PatternLayoutOptions) => {
-        dispatch(applyPatternOptions({ layout }));
+        dispatch(applyPatternOptionsAction({ layout }));
     }, [dispatch]);
 
     return (
@@ -176,16 +178,16 @@ const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({ grid }) =>
     const { pattern, dispatch } = usePatternStore(patternSelector);
 
     const handleOnDeleteGridClick = useCallback(() => {
-        dispatch(deleteBeadingGrid(grid.name));
+        dispatch(deleteBeadingGridAction(grid.name));
     }, [dispatch, grid?.name]);
 
     const handleOnTypeClick = useCallback((type: BeadingGridType) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        dispatch(applyBeadingGridOptions(grid.name, { ...grid.options, type } as any));
+        dispatch(applyBeadingGridOptionsAction(grid.name, { ...grid.options, type } as any));
     }, [dispatch, grid?.name, grid?.options]);
 
     const handleOnOptionsChange = useCallback((modifiedGrid: BeadingGridConfiguration) => {
-        dispatch(applyBeadingGridOptions(modifiedGrid.name, modifiedGrid.options));
+        dispatch(applyBeadingGridOptionsAction(modifiedGrid.name, modifiedGrid.options));
     }, [dispatch]);
 
     const isBrickLayout = pattern.options.layout.type === "brick";

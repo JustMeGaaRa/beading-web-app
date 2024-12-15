@@ -105,7 +105,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
                 )}
                 {grid.options.type === "brick" && (
                     <GridDivider
-                        length={grid.rows[0].cells.length}
+                        length={grid.rows[0]?.cells.length ?? 0}
                         offset={{ columnIndex: fringeColumnIndex, rowIndex: fringeRowIndex }}
                         orientation={"horizontal"}
                         strokeColor={DIVIDER_STROKE_COLOR}
@@ -201,9 +201,9 @@ export const HighlightedArea: FC<{
         const topBoundary = 0;
         const leftBoundary = 0;
         const rightBoundary = grid.rows.length - offset.rowIndex;
-        const bottomBoundary = grid.rows[0].cells.length - offset.columnIndex;
+        const bottomBoundary = (grid.rows[0]?.cells.length ?? 0) - offset.columnIndex;
 
-        const truncatedColumnIndex = Math.min(Math.max(topBoundary, offset.columnIndex), grid.rows[0].cells.length);
+        const truncatedColumnIndex = Math.min(Math.max(topBoundary, offset.columnIndex), (grid.rows[0]?.cells.length ?? 0));
         const truncatedRowIndex = Math.min(Math.max(leftBoundary, offset.rowIndex), grid.rows.length);
         const truncatedHeight = Math.min(offset.rowIndex < 0 ? height + offset.rowIndex : height, rightBoundary);
         const truncatedWidth = Math.min(offset.columnIndex < 0 ? width + offset.columnIndex : width, bottomBoundary);

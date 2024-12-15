@@ -13,7 +13,7 @@ import {
     Select,
 } from "@chakra-ui/react";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
-import { BEADING_SIZE_OPTIONS } from "./beading-grid";
+import { BEADING_SIZE_OPTIONS } from "beading-grid";
 import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "./icons";
 import { PatternLayoutOptions } from "./pattern";
 

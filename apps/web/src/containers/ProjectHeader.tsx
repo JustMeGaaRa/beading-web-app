@@ -34,9 +34,9 @@ import {
     usePatternStore,
     savePattern,
     patternSelector,
-    dirtyStateSelector
+    dirtyStateSelector,
+    changePatternNameAction
 } from "../components";
-import { changePatternName } from "../components/pattern/creators";
 
 const hotkeysOptions = { preventDefault: true };
 
@@ -51,7 +51,7 @@ export const ProjectHeader: FC = () => {
     useHotkeys(Shortcuts.patternRename.keyString, () => editableRef.current?.focus(), hotkeysOptions, [editableRef.current]);
 
     const handleOnChangeName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        dispatch(changePatternName(event.target.value));
+        dispatch(changePatternNameAction(event.target.value));
     }, [dispatch]);
 
     const handleOnGoBackClick = useCallback(() => {
