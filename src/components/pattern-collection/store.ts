@@ -5,15 +5,19 @@ import { PatternCollectionActions } from "./actions";
 import { patternCollectionReducer } from "./reducers";
 
 export type PatternCollectionStore = {
-    patterns: Array<PatternState>;
-    dispatch: (action: PatternCollectionActions) => void;
-}
+  patterns: Array<PatternState>;
+  dispatch: (action: PatternCollectionActions) => void;
+};
 
 export const usePatternCollectionStore = create(
-    persist<PatternCollectionStore>((set) => ({
-        patterns: [],
-        dispatch: (action) => set((state) => patternCollectionReducer(state, action)),
-    }), {
-        name: "pattern-collection",
-    })
+  persist<PatternCollectionStore>(
+    (set) => ({
+      patterns: [],
+      dispatch: (action) =>
+        set((state) => patternCollectionReducer(state, action)),
+    }),
+    {
+      name: "pattern-collection",
+    }
+  )
 );

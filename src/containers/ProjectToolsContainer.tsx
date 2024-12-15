@@ -1,13 +1,11 @@
 import {
     Box,
     ButtonGroup,
-    Icon,
     IconButton,
     StackDivider,
     Tooltip,
     VStack
 } from "@chakra-ui/react";
-import { DragHandGesture } from "iconoir-react";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
@@ -34,10 +32,8 @@ export const ProjectToolsContainer: FC = () => {
     const { pastStates, futureStates, undo, redo } = usePatterHistory();
     const pattern = usePatternStore(state => state.pattern);
 
-    const onSetMoveTool = useCallback(() => toggleTool({ name: "move", state: { currentAction: "default" } }), [toggleTool]);
     const onSetCursorTool = useCallback(() => toggleTool({ name: "cursor", state: { currentAction: "default" } }), [toggleTool]);
     const onSetPencilTool = useCallback(() => toggleTool({ name: "pencil", state: { currentAction: "default" } }), [toggleTool]);
-    const onSetFillTool = useCallback(() => toggleTool({ name: "fill", state: { currentAction: "default" } }), [toggleTool]);
     const onSetEraserTool = useCallback(() => toggleTool({ name: "eraser", state: { currentAction: "default" } }), [toggleTool]);
     const onSetPickerTool = useCallback(() => toggleTool({ name: "picker", state: { currentAction: "default" } }), [toggleTool]);
 
@@ -47,7 +43,7 @@ export const ProjectToolsContainer: FC = () => {
     useHotkeys(Shortcuts.toolPicker.keyString, onSetPickerTool, hotkeysOptions, [onSetPickerTool]);
 
     const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
-    
+
     const handleOnUndoClick = useCallback(() => undo(), [undo]);
     const handleOnRedoClick = useCallback(() => redo(), [redo]);
 

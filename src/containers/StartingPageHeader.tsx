@@ -56,7 +56,6 @@ export const StartingPageHeader: FC = () => {
                 const patternJson = JSON.parse(fileContent);
 
                 if (validatePattern(patternJson)) {
-                    patternJson
                     dispatch(addPattern({
                         ...patternJson,
                         patternId: `pattern-${v6()}`
@@ -83,6 +82,7 @@ export const StartingPageHeader: FC = () => {
                 }
             }
             catch (error) {
+                console.error(error);
                 toast({
                     title: "Pattern import failed",
                     description: "The file does not have a valid JSON structure",
@@ -94,16 +94,16 @@ export const StartingPageHeader: FC = () => {
         };
 
         reader.readAsText(file);
-    }, [dispatch]);
-    
+    }, [dispatch, toast]);
+
     const handleOnOpenFileClick = useCallback(() => {
         fileInputRef.current?.click();
     }, [fileInputRef.current]);
-    
+
     const handleOnCreatePatternClick = useCallback(() => {
         onModalOpen();
     }, [onModalOpen]);
-    
+
     return (
         <Header>
             <Flex alignItems={"center"} cursor={"pointer"} ml={3} gap={2}>

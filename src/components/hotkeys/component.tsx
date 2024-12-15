@@ -24,30 +24,30 @@ export const ShortcutTableModal: FC<{
     isOpen,
     onClose,
 }) => {
-    const scopeShortcuts = ShortcutKeyArray
-        .map((key) => Shortcuts[key])
-        .filter(x => x.scope === scope || scope === "global");
-    
-    return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalContent>
-                <ModalHeader>Shortcut Table</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody maxH={"400px"} overflowY={"scroll"}>
-                    <VStack width={"100%"}>
-                        {scopeShortcuts.map(shortcut => (
-                            <Flex key={shortcut.keyString} justifyContent={"space-between"} width={"100%"}>
-                                <Text>{shortcut.description}</Text>
-                                <Shortcut keys={shortcut.keys} />
-                            </Flex>
-                        ))}
-                    </VStack>
-                </ModalBody>
-                <ModalFooter />
-            </ModalContent>
-        </Modal>
-    );
-};
+        const scopeShortcuts = ShortcutKeyArray
+            .map((key) => Shortcuts[key])
+            .filter(x => x.scope === scope || scope === "global");
+
+        return (
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalContent>
+                    <ModalHeader>Shortcut Table</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody maxH={"400px"} overflowY={"scroll"}>
+                        <VStack width={"100%"}>
+                            {scopeShortcuts.map(shortcut => (
+                                <Flex key={shortcut.keyString} justifyContent={"space-between"} width={"100%"}>
+                                    <Text>{shortcut.description}</Text>
+                                    <Shortcut keys={shortcut.keys} />
+                                </Flex>
+                            ))}
+                        </VStack>
+                    </ModalBody>
+                    <ModalFooter />
+                </ModalContent>
+            </Modal>
+        );
+    };
 
 export const Shortcut: FC<{ keys: Array<string> }> = memo(({ keys }) => (
     <HStack>

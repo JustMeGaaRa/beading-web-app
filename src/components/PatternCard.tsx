@@ -31,83 +31,83 @@ export const PatternCard: FC<{
     onSave,
     onDelete
 }) => {
-    const handleOnClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-        onClick?.(pattern, event);
-    }, [onClick, pattern]);
+        const handleOnClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+            onClick?.(pattern, event);
+        }, [onClick, pattern]);
 
-    const handleOnSave = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-        onSave?.(pattern, event);
-    }, [onSave, pattern]);
+        const handleOnSave = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+            onSave?.(pattern, event);
+        }, [onSave, pattern]);
 
-    const handleOnDelete = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-        onDelete?.(pattern, event);
-    }, [onDelete, pattern]);
+        const handleOnDelete = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+            onDelete?.(pattern, event);
+        }, [onDelete, pattern]);
 
-    return (
-        <Card padding={4}>
-            <CardBody padding={0} paddingBottom={2}>
-                <AspectRatio ratio={250/180}>
-                    <Box
+        return (
+            <Card padding={4}>
+                <CardBody padding={0} paddingBottom={2}>
+                    <AspectRatio ratio={250 / 180}>
+                        <Box
+                            alignItems={"center"}
+                            backgroundColor={"blackAlpha.100"}
+                            borderColor={"gray.100"}
+                            borderRadius={8}
+                            borderWidth={1}
+                            justifyContent={"center"}
+                            objectFit={"cover"}
+                            height={"100%"}
+                            width={"100%"}
+                            onClick={handleOnClick}
+                        >
+                            <Image
+                                alt={""}
+                                minHeight={"100%"}
+                                minWidth={"100%"}
+                                cursor={"pointer"}
+                                borderWidth={0}
+                                src={pattern.coverUrl !== ""
+                                    ? pattern.coverUrl
+                                    : "no-cover.svg"
+                                }
+                            />
+                        </Box>
+                    </AspectRatio>
+                </CardBody>
+                <CardFooter padding={0} paddingTop={0}>
+                    <Flex
                         alignItems={"center"}
-                        backgroundColor={"blackAlpha.100"}
-                        borderColor={"gray.100"}
-                        borderRadius={8}
-                        borderWidth={1}
-                        justifyContent={"center"}
-                        objectFit={"cover"}
-                        height={"100%"}
+                        justifyContent={"space-between"}
                         width={"100%"}
-                        onClick={handleOnClick}
                     >
-                        <Image
-                            alt={""}
-                            minHeight={"100%"}
-                            minWidth={"100%"}
-                            cursor={"pointer"}
-                            borderWidth={0}
-                            src={pattern.coverUrl !== ""
-                                ? pattern.coverUrl
-                                : "no-cover.svg"
-                            }
-                        />
-                    </Box>
-                </AspectRatio>
-            </CardBody>
-            <CardFooter padding={0} paddingTop={0}>
-                <Flex
-                    alignItems={"center"}
-                    justifyContent={"space-between"}
-                    width={"100%"}
-                >
-                    <Flex direction={"column"}>
-                        <Text noOfLines={1} fontSize={"md"} fontWeight={600}>
-                            {pattern.name}
-                        </Text>
-                        <Text color={"gray.500"} fontSize={"xs"} fontWeight={400}>
-                            {pattern.lastModified?.toLocaleString()}
-                        </Text>
+                        <Flex direction={"column"}>
+                            <Text noOfLines={1} fontSize={"md"} fontWeight={600}>
+                                {pattern.name}
+                            </Text>
+                            <Text color={"gray.500"} fontSize={"xs"} fontWeight={400}>
+                                {pattern.lastModified?.toLocaleString()}
+                            </Text>
+                        </Flex>
+                        <Menu>
+                            <MenuButton
+                                as={IconButton}
+                                aria-label={"more options"}
+                                colorScheme={"gray"}
+                                icon={<Icon as={MoreHoriz} boxSize={5} />}
+                                size={"md"}
+                                variant={"ghost"}
+                                title={"more options"}
+                            />
+                            <MenuList>
+                                <MenuItem onClick={handleOnSave}>
+                                    Save to local device
+                                </MenuItem>
+                                <MenuItem color={"red.600"} onClick={handleOnDelete}>
+                                    Delete pattern
+                                </MenuItem>
+                            </MenuList>
+                        </Menu>
                     </Flex>
-                    <Menu>
-                        <MenuButton
-                            as={IconButton}
-                            aria-label={"more options"}
-                            colorScheme={"gray"}
-                            icon={<Icon as={MoreHoriz} boxSize={5} />}
-                            size={"md"}
-                            variant={"ghost"}
-                            title={"more options"}
-                        />
-                        <MenuList>
-                            <MenuItem onClick={handleOnSave}>
-                                Save to local device
-                            </MenuItem>
-                            <MenuItem color={"red.600"} onClick={handleOnDelete}>
-                                Delete pattern
-                            </MenuItem>
-                        </MenuList>
-                    </Menu>
-                </Flex>
-            </CardFooter>
-        </Card>
-    );
-};
+                </CardFooter>
+            </Card>
+        );
+    };

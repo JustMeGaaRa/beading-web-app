@@ -7,7 +7,6 @@ import {
     MenuItem,
     MenuList,
     useDisclosure,
-    useToast
 } from "@chakra-ui/react";
 import {
     MediaImage,
@@ -31,7 +30,6 @@ import {
     Stage,
 } from "react-konva";
 import { Html } from "react-konva-utils";
-import { useParams } from "react-router";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import {
@@ -67,7 +65,6 @@ import {
     Shortcuts,
     useGridOptions,
     PatternActionToolbar,
-    savePattern,
     putPattern,
     patternSelector,
     dirtyStateSelector,
@@ -86,15 +83,12 @@ import {
     clearBeadingGridSection,
 } from "../components/pattern/creators"
 import {
-    applyTransform,
     calculateNewPosition,
-    calculateNewScale,
     downloadUri,
     getContentOffset,
     getContentScale,
     getPointerOffset,
     toJsonUri,
-    SCALE_FACTOR,
     SCALE_MAXIMUM
 } from "../utils";
 
@@ -113,7 +107,7 @@ export const PatternContainer: FC = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
-    
+
     const { selectedColor } = useColorPalette();
     const { tool } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
@@ -133,7 +127,7 @@ export const PatternContainer: FC = () => {
     const isEraserEnabled = tool.name === "eraser";
 
     const metadata = useMemo(() => getPatternMetadata(pattern, pattern.options), [pattern]);
-    
+
     const onStageCentered = useCallback((pattern: PatternState) => {
         if (containerRef.current && stageRef.current && pattern?.grids.length > 0) {
             const patternSize = getPatternRenderSize(pattern);
@@ -190,7 +184,7 @@ export const PatternContainer: FC = () => {
                 resetDirty();
             }
         }, 5000);
-            
+
         return () => clearInterval(intervalId);
     }, [pattern, isDirty, resetDirty]);
 
@@ -206,7 +200,7 @@ export const PatternContainer: FC = () => {
         const stagePosition = stage.position();
 
         if (!pointerPosition) return;
-        
+
         const patternSize = getPatternRenderSize(pattern);
         const minScale = getContentScale(stageSize, patternSize);
         const maxScale = SCALE_MAXIMUM;
@@ -237,7 +231,7 @@ export const PatternContainer: FC = () => {
         else {
             // Zoom Out: Return view towards center
             newScale = Math.max(minScale, newScale);
-            
+
             const stageCenter = {
                 x: stageSize.width / 2,
                 y: stageSize.height / 2,
@@ -251,10 +245,10 @@ export const PatternContainer: FC = () => {
                 x: stageCenter.x - patternCenter.x * newScale,
                 y: stageCenter.y - patternCenter.y * newScale,
             };
-    
+
             stage.scale({ x: newScale, y: newScale });
             stage.position(newPos);
-            
+
             // Zoom Out: Limit to minimum scale and gravitate toward rectangle center
             // const maxNewScale = Math.max(minScale, newScale);
             // const currentStagePos = stage.position();
@@ -266,7 +260,7 @@ export const PatternContainer: FC = () => {
             // const interpolationFactor = currentScale !== minScale 
             //     ? (maxNewScale - minScale) / (currentScale - minScale) 
             //     : 0;
-            
+
             // const interpolatedPos = {
             //     x: currentStagePos.x + (targetPos.x - currentStagePos.x) * interpolationFactor,
             //     y: currentStagePos.y + (targetPos.y - currentStagePos.y) * interpolationFactor,
@@ -275,7 +269,7 @@ export const PatternContainer: FC = () => {
             // stage.scale({ x: maxNewScale, y: maxNewScale });
             // stage.position(interpolatedPos);
         }
-        
+
         stage.batchDraw();
     }, [stageRef, stageSize, pattern]);
 
@@ -284,7 +278,8 @@ export const PatternContainer: FC = () => {
 
         // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
         if (event.evt.touches.length !== 2) return;
-        
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const [touchPoint1, touchPoint2] = event.evt.touches as any;
         const currentTouchDistance = Math.hypot(
             touchPoint2.clientX - touchPoint1.clientX,
@@ -323,19 +318,19 @@ export const PatternContainer: FC = () => {
             const interpolationFactor = (newScale - minScale) / (oldScale - minScale);
 
             if (interpolationFactor > 0) {
-    
+
                 // Calculate the new position interpolated toward the center of the stage
                 const newPosition = {
                     x: stagePosition.x + (patternCenter.x - stagePosition.x) * (1 - interpolationFactor),
                     y: stagePosition.y + (patternCenter.y - stagePosition.y) * (1 - interpolationFactor),
                 };
-    
+
                 stage.position(newPosition);
             }
         }
         else {
             newScale = Math.min(maxScale, newScale);
-            
+
             const targetPoint = getPointerOffset(pointerPosition, stagePosition, oldScale);
             const newPosition = calculateNewPosition(targetPoint, pointerPosition, newScale);
 
@@ -346,7 +341,7 @@ export const PatternContainer: FC = () => {
         stage.batchDraw();
 
         lastTouchDistanceRef.current = currentTouchDistance;
-    }, [stageRef]);
+    }, [pattern, stageSize]);
 
     const handleOnStageTouchEnd = useCallback(() => {
         lastTouchDistanceRef.current = 0;
@@ -360,14 +355,14 @@ export const PatternContainer: FC = () => {
 
     const handleOnStageContextMenu = useCallback((event: KonvaEventObject<MouseEvent>) => {
         event.evt.preventDefault();
-    }, [onOpen]);
+    }, []);
 
     // SECTION: pattern event handlers
-    const handleOnPatternColumnClick = useCallback((_event: any, columnState: TextState) => {
+    const handleOnPatternColumnClick = useCallback((_event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
         setColumnState(columnState);
     }, []);
 
-    const handleOnPatternRowClick = useCallback((_event: any, rowState: TextState) => {
+    const handleOnPatternRowClick = useCallback((_event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
         setRowState(rowState);
     }, []);
 
@@ -384,7 +379,7 @@ export const PatternContainer: FC = () => {
     const handleOnPatternSavePngClick = useCallback(() => {
         const imageUri = stageRef.current?.toDataURL() ?? "";
         downloadUri(imageUri, `${pattern.name}.png`);
-    }, [pattern, stageRef.current]);
+    }, [pattern]);
 
     const handleOnPatternSaveJsonClick = useCallback(() => {
         const patternUri = toJsonUri(pattern);
@@ -395,7 +390,7 @@ export const PatternContainer: FC = () => {
         if (rowState) {
             dispatch(addBeadingGridRowBefore(rowState?.gridName, rowState?.gridIndex));
         }
-    }, [columnState, dispatch]);
+    }, [dispatch, rowState]);
 
     const handleOnGridAddRowBelow = useCallback(() => {
         if (rowState) {
@@ -455,7 +450,7 @@ export const PatternContainer: FC = () => {
         if (isPointerDown && isEraserEnabled) {
             dispatch(setBeadingGridCell(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
         }
-    }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch]);
+    }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch, selectedColor]);
 
     const handleOnGridSelectionChange = useCallback((source: BeadingGridState) => {
         if (isPointerDown && isCursorEnabled) {
@@ -601,7 +596,7 @@ export const PatternContainer: FC = () => {
                         </MenuItem>
                     </MenuList>
                 </Menu>,
-                document.getElementById("header-actions-group") as any
+                document.getElementById("header-actions-group") as HTMLElement
             )}
         </Box>
     );
@@ -637,7 +632,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     const [startingCell, setStartingCell] = useState<BeadingGridOffset | undefined>();
     const [selectedSection, setSelectedSection] = useState<BeadingGridWindow | undefined>();
     const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
-    
+
     const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
     const { selectedColor, setSelectedColor } = useColorPalette();
     const { cellHeight, cellWidth } = useGridOptions();
@@ -658,7 +653,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     useImperativeHandle(ref, () => ({
         onResetSelection
     }));
-    
+
     const handleOnGridCellClick = useCallback((
         source: BeadingGridState,
         event: BeadingPointerEvent
@@ -699,25 +694,25 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         event: BeadingPointerEvent
     ) => {
         onPointerEnterCallback?.(source, event);
-        
+
         if (isPointerDown && isCursorEnabled && startingCell) {
             const selectedSection = getGridWindow(startingCell, event.cell.offset);
 
             const beadSize = { height: cellHeight, width: cellWidth };
             const renderSection = getGridSectionRenderArea(source, beadSize, selectedSection);
             const TOOLBAR_OFFSET = 24;
-            
-            let toolbarPositionX = renderSection.position.x + renderSection.width / 2;
+
+            const toolbarPositionX = renderSection.position.x + renderSection.width / 2;
             let toolbarPositionY = renderSection.position.y - TOOLBAR_OFFSET;
 
             if (toolbarPositionY < 0) toolbarPositionY = renderSection.position.y + renderSection.height + TOOLBAR_OFFSET;
-            
+
             setSelectedSection(selectedSection);
             setToolbarPosition({ x: toolbarPositionX, y: toolbarPositionY });
 
             onSelectionChange?.(source, { selection: selectedSection });
         }
-    }, [isCursorEnabled, isPointerDown, onPointerEnterCallback, setBeadingGridCell]);
+    }, [cellHeight, cellWidth, isCursorEnabled, isPointerDown, onPointerEnterCallback, onSelectionChange, startingCell]);
 
     const handleOnMirrorSelectionClick = useCallback(() => {
         setTool?.({ name: "cursor", state: { currentAction: "mirror" } });
@@ -731,7 +726,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         if (isMirroringEnabled && selectedSection) {
             dispatch(clearBeadingGridSection(grid.name, selectedSection));
         }
-    }, [dispatch, grid.name, selectedSection]);
+    }, [dispatch, grid?.name, isMirroringEnabled, selectedSection]);
 
     const handleOnDoneClick = useCallback(() => {
         setTool?.({ name: "pencil", state: { currentAction: "default" } });

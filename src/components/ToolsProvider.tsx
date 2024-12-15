@@ -9,7 +9,7 @@ import {
     useState,
 } from "react";
 
-export type ToolName = 
+export type ToolName =
     | "move"
     | "cursor"
     | "pencil"
@@ -19,7 +19,7 @@ export type ToolName =
 
 export type ToolDefaultActionName = "default";
 
-export type CursorActionName = 
+export type CursorActionName =
     | ToolDefaultActionName
     | "mirror"
     | "duplicate"
@@ -35,11 +35,11 @@ export type ToolInfo<
     state: TState;
 };
 
-export type ToolState = 
-    | ToolInfo<"move",   { currentAction: ToolDefaultActionName }>
+export type ToolState =
+    | ToolInfo<"move", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"cursor", { currentAction: CursorActionName }>
     | ToolInfo<"pencil", { currentAction: ToolDefaultActionName }>
-    | ToolInfo<"fill",   { currentAction: ToolDefaultActionName }>
+    | ToolInfo<"fill", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"eraser", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"picker", { currentAction: ToolDefaultActionName }>;
 
@@ -48,7 +48,7 @@ const ToolsContext = createContext<{
     setTool: Dispatch<SetStateAction<ToolState>>;
 }>({
     tool: { name: "move", state: { currentAction: "default" } },
-    setTool: () => {},
+    setTool: () => { },
 });
 
 export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {

@@ -113,8 +113,8 @@ export const ProjectSettingsContainer: FC = () => {
                             <Text as={"b"} flex={1} fontSize={"sm"} textAlign={"left"}>
                                 Settings
                             </Text>
-                        <AccordionIcon />
-                    </AccordionButton>
+                            <AccordionIcon />
+                        </AccordionButton>
                         <AccordionPanel maxHeight={"40vh"} overflowY={"scroll"}>
                             <VStack
                                 alignItems={"start"}
@@ -177,11 +177,12 @@ const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({ grid }) =>
 
     const handleOnDeleteGridClick = useCallback(() => {
         dispatch(deleteBeadingGrid(grid.name));
-    }, [dispatch]);
-    
+    }, [dispatch, grid?.name]);
+
     const handleOnTypeClick = useCallback((type: BeadingGridType) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dispatch(applyBeadingGridOptions(grid.name, { ...grid.options, type } as any));
-    }, [dispatch]);
+    }, [dispatch, grid?.name, grid?.options]);
 
     const handleOnOptionsChange = useCallback((modifiedGrid: BeadingGridConfiguration) => {
         dispatch(applyBeadingGridOptions(modifiedGrid.name, modifiedGrid.options));
