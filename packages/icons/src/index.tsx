@@ -1,5 +1,60 @@
 import { createIcon } from "@chakra-ui/react";
 
+export const LoomIcon = createIcon({
+    displayName: "LoomIcon",
+    viewBox: "0 0 32 32",
+    defaultProps: {
+        fill: "#1A202C"
+    },
+    path: [
+        <rect x="7.5" y="3" width="5" height="8" rx="2" fill="#A0AEC0" />,
+        <rect x="7.5" y="12" width="5" height="8" rx="2" fill="#A0AEC0" />,
+        <rect x="7.5" y="21" width="5" height="8" rx="2" fill="#A0AEC0" />,
+        <rect x="13.5" y="3" width="5" height="8" rx="2" fill="currentColor" />,
+        <rect x="13.5" y="12" width="5" height="8" rx="2" fill="currentColor" />,
+        <rect x="13.5" y="21" width="5" height="8" rx="2" fill="currentColor" />,
+        <rect x="19.5" y="3" width="5" height="8" rx="2" fill="#A0AEC0" />,
+        <rect x="19.5" y="12" width="5" height="8" rx="2" fill="#A0AEC0" />,
+        <rect x="19.5" y="21" width="5" height="8" rx="2" fill="#A0AEC0" />
+    ]
+});
+
+export const PeyoteIcon = createIcon({
+    displayName: "PeyoteIcon",
+    viewBox: "0 0 32 32",
+    defaultProps: {
+        fill: "#1A202C"
+    },
+    path: [
+        <rect x="18.5" y="24" width="5" height="8" rx="2" transform="rotate(180 18.5 24)" fill="currentColor" />,
+        <rect x="18.5" y="15" width="5" height="8" rx="2" transform="rotate(180 18.5 15)" fill="currentColor" />,
+        <rect x="24.5" y="28.5" width="5" height="8" rx="2" transform="rotate(180 24.5 28.5)" fill="#A0AEC0" />,
+        <rect x="24.5" y="19.5" width="5" height="8" rx="2" transform="rotate(180 24.5 19.5)" fill="currentColor" />,
+        <rect x="24.5" y="10.5" width="5" height="8" rx="2" transform="rotate(180 24.5 10.5)" fill="#A0AEC0" />,
+        <rect x="12.5" y="28.5" width="5" height="8" rx="2" transform="rotate(180 12.5 28.5)" fill="#A0AEC0" />,
+        <rect x="12.5" y="19.5" width="5" height="8" rx="2" transform="rotate(180 12.5 19.5)" fill="currentColor" />,
+        <rect x="12.5" y="10.5" width="5" height="8" rx="2" transform="rotate(180 12.5 10.5)" fill="#A0AEC0" />
+    ]
+});
+
+export const BrickIcon = createIcon({
+    displayName: "BrickIcon",
+    viewBox: "0 0 32 32",
+    defaultProps: {
+        fill: "#1A202C"
+    },
+    path: [
+        <rect x="7.5" y="18" width="5" height="8" rx="2" transform="rotate(-90 7.5 18)" fill="currentColor" />,
+        <rect x="16.5" y="18" width="5" height="8" rx="2" transform="rotate(-90 16.5 18)" fill="currentColor" />,
+        <rect x="3" y="24" width="5" height="8" rx="2" transform="rotate(-90 3 24)" fill="#A0AEC0" />,
+        <rect x="12" y="24" width="5" height="8" rx="2" transform="rotate(-90 12 24)" fill="currentColor" />,
+        <rect x="21" y="24" width="5" height="8" rx="2" transform="rotate(-90 21 24)" fill="#A0AEC0" />,
+        <rect x="3" y="12" width="5" height="8" rx="2" transform="rotate(-90 3 12)" fill="#A0AEC0" />,
+        <rect x="12" y="12" width="5" height="8" rx="2" transform="rotate(-90 12 12)" fill="currentColor" />,
+        <rect x="21" y="12" width="5" height="8" rx="2" transform="rotate(-90 21 12)" fill="#A0AEC0" />
+    ]
+});
+
 export const CheckmarkIcon = createIcon({
     displayName: "CheckmarkIcon",
     viewBox: "0 0 24 24",

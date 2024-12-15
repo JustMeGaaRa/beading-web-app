@@ -20,10 +20,8 @@ import {
     BeadingGridState,
     BeadingGridType,
     BEADING_GRID_TYPES,
-    BrickIcon,
-    LoomIcon,
-    PeyoteIcon,
-} from "beading-grid";
+} from "@repo/bead-grid";
+import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
 import {
     BeadingGridOptionsPanel,
     BeadingLayoutOptionsPanel,

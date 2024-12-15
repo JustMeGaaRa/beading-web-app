@@ -54,7 +54,7 @@ import {
     BeadingPointerEvent,
     useGridOptions,
 
-} from "beading-grid";
+} from "@repo/bead-grid";
 import {
     useColorPalette,
     useTools,

@@ -10,7 +10,7 @@ import {
     CELL_PIXEL_RATIO,
     DEFAULT_GRID_OPTIONS,
     isNullOrEmpty,
-} from "beading-grid";
+} from "@repo/bead-grid";
 import { DefaultPatternOptions } from "./constants";
 import {
     PatternMetadata,

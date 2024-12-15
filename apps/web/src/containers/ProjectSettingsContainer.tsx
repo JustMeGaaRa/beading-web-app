@@ -18,10 +18,8 @@ import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
     BeadingGridState,
-    LoomIcon,
     BeadingGridType,
-    PeyoteIcon,
-} from "beading-grid";
+} from "@repo/bead-grid";
 import {
     BeadingGridOptionsPanel,
     PatternLayoutOptions,
@@ -39,12 +37,14 @@ import {
     applyBeadingGridOptionsAction,
 } from "../components/pattern/creators";
 import {
+    LoomIcon,
+    PeyoteIcon,
     CloseIcon,
     InfoCircleIcon,
     PaintingIcon,
     PlusIcon,
     SettingsIcon
-} from "../components/icons";
+} from "@repo/icons";
 
 const hotkeysOptions = { preventDefault: true };
 

@@ -1,9 +1,9 @@
 {
-    "name": "beading-grid",
+    "name": "@repo/icons",
     "version": "0.0.0",
     "private": true,
     "exports": {
-        ".": "./src/index.ts"
+        ".": "./src/index.tsx"
     },
     "scripts": {
         "test": "vitest",
@@ -13,8 +13,11 @@
         "@chakra-ui/react": "2.8.2",
         "@emotion/react": "11.13.0",
         "@emotion/styled": "11.13.0",
-        "konva": "9.3.14",
-        "react": "^18.3.1",
-        "react-konva": "18.2.10"
+        "react": "^18.3.1"
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
+        "@types/react": "18.3.0"
     }
 }

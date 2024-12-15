@@ -22,7 +22,7 @@ import {
     PencilIcon,
     ReverseLeftIcon,
     ReverseRightIcon
-} from "../components/icons";
+} from "@repo/icons";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 const hotkeysOptions = { preventDefault: true };

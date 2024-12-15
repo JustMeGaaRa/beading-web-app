@@ -2,7 +2,7 @@ import {
     BeadingGridCell,
     BeadingGridProperties,
     BeadingGridWindow,
-} from "beading-grid";
+} from "@repo/bead-grid";
 import {
     GridAddColumnAfterAction,
     GridAddColumnBeforeAction,
