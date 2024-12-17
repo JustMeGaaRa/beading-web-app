@@ -23,8 +23,8 @@ import {
     PatternApplyOptionsAction,
     PatternChangeColorAction,
     PatternSetNameAction,
-} from "./actions";
-import { PatternOptions } from "./types";
+} from "../actions";
+import { PatternOptions } from "../types";
 
 export const changePatternNameAction = (
     name: string

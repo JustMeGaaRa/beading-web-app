@@ -1,9 +1,4 @@
-import { useCallback, useContext, useState } from "react";
-import { GridOptionsContext } from "./context";
-
-export const useGridOptions = () => {
-    return useContext(GridOptionsContext);
-};
+import { useState, useCallback } from "react";
 
 export const usePointerDisclosure = () => {
     const [isPointerDown, setIsPointerDown] = useState(false);

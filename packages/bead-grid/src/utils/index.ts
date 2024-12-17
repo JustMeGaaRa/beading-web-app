@@ -1,4 +1,4 @@
-import { CELL_BLANK_COLOR, CELL_PIXEL_RATIO } from "./constants";
+import { CELL_BLANK_COLOR, CELL_PIXEL_RATIO } from "../constants";
 import {
     BeadingGridCell,
     BeadingGridState,
@@ -7,7 +7,7 @@ import {
     BeadingGridSection,
     BeadingGridRectangle,
     BeadingGridWindow,
-} from "./types";
+} from "../types";
 
 export const isNullOrEmpty = (str?: string) => {
     return str === null || str === undefined || str === "";

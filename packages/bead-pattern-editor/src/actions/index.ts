@@ -3,7 +3,7 @@ import {
     BeadingGridProperties,
     BeadingGridWindow,
 } from "@repo/bead-grid";
-import { PatternOptions } from "./types";
+import { PatternOptions } from "../types";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;

@@ -1,5 +1,5 @@
 export * from "./creators";
-export * from "./component";
+export * from "./components";
 export * from "./constants";
 export * from "./context";
 export * from "./hooks";

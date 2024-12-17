@@ -1,24 +1,24 @@
 import {
-    clearGridColumn,
-    clearGridRow,
     DEFAULT_GRID_OPTIONS,
-    deleteGridColumn,
-    deleteGridRow,
-    insertGridColumn,
-    insertGridRow,
     setGridCell,
+    insertGridColumn,
+    deleteGridColumn,
+    clearGridColumn,
+    insertGridRow,
+    deleteGridRow,
+    clearGridRow,
     mirrorSection,
     dulicateSection,
     clearSection,
 } from "@repo/bead-grid";
-import { PatternActions } from "./actions";
-import { PatternState } from "./types";
+import { PatternActions } from "../actions";
+import { PatternState } from "../types";
 import {
     applyBeadingGridOptions,
     applyPatternOptions,
     changePatternColor,
     createGrid,
-} from "./utils";
+} from "../utils";
 
 export const patternReducer = (
     state: PatternState,
