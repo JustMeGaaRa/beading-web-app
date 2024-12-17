@@ -17,6 +17,7 @@ import {
 import {
     BeadingGridState,
     BeadingGridType,
+    applyBeadingGridOptionsAction
 } from "@repo/bead-grid";
 import {
     PatternLayoutOptions,
@@ -25,7 +26,6 @@ import {
     addBeadingGridAction,
     applyPatternOptionsAction,
     deleteBeadingGridAction,
-    applyBeadingGridOptionsAction
 } from "@repo/bead-pattern-editor";
 import {
     LoomIcon,

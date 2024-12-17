@@ -29,6 +29,17 @@ import {
     usePointerDisclosure,
     BeadingPointerEvent,
     useGridOptions,
+    addBeadingGridColumnAfterAction,
+    addBeadingGridColumnBeforeAction,
+    addBeadingGridRowBeforeAction,
+    clearBeadingGridColumnAction,
+    clearBeadingGridRowAction,
+    deleteBeadingGridColumnAction,
+    deleteBeadingGridRowAction,
+    setBeadingGridCellAction,
+    mirrorBeadingGridSectionAction,
+    duplicateBeadingGridSectionAction,
+    clearBeadingGridSectionAction
 } from "@repo/bead-grid";
 import {
     getPatternMetadata,
@@ -41,17 +52,6 @@ import {
     getPatternRenderSize,
     patternSelector,
     dirtyStateSelector,
-    addBeadingGridColumnAfterAction,
-    addBeadingGridColumnBeforeAction,
-    addBeadingGridRowBeforeAction,
-    clearBeadingGridColumnAction,
-    clearBeadingGridRowAction,
-    deleteBeadingGridColumnAction,
-    deleteBeadingGridRowAction,
-    setBeadingGridCellAction,
-    mirrorBeadingGridSectionAction,
-    duplicateBeadingGridSectionAction,
-    clearBeadingGridSectionAction
 } from "@repo/bead-pattern-editor";
 import {
     MediaImage,

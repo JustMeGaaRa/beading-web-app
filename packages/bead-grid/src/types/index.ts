@@ -11,5 +11,6 @@ export * from "./BeadingGridType";
 export * from "./BeadingGridWindow";
 export * from "./BeadingPointerEvent";
 export * from "./BrickGridProperties";
+export * from "./LayoutOrientation";
 export * from "./PeyoteGridProperties";
 export * from "./SquareGridProperties";

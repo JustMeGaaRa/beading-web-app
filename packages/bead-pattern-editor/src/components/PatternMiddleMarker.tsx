@@ -12,7 +12,6 @@ export const PatternMiddleMarker: FC<{
     orientation, x, y, height, width
 }) => {
         return (
-
             <Group x={x} y={y}>
                 {orientation === "vertical" ? (
                     <Line

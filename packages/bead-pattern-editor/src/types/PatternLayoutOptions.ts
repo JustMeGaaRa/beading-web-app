@@ -1,5 +1,4 @@
-import { BeadingGridType, BeadSize } from "@repo/bead-grid";
-import { LayoutOrientation } from "./LayoutOrientation";
+import { BeadingGridType, BeadSize, LayoutOrientation } from "@repo/bead-grid";
 
 export type PatternLayoutOptions = {
     type: BeadingGridType;

@@ -1,7 +1,7 @@
 import { FRAME_TEXT_COLOR, FRAME_SELECTED_BORDER_COLOR } from "@repo/bead-grid";
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback, Fragment } from "react";
-import { Rect } from "react-konva";
+import { Rect, Text } from "react-konva";
 import { TextState } from "../types";
 
 export const PatternFrameRow: FC<{

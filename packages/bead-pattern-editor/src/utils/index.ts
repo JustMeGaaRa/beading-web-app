@@ -1,14 +1,12 @@
-import capitalize from "just-capitalize";
 import {
+    applyBeadingGridOptions,
     BeadingGridMetadata,
-    BeadingGridProperties,
-    BeadingGridRow,
-    BeadingGridState,
     BeadingGridType,
-    CELL_BLANK_COLOR,
     CELL_PIXEL_RATIO,
+    createGrid,
     DEFAULT_GRID_OPTIONS,
     isNullOrEmpty,
+    validateBeadingGrid,
 } from "@repo/bead-grid";
 import { v6 } from "uuid";
 import {
@@ -29,9 +27,7 @@ export const createPattern = (
         coverUrl: "",
         lastModified: new Date(),
         options: DefaultPatternOptions,
-        grids: initialGridType
-            ? [createGrid(0, DEFAULT_GRID_OPTIONS, DefaultPatternOptions)]
-            : [],
+        grids: initialGridType ? [createGrid(0, DEFAULT_GRID_OPTIONS)] : [],
         gridCount: initialGridType ? 1 : 0,
     };
 };
@@ -207,34 +203,6 @@ export const validatePattern = (data: any): data is PatternState => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const validateBeadingGrid = (data: any): data is BeadingGridState => {
-    if (typeof data !== "object" || data === null) {
-        return false;
-    }
-
-    return (
-        typeof data.name === "string" &&
-        typeof data.options === "object" &&
-        Array.isArray(data.rows) &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.rows.every((row: any) => validateBeadingGridRow(row))
-    );
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const validateBeadingGridRow = (data: any): data is BeadingGridRow => {
-    if (typeof data !== "object" || data === null) {
-        return false;
-    }
-
-    return (
-        Array.isArray(data.cells) &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.cells.every((cell: any) => typeof cell === "string")
-    );
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const validatePatternOptions = (data: any): data is PatternOptions => {
     if (typeof data !== "object" || data === null) {
         return false;
@@ -252,96 +220,6 @@ export const validatePatternOptions = (data: any): data is PatternOptions => {
     );
 };
 
-export const createGrid = (
-    gridCount: number,
-    gridOptions: BeadingGridProperties,
-    options: PatternOptions
-): BeadingGridState => {
-    const isHorizontal = options.layout.orientation === "horizontal";
-    const gridName = `${capitalize(gridOptions.type)} Grid ${gridCount + 1}`;
-
-    switch (gridOptions.type) {
-        case "square": {
-            const rowCount = isHorizontal
-                ? options.layout.height
-                : gridOptions.height;
-            const columnCount = isHorizontal
-                ? gridOptions.width
-                : options.layout.width;
-            return {
-                name: gridName,
-                rows: Array.from({ length: rowCount }, () => ({
-                    cells: Array.from(
-                        { length: columnCount },
-                        () => CELL_BLANK_COLOR
-                    ),
-                })),
-                options: gridOptions,
-            };
-        }
-        case "peyote": {
-            const rowCount = isHorizontal
-                ? options.layout.height
-                : gridOptions.height;
-            const columnCount = isHorizontal
-                ? gridOptions.width
-                : options.layout.width;
-            return {
-                name: gridName,
-                rows: Array.from({ length: rowCount }, () => ({
-                    cells: Array.from(
-                        { length: columnCount },
-                        () => CELL_BLANK_COLOR
-                    ),
-                })),
-                options: gridOptions,
-            };
-        }
-        case "brick": {
-            const rowCount =
-                (isHorizontal ? options.layout.height : gridOptions.height) +
-                gridOptions.fringe;
-            const columnCount = isHorizontal
-                ? gridOptions.width
-                : options.layout.width;
-            return {
-                name: gridName,
-                rows: Array.from({ length: rowCount }, () => ({
-                    cells: Array.from(
-                        { length: columnCount },
-                        () => CELL_BLANK_COLOR
-                    ),
-                })),
-                options: gridOptions,
-            };
-        }
-    }
-};
-
-export const applyBeadingGridOptions = (
-    grid: BeadingGridState,
-    modifiedGridOptions: BeadingGridProperties,
-    options: PatternOptions
-): BeadingGridState => {
-    const modifiedGrid = {
-        ...createGrid(999, modifiedGridOptions, options),
-        name: grid.name,
-    };
-    const minWidth = Math.min(
-        grid.rows[0].cells.length,
-        modifiedGrid.rows[0].cells.length
-    );
-    const minHeight = Math.min(grid.rows.length, modifiedGrid.rows.length);
-
-    for (let row = 0; row < minHeight; row++) {
-        for (let column = 0; column < minWidth; column++) {
-            modifiedGrid.rows[row].cells[column] = grid.rows[row].cells[column];
-        }
-    }
-
-    return modifiedGrid;
-};
-
 export const applyPatternOptions = (
     state: PatternState,
     options: PatternOptions
@@ -350,7 +228,7 @@ export const applyPatternOptions = (
         ...state,
         lastModified: new Date(),
         grids: state.grids.map((grid) =>
-            applyBeadingGridOptions(grid, grid.options, options)
+            applyBeadingGridOptions(grid, grid.options)
         ),
         options: options,
     };

@@ -1,4 +1,3 @@
-export * from "./LayoutOrientation";
 export * from "./PatternLayoutOptions";
 export * from "./PatternMetadata";
 export * from "./PatternOptions";

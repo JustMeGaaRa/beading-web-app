@@ -1,24 +1,7 @@
-import {
-    DEFAULT_GRID_OPTIONS,
-    setGridCell,
-    insertGridColumn,
-    deleteGridColumn,
-    clearGridColumn,
-    insertGridRow,
-    deleteGridRow,
-    clearGridRow,
-    mirrorSection,
-    dulicateSection,
-    clearSection,
-} from "@repo/bead-grid";
+import { DEFAULT_GRID_OPTIONS, createGrid } from "@repo/bead-grid";
 import { PatternActions } from "../actions";
 import { PatternState } from "../types";
-import {
-    applyBeadingGridOptions,
-    applyPatternOptions,
-    changePatternColor,
-    createGrid,
-} from "../utils";
+import { applyPatternOptions, changePatternColor } from "../utils";
 
 export const patternReducer = (
     state: PatternState,
@@ -39,241 +22,26 @@ export const patternReducer = (
             );
         case "PATTERN_APPLY_OPTIONS":
             return applyPatternOptions(state, action.payload.options);
-        case "BEADING_GRID_ADD":
+        case "PATTERN_ADD_GRID":
             return {
                 ...state,
                 lastModified: new Date(),
                 grids: [
                     ...state.grids,
-                    createGrid(
-                        state.gridCount,
-                        {
-                            ...DEFAULT_GRID_OPTIONS,
-                            type: state.options.layout.type,
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        } as any,
-                        state.options
-                    ),
+                    createGrid(state.gridCount, {
+                        ...DEFAULT_GRID_OPTIONS,
+                        type: state.options.layout.type,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    } as any),
                 ],
                 gridCount: state.gridCount + 1,
             };
-        case "BEADING_GRID_DELETE":
+        case "PATTERN_DELETE_GRID":
             return {
                 ...state,
                 lastModified: new Date(),
                 grids: state.grids.filter(
                     (grid) => grid.name !== action.payload.name
-                ),
-            };
-        case "BEADING_GRID_SET_CELL":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    grid.name === action.payload.name
-                        ? setGridCell(grid, action.payload.cell)
-                        : grid
-                ),
-            };
-        case "BEADING_GRID_APPLY_OPTIONS":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    grid.name === action.payload.name
-                        ? applyBeadingGridOptions(
-                              grid,
-                              action.payload.options,
-                              state.options
-                          )
-                        : grid
-                ),
-            };
-        case "BEADING_GRID_ADD_COLUMN_BEFORE":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? insertGridColumn(grid, action.payload.column)
-                        : grid
-                ),
-                options: {
-                    ...state.options,
-                    layout: {
-                        ...state.options.layout,
-                        width:
-                            action.payload.name === "all"
-                                ? state.options.layout.width + 1
-                                : state.options.layout.width,
-                    },
-                },
-            };
-        case "BEADING_GRID_ADD_COLUMN_AFTER":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? insertGridColumn(grid, action.payload.column + 1)
-                        : grid
-                ),
-                options: {
-                    ...state.options,
-                    layout: {
-                        ...state.options.layout,
-                        width:
-                            action.payload.name === "all"
-                                ? state.options.layout.width + 1
-                                : state.options.layout.width,
-                    },
-                },
-            };
-        case "BEADING_GRID_DELETE_COLUMN":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? deleteGridColumn(grid, action.payload.column)
-                        : grid
-                ),
-                options: {
-                    ...state.options,
-                    layout: {
-                        ...state.options.layout,
-                        width:
-                            action.payload.name === "all"
-                                ? state.options.layout.width - 1
-                                : state.options.layout.width,
-                    },
-                },
-            };
-        case "BEADING_GRID_CLEAR_COLUMN":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? clearGridColumn(grid, action.payload.column)
-                        : grid
-                ),
-            };
-        case "BEADING_GRID_ADD_ROW_BEFORE":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? insertGridRow(grid, action.payload.row)
-                        : grid
-                ),
-                options: {
-                    ...state.options,
-                    layout: {
-                        ...state.options.layout,
-                        height:
-                            action.payload.name === "all"
-                                ? state.options.layout.height + 1
-                                : state.options.layout.height,
-                    },
-                },
-            };
-        case "BEADING_GRID_ADD_ROW_AFTER":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? insertGridRow(grid, action.payload.row + 1)
-                        : grid
-                ),
-                options: {
-                    ...state.options,
-                    layout: {
-                        ...state.options.layout,
-                        height:
-                            action.payload.name === "all"
-                                ? state.options.layout.height + 1
-                                : state.options.layout.height,
-                    },
-                },
-            };
-        case "BEADING_GRID_DELETE_ROW":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? deleteGridRow(grid, action.payload.row)
-                        : grid
-                ),
-                options: {
-                    ...state.options,
-                    layout: {
-                        ...state.options.layout,
-                        height:
-                            action.payload.name === "all"
-                                ? state.options.layout.height - 1
-                                : state.options.layout.height,
-                    },
-                },
-            };
-        case "BEADING_GRID_CLEAR_ROW":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    action.payload.name === "all" ||
-                    grid.name === action.payload.name
-                        ? clearGridRow(grid, action.payload.row)
-                        : grid
-                ),
-            };
-        case "BEADING_GRID_MIRROR_SECTION":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    grid.name === action.payload.name
-                        ? mirrorSection(
-                              grid,
-                              action.payload.target,
-                              action.payload.source,
-                              "horizontal"
-                          )
-                        : grid
-                ),
-            };
-        case "BEADING_GRID_DUPLICATE_SECTION":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    grid.name === action.payload.name
-                        ? dulicateSection(
-                              grid,
-                              action.payload.target,
-                              action.payload.source
-                          )
-                        : grid
-                ),
-            };
-        case "BEADING_GRID_CLEAR_SECTION":
-            return {
-                ...state,
-                lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    grid.name === action.payload.name
-                        ? clearSection(grid)
-                        : grid
                 ),
             };
         default:

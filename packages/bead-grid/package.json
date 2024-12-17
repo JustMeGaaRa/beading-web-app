@@ -10,6 +10,7 @@
         "lint": "eslint ."
     },
     "dependencies": {
+        "just-capitalize": "^3.2.0",
         "konva": "9.3.14",
         "react": "^18.3.1",
         "react-konva": "18.2.10"
