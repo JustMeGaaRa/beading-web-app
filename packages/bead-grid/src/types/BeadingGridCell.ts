@@ -1,6 +1,6 @@
 import { BeadingGridOffset } from "./BeadingGridOffset";
 
-export type BeadingGridCell = {
+export type BeadingGridCellState = {
     color: string;
     offset: BeadingGridOffset;
 };

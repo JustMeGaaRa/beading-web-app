@@ -14,8 +14,8 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import {
-    createGrid,
-    BeadingGridState,
+    // gridCreateDefault,
+    BeadingGridStateLegacy,
     BeadingGridType,
     BEADING_GRID_TYPES,
 } from "@repo/bead-grid";
@@ -60,11 +60,10 @@ export const CreatePatternModal: FC<{
 
         const handleOnPatternTypeSelected = useCallback((type: BeadingGridType) => {
             setPattern(state => {
-                const modifiedGridOptions = {
-                    ...state.grids[0].options,
-                    type
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any;
+                // const modifiedGridOptions = {
+                //     ...state.grids[0].options,
+                //     type
+                // } as any;
                 const modifiedPatternOptions = {
                     ...state.options,
                     layout: { ...state.options.layout, type: type }
@@ -72,7 +71,8 @@ export const CreatePatternModal: FC<{
                 return {
                     ...state,
                     options: modifiedPatternOptions,
-                    grids: [createGrid(0, modifiedGridOptions, modifiedPatternOptions)]
+                    // grids: [gridCreateDefault(0, modifiedGridOptions, modifiedPatternOptions)]
+                    grids: []
                 };
             });
         }, []);
@@ -83,15 +83,17 @@ export const CreatePatternModal: FC<{
                 return {
                     ...state,
                     options: modifiedPatternOptions,
-                    grids: [createGrid(0, state.grids[0].options, modifiedPatternOptions)]
+                    // grids: [gridCreateDefault(0, state.grids[0].options, modifiedPatternOptions)]
+                    grids: []
                 };
             });
         }, []);
 
-        const handleOnGridChange = useCallback((grid: Omit<BeadingGridState, "rows">) => {
+        const handleOnGridChange = useCallback((grid: Omit<BeadingGridStateLegacy, "rows">) => {
             setPattern((state) => ({
                 ...state,
-                grids: [createGrid(0, grid.options, state.options)],
+                // grids: [gridCreateDefault(0, grid.options, state.options)],
+                grids: []
             }))
         }, []);
 

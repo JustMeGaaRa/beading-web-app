@@ -12,7 +12,7 @@ import {
     NumberInputStepper,
     Select,
 } from "@chakra-ui/react";
-import { BEADING_SIZE_OPTIONS } from "@repo/bead-grid";
+import { BEAD_OPTIONS } from "@repo/bead-grid";
 import { PatternLayoutOptions } from "@repo/bead-pattern-editor";
 import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "@repo/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
@@ -63,7 +63,7 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
         }, [onChange, layout]);
 
         const handleOnBeadSizeChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-            const beadSize = BEADING_SIZE_OPTIONS.find((beadSize) => beadSize.title === event.target.value);
+            const beadSize = BEAD_OPTIONS.find((beadSize) => beadSize.title === event.target.value);
             if (beadSize) {
                 onChange?.({
                     ...layout,
@@ -113,7 +113,7 @@ export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
                     <Select borderColor={"gray.400"} onChange={handleOnBeadSizeChange}>
-                        {BEADING_SIZE_OPTIONS.map((beadSize, index) => (
+                        {BEAD_OPTIONS.map((beadSize, index) => (
                             <option key={index} value={beadSize.title}>
                                 {beadSize.title}
                             </option>

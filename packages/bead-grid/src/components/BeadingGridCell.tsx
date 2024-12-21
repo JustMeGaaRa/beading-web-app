@@ -1,16 +1,23 @@
 import { FC, useCallback, Fragment } from "react";
 import { Rect, Circle } from "react-konva";
-import { BeadingPointerEvent } from "../types";
-import { CELL_BLANK_COLOR, CELL_BORDER_COLOR, FRAME_SELECTED_FILL_COLOR, FRAME_SELECTED_BORDER_COLOR, CELL_DOT_COLOR } from "../constants";
-import { isNullOrEmpty } from "../utils";
+import { BeadingGridOffset, BeadingPointerEvent } from "../types";
+import {
+    CELL_BLANK_COLOR,
+    CELL_BORDER_COLOR,
+    FRAME_SELECTED_FILL_COLOR,
+    FRAME_SELECTED_BORDER_COLOR,
+    CELL_DOT_COLOR
+} from "../constants";
+import {
+    getGridCellOffset,
+    getGridCellRenderSize,
+    isNullOrEmpty
+} from "../utils";
+import { useGrid, useGridStyles } from "../hooks";
 
-export const GridCell: FC<{
+export const BeadingGridCell: FC<{
     color: string;
-    columnIndex: number;
-    rowIndex: number;
-    height: number;
-    width: number;
-    position: { x: number; y: number; };
+    offset: BeadingGridOffset;
     isSelected?: boolean;
     onClick?: (event: BeadingPointerEvent) => void;
     onPointerDown?: (event: BeadingPointerEvent) => void;
@@ -18,27 +25,40 @@ export const GridCell: FC<{
     onPointerOver?: (event: BeadingPointerEvent) => void;
     onPointerEnter?: (event: BeadingPointerEvent) => void;
 }> = ({
-    color, columnIndex, rowIndex, height, width, position, isSelected, onClick, onPointerDown, onPointerUp, onPointerOver, onPointerEnter,
+    color,
+    offset,
+    isSelected,
+    onClick,
+    onPointerDown,
+    onPointerUp,
+    onPointerOver,
+    onPointerEnter,
 }) => {
+        const { styles } = useGridStyles();
+        const { options } = useGrid();
+
+        const { x, y } = getGridCellOffset(offset, options, styles);
+        const { height, width } = getGridCellRenderSize(options, styles);
+
         const handleOnClick = useCallback(() => {
-            onClick?.({ cell: { offset: { rowIndex, columnIndex }, color } });
-        }, [onClick, rowIndex, columnIndex, color]);
+            onClick?.({ cell: { offset, color } });
+        }, [onClick, offset, color]);
 
         const handleOnPointerDown = useCallback(() => {
-            onPointerDown?.({ cell: { offset: { rowIndex, columnIndex }, color } });
-        }, [onPointerDown, rowIndex, columnIndex, color]);
+            onPointerDown?.({ cell: { offset, color } });
+        }, [onPointerDown, offset, color]);
 
         const handleOnPointerUp = useCallback(() => {
-            onPointerUp?.({ cell: { offset: { rowIndex, columnIndex }, color } });
-        }, [onPointerUp, rowIndex, columnIndex, color]);
+            onPointerUp?.({ cell: { offset, color } });
+        }, [onPointerUp, offset, color]);
 
         const handleOnPointerOver = useCallback(() => {
-            onPointerOver?.({ cell: { offset: { rowIndex, columnIndex }, color } });
-        }, [onPointerOver, rowIndex, columnIndex, color]);
+            onPointerOver?.({ cell: { offset, color } });
+        }, [onPointerOver, offset, color]);
 
         const handleOnPointerEnter = useCallback(() => {
-            onPointerEnter?.({ cell: { offset: { rowIndex, columnIndex }, color } });
-        }, [onPointerEnter, rowIndex, columnIndex, color]);
+            onPointerEnter?.({ cell: { offset, color } });
+        }, [onPointerEnter, offset, color]);
 
         return (
             <Fragment>
@@ -49,8 +69,8 @@ export const GridCell: FC<{
                     stroke={isNullOrEmpty(color) ? CELL_BLANK_COLOR : CELL_BORDER_COLOR}
                     strokeWidth={1}
                     width={width}
-                    x={position.x}
-                    y={position.y}
+                    x={x}
+                    y={y}
                     onClick={handleOnClick}
                     onTap={handleOnClick}
                     onPointerDown={handleOnPointerDown}
@@ -66,8 +86,8 @@ export const GridCell: FC<{
                         stroke={FRAME_SELECTED_BORDER_COLOR}
                         strokeWidth={2}
                         width={width}
-                        x={position.x}
-                        y={position.y}
+                        x={x}
+                        y={y}
                         onClick={handleOnClick}
                         onTap={handleOnClick}
                         onPointerDown={handleOnPointerDown}
@@ -80,8 +100,8 @@ export const GridCell: FC<{
                         fill={CELL_DOT_COLOR}
                         height={4}
                         width={4}
-                        x={position.x + width / 2}
-                        y={position.y + height / 2}
+                        x={x + width / 2}
+                        y={y + height / 2}
                         onClick={handleOnClick} />
                 )}
             </Fragment>

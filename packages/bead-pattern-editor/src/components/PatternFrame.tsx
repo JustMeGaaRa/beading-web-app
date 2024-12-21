@@ -1,4 +1,4 @@
-import { CELL_PIXEL_RATIO } from "@repo/bead-grid";
+import { DEFAULT_PIXEL_PER_POINT } from "@repo/bead-grid";
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback } from "react";
 import { Group } from "react-konva";
@@ -21,11 +21,11 @@ export const PatternFrame: FC<{
         const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } = usePatternSelection();
 
         const cellHeight = pattern.grids.some((grid) => grid.options.type === "brick")
-            ? options.layout.beadSize.width * CELL_PIXEL_RATIO
-            : options.layout.beadSize.height * CELL_PIXEL_RATIO;
+            ? options.layout.beadSize.width * DEFAULT_PIXEL_PER_POINT
+            : options.layout.beadSize.height * DEFAULT_PIXEL_PER_POINT;
         const cellWidth = pattern.grids.some((grid) => grid.options.type === "brick")
-            ? options.layout.beadSize.height * CELL_PIXEL_RATIO
-            : options.layout.beadSize.width * CELL_PIXEL_RATIO;
+            ? options.layout.beadSize.height * DEFAULT_PIXEL_PER_POINT
+            : options.layout.beadSize.width * DEFAULT_PIXEL_PER_POINT;
 
         const { height: rows, width: columns } = getPatternSize(pattern);
 

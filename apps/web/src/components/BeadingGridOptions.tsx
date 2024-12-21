@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import {
     BeadingGridProperties,
-    BeadingGridState,
+    BeadingGridStateLegacy,
 } from "@repo/bead-grid";
 import { FC, useCallback } from "react";
 
@@ -19,7 +19,7 @@ export const BeadingGridOptionsPanel: FC<{
     options: BeadingGridProperties;
     orientation: "vertical" | "horizontal";
     size?: "xs" | "sm" | "md" | "lg";
-    onChange?: (grid: Omit<BeadingGridState, "rows">) => void;
+    onChange?: (grid: Omit<BeadingGridStateLegacy, "rows">) => void;
 }> = ({
     name,
     options,

@@ -1,12 +1,12 @@
 import {
-    applyBeadingGridOptions,
+    gridApplyOptions,
     BeadingGridMetadata,
     BeadingGridType,
-    CELL_PIXEL_RATIO,
-    createGrid,
-    DEFAULT_GRID_OPTIONS,
+    DEFAULT_PIXEL_PER_POINT,
+    gridCreateDefault,
+    DefaultGridProperties,
     isNullOrEmpty,
-    validateBeadingGrid,
+    isBeadingGridState,
 } from "@repo/bead-grid";
 import { v6 } from "uuid";
 import {
@@ -27,7 +27,10 @@ export const createPattern = (
         coverUrl: "",
         lastModified: new Date(),
         options: DefaultPatternOptions,
-        grids: initialGridType ? [createGrid(0, DEFAULT_GRID_OPTIONS)] : [],
+        // grids: initialGridType
+        //     ? [gridCreateDefault(DefaultGridProperties)]
+        //     : [],
+        grids: [],
         gridCount: initialGridType ? 1 : 0,
     };
 };
@@ -116,8 +119,8 @@ export const getPatternRenderSize = (pattern: PatternState) => {
     const patternSize = getPatternRealSize(pattern);
 
     return {
-        height: patternSize.height * CELL_PIXEL_RATIO,
-        width: patternSize.width * CELL_PIXEL_RATIO,
+        height: patternSize.height * DEFAULT_PIXEL_PER_POINT,
+        width: patternSize.width * DEFAULT_PIXEL_PER_POINT,
     };
 };
 
@@ -198,7 +201,7 @@ export const validatePattern = (data: any): data is PatternState => {
         validatePatternOptions(data.options) &&
         Array.isArray(data.grids) &&
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.grids.every((grid: any) => validateBeadingGrid(grid))
+        data.grids.every((grid: any) => isBeadingGridState(grid))
     );
 };
 
@@ -227,9 +230,7 @@ export const applyPatternOptions = (
     return {
         ...state,
         lastModified: new Date(),
-        grids: state.grids.map((grid) =>
-            applyBeadingGridOptions(grid, grid.options)
-        ),
+        grids: state.grids.map((grid) => gridApplyOptions(grid, grid.options)),
         options: options,
     };
 };

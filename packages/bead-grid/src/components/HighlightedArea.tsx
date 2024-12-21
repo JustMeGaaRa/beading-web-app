@@ -1,8 +1,8 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC } from "react";
 import { Rect } from "react-konva";
-import { useGridOptions } from "../hooks";
-import { BeadingGridOffset, BeadingGridState } from "../types";
+import { useGridStyles } from "../hooks";
+import { BeadingGridOffset, BeadingGridStateLegacy } from "../types";
 
 export const HighlightedArea: FC<{
     backgroundColor?: string;
@@ -11,12 +11,19 @@ export const HighlightedArea: FC<{
     offset: BeadingGridOffset;
     height: number;
     width: number;
-    grid: BeadingGridState;
+    grid: BeadingGridStateLegacy;
     onClick?: (event: KonvaEventObject<MouseEvent>) => void;
 }> = ({
-    backgroundColor, borderColor, borderWidth, offset, height, width, grid, onClick,
+    backgroundColor,
+    borderColor,
+    borderWidth,
+    offset,
+    height,
+    width,
+    grid,
+    onClick,
 }) => {
-        const { cellHeight, cellWidth, pointPixelRatio } = useGridOptions();
+        const { styles } = useGridStyles();
 
         const topBoundary = 0;
         const leftBoundary = 0;
@@ -28,10 +35,10 @@ export const HighlightedArea: FC<{
         const truncatedHeight = Math.min(offset.rowIndex < 0 ? height + offset.rowIndex : height, rightBoundary);
         const truncatedWidth = Math.min(offset.columnIndex < 0 ? width + offset.columnIndex : width, bottomBoundary);
 
-        const areaX = truncatedColumnIndex * cellWidth * pointPixelRatio;
-        const areaY = truncatedRowIndex * cellHeight * pointPixelRatio;
-        const areaHeight = truncatedHeight * cellHeight * pointPixelRatio;
-        const areaWidth = truncatedWidth * cellWidth * pointPixelRatio;
+        const areaX = truncatedColumnIndex * styles.bead.width * styles.rendering.pixelPerPoint;
+        const areaY = truncatedRowIndex * styles.bead.height * styles.rendering.pixelPerPoint;
+        const areaHeight = truncatedHeight * styles.bead.height * styles.rendering.pixelPerPoint;
+        const areaWidth = truncatedWidth * styles.bead.width * styles.rendering.pixelPerPoint;
 
         return (
             <Rect

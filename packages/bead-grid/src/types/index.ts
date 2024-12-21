@@ -1,4 +1,4 @@
-export * from "./BeadSize";
+export * from "./BeadProperties";
 export * from "./BeadingGridCell";
 export * from "./BeadingGridMetadata";
 export * from "./BeadingGridOffset";
@@ -7,6 +7,7 @@ export * from "./BeadingGridRectangle";
 export * from "./BeadingGridRow";
 export * from "./BeadingGridSection";
 export * from "./BeadingGridState";
+export * from "./BeadingGridStyles";
 export * from "./BeadingGridType";
 export * from "./BeadingGridWindow";
 export * from "./BeadingPointerEvent";
