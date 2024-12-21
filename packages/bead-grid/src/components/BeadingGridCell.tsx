@@ -76,7 +76,8 @@ export const BeadingGridCell: FC<{
                     onPointerDown={handleOnPointerDown}
                     onPointerUp={handleOnPointerUp}
                     onPointerOver={handleOnPointerOver}
-                    onPointerEnter={handleOnPointerEnter} />
+                    onPointerEnter={handleOnPointerEnter}
+                />
                 {isSelected && (
                     <Rect
                         cornerRadius={2}
@@ -93,7 +94,8 @@ export const BeadingGridCell: FC<{
                         onPointerDown={handleOnPointerDown}
                         onPointerUp={handleOnPointerUp}
                         onPointerOver={handleOnPointerOver}
-                        onPointerEnter={handleOnPointerEnter} />
+                        onPointerEnter={handleOnPointerEnter}
+                    />
                 )}
                 {isNullOrEmpty(color) && (
                     <Circle
@@ -102,7 +104,8 @@ export const BeadingGridCell: FC<{
                         width={4}
                         x={x + width / 2}
                         y={y + height / 2}
-                        onClick={handleOnClick} />
+                        onClick={handleOnClick}
+                    />
                 )}
             </Fragment>
         );

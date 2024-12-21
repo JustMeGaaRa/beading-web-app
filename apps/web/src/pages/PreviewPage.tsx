@@ -22,9 +22,6 @@ export const PreviewPage: FC = () => {
     const [state, dispatch] = useReducer(gridReducer, {
         name: "",
         cells: [
-            { color, offset: { rowIndex: 0, columnIndex: 0 } },
-            { color, offset: { rowIndex: 2, columnIndex: 2 } },
-            { color, offset: { rowIndex: 2, columnIndex: 3 } },
         ],
         offset: { rowIndex: 0, columnIndex: 0 },
         options: {

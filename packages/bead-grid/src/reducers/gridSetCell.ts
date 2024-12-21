@@ -1,4 +1,5 @@
 import { BeadingGridState, BeadingGridCellState } from "../types";
+import { isInBounds } from "../utils";
 
 export const gridSetCell = (
     grid: BeadingGridState,
@@ -18,10 +19,7 @@ export const gridSetCell = (
 
     // check if the target cell is out of bounds or has no color
     if (
-        targetCell.offset.rowIndex < 0 ||
-        targetCell.offset.columnIndex < 0 ||
-        targetCell.offset.rowIndex >= grid.options.height ||
-        targetCell.offset.columnIndex >= grid.options.width ||
+        !isInBounds(grid.options, targetCell.offset) ||
         targetCell.color === ""
     ) {
         return grid;
@@ -33,7 +31,7 @@ export const gridSetCell = (
             // filter out the cell with the same offset if it exists
             ...grid.cells.filter(
                 (cell) =>
-                    cell.offset.columnIndex !== targetCell.offset.columnIndex &&
+                    cell.offset.columnIndex !== targetCell.offset.columnIndex ||
                     cell.offset.rowIndex !== targetCell.offset.rowIndex
             ),
             targetCell,
