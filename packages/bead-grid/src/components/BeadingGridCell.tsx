@@ -10,7 +10,7 @@ import {
 } from "../constants";
 import {
     getGridCellOffset,
-    getGridCellRenderSize,
+    getGridCellSize,
     isNullOrEmpty
 } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
@@ -38,7 +38,7 @@ export const BeadingGridCell: FC<{
         const { options } = useGrid();
 
         const { x, y } = getGridCellOffset(offset, options, styles);
-        const { height, width } = getGridCellRenderSize(options, styles);
+        const { height, width } = getGridCellSize(options, styles);
 
         const handleOnClick = useCallback(() => {
             onClick?.({ cell: { offset, color } });

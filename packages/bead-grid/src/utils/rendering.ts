@@ -11,7 +11,7 @@ import {
 } from "../types";
 import { flipBead } from "./common";
 
-export const getGridCellRenderSize = (
+export const getGridCellSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
@@ -28,7 +28,7 @@ export const getGridSectionArea = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): BeadingGridRectangle => {
-    const cellSize = getGridCellRenderSize(options, styles);
+    const cellSize = getGridCellSize(options, styles);
     const topLeftPosition = getGridCellOffset(section.offset, options, styles);
 
     return {
@@ -43,7 +43,7 @@ export const getGridCellOffset = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
-    const { height, width } = getGridCellRenderSize(options, styles);
+    const { height, width } = getGridCellSize(options, styles);
 
     const cellStaggerX = width / 2;
     const cellStaggerY = height / 2;
@@ -117,7 +117,7 @@ export const getGridSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
-    const cellSize = getGridCellRenderSize(options, styles);
+    const cellSize = getGridCellSize(options, styles);
 
     const height =
         grid.rows.length * cellSize.height * styles.rendering.pixelPerPoint;

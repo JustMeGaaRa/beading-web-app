@@ -3,7 +3,6 @@ import { Group } from "react-konva";
 import { BeadingGridCellState, BeadingGridProperties, BeadingGridState, BeadingPointerEvent } from "../types";
 import { BeadingGridCell } from "./BeadingGridCell";
 import { BeadingGridDivider } from "./BeadingGridDivider";
-import { DIVIDER_STROKE_COLOR } from "../constants";
 import { useGrid, useGridStyles } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -96,8 +95,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
                         length={options.width}
                         offset={{ columnIndex: 0, rowIndex: options.height }}
                         orientation={"horizontal"}
-                        strokeColor={DIVIDER_STROKE_COLOR}
-                        strokeWidth={1} />
+                    />
                 )}
             </Group>
         );

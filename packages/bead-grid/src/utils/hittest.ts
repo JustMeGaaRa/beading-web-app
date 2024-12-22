@@ -3,7 +3,7 @@ import {
     BeadingGridState,
     BeadingGridStyles,
 } from "../types";
-import { getGridCellOffset, getGridCellRenderSize } from "./rendering";
+import { getGridCellOffset, getGridCellSize } from "./rendering";
 
 const getNeighbourCells = (offset: BeadingGridOffset) => {
     return [
@@ -24,7 +24,7 @@ export const hitTest = (
     styles: BeadingGridStyles,
     cursor: { x: number; y: number }
 ) => {
-    const beadSize = getGridCellRenderSize(grid.options, styles);
+    const beadSize = getGridCellSize(grid.options, styles);
     const gridBoundaries = {
         topLeft: {
             columnIndex: 0,

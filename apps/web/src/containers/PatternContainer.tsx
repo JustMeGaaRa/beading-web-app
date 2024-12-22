@@ -488,13 +488,12 @@ export const PatternContainer: FC = () => {
                                     offset={metadata.grids[grid.name].text}
                                     padding={6}
                                     text={grid.name}
+                                    options={grid.options}
                                 />
                                 <BeadingGridDivider
                                     length={metadata.grids[grid.name].divider.length}
                                     offset={metadata.grids[grid.name].divider.offset}
                                     orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
-                                    strokeColor={DIVIDER_STROKE_COLOR}
-                                    strokeWidth={1}
                                 />
                             </BeadingGridProvider>
                         ))}

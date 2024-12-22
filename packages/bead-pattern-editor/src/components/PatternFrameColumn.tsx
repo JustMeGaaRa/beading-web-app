@@ -16,7 +16,16 @@ export const PatternFrameColumn: FC<{
     onClick?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
     onContextMenu?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
 }> = ({
-    cellHeight, cellWidth, gridIndex, gridName, patternIndex, marginY, rows, isSelected, onClick, onContextMenu
+    cellHeight,
+    cellWidth,
+    gridIndex,
+    gridName,
+    patternIndex,
+    marginY,
+    rows,
+    isSelected,
+    onClick,
+    onContextMenu
 }) => {
         const handleOnClick = useCallback((event: KonvaEventObject<MouseEvent>) => {
             onClick?.(event, { gridIndex, patternIndex, gridName });

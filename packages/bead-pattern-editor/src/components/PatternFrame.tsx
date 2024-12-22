@@ -16,7 +16,11 @@ export const PatternFrame: FC<{
     onRowClick?: (event: KonvaEventObject<MouseEvent>, rowState: TextState) => void;
     onContextMenu?: (event: KonvaEventObject<MouseEvent>) => void;
 }> = ({
-    pattern, options, onColumnClick, onRowClick, onContextMenu,
+    pattern,
+    options,
+    onColumnClick,
+    onRowClick,
+    onContextMenu,
 }) => {
         const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } = usePatternSelection();
 

@@ -15,12 +15,13 @@ export const BeadingGridDivider: FC<{
     offset,
     orientation,
     strokeColor,
-    strokeWidth = 1,
+    strokeWidth,
 }) => {
         const { styles } = useGridStyles();
         const { options } = useGrid();
         const bead = options.type === "brick" ? flipBead(styles.bead) : styles.bead;
 
+        // TODO: move this to a helper function
         const positionX1 = offset.columnIndex * bead.width * styles.rendering.pixelPerPoint;
         const positionY1 = offset.rowIndex * bead.height * styles.rendering.pixelPerPoint;
         const positionX2 = orientation === "horizontal"
@@ -33,7 +34,8 @@ export const BeadingGridDivider: FC<{
         return (
             <Line
                 points={[positionX1, positionY1, positionX2, positionY2]}
-                stroke={strokeColor}
-                strokeWidth={strokeWidth} />
+                stroke={strokeColor ?? styles.components.divider.strokeColor}
+                strokeWidth={strokeWidth ?? styles.components.divider.strokeWidth}
+            />
         );
     };
