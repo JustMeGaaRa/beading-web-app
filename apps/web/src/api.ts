@@ -1,5 +1,5 @@
 import { PatternState } from "@repo/bead-pattern-editor";
-import { savePattern } from "./creators";
+import { savePatternAction } from "./creators";
 import { usePatternCollectionStore } from "./store";
 
 export const fetchPattern = (
@@ -11,6 +11,6 @@ export const fetchPattern = (
 };
 
 export const putPattern = (pattern: PatternState): Promise<void> => {
-    usePatternCollectionStore.getState().dispatch(savePattern(pattern));
+    usePatternCollectionStore.getState().dispatch(savePatternAction(pattern));
     return Promise.resolve();
 };

@@ -1,5 +1,5 @@
 export * from "./BeadingGridOptions";
-export * from "./PatternLayoutOptions";
+export * from "./BeadingLayoutOptionsPanel";
 export * from "./ColorPalette";
 export * from "./ColorPaletteProvider";
 export * from "./Content";

@@ -15,7 +15,8 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import {
-    BeadingGridStateLegacy,
+    BeadingGridProperties,
+    BeadingGridState,
     BeadingGridType,
 } from "@repo/bead-grid";
 import {
@@ -46,8 +47,6 @@ import {
 } from "../components";
 
 const hotkeysOptions = { preventDefault: true };
-
-type BeadingGridConfiguration = Omit<BeadingGridStateLegacy, "rows">;
 
 export const ProjectSettingsContainer: FC = () => {
     const [colorPaletteIndex, setColorPaletteIndex] = useState<number | number[]>(0);
@@ -173,7 +172,7 @@ const PatternOptionsContainer: FC = () => {
     );
 };
 
-const BeadingGridOptionContainer: FC<{ grid: BeadingGridStateLegacy }> = ({ grid }) => {
+const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({ grid }) => {
     const { pattern, dispatch } = usePatternStore(patternSelector);
 
     const handleOnDeleteGridClick = useCallback(() => {
@@ -185,8 +184,8 @@ const BeadingGridOptionContainer: FC<{ grid: BeadingGridStateLegacy }> = ({ grid
         // dispatch(applyBeadingGridOptionsAction(grid.name, { ...grid.options, type } as any));
     }, [dispatch, grid?.name, grid?.options]);
 
-    const handleOnOptionsChange = useCallback((modifiedGrid: BeadingGridConfiguration) => {
-        // dispatch(applyBeadingGridOptionsAction(modifiedGrid.name, modifiedGrid.options));
+    const handleOnOptionsChange = useCallback((modifiedOptions: BeadingGridProperties) => {
+        // dispatch(applyBeadingGridOptionsAction(modifiedGrid.name, modifiedOptions));
     }, [dispatch]);
 
     const isBrickLayout = pattern.options.layout.type === "brick";

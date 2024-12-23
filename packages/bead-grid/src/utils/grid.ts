@@ -29,6 +29,22 @@ export const isInBounds = (
     );
 };
 
+export const getGridActualHeight = (options: BeadingGridProperties) => {
+    return options.type === "brick"
+        ? options.height + options.fringe
+        : options.height;
+};
+
+export const getGridSize = (options: BeadingGridProperties) => {
+    return {
+        height:
+            options.type === "brick"
+                ? options.height + options.fringe
+                : options.height,
+        width: options.width,
+    };
+};
+
 export const getGridNumber = (name: string) => {
     const numbersInName = name
         .split(" ")

@@ -7,7 +7,7 @@ export const PatternSummaryPanel: FC<{
 }> = ({
     pattern
 }) => {
-        const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
+        const summary = useMemo(() => getPatternSummary(pattern.grids, pattern.options), [pattern]);
 
         return (
             <Flex flexDirection={"column"} color={"gray.600"} fontSize={"sm"} gap={2}>

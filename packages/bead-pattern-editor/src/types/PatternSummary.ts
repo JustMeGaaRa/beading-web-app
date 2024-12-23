@@ -1,13 +1,15 @@
 import { BeadProperties } from "@repo/bead-grid";
 import { PatternSize } from "./PatternSize";
 
+export type BeadSummary = {
+    color: string;
+    colorName: string;
+    number: number;
+};
+
 export type PatternSummary = {
     totalBeads: number;
-    beadSize: BeadProperties;
     totalSize: PatternSize;
-    beads: Array<{
-        color: string;
-        colorName: string;
-        number: number;
-    }>;
+    beadSize: BeadProperties;
+    beads: Array<BeadSummary>;
 };

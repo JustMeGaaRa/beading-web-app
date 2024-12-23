@@ -1,16 +1,22 @@
-import { CELL_DOT_COLOR, CELL_BLANK_COLOR } from "@repo/bead-grid";
 import { FC } from "react";
 import { Group, Line } from "react-konva";
+import { useGridStyles } from "../hooks";
 
-export const PatternMiddleMarker: FC<{
+export const BeadingFrameMiddleMarker: FC<{
     orientation: "horizontal" | "vertical";
     x: number;
     y: number;
     height: number;
     width: number;
 }> = ({
-    orientation, x, y, height, width
+    orientation,
+    x,
+    y,
+    height,
+    width
 }) => {
+        const { styles } = useGridStyles();
+
         return (
             <Group x={x} y={y}>
                 {orientation === "vertical" ? (
@@ -24,9 +30,9 @@ export const PatternMiddleMarker: FC<{
                             height / 2
                         ]}
                         closed
-                        fill={CELL_DOT_COLOR}
-                        stroke={CELL_BLANK_COLOR}
-                        strokeWidth={0}
+                        fill={styles.components.frame.marker.backgroundColor}
+                        stroke={styles.components.frame.marker.borderColor}
+                        strokeWidth={styles.components.frame.marker.borderWidth}
                         scale={{ x: 0.5, y: 0.7 }} />
                 ) : (
                     <Line
@@ -39,9 +45,9 @@ export const PatternMiddleMarker: FC<{
                             height / 2
                         ]}
                         closed
-                        fill={CELL_DOT_COLOR}
-                        stroke={CELL_BLANK_COLOR}
-                        strokeWidth={0}
+                        fill={styles.components.frame.marker.backgroundColor}
+                        stroke={styles.components.frame.marker.borderColor}
+                        strokeWidth={styles.components.frame.marker.borderWidth}
                         scale={{ x: 0.7, y: 0.5 }} />
                 )}
             </Group>

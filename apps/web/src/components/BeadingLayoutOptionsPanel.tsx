@@ -18,9 +18,7 @@ import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "@repo/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
 export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
-    mode?: "initialization" | "configuration";
     size?: "xs" | "sm" | "md" | "lg";
-    title?: string;
     layout: PatternLayoutOptions;
     onChange?: (layout: PatternLayoutOptions) => void;
 }>> = ({

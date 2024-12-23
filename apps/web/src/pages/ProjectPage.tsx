@@ -1,7 +1,6 @@
 import { useToken } from "@chakra-ui/react";
 import {
     PatternProvider,
-    PatternSelectionProvider,
     PatternState
 } from "@repo/bead-pattern-editor";
 import { FC } from "react";
@@ -19,6 +18,7 @@ import {
     ProjectSettingsContainer,
     ProjectToolsContainer,
 } from "../containers";
+import { BeadingGridSelectionProvider } from "@repo/bead-grid";
 
 export const ProjectPage: FC = () => {
     const pattern = useLoaderData() as PatternState;
@@ -78,19 +78,19 @@ export const ProjectPage: FC = () => {
     return (
         <PatternProvider pattern={pattern}>
             <ColorPaletteProvider colors={colors}>
-                <PatternSelectionProvider>
-                    <ToolsProvider>
-                        <Page>
-                            <ProjectHeader />
-                            <Content>
+                <ToolsProvider>
+                    <Page>
+                        <ProjectHeader />
+                        <Content>
+                            <BeadingGridSelectionProvider>
                                 <ProjectToolsContainer />
                                 <ProjectHelpContainer />
                                 <ProjectSettingsContainer />
                                 <PatternContainer />
-                            </Content>
-                        </Page>
-                    </ToolsProvider>
-                </PatternSelectionProvider>
+                            </BeadingGridSelectionProvider>
+                        </Content>
+                    </Page>
+                </ToolsProvider>
             </ColorPaletteProvider>
         </PatternProvider>
     );

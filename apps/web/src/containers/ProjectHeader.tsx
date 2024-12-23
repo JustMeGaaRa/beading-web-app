@@ -38,7 +38,7 @@ import {
     PatternSummaryPanel
 } from "../components";
 import { usePatternCollectionStore } from "../store";
-import { savePattern } from "../creators";
+import { savePatternAction } from "../creators";
 
 const hotkeysOptions = { preventDefault: true };
 
@@ -61,7 +61,7 @@ export const ProjectHeader: FC = () => {
     }, [navigate]);
 
     const handleOnBackupClick = useCallback(() => {
-        dispatchCollection(savePattern(pattern));
+        dispatchCollection(savePatternAction(pattern));
         resetDirty();
     }, [pattern, resetDirty, dispatchCollection]);
 

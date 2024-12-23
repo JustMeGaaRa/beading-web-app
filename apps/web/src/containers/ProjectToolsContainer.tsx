@@ -44,7 +44,7 @@ export const ProjectToolsContainer: FC = () => {
     useHotkeys(Shortcuts.toolEraser.keyString, onSetEraserTool, hotkeysOptions, [onSetEraserTool]);
     useHotkeys(Shortcuts.toolPicker.keyString, onSetPickerTool, hotkeysOptions, [onSetPickerTool]);
 
-    const summary = useMemo(() => getPatternSummary(pattern), [pattern]);
+    const summary = useMemo(() => getPatternSummary(pattern.grids, pattern.options), [pattern]);
 
     const handleOnUndoClick = useCallback(() => undo(), [undo]);
     const handleOnRedoClick = useCallback(() => redo(), [redo]);

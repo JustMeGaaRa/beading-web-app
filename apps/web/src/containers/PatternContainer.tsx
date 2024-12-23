@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     Box,
     Button,
@@ -9,14 +11,10 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import {
-    BeadingGridStateLegacy,
     BeadingGrid,
-    FRAME_SELECTED_BORDER_COLOR,
-    FRAME_SELECTED_FILL_COLOR,
     getGridWindowProjection,
     BeadingGridStylesProvider,
     BeadingGridProvider,
-    DIVIDER_STROKE_COLOR,
     BeadingGridDivider,
     BeadingText,
     HighlightedArea,
@@ -26,19 +24,22 @@ import {
     usePointerDisclosure,
     BeadingPointerEvent,
     useGridStyles,
-    DefaultGridStyles
+    DefaultGridStyles,
+    TextState,
+    useGridSelection,
+    BeadingFrame,
+    BeadingGridState,
+    BeadingGridBackgroundPattern
 } from "@repo/bead-grid";
 import {
     getPatternMetadata,
-    usePatternSelection,
     usePatternStore,
     PatternState,
     usePatterHistory,
-    TextState,
-    PatternFrame,
     getPatternRenderSize,
     patternSelector,
     dirtyStateSelector,
+    getPatternSize,
 } from "@repo/bead-pattern-editor";
 import {
     MediaImage,
@@ -82,6 +83,8 @@ import {
 import { putPattern } from "../api";
 
 const hotkeysOptions = { preventDefault: true };
+const FRAME_SELECTED_BORDER_COLOR = "#0BC5EA";
+const FRAME_SELECTED_FILL_COLOR = "#9DECF9";
 
 export const PatternContainer: FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -106,7 +109,7 @@ export const PatternContainer: FC = () => {
         selectedRow,
         setSelectedColumn,
         setSelectedRow
-    } = usePatternSelection();
+    } = useGridSelection();
     const { undo, redo } = usePatterHistory();
 
     const isLayoutHorizontal = pattern.options.layout.orientation === "horizontal";
@@ -115,11 +118,12 @@ export const PatternContainer: FC = () => {
     const isPencilEnabled = tool.name === "pencil";
     const isEraserEnabled = tool.name === "eraser";
 
-    const metadata = useMemo(() => getPatternMetadata(pattern, pattern.options), [pattern]);
+    const { styles } = useGridStyles();
+    const metadata = useMemo(() => getPatternMetadata(pattern.grids, pattern.options), [pattern]);
 
     const onStageCentered = useCallback((pattern: PatternState) => {
         if (containerRef.current && stageRef.current && pattern?.grids.length > 0) {
-            const patternSize = getPatternRenderSize(pattern);
+            const patternSize = getPatternRenderSize(pattern.grids, styles, pattern.options);
             const position = {
                 x: containerRef.current.offsetWidth / 2 - patternSize.width / 2,
                 y: containerRef.current.offsetHeight / 2 - patternSize.height / 2,
@@ -129,7 +133,7 @@ export const PatternContainer: FC = () => {
         }
     }, [containerRef.current, stageRef.current]);
 
-    const onResetGridsSelection = useCallback((source?: BeadingGridStateLegacy) => {
+    const onResetGridsSelection = useCallback((source?: BeadingGridState) => {
         Object
             .entries(gridRefs.current)
             .forEach(([name, ref]) => {
@@ -190,7 +194,7 @@ export const PatternContainer: FC = () => {
 
         if (!pointerPosition) return;
 
-        const patternSize = getPatternRenderSize(pattern);
+        const patternSize = getPatternRenderSize(pattern.grids, styles, pattern.options);
         const minScale = getContentScale(stageSize, patternSize);
         const maxScale = SCALE_MAXIMUM;
 
@@ -291,7 +295,7 @@ export const PatternContainer: FC = () => {
         }
 
         const stagePosition = stage.position();
-        const patternSize = getPatternRenderSize(pattern);
+        const patternSize = getPatternRenderSize(pattern.grids, styles, pattern.options);
         const patternCenter = getContentOffset(stageSize, patternSize);
         const minScale = getContentScale(stageSize, patternSize);
         const maxScale = SCALE_MAXIMUM;
@@ -432,7 +436,7 @@ export const PatternContainer: FC = () => {
         onPointerUp();
     }, [onPointerUp]);
 
-    const handleOnGridCellPointerEnter = useCallback((source: BeadingGridStateLegacy, event: BeadingPointerEvent) => {
+    const handleOnGridCellPointerEnter = useCallback((source: BeadingGridState, event: BeadingPointerEvent) => {
         if (isPointerDown && isPencilEnabled) {
             // dispatch(setBeadingGridCellAction(source.name, { ...event.cell, color: selectedColor }));
         }
@@ -441,11 +445,13 @@ export const PatternContainer: FC = () => {
         }
     }, [isPointerDown, isPencilEnabled, isEraserEnabled, dispatch, selectedColor]);
 
-    const handleOnGridSelectionChange = useCallback((source: BeadingGridStateLegacy) => {
+    const handleOnGridSelectionChange = useCallback((source: BeadingGridState) => {
         if (isPointerDown && isCursorEnabled) {
             onResetGridsSelection(source);
         }
     }, [isPointerDown, isCursorEnabled, onResetGridsSelection]);
+
+    const { height, width } = getPatternSize(pattern.grids, pattern.options);
 
     return (
         <Box
@@ -472,43 +478,71 @@ export const PatternContainer: FC = () => {
             >
                 <Layer>
                     <BeadingGridStylesProvider styles={DefaultGridStyles}>
+
                         {pattern.grids.map((grid) => (
+                            // <BeadingGridProvider key={grid.name}>
+                            //     <BeadingGridWrapper
+                            //         ref={(ref) => (ref && (gridRefs.current[grid.name] = ref))}
+                            //         grid={grid}
+                            //         metadata={metadata.grids[grid.name]}
+                            //         onPointerDown={handleOnGridCellPointerDown}
+                            //         onPointerUp={handleOnGridCellPointerUp}
+                            //         onPointerEnter={handleOnGridCellPointerEnter}
+                            //         onSelectionChange={handleOnGridSelectionChange}
+                            //     />
+                            //     <BeadingText
+                            //         offset={metadata.grids[grid.name].text}
+                            //         padding={6}
+                            //         text={grid.name}
+                            //         options={grid.options}
+                            //     />
+                            //     <BeadingGridDivider
+                            //         length={metadata.grids[grid.name].divider.length}
+                            //         offset={metadata.grids[grid.name].divider.offset}
+                            //         orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
+                            //     />
+                            // </BeadingGridProvider>
+
                             <BeadingGridProvider key={grid.name}>
-                                <BeadingGridWrapper
-                                    ref={(ref) => (ref && (gridRefs.current[grid.name] = ref))}
-                                    grid={grid}
-                                    metadata={metadata.grids[grid.name]}
-                                    onPointerDown={handleOnGridCellPointerDown}
-                                    onPointerUp={handleOnGridCellPointerUp}
-                                    onPointerEnter={handleOnGridCellPointerEnter}
-                                    onSelectionChange={handleOnGridSelectionChange}
-                                />
-                                <BeadingText
-                                    color={DIVIDER_STROKE_COLOR}
-                                    offset={metadata.grids[grid.name].text}
-                                    padding={6}
-                                    text={grid.name}
+                                <BeadingGrid
+                                    cells={grid.cells}
+                                    offset={grid.offset}
                                     options={grid.options}
-                                />
-                                <BeadingGridDivider
-                                    length={metadata.grids[grid.name].divider.length}
-                                    offset={metadata.grids[grid.name].divider.offset}
-                                    orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
-                                />
+                                // onPointerDown={handleOnGridCellPointerDown}
+                                // onPointerUp={handleOnGridCellPointerUp}
+                                // onPointerEnter={handleOnGridCellPointerEnter}
+                                // onSelectionChange={handleOnGridSelectionChange}
+                                >
+                                    <BeadingGridBackgroundPattern />
+                                    <BeadingText
+                                        text={grid.name}
+                                        offset={{ columnIndex: -4, rowIndex: 0 }}
+                                        options={grid.options}
+                                    />
+                                    <BeadingGridDivider
+                                        length={grid.options.width + 4}
+                                        offset={{ columnIndex: -4, rowIndex: 0 }}
+                                        orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
+                                    />
+                                </BeadingGrid>
                             </BeadingGridProvider>
                         ))}
                         {pattern.grids.length > 0 && (
-                            <PatternFrame
-                                pattern={pattern}
-                                options={pattern.options}
+                            <BeadingFrame
+                                height={height}
+                                width={width}
+                                options={pattern.grids[0].options}
+
                                 onColumnClick={handleOnPatternColumnClick}
                                 onRowClick={handleOnPatternRowClick}
                                 onContextMenu={handleOnPatternContextMenu}
                             />
                         )}
+
                     </BeadingGridStylesProvider>
                 </Layer>
             </Stage>
+
             <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>
                 <MenuButton
                     left={menuPosition.x}
@@ -586,13 +620,13 @@ type GridSelectionChangeEvent = {
 };
 
 type GridProps = {
-    grid: BeadingGridStateLegacy;
+    grid: BeadingGridState;
     metadata: BeadingGridMetadata;
-    onClick?: (source: BeadingGridStateLegacy, event: BeadingPointerEvent) => void;
-    onPointerDown?: (source: BeadingGridStateLegacy, event: BeadingPointerEvent) => void;
-    onPointerUp?: (source: BeadingGridStateLegacy, event: BeadingPointerEvent) => void;
-    onPointerEnter?: (source: BeadingGridStateLegacy, event: BeadingPointerEvent) => void;
-    onSelectionChange?: (source: BeadingGridStateLegacy, event: GridSelectionChangeEvent) => void;
+    onClick?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onSelectionChange?: (source: BeadingGridState, event: GridSelectionChangeEvent) => void;
 };
 
 type GridStateRef = {
@@ -614,7 +648,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
 
     const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
     const { selectedColor, setSelectedColor } = useColorPalette();
-    const { bead } = useGridStyles();
+    const { styles } = useGridStyles();
     const { tool, setTool } = useTools();
     const dispatch = usePatternStore(state => state.dispatch);
 
@@ -634,7 +668,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     }));
 
     const handleOnGridCellClick = useCallback((
-        source: BeadingGridStateLegacy,
+        source: BeadingGridState,
         event: BeadingPointerEvent
     ) => {
         onClick?.(source, event);
@@ -646,13 +680,17 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
             // dispatch(setBeadingGridCellAction(source.name, { ...event.cell, color: CELL_BLANK_COLOR }));
         }
         if (tool.name === "picker") {
-            setSelectedColor(source.rows[event.cell.offset.rowIndex].cells[event.cell.offset.columnIndex]);
+            const existingCell = source.cells.find(cell =>
+                cell.offset.rowIndex === event.cell.offset.rowIndex &&
+                cell.offset.columnIndex === event.cell.offset.columnIndex
+            );
+            setSelectedColor(existingCell?.color ?? "");
             setTool({ name: "pencil", state: { currentAction: "default" } });
         }
     }, [tool, selectedColor, dispatch, setSelectedColor, setTool, onClick]);
 
     const handleOnGridCellPointerDown = useCallback((
-        source: BeadingGridStateLegacy,
+        source: BeadingGridState,
         event: BeadingPointerEvent
     ) => {
         onPointerDownCallback?.(source, event);
@@ -661,7 +699,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     }, [onPointerDown, onPointerDownCallback]);
 
     const handleOnGridCellPointerUp = useCallback((
-        source: BeadingGridStateLegacy,
+        source: BeadingGridState,
         event: BeadingPointerEvent
     ) => {
         onPointerUpCallback?.(source, event);
@@ -669,7 +707,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
     }, [onPointerUp, onPointerUpCallback]);
 
     const handleOnGridCellPointerEnter = useCallback((
-        source: BeadingGridStateLegacy,
+        source: BeadingGridState,
         event: BeadingPointerEvent
     ) => {
         onPointerEnterCallback?.(source, event);
@@ -677,7 +715,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
         // if (isPointerDown && isCursorEnabled && startingCell) {
         //     const selectedSection = getGridWindow(startingCell, event.cell.offset);
 
-        //     const renderSection = getGridSectionArea(source, bead, selectedSection);
+        //     const renderSection = getGridSectionArea(source, styles.bead, selectedSection);
         //     const TOOLBAR_OFFSET = 24;
 
         //     const toolbarPositionX = renderSection.position.x + renderSection.width / 2;
@@ -690,7 +728,7 @@ const BeadingGridWrapper = forwardRef<GridStateRef, GridProps>(({
 
         //     onSelectionChange?.(source, { selection: selectedSection });
         // }
-    }, [bead, isCursorEnabled, isPointerDown, onPointerEnterCallback, onSelectionChange, startingCell]);
+    }, [styles, isCursorEnabled, isPointerDown, onPointerEnterCallback, onSelectionChange, startingCell]);
 
     const handleOnMirrorSelectionClick = useCallback(() => {
         setTool?.({ name: "cursor", state: { currentAction: "mirror" } });

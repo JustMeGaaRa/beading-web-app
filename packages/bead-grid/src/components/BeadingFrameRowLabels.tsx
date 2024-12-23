@@ -1,10 +1,10 @@
-import { FRAME_TEXT_COLOR, FRAME_SELECTED_BORDER_COLOR } from "@repo/bead-grid";
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback, Fragment } from "react";
 import { Rect, Text } from "react-konva";
 import { TextState } from "../types";
+import { useGridStyles } from "../hooks";
 
-export const PatternFrameRow: FC<{
+export const BeadingFrameRowLabels: FC<{
     cellHeight: number;
     cellWidth: number;
     gridIndex: number;
@@ -16,8 +16,19 @@ export const PatternFrameRow: FC<{
     onClick?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
     onContextMenu?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
 }> = ({
-    cellHeight, cellWidth, gridIndex, gridName, patternIndex, marginX, columns, isSelected, onClick, onContextMenu
+    cellHeight,
+    cellWidth,
+    gridIndex,
+    gridName,
+    patternIndex,
+    marginX,
+    columns,
+    isSelected,
+    onClick,
+    onContextMenu
 }) => {
+        const { styles } = useGridStyles();
+
         const handleOnClick = useCallback((event: KonvaEventObject<MouseEvent>) => {
             onClick?.(event, { gridIndex, patternIndex, gridName });
         }, [onClick, gridIndex, patternIndex, gridName]);
@@ -37,7 +48,7 @@ export const PatternFrameRow: FC<{
                 <Text
                     key={`row-left-number-${patternIndex}`}
                     align={"right"}
-                    fill={FRAME_TEXT_COLOR}
+                    fill={styles.components.text.color}
                     height={cellHeight}
                     text={(patternIndex + 1).toString()}
                     verticalAlign={"middle"}
@@ -49,7 +60,7 @@ export const PatternFrameRow: FC<{
                 <Text
                     key={`row-right-number-${patternIndex}`}
                     align={"left"}
-                    fill={FRAME_TEXT_COLOR}
+                    fill={styles.components.text.color}
                     height={cellHeight}
                     text={(patternIndex + 1).toString()}
                     verticalAlign={"middle"}
@@ -63,8 +74,8 @@ export const PatternFrameRow: FC<{
                     cornerRadius={20}
                     height={selectedRowHeight}
                     width={selectedRowWidth}
-                    stroke={FRAME_SELECTED_BORDER_COLOR}
-                    strokeWidth={2}
+                    stroke={styles.components.frame.selection.borderColor}
+                    strokeWidth={styles.components.frame.selection.borderWidth}
                     x={selectedRowPositionX}
                     y={selectedRowPositionY}
                     visible={isSelected}

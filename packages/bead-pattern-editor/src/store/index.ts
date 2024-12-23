@@ -2,10 +2,9 @@ import debounce from "just-debounce-it";
 import { createContext, useContext } from "react";
 import { create, useStore } from "zustand";
 import { temporal } from "zundo";
-import { PatternState } from "../types";
+import { DefaultPatternOptions, PatternState } from "../types";
 import { PatternActions } from "../actions";
-import { patternReducer } from "../reducers";
-import { createPattern } from "../utils";
+import { createPattern, patternReducer } from "../reducers";
 
 export const PatternContext = createContext<PatternTemporalStore | null>(null);
 
@@ -22,7 +21,7 @@ export const createPatterStore = (pattern?: PatternState) => {
     return create(
         temporal<PatternStore>(
             (set) => ({
-                pattern: pattern ?? createPattern("brick"),
+                pattern: pattern ?? createPattern(DefaultPatternOptions),
                 isDirty: false,
                 resetDirty: () => set({ isDirty: false }),
                 dispatch: (action) =>

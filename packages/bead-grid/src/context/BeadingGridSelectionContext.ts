@@ -1,7 +1,7 @@
 import { BeadingGridCellState } from "@repo/bead-grid";
 import { createContext, Dispatch, SetStateAction } from "react";
 
-export const PatternSelectionContext = createContext<{
+export const BeadingGridSelectionContext = createContext<{
     selectedCells: Record<string, Array<BeadingGridCellState>>;
     selectedColumn: number;
     selectedRow: number;

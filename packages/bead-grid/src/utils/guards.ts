@@ -1,31 +1,53 @@
-import { BeadingGridRow, BeadingGridStateLegacy } from "../types";
+import {
+    BeadingGridCellState,
+    BeadingGridOffset,
+    BeadingGridState,
+} from "../types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isBeadingGridState = (
-    data: any
-): data is BeadingGridStateLegacy => {
+export const isBeadingGrid = (data: unknown): data is BeadingGridState => {
     if (typeof data !== "object" || data === null) {
         return false;
     }
 
     return (
+        "name" in data &&
+        "options" in data &&
+        "offset" in data &&
+        "cells" in data &&
         typeof data.name === "string" &&
         typeof data.options === "object" &&
-        Array.isArray(data.rows) &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.rows.every((row: any) => isBeadingGridRow(row))
+        typeof data.offset === "object" &&
+        typeof data.cells === "object" &&
+        Array.isArray(data.cells) &&
+        data.cells.every((cell: unknown) => isBeadingGridCell(cell))
     );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isBeadingGridRow = (data: any): data is BeadingGridRow => {
+export const isBeadingGridCell = (
+    data: unknown
+): data is BeadingGridCellState => {
     if (typeof data !== "object" || data === null) {
         return false;
     }
 
     return (
-        Array.isArray(data.cells) &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.cells.every((cell: any) => typeof cell === "string")
+        "color" in data &&
+        "offset" in data &&
+        typeof data.color === "string" &&
+        typeof data.offset === "object" &&
+        isBeadingOffset(data.offset)
+    );
+};
+
+export const isBeadingOffset = (data: unknown): data is BeadingGridOffset => {
+    if (typeof data !== "object" || data === null) {
+        return false;
+    }
+
+    return (
+        "columnIndex" in data &&
+        "rowIndex" in data &&
+        typeof data.columnIndex === "number" &&
+        typeof data.rowIndex === "number"
     );
 };

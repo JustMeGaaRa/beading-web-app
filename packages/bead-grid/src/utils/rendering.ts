@@ -2,40 +2,38 @@ import {
     BeadingGridOffset,
     BeadingGridProperties,
     BeadingGridRectangle,
-    BeadingGridStateLegacy,
     BeadingGridStyles,
+    BeadingGridType,
     BeadingGridWindow,
+    BeadProperties,
     BrickGridProperties,
     PeyoteGridProperties,
     SquareGridProperties,
 } from "../types";
 import { flipBead } from "./common";
+import { getGridSize } from "./grid";
 
-export const getGridCellSize = (
+export const getGridCellRenderSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
-    const beadSize =
-        options.type === "brick" ? flipBead(styles.bead) : styles.bead;
-    const height = beadSize.height * styles.rendering.pixelPerPoint;
-    const width = beadSize.width * styles.rendering.pixelPerPoint;
+    const getGridCellSizeSimple = (
+        type: BeadingGridType,
+        pixelPerPoint: number,
+        bead: BeadProperties
+    ) => {
+        const beadSize = type === "brick" ? flipBead(bead) : bead;
+        const height = beadSize.height * pixelPerPoint;
+        const width = beadSize.width * pixelPerPoint;
 
-    return { height, width };
-};
-
-export const getGridSectionArea = (
-    section: BeadingGridWindow,
-    options: BeadingGridProperties,
-    styles: BeadingGridStyles
-): BeadingGridRectangle => {
-    const cellSize = getGridCellSize(options, styles);
-    const topLeftPosition = getGridCellOffset(section.offset, options, styles);
-
-    return {
-        position: topLeftPosition,
-        width: section.width * cellSize.width,
-        height: section.height * cellSize.height,
+        return { height, width };
     };
+
+    return getGridCellSizeSimple(
+        options.type,
+        styles.rendering.pixelPerPoint,
+        styles.bead
+    );
 };
 
 export const getGridCellOffset = (
@@ -43,7 +41,7 @@ export const getGridCellOffset = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
-    const { height, width } = getGridCellSize(options, styles);
+    const { height, width } = getGridCellRenderSize(options, styles);
 
     const cellStaggerX = width / 2;
     const cellStaggerY = height / 2;
@@ -112,19 +110,31 @@ export const getGridCellOffset = (
           : getSquaredCellOffset(offset, options);
 };
 
-export const getGridSize = (
-    grid: BeadingGridStateLegacy,
+export const getGridRenderSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
-    const cellSize = getGridCellSize(options, styles);
+    const cellSize = getGridCellRenderSize(options, styles);
+    const gridSize = getGridSize(options);
 
-    const height =
-        grid.rows.length * cellSize.height * styles.rendering.pixelPerPoint;
-    const width =
-        (grid.rows[0]?.cells.length ?? 0) *
-        cellSize.width *
-        styles.rendering.pixelPerPoint;
+    return {
+        height:
+            gridSize.height * cellSize.height * styles.rendering.pixelPerPoint,
+        width: gridSize.width * cellSize.width * styles.rendering.pixelPerPoint,
+    };
+};
 
-    return { height, width };
+export const getGridSectionArea = (
+    section: BeadingGridWindow,
+    options: BeadingGridProperties,
+    styles: BeadingGridStyles
+): BeadingGridRectangle => {
+    const cellSize = getGridCellRenderSize(options, styles);
+    const topLeftPosition = getGridCellOffset(section.offset, options, styles);
+
+    return {
+        position: topLeftPosition,
+        width: section.width * cellSize.width,
+        height: section.height * cellSize.height,
+    };
 };

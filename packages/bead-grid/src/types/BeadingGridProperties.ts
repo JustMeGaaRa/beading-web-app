@@ -1,21 +1,13 @@
 import { BrickGridProperties } from "./BrickGridProperties";
 import { PeyoteGridProperties } from "./PeyoteGridProperties";
 import { SquareGridProperties } from "./SquareGridProperties";
-import { BeadProperties } from "./BeadProperties";
-import { LayoutOrientation } from "./LayoutOrientation";
 
-export const DefaultGridProperties: BeadingGridProperties = {
+export const DefaultGridProperties: BrickGridProperties = {
     type: "brick",
     height: 40,
     width: 40,
     drop: 1,
     fringe: 0,
-};
-
-// TODO: move orientation to pattern
-export type BeadingGridLayoutProperties = {
-    beadSize: BeadProperties;
-    orientation: LayoutOrientation;
 };
 
 export type BeadingGridProperties =

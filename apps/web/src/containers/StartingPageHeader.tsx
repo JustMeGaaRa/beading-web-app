@@ -7,7 +7,7 @@ import {
     useDisclosure,
     useToast
 } from "@chakra-ui/react";
-import { validatePattern } from "@repo/bead-pattern-editor";
+import { isPattern } from "@repo/bead-pattern-editor";
 import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -19,7 +19,7 @@ import {
     ShortcutTableModal
 } from "../components";
 import { usePatternCollectionStore } from "../store";
-import { addPattern } from "../creators";
+import { addPatternAction } from "../creators";
 
 const hotkeysOptions = { preventDefault: true };
 const hotkeysKeyOptions = { preventDefault: true, keydown: true, keyup: true };
@@ -55,8 +55,8 @@ export const StartingPageHeader: FC = () => {
                 const fileContent = event.target?.result as string;
                 const patternJson = JSON.parse(fileContent);
 
-                if (validatePattern(patternJson)) {
-                    dispatch(addPattern({
+                if (isPattern(patternJson)) {
+                    dispatch(addPatternAction({
                         ...patternJson,
                         patternId: `pattern-${v6()}`
                     }));

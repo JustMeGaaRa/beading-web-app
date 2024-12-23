@@ -14,20 +14,22 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import {
-    // gridCreateDefault,
-    BeadingGridStateLegacy,
+    BeadingGridProperties,
     BeadingGridType,
-    BEADING_GRID_TYPES,
+    capitalize,
+    DefaultGridProperties,
+    getGridSize,
 } from "@repo/bead-grid";
 import {
     formatPatternSize,
-    getPatternRealSize,
     PatternLayoutOptions,
     PatternState,
     createPattern,
+    PatternOptions,
+    DefaultPatternOptions,
+    createGridOptions,
 } from "@repo/bead-pattern-editor";
 import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
-import capitalize from "just-capitalize";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -35,13 +37,20 @@ import {
     BeadingLayoutOptionsPanel,
 } from "../components";
 import { usePatternCollectionStore } from "../store";
-import { addPattern, deletePattern } from "../creators";
+import { addPatternAction, deletePatternAction } from "../creators";
 
 const GridTypeIcons: Record<BeadingGridType, typeof LoomIcon> = {
     square: LoomIcon,
     peyote: PeyoteIcon,
     brick: BrickIcon,
 };
+
+const BeadingGridTypes: Array<BeadingGridType> = [
+    "square",
+    "peyote",
+    "brick",
+];
+
 
 export const CreatePatternModal: FC<{
     isOpen: boolean;
@@ -51,57 +60,43 @@ export const CreatePatternModal: FC<{
     onClose
 }) => {
         const navigate = useNavigate();
-        const [pattern, setPattern] = useState(createPattern("brick"));
         const { dispatch } = usePatternCollectionStore();
+        const [patternOptions, setPatternOptions] = useState<PatternOptions>(DefaultPatternOptions);
+        const [gridOptions, setGridOptions] = useState<BeadingGridProperties>(DefaultGridProperties);
 
         useEffect(() => {
-            setPattern(createPattern("brick"));
-        }, []);
+            // reset to default setting when opened
+            setPatternOptions(DefaultPatternOptions);
+            setGridOptions(createGridOptions(DefaultPatternOptions));
+        }, [isOpen]);
 
         const handleOnPatternTypeSelected = useCallback((type: BeadingGridType) => {
-            setPattern(state => {
-                // const modifiedGridOptions = {
-                //     ...state.grids[0].options,
-                //     type
-                // } as any;
-                const modifiedPatternOptions = {
-                    ...state.options,
-                    layout: { ...state.options.layout, type: type }
-                };
-                return {
-                    ...state,
-                    options: modifiedPatternOptions,
-                    // grids: [gridCreateDefault(0, modifiedGridOptions, modifiedPatternOptions)]
-                    grids: []
-                };
-            });
-        }, []);
+            const modifiedPatternOptions = {
+                ...patternOptions,
+                layout: { ...patternOptions.layout, type }
+            } satisfies PatternOptions;
 
-        const handleOnPatternChange = useCallback((layout: PatternLayoutOptions) => {
-            setPattern((state) => {
-                const modifiedPatternOptions = { ...state.options, layout };
-                return {
-                    ...state,
-                    options: modifiedPatternOptions,
-                    // grids: [gridCreateDefault(0, state.grids[0].options, modifiedPatternOptions)]
-                    grids: []
-                };
-            });
-        }, []);
+            setPatternOptions(modifiedPatternOptions);
+            setGridOptions(createGridOptions(DefaultPatternOptions));
+        }, [patternOptions]);
 
-        const handleOnGridChange = useCallback((grid: Omit<BeadingGridStateLegacy, "rows">) => {
-            setPattern((state) => ({
-                ...state,
-                // grids: [gridCreateDefault(0, grid.options, state.options)],
-                grids: []
-            }))
+        const handleOnPatternOptionsChange = useCallback((layout: PatternLayoutOptions) => {
+            const modifiedPatternOptions = { ...patternOptions, layout } satisfies PatternOptions;
+
+            setPatternOptions(modifiedPatternOptions);
+            setGridOptions(createGridOptions(modifiedPatternOptions));
+        }, [patternOptions]);
+
+        const handleOnGridOptionsChange = useCallback((options: BeadingGridProperties) => {
+            setGridOptions(options);
         }, []);
 
         const handleOnCreateClick = useCallback(() => {
-            dispatch(addPattern(pattern));
+            const pattern = createPattern(patternOptions, gridOptions);
+            dispatch(addPatternAction(pattern));
             onClose();
             navigate(`/patterns/${pattern.patternId}`);
-        }, [dispatch, pattern, onClose, navigate]);
+        }, [patternOptions, gridOptions, dispatch, onClose, navigate]);
 
         return (
             <Modal isCentered isOpen={isOpen} size={"sm"} onClose={onClose}>
@@ -114,10 +109,10 @@ export const CreatePatternModal: FC<{
                     <ModalBody>
                         <VStack gap={2} width={"100%"}>
                             <Flex mb={2} justifyContent={"space-between"} w={"100%"}>
-                                {BEADING_GRID_TYPES.map((type) => (
+                                {BeadingGridTypes.map((type) => (
                                     <Flex
                                         key={type}
-                                        aria-selected={pattern.grids[0].options.type === type}
+                                        aria-selected={patternOptions.layout.type === type}
                                         alignItems={"center"}
                                         borderColor={"gray.400"}
                                         borderRadius={8}
@@ -143,21 +138,26 @@ export const CreatePatternModal: FC<{
                                     </Flex>
                                 ))}
                             </Flex>
+                            <Text color={"gray.700"} fontSize={"small"}>
+                                Common pattern properties
+                            </Text>
                             <BeadingLayoutOptionsPanel
-                                mode={"initialization"}
                                 size={"sm"}
-                                layout={pattern.options.layout}
-                                onChange={handleOnPatternChange}
+                                layout={patternOptions.layout}
+                                onChange={handleOnPatternOptionsChange}
                             />
+                            <Text color={"gray.700"} fontSize={"small"}>
+                                Initial grid properties
+                            </Text>
                             <BeadingGridOptionsPanel
-                                name={pattern.grids[0]?.name}
-                                options={pattern.grids[0]?.options}
-                                orientation={pattern.options.layout.orientation}
+                                name={"Initial Grid"}
+                                options={gridOptions}
+                                orientation={patternOptions.layout.orientation}
                                 size={"sm"}
-                                onChange={handleOnGridChange}
+                                onChange={handleOnGridOptionsChange}
                             />
                             <Text color={"gray.700"} fontSize={"small"} mt={4}>
-                                {`Finished size: ${formatPatternSize(getPatternRealSize(pattern))}`}
+                                {`Finished size: ${formatPatternSize(getGridSize(gridOptions))}`}
                             </Text>
                         </VStack>
                     </ModalBody>
@@ -193,7 +193,7 @@ export const DeletePatternModal: FC<{
 
         const handleOnPatterDeleteConfirm = useCallback(() => {
             if (pattern) {
-                dispatch(deletePattern(pattern.patternId));
+                dispatch(deletePatternAction(pattern.patternId));
             }
             onClose();
         }, [pattern, dispatch, onClose]);

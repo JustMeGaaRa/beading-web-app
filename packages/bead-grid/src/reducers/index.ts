@@ -5,8 +5,7 @@ import {
     BeadingGridStateLegacy,
     BeadingGridWindow,
 } from "../types";
-import { CELL_BLANK_COLOR } from "../constants";
-import { isPositionInBounds } from "../utils";
+import { isNullOrEmpty, isPositionInBounds } from "../utils";
 
 export * from "./gridApplyOptions";
 export * from "./gridClearColumn";
@@ -188,7 +187,7 @@ export const mergeSection = (
                     columnIndex,
                     rowIndex
                 ) &&
-                cell !== CELL_BLANK_COLOR
+                !isNullOrEmpty(cell)
             ) {
                 const targetRowIndex = targetWindow.offset.rowIndex + rowIndex;
                 const targetColumnIndex =

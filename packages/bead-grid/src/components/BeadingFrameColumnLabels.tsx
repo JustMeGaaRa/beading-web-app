@@ -1,10 +1,10 @@
-import { FRAME_TEXT_COLOR, FRAME_SELECTED_BORDER_COLOR } from "@repo/bead-grid";
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback, Fragment } from "react";
 import { Rect, Text } from "react-konva";
 import { TextState } from "../types";
+import { useGridStyles } from "../hooks";
 
-export const PatternFrameColumn: FC<{
+export const BeadingFrameColumnLabels: FC<{
     cellHeight: number;
     cellWidth: number;
     gridIndex: number;
@@ -27,6 +27,8 @@ export const PatternFrameColumn: FC<{
     onClick,
     onContextMenu
 }) => {
+        const { styles } = useGridStyles();
+
         const handleOnClick = useCallback((event: KonvaEventObject<MouseEvent>) => {
             onClick?.(event, { gridIndex, patternIndex, gridName });
         }, [onClick, gridIndex, patternIndex, gridName]);
@@ -46,7 +48,7 @@ export const PatternFrameColumn: FC<{
                 <Text
                     key={`column-top-number-${patternIndex}`}
                     align={"center"}
-                    fill={FRAME_TEXT_COLOR}
+                    fill={styles.components.text.color}
                     height={cellHeight}
                     text={(patternIndex + 1).toString()}
                     verticalAlign={"middle"}
@@ -58,7 +60,7 @@ export const PatternFrameColumn: FC<{
                 <Text
                     key={`column-bottom-number-${patternIndex}`}
                     align={"center"}
-                    fill={FRAME_TEXT_COLOR}
+                    fill={styles.components.text.color}
                     height={cellHeight}
                     text={(patternIndex + 1).toString()}
                     verticalAlign={"middle"}
@@ -72,8 +74,8 @@ export const PatternFrameColumn: FC<{
                     cornerRadius={20}
                     height={selectedColumnHeight}
                     width={selectedColumnWidth}
-                    stroke={FRAME_SELECTED_BORDER_COLOR}
-                    strokeWidth={2}
+                    stroke={styles.components.frame.selection.borderColor}
+                    strokeWidth={styles.components.frame.selection.borderWidth}
                     x={selectedColumnPositionX}
                     y={selectedColumnPositionY}
                     visible={isSelected}

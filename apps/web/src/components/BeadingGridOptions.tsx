@@ -10,7 +10,6 @@ import {
 } from "@chakra-ui/react";
 import {
     BeadingGridProperties,
-    BeadingGridStateLegacy,
 } from "@repo/bead-grid";
 import { FC, useCallback } from "react";
 
@@ -19,9 +18,8 @@ export const BeadingGridOptionsPanel: FC<{
     options: BeadingGridProperties;
     orientation: "vertical" | "horizontal";
     size?: "xs" | "sm" | "md" | "lg";
-    onChange?: (grid: Omit<BeadingGridStateLegacy, "rows">) => void;
+    onChange?: (options: BeadingGridProperties) => void;
 }> = ({
-    name,
     options,
     orientation,
     size = "xs",
@@ -31,53 +29,41 @@ export const BeadingGridOptionsPanel: FC<{
             const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
             if (isValidInteger) {
                 onChange?.({
-                    name: name,
-                    options: {
-                        ...options,
-                        height: Number.parseInt(event.target.value),
-                    },
+                    ...options,
+                    height: Number.parseInt(event.target.value),
                 });
             }
-        }, [onChange, name, options]);
+        }, [onChange, options]);
 
         const handleOnWidthChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
             if (isValidInteger) {
                 onChange?.({
-                    name: name,
-                    options: {
-                        ...options,
-                        width: Number.parseInt(event.target.value),
-                    },
+                    ...options,
+                    width: Number.parseInt(event.target.value),
                 });
             }
-        }, [onChange, name, options]);
+        }, [onChange, options]);
 
         const handleOnDropChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
             if (options.type === "brick" && isValidInteger) {
                 onChange?.({
-                    name: name,
-                    options: {
-                        ...options,
-                        drop: Number.parseInt(event.target.value),
-                    },
+                    ...options,
+                    drop: Number.parseInt(event.target.value),
                 });
             }
-        }, [onChange, name, options]);
+        }, [onChange, options]);
 
         const handleOnFringeChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
             if (options.type === "brick" && isValidInteger) {
                 onChange?.({
-                    name: name,
-                    options: {
-                        ...options,
-                        fringe: Number.parseInt(event.target.value),
-                    },
+                    ...options,
+                    fringe: Number.parseInt(event.target.value),
                 });
             }
-        }, [onChange, name, options]);
+        }, [onChange, options]);
 
         const isHorizontal = orientation === "horizontal";
         const isBrickGrid = options.type === "brick";
