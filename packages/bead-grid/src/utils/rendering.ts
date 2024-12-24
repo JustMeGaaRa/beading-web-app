@@ -7,8 +7,6 @@ import {
     BeadingGridWindow,
     BeadProperties,
     BrickGridProperties,
-    PeyoteGridProperties,
-    SquareGridProperties,
 } from "../types";
 import { flipBead } from "./common";
 import { getGridSize } from "./grid";
@@ -73,10 +71,7 @@ export const getGridCellOffset = (
         };
     };
 
-    const getPeyoteCellOffset = (
-        offset: BeadingGridOffset,
-        options: PeyoteGridProperties
-    ) => {
+    const getPeyoteCellOffset = (offset: BeadingGridOffset) => {
         const getPeyoteOffsetY = (index: number) => {
             const columnOffsetNormal = index % 2;
             return cellStaggerY * columnOffsetNormal;
@@ -91,10 +86,7 @@ export const getGridCellOffset = (
         };
     };
 
-    const getSquaredCellOffset = (
-        offset: BeadingGridOffset,
-        options: SquareGridProperties
-    ) => {
+    const getSquaredCellOffset = (offset: BeadingGridOffset) => {
         const { columnIndex, rowIndex } = offset;
 
         return {
@@ -106,8 +98,8 @@ export const getGridCellOffset = (
     return options.type === "brick"
         ? getBrickCellOffset(offset, options)
         : options.type === "peyote"
-          ? getPeyoteCellOffset(offset, options)
-          : getSquaredCellOffset(offset, options);
+          ? getPeyoteCellOffset(offset)
+          : getSquaredCellOffset(offset);
 };
 
 export const getGridRenderSize = (

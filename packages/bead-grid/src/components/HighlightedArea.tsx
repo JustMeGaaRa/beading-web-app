@@ -2,7 +2,8 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { FC } from "react";
 import { Rect } from "react-konva";
 import { useGridStyles } from "../hooks";
-import { BeadingGridOffset, BeadingGridStateLegacy } from "../types";
+import { BeadingGridOffset, BeadingGridState } from "../types";
+import { getGridActualHeight } from "../utils";
 
 export const HighlightedArea: FC<{
     backgroundColor?: string;
@@ -11,7 +12,7 @@ export const HighlightedArea: FC<{
     offset: BeadingGridOffset;
     height: number;
     width: number;
-    grid: BeadingGridStateLegacy;
+    grid: BeadingGridState;
     onClick?: (event: KonvaEventObject<MouseEvent>) => void;
 }> = ({
     backgroundColor,
@@ -27,11 +28,11 @@ export const HighlightedArea: FC<{
 
         const topBoundary = 0;
         const leftBoundary = 0;
-        const rightBoundary = grid.rows.length - offset.rowIndex;
-        const bottomBoundary = (grid.rows[0]?.cells.length ?? 0) - offset.columnIndex;
+        const rightBoundary = getGridActualHeight(grid.options) - offset.rowIndex;
+        const bottomBoundary = grid.options.width - offset.columnIndex;
 
-        const truncatedColumnIndex = Math.min(Math.max(topBoundary, offset.columnIndex), (grid.rows[0]?.cells.length ?? 0));
-        const truncatedRowIndex = Math.min(Math.max(leftBoundary, offset.rowIndex), grid.rows.length);
+        const truncatedColumnIndex = Math.min(Math.max(topBoundary, offset.columnIndex), (grid.options.width));
+        const truncatedRowIndex = Math.min(Math.max(leftBoundary, offset.rowIndex), getGridActualHeight(grid.options));
         const truncatedHeight = Math.min(offset.rowIndex < 0 ? height + offset.rowIndex : height, rightBoundary);
         const truncatedWidth = Math.min(offset.columnIndex < 0 ? width + offset.columnIndex : width, bottomBoundary);
 

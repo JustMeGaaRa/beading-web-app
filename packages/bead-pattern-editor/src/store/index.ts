@@ -33,9 +33,7 @@ export const createPatterStore = (pattern?: PatternState) => {
             {
                 limit: 100,
                 partialize: (state) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const { isDirty, ...rest } = state;
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     return rest as any;
                 },
                 handleSet: (handleSet) => {

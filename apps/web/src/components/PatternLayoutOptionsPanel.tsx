@@ -17,7 +17,7 @@ import { PatternLayoutOptions } from "@repo/bead-pattern-editor";
 import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "@repo/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
-export const BeadingLayoutOptionsPanel: FC<PropsWithChildren<{
+export const PatternLayoutOptionsPanel: FC<PropsWithChildren<{
     size?: "xs" | "sm" | "md" | "lg";
     layout: PatternLayoutOptions;
     onChange?: (layout: PatternLayoutOptions) => void;

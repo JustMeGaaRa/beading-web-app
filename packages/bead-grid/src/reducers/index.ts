@@ -1,11 +1,9 @@
 import {
     BeadingGridOffset,
-    BeadingGridProperties,
     BeadingGridSection,
-    BeadingGridStateLegacy,
+    BeadingGridState,
     BeadingGridWindow,
 } from "../types";
-import { isNullOrEmpty, isPositionInBounds } from "../utils";
 
 export * from "./gridApplyOptions";
 export * from "./gridClearColumn";
@@ -41,12 +39,12 @@ export const getGridWindow = (
 };
 
 export const getGridWindowProjection = (
-    grid: BeadingGridStateLegacy,
+    grid: BeadingGridState,
     centerSection: BeadingGridWindow,
     projection: "horizontal" | "vertical"
 ): Array<BeadingGridWindow> => {
-    const gridHeight = grid.rows.length - 1;
-    const gridWidth = (grid.rows[0]?.cells.length ?? 0) - 1;
+    const gridHeight = grid.options.height - 1;
+    const gridWidth = grid.options.width - 1;
     const mirrors: BeadingGridWindow[] = [];
 
     const { columnIndex: columnIndex, rowIndex: rowIndex } =
@@ -110,115 +108,109 @@ export const getGridWindowProjection = (
 };
 
 export const getSection = (
-    grid: BeadingGridStateLegacy,
+    grid: BeadingGridState,
     window: BeadingGridWindow
 ): BeadingGridSection => {
-    const { offset, height, width } = window;
+    const { offset, height } = window;
 
     return {
         ...window,
-        rows: grid.rows
-            .slice(offset.rowIndex, offset.rowIndex + height)
-            .map((row) => ({
-                cells: row.cells.slice(
-                    offset.columnIndex,
-                    offset.columnIndex + width
-                ),
-            })),
+        rows: grid.cells.slice(offset.rowIndex, offset.rowIndex + height),
+        // .map((row) => ({
+        //     cells: row.cells.slice(
+        //         offset.columnIndex,
+        //         offset.columnIndex + width
+        //     ),
+        // })),
     };
 };
 
 export const flipSection = (
-    section: BeadingGridSection,
-    direction: "horizontal" | "vertical"
-): BeadingGridSection => {
-    const clonedRows = section.rows.map((row) => ({ cells: [...row.cells] }));
-
-    if (direction === "vertical") {
-        for (let rowIndex = 0; rowIndex < section.height / 2; rowIndex++) {
-            const oppositeRowIndex = section.height - rowIndex - 1;
-            if (clonedRows[rowIndex] && clonedRows[oppositeRowIndex]) {
-                [clonedRows[rowIndex], clonedRows[oppositeRowIndex]] = [
-                    clonedRows[oppositeRowIndex],
-                    clonedRows[rowIndex],
-                ];
-            }
-        }
-    }
-
-    if (direction === "horizontal") {
-        for (let rowIndex = 0; rowIndex < section.height; rowIndex++) {
-            for (
-                let columnIndex = 0;
-                columnIndex < section.width / 2;
-                columnIndex++
-            ) {
-                const oppositeColumnIndex = section.width - columnIndex - 1;
-                [
-                    clonedRows[rowIndex].cells[columnIndex],
-                    clonedRows[rowIndex].cells[oppositeColumnIndex],
-                ] = [
-                    clonedRows[rowIndex].cells[oppositeColumnIndex],
-                    clonedRows[rowIndex].cells[columnIndex],
-                ];
-            }
-        }
-    }
-
-    return {
-        ...section,
-        rows: clonedRows,
-    };
+    _section: BeadingGridSection,
+    _direction: "horizontal" | "vertical"
+) => {
+    // const clonedRows = section.rows.map((row) => ({ cells: [...row.cells] }));
+    // if (direction === "vertical") {
+    //     for (let rowIndex = 0; rowIndex < section.height / 2; rowIndex++) {
+    //         const oppositeRowIndex = section.height - rowIndex - 1;
+    //         if (clonedRows[rowIndex] && clonedRows[oppositeRowIndex]) {
+    //             [clonedRows[rowIndex], clonedRows[oppositeRowIndex]] = [
+    //                 clonedRows[oppositeRowIndex],
+    //                 clonedRows[rowIndex],
+    //             ];
+    //         }
+    //     }
+    // }
+    // if (direction === "horizontal") {
+    //     for (let rowIndex = 0; rowIndex < section.height; rowIndex++) {
+    //         for (
+    //             let columnIndex = 0;
+    //             columnIndex < section.width / 2;
+    //             columnIndex++
+    //         ) {
+    //             const oppositeColumnIndex = section.width - columnIndex - 1;
+    //             [
+    //                 clonedRows[rowIndex].cells[columnIndex],
+    //                 clonedRows[rowIndex].cells[oppositeColumnIndex],
+    //             ] = [
+    //                 clonedRows[rowIndex].cells[oppositeColumnIndex],
+    //                 clonedRows[rowIndex].cells[columnIndex],
+    //             ];
+    //         }
+    //     }
+    // }
+    // return {
+    //     ...section,
+    //     rows: clonedRows,
+    // };
 };
 
 export const mergeSection = (
-    grid: BeadingGridStateLegacy,
-    targetWindow: BeadingGridWindow,
-    sourceSection: BeadingGridSection
+    _grid: BeadingGridState,
+    _targetWindow: BeadingGridWindow,
+    _sourceSection: BeadingGridSection
 ) => {
-    const clonedRows = grid.rows.map((row) => ({ cells: [...row.cells] }));
-
-    sourceSection.rows.forEach((row, rowIndex) => {
-        row.cells.forEach((cell, columnIndex) => {
-            if (
-                isPositionInBounds(
-                    grid,
-                    targetWindow.offset,
-                    columnIndex,
-                    rowIndex
-                ) &&
-                !isNullOrEmpty(cell)
-            ) {
-                const targetRowIndex = targetWindow.offset.rowIndex + rowIndex;
-                const targetColumnIndex =
-                    targetWindow.offset.columnIndex + columnIndex;
-                if (clonedRows[targetRowIndex]) {
-                    clonedRows[targetRowIndex].cells[targetColumnIndex] = cell;
-                }
-            }
-        });
-    });
-
-    return {
-        ...grid,
-        rows: clonedRows,
-    };
+    // const clonedRows = grid.rows.map((row) => ({ cells: [...row.cells] }));
+    // sourceSection.rows.forEach((row, rowIndex) => {
+    //     row.cells.forEach((cell, columnIndex) => {
+    //         if (
+    //             isPositionInBounds(
+    //                 grid,
+    //                 targetWindow.offset,
+    //                 columnIndex,
+    //                 rowIndex
+    //             ) &&
+    //             !isNullOrEmpty(cell)
+    //         ) {
+    //             const targetRowIndex = targetWindow.offset.rowIndex + rowIndex;
+    //             const targetColumnIndex =
+    //                 targetWindow.offset.columnIndex + columnIndex;
+    //             if (clonedRows[targetRowIndex]) {
+    //                 clonedRows[targetRowIndex].cells[targetColumnIndex] = cell;
+    //             }
+    //         }
+    //     });
+    // });
+    // return {
+    //     ...grid,
+    //     rows: clonedRows,
+    // };
 };
 
 export const mirrorSection = (
-    grid: BeadingGridStateLegacy,
-    targetWindow: BeadingGridWindow,
-    sourceWindow: BeadingGridWindow,
-    direction: "horizontal" | "vertical"
+    _grid: BeadingGridState,
+    _targetWindow: BeadingGridWindow,
+    _sourceWindow: BeadingGridWindow,
+    _direction: "horizontal" | "vertical"
 ) => {
-    const sourceSection = getSection(grid, sourceWindow);
-    const flippedSection = flipSection(sourceSection, direction);
-    const modifiedGrid = mergeSection(grid, targetWindow, flippedSection);
-    return modifiedGrid;
+    // const sourceSection = getSection(grid, sourceWindow);
+    // const flippedSection = flipSection(sourceSection, direction);
+    // const modifiedGrid = mergeSection(grid, targetWindow, flippedSection);
+    // return modifiedGrid;
 };
 
 export const dulicateSection = (
-    grid: BeadingGridStateLegacy,
+    grid: BeadingGridState,
     targetWindow: BeadingGridWindow,
     sourceWindow: BeadingGridWindow
 ) => {
@@ -227,6 +219,6 @@ export const dulicateSection = (
     return modifiedGrid;
 };
 
-export const clearSection = (grid: BeadingGridStateLegacy) => {
+export const clearSection = (grid: BeadingGridState) => {
     return grid;
 };

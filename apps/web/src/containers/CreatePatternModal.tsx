@@ -34,7 +34,7 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
     BeadingGridOptionsPanel,
-    BeadingLayoutOptionsPanel,
+    PatternLayoutOptionsPanel,
 } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction, deletePatternAction } from "../creators";
@@ -141,7 +141,7 @@ export const CreatePatternModal: FC<{
                             <Text color={"gray.700"} fontSize={"small"}>
                                 Common pattern properties
                             </Text>
-                            <BeadingLayoutOptionsPanel
+                            <PatternLayoutOptionsPanel
                                 size={"sm"}
                                 layout={patternOptions.layout}
                                 onChange={handleOnPatternOptionsChange}

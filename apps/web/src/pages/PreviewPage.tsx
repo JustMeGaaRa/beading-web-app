@@ -105,10 +105,8 @@ export const PreviewPage: FC = () => {
     }, []);
 
     const handleOnCellPointerDown = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
-        const position = stageRef.current?.getPointerPosition() ?? { x: 0, y: 0 };
-        console.log("stage cursor position", position);
         dispatch(setBeadingGridCellAction({ ...event.cell, color: colors[0] }));
-    }, [stageRef, colors]);
+    }, [colors]);
 
     const patternOptions: PatternOptions = {
         layout: {
@@ -128,7 +126,7 @@ export const PreviewPage: FC = () => {
                 <Content>
                     <Box ref={containerRef} height={"100%"} width={"100%"}>
                         <Stage ref={stageRef} height={stageSize.height} width={stageSize.width}>
-                            <Layer x={300} y={100}>
+                            <Layer>
                                 <BeadingGridStylesProvider styles={DefaultGridStyles}>
 
                                     <BeadingGridSelectionProvider>

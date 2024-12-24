@@ -3,6 +3,7 @@ import {
     DefaultGridProperties,
     gridApplyOptions,
     gridCreateDefault,
+    gridReducer,
 } from "@repo/bead-grid";
 import { PatternActions } from "../actions";
 import { PatternOptions, PatternState } from "../types";
@@ -68,6 +69,23 @@ export const patternReducer = (
                 grids: state.grids.filter(
                     (grid) => grid.name !== action.payload.name
                 ),
+            };
+        case "BEADING_GRID_APPLY_OPTIONS":
+        case "BEADING_GRID_SET_CELL":
+        case "BEADING_GRID_CLEAR_CELLS":
+        case "BEADING_GRID_ADD_COLUMN_BEFORE":
+        case "BEADING_GRID_ADD_COLUMN_AFTER":
+        case "BEADING_GRID_DELETE_COLUMN":
+        case "BEADING_GRID_CLEAR_COLUMN":
+        case "BEADING_GRID_ADD_ROW_BEFORE":
+        case "BEADING_GRID_ADD_ROW_AFTER":
+        case "BEADING_GRID_DELETE_ROW":
+        case "BEADING_GRID_CLEAR_ROW":
+            console.log("patternReducer", action.type);
+            return {
+                ...state,
+                lastModified: new Date(),
+                grids: state.grids.map((grid) => gridReducer(grid, action)),
             };
         default:
             return state;

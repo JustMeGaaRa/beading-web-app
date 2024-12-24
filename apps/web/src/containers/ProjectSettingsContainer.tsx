@@ -15,6 +15,7 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import {
+    applyBeadingGridOptionsAction,
     BeadingGridProperties,
     BeadingGridState,
     BeadingGridType,
@@ -40,7 +41,7 @@ import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
     BeadingGridOptionsPanel,
-    BeadingLayoutOptionsPanel,
+    PatternLayoutOptionsPanel,
     ColorPalette,
     useColorPalette,
     Shortcuts,
@@ -157,7 +158,7 @@ const PatternOptionsContainer: FC = () => {
             <Text fontSize={"xs"} fontWeight={"600"}>
                 Layout
             </Text>
-            <BeadingLayoutOptionsPanel
+            <PatternLayoutOptionsPanel
                 layout={pattern.options.layout}
                 size={"xs"}
                 onChange={handleOnLayoutChange}
@@ -180,12 +181,11 @@ const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({ grid }) =>
     }, [dispatch, grid?.name]);
 
     const handleOnTypeClick = useCallback((type: BeadingGridType) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        // dispatch(applyBeadingGridOptionsAction(grid.name, { ...grid.options, type } as any));
-    }, [dispatch, grid?.name, grid?.options]);
+        dispatch(applyBeadingGridOptionsAction({ ...grid.options, type } as BeadingGridProperties));
+    }, [dispatch, grid.options]);
 
     const handleOnOptionsChange = useCallback((modifiedOptions: BeadingGridProperties) => {
-        // dispatch(applyBeadingGridOptionsAction(modifiedGrid.name, modifiedOptions));
+        dispatch(applyBeadingGridOptionsAction(modifiedOptions));
     }, [dispatch]);
 
     const isBrickLayout = pattern.options.layout.type === "brick";

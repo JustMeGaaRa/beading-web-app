@@ -1,3 +1,4 @@
+import { GridActions } from "../../../bead-grid/src/actions";
 import { PatternOptions } from "../types";
 
 type Action<TAction extends string, TPayload> = {
@@ -31,4 +32,5 @@ export type PatternActions =
     | PatternChangeColorAction
     | PatternApplyOptionsAction
     | PatternAddGridAction
-    | PatternDeleteGridAction;
+    | PatternDeleteGridAction
+    | GridActions;

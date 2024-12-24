@@ -90,7 +90,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
                     />
                 ))
                 }
-                {options.type === "brick" && (
+                {options.type === "brick" && options.fringe > 0 && (
                     <BeadingGridDivider
                         length={options.width}
                         offset={{ columnIndex: 0, rowIndex: options.height }}
