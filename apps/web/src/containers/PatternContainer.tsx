@@ -416,13 +416,13 @@ export const PatternContainer: FC = () => {
     }, [onPointerUp]);
 
     const handleOnGridCellPointerEnter = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
-        if (isPointerDown && isPencilEnabled) {
+        if (event.isPointerDown && isPencilEnabled) {
             dispatch(setBeadingGridCellAction({ ...event.cell, color: selectedColor }));
         }
-        if (isPointerDown && isEraserEnabled) {
+        if (event.isPointerDown && isEraserEnabled) {
             dispatch(setBeadingGridCellAction({ ...event.cell, color: "" }));
         }
-    }, [isPointerDown, isPencilEnabled, isEraserEnabled, selectedColor, dispatch]);
+    }, [isPencilEnabled, isEraserEnabled, selectedColor, dispatch]);
 
     // const handleOnGridSelectionChange = useCallback((source: BeadingGridState) => {
     //     if (isPointerDown && isCursorEnabled) {

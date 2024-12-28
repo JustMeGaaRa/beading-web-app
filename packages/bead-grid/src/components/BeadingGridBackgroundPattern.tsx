@@ -25,6 +25,7 @@ export const BeadingGridBackgroundPattern: FC = () => {
                     return (
                         <Circle
                             key={`blank-${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
+                            listening={false}
                             fill={styles.components.pattern.color}
                             height={4}
                             width={4}

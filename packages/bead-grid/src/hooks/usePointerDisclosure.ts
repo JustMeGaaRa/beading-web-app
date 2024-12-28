@@ -1,7 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export const usePointerDisclosure = () => {
     const [isPointerDown, setIsPointerDown] = useState(false);
+
+    useEffect(() => {
+        window.addEventListener("pointerup", onPointerUp);
+
+        return () => {
+            window.removeEventListener("pointerup", onPointerUp);
+        };
+    }, [isPointerDown]);
 
     const onPointerDown = useCallback(
         () => setIsPointerDown(true),

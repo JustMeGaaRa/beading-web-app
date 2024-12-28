@@ -81,7 +81,6 @@ export const patternReducer = (
         case "BEADING_GRID_ADD_ROW_AFTER":
         case "BEADING_GRID_DELETE_ROW":
         case "BEADING_GRID_CLEAR_ROW":
-            console.log("patternReducer", action.type);
             return {
                 ...state,
                 lastModified: new Date(),

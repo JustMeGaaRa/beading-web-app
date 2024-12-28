@@ -56,6 +56,7 @@ export const BeadingGridCell: FC<{
                         cornerRadius={styles.components.cell.borderRadius}
                         fill={color}
                         height={height}
+                        listening={false}
                         stroke={styles.components.cell.borderColor}
                         strokeWidth={1}
                         width={width}
@@ -73,6 +74,7 @@ export const BeadingGridCell: FC<{
                         cornerRadius={styles.components.cell._selected.borderRadius}
                         fill={styles.components.cell._selected.backgroundColor}
                         height={height}
+                        listening={false}
                         opacity={0.3}
                         stroke={styles.components.cell._selected.borderColor}
                         strokeWidth={styles.components.cell._selected.borderWidth}
