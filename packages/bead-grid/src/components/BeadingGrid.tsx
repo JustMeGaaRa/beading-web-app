@@ -1,86 +1,68 @@
 import { FC, PropsWithChildren, useCallback, useEffect } from "react";
-import { Group } from "react-konva";
+import { Group, Rect } from "react-konva";
 import { BeadingGridCellState, BeadingGridProperties, BeadingGridState, BeadingPointerEvent } from "../types";
 import { BeadingGridCell } from "./BeadingGridCell";
 import { BeadingGridDivider } from "./BeadingGridDivider";
-import { useGrid, useGridStyles } from "../hooks";
+import { useGrid, useGridStyles, usePointerDisclosure } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
-import { hitTest } from "../utils";
+import { getGridRenderSize, hitTest } from "../utils";
 
 export const BeadingGrid: FC<PropsWithChildren<{
     offset?: BeadingGridOffset;
     cells?: Array<BeadingGridCellState>;
     options: BeadingGridProperties;
-    onCellPointerDown?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onCellPointerUp?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onCellPointerEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
-    onCellPointerLeave?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onCellEnter?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
+    onCellLeave?: (source: BeadingGridState, event: BeadingPointerEvent) => void;
 }>> = ({
     children,
     offset: offsetProps,
     cells: cellsProps,
     options: optionsProps,
-    onCellPointerDown,
-    onCellPointerUp,
-    onCellPointerEnter,
-    onCellPointerLeave,
+    onCellEnter,
+    onCellLeave,
 }) => {
         const { styles } = useGridStyles();
         const { cells, offset, options, setCells, setOffset, setOptions } = useGrid();
+        const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
 
         useEffect(() => setOffset(offsetProps ?? { columnIndex: 0, rowIndex: 0 }), [offsetProps]);
         useEffect(() => setCells(cellsProps ?? []), [cellsProps]);
         useEffect(() => setOptions(optionsProps), [optionsProps]);
 
-        const handleOnMouseDown = useCallback((event: KonvaEventObject<MouseEvent>) => {
+        const handleOnMouseDown = useCallback(() => {
+            onPointerDown();
+        }, [onCellEnter]);
+
+        const handleOnMouseUp = useCallback(() => {
+            onPointerUp();
+        }, [onPointerUp]);
+
+        const handleOnMouseMove = useCallback((event: KonvaEventObject<MouseEvent>) => {
             const gridState = { name: "", offset, cells, options };
-            const cursor = { x: event.evt.offsetX, y: event.evt.offsetY };
+            const cursor = event.currentTarget.getRelativePointerPosition() ?? { x: 0, y: 0 };
             const hitResult = hitTest(gridState, styles, cursor);
             const cell = { offset: hitResult.hitResult, color: "" };
-            onCellPointerDown?.(gridState, { cell });
-        }, [onCellPointerDown]);
+            const gridEvent = { cell, isPointerDown: isPointerDown } satisfies BeadingPointerEvent;
 
-        const handleOnMouseUp = useCallback((event: KonvaEventObject<MouseEvent>) => {
-            const gridState = { name: "", offset, cells, options };
-            const cursor = { x: event.evt.offsetX, y: event.evt.offsetY };
-            const hitResult = hitTest(gridState, styles, cursor);
-            const cell = { offset: hitResult.hitResult, color: "" };
-            onCellPointerUp?.(gridState, { cell });
-        }, [onCellPointerUp]);
+            onCellEnter?.(gridState, gridEvent);
+        }, [onCellEnter, isPointerDown]);
 
-        const handleOnMouseEnter = useCallback((event: KonvaEventObject<MouseEvent>) => {
-            const gridState = { name: "", offset, cells, options };
-            const cursor = { x: event.evt.offsetX, y: event.evt.offsetY };
-            const hitResult = hitTest(gridState, styles, cursor);
-            const cell = { offset: hitResult.hitResult, color: "" };
-            onCellPointerEnter?.(gridState, { cell });
-        }, [onCellPointerEnter]);
-
-        const handleOnMouseLeave = useCallback((event: KonvaEventObject<MouseEvent>) => {
-            const gridState = { name: "", offset, cells, options };
-            const cursor = { x: event.evt.offsetX, y: event.evt.offsetY };
-            const hitResult = hitTest(gridState, styles, cursor);
-            const cell = { offset: hitResult.hitResult, color: "" };
-            onCellPointerLeave?.(gridState, { cell });
-        }, [onCellPointerLeave]);
-
-        const width = styles.bead.width * styles.rendering.pixelPerPoint;
-        const height = styles.bead.height * styles.rendering.pixelPerPoint;
+        const { height, width } = getGridRenderSize(options, styles);
         const positionX = (offset?.columnIndex ?? 0) * width;
         const positionY = (offset?.rowIndex ?? 0) * height;
 
         return (
-            <Group
-                x={positionX}
-                y={positionY}
-                height={height}
-                width={width}
-                onMouseDown={handleOnMouseDown}
-                onMouseUp={handleOnMouseUp}
-                onMouseEnter={handleOnMouseEnter}
-                onMouseLeave={handleOnMouseLeave}
-            >
+            <Group x={positionX} y={positionY}>
+                <Rect
+                    fill={"transparent"}
+                    height={height}
+                    width={width}
+                    onMouseDown={handleOnMouseDown}
+                    onMouseUp={handleOnMouseUp}
+                    onMouseMove={handleOnMouseMove}
+                />
+
                 {children}
                 {cells.map(cell => (
                     <BeadingGridCell

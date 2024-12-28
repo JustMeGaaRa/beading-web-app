@@ -18,19 +18,19 @@ export const BeadingText: FC<{
     options,
 }) => {
         const { styles } = useGridStyles();
-        const position = getGridCellOffset(offset, options, styles);
-        const size = getGridCellRenderSize(options, styles);
+        const { x, y } = getGridCellOffset(offset, options, styles);
+        const { height } = getGridCellRenderSize(options, styles);
 
         return (
             <Text
-                height={size.height}
+                height={height}
                 align={"left"}
                 verticalAlign={"middle"}
                 padding={padding}
                 text={text}
                 fill={color ?? styles.components.text.color}
-                x={position.x}
-                y={position.y}
+                x={x}
+                y={y}
             />
         );
     };

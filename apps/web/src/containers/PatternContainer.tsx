@@ -33,7 +33,8 @@ import {
     addBeadingGridColumnBeforeAction,
     clearBeadingGridColumnAction,
     deleteBeadingGridColumnAction,
-    setBeadingGridCellAction
+    setBeadingGridCellAction,
+    BeadingGridSelectionProvider
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -415,9 +416,7 @@ export const PatternContainer: FC = () => {
     }, [onPointerUp]);
 
     const handleOnGridCellPointerEnter = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
-        console.log("Pointer Enter", event.cell);
         if (isPointerDown && isPencilEnabled) {
-            console.log("Pencil Enabled", selectedColor);
             dispatch(setBeadingGridCellAction({ ...event.cell, color: selectedColor }));
         }
         if (isPointerDown && isEraserEnabled) {
@@ -456,41 +455,39 @@ export const PatternContainer: FC = () => {
             >
                 <Layer>
                     <BeadingGridStylesProvider styles={DefaultGridStyles}>
-
-                        {pattern.grids.map((grid) => (
-                            <BeadingGridProvider key={grid.name}>
-                                <BeadingGrid
-                                    cells={grid.cells}
-                                    offset={grid.offset}
-                                    options={grid.options}
-                                    onCellPointerDown={handleOnGridCellPointerDown}
-                                    onCellPointerUp={handleOnGridCellPointerUp}
-                                    onCellPointerEnter={handleOnGridCellPointerEnter}
-                                // onCellPointerLeave={handleOnGridSelectionChange}
-                                >
-                                    <BeadingGridBackgroundPattern />
-                                    <BeadingText
-                                        text={grid.name}
-                                        offset={isLayoutHorizontal
-                                            ? { columnIndex: 1, rowIndex: -4 }
-                                            : { columnIndex: -4, rowIndex: 0 }
-                                        }
+                        <BeadingGridSelectionProvider>
+                            {pattern.grids.map((grid) => (
+                                <BeadingGridProvider key={grid.name}>
+                                    <BeadingGrid
+                                        cells={grid.cells}
+                                        offset={grid.offset}
                                         options={grid.options}
-                                    />
-                                    <BeadingGridDivider
-                                        length={isLayoutHorizontal
-                                            ? getGridActualHeight(grid.options) + 4
-                                            : grid.options.width + 4
-                                        }
-                                        offset={isLayoutHorizontal
-                                            ? { columnIndex: 0, rowIndex: -4 }
-                                            : { columnIndex: -4, rowIndex: 0 }
-                                        }
-                                        orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
-                                    />
-                                </BeadingGrid>
-                            </BeadingGridProvider>
-                        ))}
+                                        onCellEnter={handleOnGridCellPointerEnter}
+                                    >
+                                        <BeadingGridBackgroundPattern />
+                                        <BeadingText
+                                            text={grid.name}
+                                            offset={isLayoutHorizontal
+                                                ? { columnIndex: 1, rowIndex: -4 }
+                                                : { columnIndex: -4, rowIndex: 0 }
+                                            }
+                                            options={grid.options}
+                                        />
+                                        <BeadingGridDivider
+                                            length={isLayoutHorizontal
+                                                ? getGridActualHeight(grid.options) + 4
+                                                : grid.options.width + 4
+                                            }
+                                            offset={isLayoutHorizontal
+                                                ? { columnIndex: 0, rowIndex: -4 }
+                                                : { columnIndex: -4, rowIndex: 0 }
+                                            }
+                                            orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
+                                        />
+                                    </BeadingGrid>
+                                </BeadingGridProvider>
+                            ))}
+                        </BeadingGridSelectionProvider>
 
                         {pattern.grids.length > 0 && (
                             <BeadingFrame

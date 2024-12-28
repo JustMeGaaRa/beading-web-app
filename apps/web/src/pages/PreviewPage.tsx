@@ -14,11 +14,11 @@ import {
     BeadingFrame,
     BeadingGridSelectionProvider,
 } from "@repo/bead-grid";
+import { getPatternSize, PatternOptions } from "@repo/bead-pattern-editor";
 import { FC, useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Layer, Stage } from "react-konva";
 import Konva from "konva";
 import { ColorPaletteProvider, Content, Page } from "../components";
-import { getPatternSize, PatternOptions } from "@repo/bead-pattern-editor";
 
 export const PreviewPage: FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -104,8 +104,10 @@ export const PreviewPage: FC = () => {
         resizeStage();
     }, []);
 
-    const handleOnCellPointerDown = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
-        dispatch(setBeadingGridCellAction({ ...event.cell, color: colors[0] }));
+    const handleOnCellEnter = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
+        if (event.isPointerDown) {
+            dispatch(setBeadingGridCellAction({ ...event.cell, color: colors[0] }));
+        }
     }, [colors]);
 
     const patternOptions: PatternOptions = {
@@ -125,10 +127,15 @@ export const PreviewPage: FC = () => {
             <Page>
                 <Content>
                     <Box ref={containerRef} height={"100%"} width={"100%"}>
-                        <Stage ref={stageRef} height={stageSize.height} width={stageSize.width}>
+                        <Stage
+                            ref={stageRef}
+                            x={100}
+                            y={100}
+                            height={stageSize.height}
+                            width={stageSize.width}
+                        >
                             <Layer>
                                 <BeadingGridStylesProvider styles={DefaultGridStyles}>
-
                                     <BeadingGridSelectionProvider>
 
                                         <BeadingGridProvider>
@@ -136,7 +143,7 @@ export const PreviewPage: FC = () => {
                                                 cells={state.cells}
                                                 offset={state.offset}
                                                 options={state.options}
-                                                onCellPointerDown={handleOnCellPointerDown}
+                                                onCellEnter={handleOnCellEnter}
                                             >
                                                 <BeadingGridBackgroundPattern />
                                                 <BeadingText
@@ -151,16 +158,15 @@ export const PreviewPage: FC = () => {
                                                 />
 
                                             </BeadingGrid>
-
-                                            <BeadingFrame
-                                                height={height}
-                                                width={width}
-                                                options={state.options}
-                                            />
                                         </BeadingGridProvider>
 
-                                    </BeadingGridSelectionProvider>
+                                        <BeadingFrame
+                                            height={height}
+                                            width={width}
+                                            options={state.options}
+                                        />
 
+                                    </BeadingGridSelectionProvider>
                                 </BeadingGridStylesProvider>
                             </Layer>
                         </Stage>
