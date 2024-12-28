@@ -14,7 +14,6 @@ import {
     BeadingGridProvider,
     BeadingGridDivider,
     BeadingText,
-    usePointerDisclosure,
     BeadingPointerEvent,
     useGridStyles,
     DefaultGridStyles,
@@ -34,7 +33,8 @@ import {
     clearBeadingGridColumnAction,
     deleteBeadingGridColumnAction,
     setBeadingGridCellAction,
-    BeadingGridSelectionProvider
+    BeadingGridSelectionProvider,
+    HighlightedArea
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -61,6 +61,7 @@ import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
     Layer,
+    Rect,
     Stage,
 } from "react-konva";
 // import { Html } from "react-konva-utils";
@@ -84,11 +85,13 @@ import { putPattern } from "../api";
 
 const hotkeysOptions = { preventDefault: true };
 
+type Position = { x: number, y: number } | undefined;
+
 export const PatternContainer: FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<Konva.Stage>(null);
     const lastTouchDistanceRef = useRef(0);
-    // const gridRefs = useRef<Record<string, GridStateRef>>({});
+    const gridRefs = useRef<Record<string, unknown>>({});
 
     const [stageSize, setStageSize] = useState({ height: 0, width: 0 });
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -96,7 +99,6 @@ export const PatternContainer: FC = () => {
     const [rowState, setRowState] = useState<TextState | null>();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { isPointerDown, onPointerDown, onPointerUp } = usePointerDisclosure();
 
     const { selectedColor } = useColorPalette();
     const { tool } = useTools();
@@ -115,11 +117,11 @@ export const PatternContainer: FC = () => {
 
     const isLayoutHorizontal = pattern.options.layout.orientation === "horizontal";
     const isMoveEnabled = tool.name === "move";
-    // const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
+    const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
     const isPencilEnabled = tool.name === "pencil";
     const isEraserEnabled = tool.name === "eraser";
 
-    const onStageCentered = useCallback((pattern: PatternState) => {
+    const centerStage = useCallback((pattern: PatternState) => {
         if (containerRef.current && stageRef.current && pattern?.grids.length > 0) {
             const patternSize = getPatternRenderSize(pattern.grids, styles, pattern.options);
             const position = {
@@ -131,17 +133,17 @@ export const PatternContainer: FC = () => {
         }
     }, [styles]);
 
-    // const onResetGridsSelection = useCallback((source?: BeadingGridState) => {
-    //     Object
-    //         .entries(gridRefs.current)
-    //         .forEach(([name, ref]) => {
-    //             if (name !== source?.name) {
-    //                 ref.onResetSelection();
-    //             }
-    //         });
-    // }, [gridRefs]);
+    const resetGridsSelection = useCallback((source?: unknown) => {
+        Object
+            .entries(gridRefs.current)
+            .forEach(([name, ref]) => {
+                if (typeof source === "object" && source && "name" in source && name !== source?.name) {
+                    ref.onResetSelection();
+                }
+            });
+    }, []);
 
-    useHotkeys(Shortcuts.patternCenter.keyString, () => onStageCentered(pattern), hotkeysOptions, [onStageCentered, pattern]);
+    useHotkeys(Shortcuts.patternCenter.keyString, () => centerStage(pattern), hotkeysOptions, [centerStage, pattern]);
     useHotkeys(Shortcuts.patternUndo.keyString, () => undo(), hotkeysOptions, [undo]);
     useHotkeys(Shortcuts.patternRedo.keyString, () => redo(), hotkeysOptions, [redo]);
 
@@ -152,19 +154,17 @@ export const PatternContainer: FC = () => {
                     height: containerRef.current.offsetHeight,
                     width: containerRef.current.offsetWidth,
                 });
-                onStageCentered(pattern);
+                centerStage(pattern);
             }
         };
 
         resizeStage();
-        window.addEventListener("mouseup", onPointerUp);
         window.addEventListener("resize", resizeStage);
 
         return () => {
             window.removeEventListener("resize", resizeStage);
-            window.removeEventListener("mouseup", onPointerUp);
         };
-    }, [onPointerUp, onStageCentered, pattern]);
+    }, [centerStage, pattern]);
 
     useEffect(() => {
         // NOTE: auto save pattern cover every 5 seconds
@@ -321,8 +321,8 @@ export const PatternContainer: FC = () => {
         // NOTE: clear all active selections when clicked on stage empty space
         setSelectedColumn(-1);
         setSelectedRow(-1);
-        // onResetGridsSelection();
-    }, [setSelectedColumn, setSelectedRow]);
+        resetGridsSelection();
+    }, [resetGridsSelection, setSelectedColumn, setSelectedRow]);
 
     const handleOnStageContextMenu = useCallback((event: KonvaEventObject<MouseEvent>) => {
         event.evt.preventDefault();
@@ -407,14 +407,6 @@ export const PatternContainer: FC = () => {
     }, [columnState, dispatch]);
 
     // SECTION: grid event handlers
-    const handleOnGridCellPointerDown = useCallback(() => {
-        onPointerDown();
-    }, [onPointerDown]);
-
-    const handleOnGridCellPointerUp = useCallback(() => {
-        onPointerUp();
-    }, [onPointerUp]);
-
     const handleOnGridCellPointerEnter = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
         if (event.isPointerDown && isPencilEnabled) {
             dispatch(setBeadingGridCellAction({ ...event.cell, color: selectedColor }));
@@ -424,11 +416,43 @@ export const PatternContainer: FC = () => {
         }
     }, [isPencilEnabled, isEraserEnabled, selectedColor, dispatch]);
 
-    // const handleOnGridSelectionChange = useCallback((source: BeadingGridState) => {
-    //     if (isPointerDown && isCursorEnabled) {
-    //         onResetGridsSelection(source);
-    //     }
-    // }, [isPointerDown, isCursorEnabled, onResetGridsSelection]);
+    const isPointerDown = false;
+    const handleOnGridSelectionChange = useCallback((source: unknown) => {
+        if (isPointerDown && isCursorEnabled) {
+            resetGridsSelection(source);
+        }
+    }, [isPointerDown, isCursorEnabled, resetGridsSelection]);
+
+    const [startPosition, setStarPosition] = useState<Position>();
+    const [endPosition, setEndPosition] = useState<Position>();
+    const [isMouseDown, setIsMouseDown] = useState(false);
+
+    const handleOnPointerDown = useCallback((event: KonvaEventObject<MouseEvent>) => {
+        if (isCursorEnabled) {
+            const stage = event.target.getStage();
+            const position = stage?.getRelativePointerPosition() ?? { x: 0, y: 0 };
+            setStarPosition(position);
+            setEndPosition(undefined);
+        }
+        setIsMouseDown(true);
+    }, [isCursorEnabled]);
+
+    const handleOnPointerUp = useCallback((event: KonvaEventObject<MouseEvent>) => {
+        if (isCursorEnabled) {
+            const stage = event.target.getStage();
+            const position = stage?.getRelativePointerPosition() ?? { x: 0, y: 0 };
+            setEndPosition(position);
+        }
+        setIsMouseDown(false);
+    }, [isCursorEnabled]);
+
+    const handleOnPointerMove = useCallback((event: KonvaEventObject<MouseEvent>) => {
+        if (isCursorEnabled && isMouseDown) {
+            const stage = event.target.getStage();
+            const position = stage?.getRelativePointerPosition() ?? { x: 0, y: 0 };
+            setEndPosition(position);
+        }
+    }, [isCursorEnabled, isMouseDown]);
 
     return (
         <Box
@@ -451,6 +475,9 @@ export const PatternContainer: FC = () => {
                 onContextMenu={handleOnStageContextMenu}
                 onTouchMove={handleOnStageTouchMove}
                 onTouchEnd={handleOnStageTouchEnd}
+                onPointerDown={handleOnPointerDown}
+                onPointerUp={handleOnPointerUp}
+                onPointerMove={handleOnPointerMove}
                 onWheel={handleOnStageWheel}
             >
                 <Layer>
@@ -484,6 +511,14 @@ export const PatternContainer: FC = () => {
                                             }
                                             orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
                                         />
+                                        {startPosition && endPosition && isCursorEnabled && (
+                                            <HighlightedArea
+                                                x={startPosition.x}
+                                                y={startPosition.y}
+                                                width={endPosition.x - startPosition.x}
+                                                height={endPosition.y - startPosition.y}
+                                            />
+                                        )}
                                     </BeadingGrid>
                                 </BeadingGridProvider>
                             ))}

@@ -18,11 +18,20 @@ export const gridSetCell = (
     }
 
     // check if the target cell is out of bounds or has no color
-    if (
-        !isInBounds(grid.options, targetCell.offset) ||
-        targetCell.color === ""
-    ) {
+    if (!isInBounds(grid.options, targetCell.offset)) {
         return grid;
+    }
+
+    // check if the target cell is blank and remove it from the grid
+    if (targetCell.color === "") {
+        return {
+            ...grid,
+            cells: grid.cells.filter(
+                (cell) =>
+                    cell.offset.columnIndex !== targetCell.offset.columnIndex ||
+                    cell.offset.rowIndex !== targetCell.offset.rowIndex
+            ),
+        };
     }
 
     return {
