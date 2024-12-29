@@ -95,6 +95,11 @@ export const clearBeadingGridRowAction = (row: number): GridClearRowAction => ({
     payload: { row },
 });
 
+export const setSelectedCellsAction = (cells: Array<BeadingGridCellState>) => ({
+    type: "BEADING_GRID_SET_SELECTED_CELLS",
+    payload: { cells },
+});
+
 export const mirrorBeadingGridSectionAction = (
     target: BeadingGridWindow,
     source: BeadingGridWindow,

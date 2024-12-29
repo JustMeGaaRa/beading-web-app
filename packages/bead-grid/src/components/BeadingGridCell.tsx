@@ -51,25 +51,24 @@ export const BeadingGridCell: FC<{
 
         return (
             <Fragment>
-                {!isSelected ? (
-                    <Rect
-                        cornerRadius={styles.components.cell.borderRadius}
-                        fill={color}
-                        height={height}
-                        listening={false}
-                        stroke={styles.components.cell.borderColor}
-                        strokeWidth={1}
-                        width={width}
-                        x={x}
-                        y={y}
-                        onClick={handleOnClick}
-                        onTap={handleOnClick}
-                        onPointerDown={handleOnPointerDown}
-                        onPointerUp={handleOnPointerUp}
-                        onPointerOver={handleOnPointerOver}
-                        onPointerEnter={handleOnPointerEnter}
-                    />
-                ) : (
+                <Rect
+                    cornerRadius={styles.components.cell.borderRadius}
+                    fill={color}
+                    height={height}
+                    listening={false}
+                    stroke={styles.components.cell.borderColor}
+                    strokeWidth={1}
+                    width={width}
+                    x={x}
+                    y={y}
+                    onClick={handleOnClick}
+                    onTap={handleOnClick}
+                    onPointerDown={handleOnPointerDown}
+                    onPointerUp={handleOnPointerUp}
+                    onPointerOver={handleOnPointerOver}
+                    onPointerEnter={handleOnPointerEnter}
+                />
+                {isSelected && (
                     <Rect
                         cornerRadius={styles.components.cell._selected.borderRadius}
                         fill={styles.components.cell._selected.backgroundColor}

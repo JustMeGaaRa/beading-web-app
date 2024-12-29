@@ -68,6 +68,8 @@ export const getGridCellOffset = (
         return {
             x: width * columnIndex + brickOffsetX,
             y: height * rowIndex,
+            height: height,
+            width: width,
         };
     };
 
@@ -83,6 +85,8 @@ export const getGridCellOffset = (
         return {
             x: width * columnIndex,
             y: height * rowIndex + peyoteOffsetY,
+            height: height,
+            width: width,
         };
     };
 
@@ -92,6 +96,8 @@ export const getGridCellOffset = (
         return {
             x: width * columnIndex,
             y: height * rowIndex,
+            height: height,
+            width: width,
         };
     };
 

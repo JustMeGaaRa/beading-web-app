@@ -5,6 +5,7 @@ export * from "./BeadingGridOffset";
 export * from "./BeadingGridProperties";
 export * from "./BeadingGridRectangle";
 export * from "./BeadingGridSection";
+export * from "./BeadingGridSelectedArea";
 export * from "./BeadingGridState";
 export * from "./BeadingGridStyles";
 export * from "./BeadingGridType";

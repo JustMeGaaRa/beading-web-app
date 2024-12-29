@@ -47,3 +47,13 @@ export const gridSetCell = (
         ],
     };
 };
+
+export const gridSetCells = (
+    grid: BeadingGridState,
+    cells: Array<BeadingGridCellState>
+): BeadingGridState => {
+    return cells.reduce(
+        (currentGrid, cell) => gridSetCell(currentGrid, cell),
+        grid
+    );
+};

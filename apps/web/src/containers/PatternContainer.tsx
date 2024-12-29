@@ -34,7 +34,7 @@ import {
     deleteBeadingGridColumnAction,
     setBeadingGridCellAction,
     BeadingGridSelectionProvider,
-    HighlightedArea
+    BeadingGridSelectedArea
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -511,18 +511,19 @@ export const PatternContainer: FC = () => {
                                             }
                                             orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
                                         />
-                                        {startPosition && endPosition && isCursorEnabled && (
-                                            <HighlightedArea
-                                                x={startPosition.x}
-                                                y={startPosition.y}
-                                                width={endPosition.x - startPosition.x}
-                                                height={endPosition.y - startPosition.y}
-                                            />
-                                        )}
                                     </BeadingGrid>
                                 </BeadingGridProvider>
                             ))}
                         </BeadingGridSelectionProvider>
+
+                        {startPosition && endPosition && isCursorEnabled && (
+                            <BeadingGridSelectedArea
+                                x={startPosition.x}
+                                y={startPosition.y}
+                                width={endPosition.x - startPosition.x}
+                                height={endPosition.y - startPosition.y}
+                            />
+                        )}
 
                         {pattern.grids.length > 0 && (
                             <BeadingFrame

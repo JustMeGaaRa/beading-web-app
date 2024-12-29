@@ -6,7 +6,7 @@ import { BeadingGridDivider } from "./BeadingGridDivider";
 import { useGrid, useGridStyles, usePointerDisclosure } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
-import { getGridRenderSize, hitTest } from "../utils";
+import { getGridRenderSize, hitTestCursor } from "../utils";
 
 export const BeadingGrid: FC<PropsWithChildren<{
     offset?: BeadingGridOffset;
@@ -41,8 +41,9 @@ export const BeadingGrid: FC<PropsWithChildren<{
         const handleOnMouseMove = useCallback((event: KonvaEventObject<MouseEvent>) => {
             const gridState = { name: "", offset, cells, options };
             const cursor = event.currentTarget.getRelativePointerPosition() ?? { x: 0, y: 0 };
-            const hitResult = hitTest(gridState, styles, cursor);
-            const cell = { offset: hitResult.hitResult, color: "" };
+            const hitResults = hitTestCursor(gridState, styles, cursor);
+            // TODO: check if hitResults is empty
+            const cell = { offset: hitResults.hitResult[0]!.offset, color: "" };
             const gridEvent = { cell, isPointerDown: isPointerDown } satisfies BeadingPointerEvent;
 
             onCellEnter?.(gridState, gridEvent);
@@ -69,6 +70,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
                         key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
                         color={cell.color}
                         offset={cell.offset}
+                        isSelected={cell.isSelected}
                     />
                 ))
                 }

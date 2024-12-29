@@ -3,7 +3,7 @@ import { FC } from "react";
 import { Rect } from "react-konva";
 import { useGridStyles } from "../hooks";
 
-export const HighlightedArea: FC<{
+export const BeadingGridSelectedArea: FC<{
     x: number;
     y: number;
     height: number;

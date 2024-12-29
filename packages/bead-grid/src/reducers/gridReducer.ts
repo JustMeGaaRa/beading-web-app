@@ -7,7 +7,7 @@ import { gridDeleteColumn } from "./gridDeleteColumn";
 import { gridDeleteRow } from "./gridDeleteRow";
 import { gridInsertColumn } from "./gridInsertColumn";
 import { gridInsertRow } from "./gridInsertRow";
-import { gridSetCell } from "./gridSetCell";
+import { gridSetCell, gridSetCells } from "./gridSetCell";
 
 export const gridReducer = (
     state: BeadingGridState,
@@ -34,6 +34,8 @@ export const gridReducer = (
             return gridDeleteRow(state, action.payload.row);
         case "BEADING_GRID_CLEAR_ROW":
             return gridClearRow(state, action.payload.row);
+        case "BEADING_GRID_SET_SELECTED_CELLS":
+            return gridSetCells(state, action.payload.cells);
         // case "BEADING_GRID_MIRROR_SECTION":
         //     return mirrorSection(
         //         state,

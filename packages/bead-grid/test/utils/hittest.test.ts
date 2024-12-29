@@ -2,9 +2,11 @@ import { test, expect } from "vitest";
 import {
     BeadingGridState,
     BeadingGridStyles,
+    DefaultGridStyles,
     ONE_SIX_BY_ONE_THREE,
 } from "../../src";
-import { hitTest } from "../../src/utils/hittest";
+import { hitTestCursor, hitTestArea } from "../../src/utils/hittest";
+import { Square3x3GridWithCells } from "../constants";
 
 test.each([
     [
@@ -84,15 +86,27 @@ test.each([
                 width: 10,
             },
         };
-        const styles: BeadingGridStyles = {
-            bead: ONE_SIX_BY_ONE_THREE,
-            rendering: { pixelPerPoint: 20 },
-        };
+        const styles: BeadingGridStyles = DefaultGridStyles;
 
-        const hitResult = hitTest(grid, styles, cursor);
+        const hitResult = hitTestCursor(grid, styles, cursor);
 
         expect(hitResult).toBeDefined();
         expect(hitResult.successfull).toBe(successfull);
-        expect(hitResult.hitResult).toEqual(hit);
+        expect(hitResult.hitResult[0]!.offset).toEqual(hit);
     }
 );
+
+test.each([[]])("should ...", () => {
+    const grid = Square3x3GridWithCells;
+    const gridStyles = DefaultGridStyles;
+    const selectedArea = {
+        x: -10,
+        y: -10,
+        height: 100,
+        width: 100,
+    };
+
+    const hitResult = hitTestArea(grid, gridStyles, selectedArea);
+
+    expect(hitResult).toBeDefined();
+});
