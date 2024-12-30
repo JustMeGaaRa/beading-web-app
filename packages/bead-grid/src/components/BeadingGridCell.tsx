@@ -1,7 +1,7 @@
 import { FC, useCallback, Fragment } from "react";
 import { Rect } from "react-konva";
 import { BeadingGridOffset, BeadingPointerEvent } from "../types";
-import { getGridCellOffset, getGridCellRenderSize } from "../utils";
+import { getGridCellBoundary } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
 export const BeadingGridCell: FC<{
@@ -26,8 +26,7 @@ export const BeadingGridCell: FC<{
         const { styles } = useGridStyles();
         const { options } = useGrid();
 
-        const { x, y } = getGridCellOffset(offset, options, styles);
-        const { height, width } = getGridCellRenderSize(options, styles);
+        const { x, y, height, width } = getGridCellBoundary(offset, options, styles);
 
         const handleOnClick = useCallback(() => {
             onClick?.({ cell: { offset, color } });
@@ -68,13 +67,13 @@ export const BeadingGridCell: FC<{
                     onPointerOver={handleOnPointerOver}
                     onPointerEnter={handleOnPointerEnter}
                 />
-                {isSelected && (
+                {/* {isSelected && (
                     <Rect
                         cornerRadius={styles.components.cell._selected.borderRadius}
                         fill={styles.components.cell._selected.backgroundColor}
                         height={height}
                         listening={false}
-                        opacity={0.3}
+                        opacity={0.5}
                         stroke={styles.components.cell._selected.borderColor}
                         strokeWidth={styles.components.cell._selected.borderWidth}
                         width={width}
@@ -87,7 +86,7 @@ export const BeadingGridCell: FC<{
                         onPointerOver={handleOnPointerOver}
                         onPointerEnter={handleOnPointerEnter}
                     />
-                )}
+                )} */}
             </Fragment>
         );
     };

@@ -10,7 +10,7 @@ test.each([
     [{ color: "green", offset: { columnIndex: 5, rowIndex: 5 }, count: 0 }],
     [{ color: "", offset: { columnIndex: 1, rowIndex: 1 }, count: 0 }],
 ])(
-    "should have $count cell ($color, $offset.columnIndex, $offset.rowIndex)",
+    "should have cell count ($count) for cell ($color, $offset.columnIndex, $offset.rowIndex)",
     ({ color, offset, count }) => {
         const modifiedGrid = gridSetCell(Square3x3GridWithCells, {
             offset,

@@ -26,7 +26,7 @@ test.each([
             name: "Square Grid 1",
         },
     ],
-])("should create a new grid with name '$name'", ({ options, name }) => {
+])("should create a new grid with name ($name)", ({ options, name }) => {
     const defaultGrid = gridCreateDefault(options as any);
 
     expect(defaultGrid).toBeDefined();

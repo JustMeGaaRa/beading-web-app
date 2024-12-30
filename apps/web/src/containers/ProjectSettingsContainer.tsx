@@ -107,6 +107,7 @@ export const ProjectSettingsContainer: FC = () => {
                     index={gridOptionsIndex}
                     mt={2}
                     onChange={setGridOptionsIndex}
+                    visibility={"hidden"}
                 >
                     <AccordionItem>
                         <AccordionButton>

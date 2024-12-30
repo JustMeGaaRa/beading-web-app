@@ -20,7 +20,6 @@ export const BeadingGrid: FC<PropsWithChildren<{
     cells: cellsProps,
     options: optionsProps,
     onCellEnter,
-    onCellLeave,
 }) => {
         const { styles } = useGridStyles();
         const { cells, offset, options, setCells, setOffset, setOptions } = useGrid();
@@ -43,8 +42,10 @@ export const BeadingGrid: FC<PropsWithChildren<{
             const cursor = event.currentTarget.getRelativePointerPosition() ?? { x: 0, y: 0 };
             const hitResults = hitTestCursor(gridState, styles, cursor);
             // TODO: check if hitResults is empty
-            const cell = { offset: hitResults.hitResult[0]!.offset, color: "" };
-            const gridEvent = { cell, isPointerDown: isPointerDown } satisfies BeadingPointerEvent;
+            const gridEvent = {
+                cell: hitResults.hits[0]!,
+                isPointerDown: isPointerDown
+            };
 
             onCellEnter?.(gridState, gridEvent);
         }, [onCellEnter, isPointerDown]);
@@ -72,8 +73,7 @@ export const BeadingGrid: FC<PropsWithChildren<{
                         offset={cell.offset}
                         isSelected={cell.isSelected}
                     />
-                ))
-                }
+                ))}
                 {options.type === "brick" && options.fringe > 0 && (
                     <BeadingGridDivider
                         length={options.width}

@@ -1,12 +1,11 @@
 import {
-    BeadingGridMetadata,
     BeadingGridProperties,
     BeadingGridState,
     BrickGridProperties,
     DefaultGridProperties,
     getGridActualHeight,
 } from "@repo/bead-grid";
-import { PatternMetadata, PatternOptions } from "../types";
+import { PatternOptions } from "../types";
 
 export const getPatternSize = (
     grids: Array<BeadingGridState>,

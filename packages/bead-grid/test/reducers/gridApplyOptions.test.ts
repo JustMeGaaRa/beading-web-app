@@ -28,7 +28,7 @@ test.each([
         },
     ],
 ])(
-    "should have type '$options.type' and have name '$name' and no cells outside of bounds",
+    "should have type ($options.type), name ($name), and cell count outside of bounds (0)",
     ({ options, name }) => {
         const modifiedGrid = gridApplyOptions(
             Square3x3GridWithCells,

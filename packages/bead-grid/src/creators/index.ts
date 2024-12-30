@@ -1,8 +1,4 @@
-import {
-    BeadingGridCellState,
-    BeadingGridProperties,
-    BeadingGridWindow,
-} from "../types";
+import { BeadingGridCellState, BeadingGridProperties } from "../types";
 import {
     GridAddColumnAfterAction,
     GridAddColumnBeforeAction,
@@ -12,12 +8,10 @@ import {
     GridClearCellsAction,
     GridClearColumnAction,
     GridClearRowAction,
-    GridClearSectionAction,
     GridDeleteColumnAction,
     GridDeleteRowAction,
-    GridDuplicateSectionAction,
-    GridMirrorSectionAction,
     GridSetCellAction,
+    GridSetSelectedCellsAction,
 } from "../actions";
 
 export const setBeadingGridCellAction = (
@@ -95,31 +89,33 @@ export const clearBeadingGridRowAction = (row: number): GridClearRowAction => ({
     payload: { row },
 });
 
-export const setSelectedCellsAction = (cells: Array<BeadingGridCellState>) => ({
+export const setSelectedCellsAction = (
+    cells: Array<BeadingGridCellState>
+): GridSetSelectedCellsAction => ({
     type: "BEADING_GRID_SET_SELECTED_CELLS",
     payload: { cells },
 });
 
-export const mirrorBeadingGridSectionAction = (
-    target: BeadingGridWindow,
-    source: BeadingGridWindow,
-    direction: "vertical" | "horizontal"
-): GridMirrorSectionAction => ({
-    type: "BEADING_GRID_MIRROR_SECTION",
-    payload: { target, source, direction },
-});
+// export const mirrorBeadingGridSectionAction = (
+//     target: BeadingGridWindow,
+//     source: BeadingGridWindow,
+//     direction: "vertical" | "horizontal"
+// ): GridMirrorSectionAction => ({
+//     type: "BEADING_GRID_MIRROR_SECTION",
+//     payload: { target, source, direction },
+// });
 
-export const duplicateBeadingGridSectionAction = (
-    target: BeadingGridWindow,
-    source: BeadingGridWindow
-): GridDuplicateSectionAction => ({
-    type: "BEADING_GRID_DUPLICATE_SECTION",
-    payload: { target, source },
-});
+// export const duplicateBeadingGridSectionAction = (
+//     target: BeadingGridWindow,
+//     source: BeadingGridWindow
+// ): GridDuplicateSectionAction => ({
+//     type: "BEADING_GRID_DUPLICATE_SECTION",
+//     payload: { target, source },
+// });
 
-export const clearBeadingGridSectionAction = (
-    section: BeadingGridWindow
-): GridClearSectionAction => ({
-    type: "BEADING_GRID_CLEAR_SECTION",
-    payload: { section },
-});
+// export const clearBeadingGridSectionAction = (
+//     section: BeadingGridWindow
+// ): GridClearSectionAction => ({
+//     type: "BEADING_GRID_CLEAR_SECTION",
+//     payload: { section },
+// });

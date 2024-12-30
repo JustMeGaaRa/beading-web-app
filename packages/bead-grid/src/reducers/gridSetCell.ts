@@ -1,35 +1,51 @@
 import { BeadingGridState, BeadingGridCellState } from "../types";
-import { isInBounds } from "../utils";
+import { isInBounds, isNullOrEmpty } from "../utils";
+
+const deepEqualsCell = (
+    left: BeadingGridCellState,
+    right: BeadingGridCellState
+) => {
+    return (
+        left.offset.columnIndex === right.offset.columnIndex &&
+        left.offset.rowIndex === right.offset.rowIndex &&
+        left.color === right.color &&
+        left.isSelected === right.isSelected
+    );
+};
+
+const shallowEqualsCell = (
+    left: BeadingGridCellState,
+    right: BeadingGridCellState
+) => {
+    return (
+        left.offset.columnIndex === right.offset.columnIndex &&
+        left.offset.rowIndex === right.offset.rowIndex
+    );
+};
 
 export const gridSetCell = (
     grid: BeadingGridState,
-    targetCell: BeadingGridCellState
+    modifiedCell: BeadingGridCellState
 ): BeadingGridState => {
+    const deepEqualsTargetCell = (current: BeadingGridCellState) =>
+        deepEqualsCell(current, modifiedCell);
+
     // check if the grid already contains the cell with the same color and offset
-    if (
-        grid.cells.some(
-            (current) =>
-                current.offset.rowIndex === targetCell.offset.rowIndex &&
-                current.offset.columnIndex === targetCell.offset.columnIndex &&
-                current.color === targetCell.color
-        )
-    ) {
+    if (grid.cells.some(deepEqualsTargetCell)) {
         return grid;
     }
 
     // check if the target cell is out of bounds or has no color
-    if (!isInBounds(grid.options, targetCell.offset)) {
+    if (!isInBounds(grid.options, modifiedCell.offset)) {
         return grid;
     }
 
     // check if the target cell is blank and remove it from the grid
-    if (targetCell.color === "") {
+    if (isNullOrEmpty(modifiedCell.color)) {
         return {
             ...grid,
             cells: grid.cells.filter(
-                (cell) =>
-                    cell.offset.columnIndex !== targetCell.offset.columnIndex ||
-                    cell.offset.rowIndex !== targetCell.offset.rowIndex
+                (cell) => !shallowEqualsCell(cell, modifiedCell)
             ),
         };
     }
@@ -39,21 +55,16 @@ export const gridSetCell = (
         cells: [
             // filter out the cell with the same offset if it exists
             ...grid.cells.filter(
-                (cell) =>
-                    cell.offset.columnIndex !== targetCell.offset.columnIndex ||
-                    cell.offset.rowIndex !== targetCell.offset.rowIndex
+                (cell) => !shallowEqualsCell(cell, modifiedCell)
             ),
-            targetCell,
+            modifiedCell,
         ],
     };
 };
 
 export const gridSetCells = (
     grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>
+    modifiedCells: Array<BeadingGridCellState>
 ): BeadingGridState => {
-    return cells.reduce(
-        (currentGrid, cell) => gridSetCell(currentGrid, cell),
-        grid
-    );
+    return modifiedCells.reduce(gridSetCell, grid);
 };

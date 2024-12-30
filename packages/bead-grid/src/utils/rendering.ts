@@ -1,4 +1,5 @@
 import {
+    BeadingGridBoundary,
     BeadingGridOffset,
     BeadingGridProperties,
     BeadingGridRectangle,
@@ -34,11 +35,11 @@ export const getGridCellRenderSize = (
     );
 };
 
-export const getGridCellOffset = (
+export const getGridCellBoundary = (
     offset: BeadingGridOffset,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
-) => {
+): BeadingGridBoundary => {
     const { height, width } = getGridCellRenderSize(options, styles);
 
     const cellStaggerX = width / 2;
@@ -128,7 +129,11 @@ export const getGridSectionArea = (
     styles: BeadingGridStyles
 ): BeadingGridRectangle => {
     const cellSize = getGridCellRenderSize(options, styles);
-    const topLeftPosition = getGridCellOffset(section.offset, options, styles);
+    const topLeftPosition = getGridCellBoundary(
+        section.offset,
+        options,
+        styles
+    );
 
     return {
         position: topLeftPosition,

@@ -1,112 +1,121 @@
 import { test, expect } from "vitest";
-import {
-    BeadingGridState,
-    BeadingGridStyles,
-    DefaultGridStyles,
-    ONE_SIX_BY_ONE_THREE,
-} from "../../src";
+import { DefaultGridStyles } from "../../src";
 import { hitTestCursor, hitTestArea } from "../../src/utils/hittest";
-import { Square3x3GridWithCells } from "../constants";
+import { Square3x3GridWithCells, SquareEmptyGrid } from "../constants";
 
 test.each([
     [
         {
             cursor: { x: 0, y: 0 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: 0, rowIndex: 0 },
+            hitCells: [{ offset: { columnIndex: 0, rowIndex: 0 }, color: "" }],
             successfull: true,
         },
     ],
     [
         {
             cursor: { x: 10, y: 10 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: 0, rowIndex: 0 },
+            hitCells: [{ offset: { columnIndex: 0, rowIndex: 0 }, color: "" }],
             successfull: true,
         },
     ],
     [
         {
             cursor: { x: 26, y: 32 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: 1, rowIndex: 1 },
+            hitCells: [{ offset: { columnIndex: 1, rowIndex: 1 }, color: "" }],
             successfull: true,
         },
     ],
     [
         {
             cursor: { x: 259, y: 319 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: 9, rowIndex: 9 },
+            hitCells: [{ offset: { columnIndex: 9, rowIndex: 9 }, color: "" }],
             successfull: true,
         },
     ],
     [
         {
             cursor: { x: 260, y: 320 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: 10, rowIndex: 10 },
+            hitCells: [
+                { offset: { columnIndex: 10, rowIndex: 10 }, color: "" },
+            ],
             successfull: false,
         },
     ],
     [
         {
             cursor: { x: -10, y: -10 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: -1, rowIndex: -1 },
+            hitCells: [
+                { offset: { columnIndex: -1, rowIndex: -1 }, color: "" },
+            ],
             successfull: false,
         },
     ],
     [
         {
             cursor: { x: 312, y: 384 },
-            offset: { columnIndex: 0, rowIndex: 0 },
-            hit: { columnIndex: 12, rowIndex: 12 },
-            successfull: false,
-        },
-    ],
-    [
-        {
-            cursor: { x: 312, y: 384 },
-            offset: { columnIndex: 2, rowIndex: 5 },
-            hit: { columnIndex: 12, rowIndex: 12 },
+            hitCells: [
+                { offset: { columnIndex: 12, rowIndex: 12 }, color: "" },
+            ],
             successfull: false,
         },
     ],
 ])(
-    "should be $successfull for grid in ($offset.columnIndex, $offset.rowIndex) with cursor in ($cursor.x, $cursor.y)",
-    ({ cursor, offset, hit, successfull }) => {
-        const grid: BeadingGridState = {
-            name: "Test Grid",
-            offset: offset,
-            cells: [],
-            options: {
-                type: "square",
-                height: 10,
-                width: 10,
-            },
-        };
-        const styles: BeadingGridStyles = DefaultGridStyles;
+    "should have successfull ($successfull) and cell count ($hitCells.length) at cursor ($cursor.x, $cursor.y)",
+    ({ cursor, hitCells, successfull }) => {
+        const grid = SquareEmptyGrid;
+        const gridStyles = DefaultGridStyles;
 
-        const hitResult = hitTestCursor(grid, styles, cursor);
+        const hitResult = hitTestCursor(grid, gridStyles, cursor);
 
         expect(hitResult).toBeDefined();
         expect(hitResult.successfull).toBe(successfull);
-        expect(hitResult.hitResult[0]!.offset).toEqual(hit);
+        expect(hitResult.hits).toHaveLength(hitCells.length);
+        expect(hitResult.hits).toEqual(hitCells);
     }
 );
 
-test.each([[]])("should ...", () => {
-    const grid = Square3x3GridWithCells;
-    const gridStyles = DefaultGridStyles;
-    const selectedArea = {
-        x: -10,
-        y: -10,
-        height: 100,
-        width: 100,
-    };
+test.each([
+    {
+        area: { x: -10, y: -10, height: 32 + 20, width: 26 + 20 },
+        hitCells: Square3x3GridWithCells.cells.slice(0, 1),
+        successfull: true,
+    },
+    {
+        area: { x: -10, y: -10, height: 64 + 20, width: 52 + 20 },
+        hitCells: Square3x3GridWithCells.cells.slice(0, 2),
+        successfull: true,
+    },
+    {
+        area: { x: -10, y: -10, height: 96 + 20, width: 78 + 20 },
+        hitCells: Square3x3GridWithCells.cells.slice(0, 3),
+        successfull: true,
+    },
+    {
+        area: { x: 0, y: 0, height: 32, width: 26 },
+        hitCells: Square3x3GridWithCells.cells.slice(0, 1),
+        successfull: true,
+    },
+    {
+        area: { x: 26, y: 0, height: 32, width: 26 },
+        hitCells: [],
+        successfull: false,
+    },
+    {
+        area: { x: 26, y: 0, height: 96, width: 26 },
+        hitCells: Square3x3GridWithCells.cells.slice(1, 2),
+        successfull: true,
+    },
+])(
+    "should have successfull ($successfull) and cell count ($hitCells.length) in area ($area.x, $area.y, $area.height, $area.width)",
+    ({ area, hitCells, successfull }) => {
+        const grid = Square3x3GridWithCells;
+        const gridStyles = DefaultGridStyles;
 
-    const hitResult = hitTestArea(grid, gridStyles, selectedArea);
+        const hitResult = hitTestArea(grid, gridStyles, area);
 
-    expect(hitResult).toBeDefined();
-});
+        expect(hitResult).toBeDefined();
+        expect(hitResult.successfull).toBe(successfull);
+        expect(hitResult.hits).toHaveLength(hitCells.length);
+        expect(hitResult.hits).toEqual(hitCells);
+    }
+);

@@ -72,6 +72,7 @@ export const patternReducer = (
             };
         case "BEADING_GRID_APPLY_OPTIONS":
         case "BEADING_GRID_SET_CELL":
+        case "BEADING_GRID_SET_SELECTED_CELLS":
         case "BEADING_GRID_CLEAR_CELLS":
         case "BEADING_GRID_ADD_COLUMN_BEFORE":
         case "BEADING_GRID_ADD_COLUMN_AFTER":

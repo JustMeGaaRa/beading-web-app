@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Circle, Group } from "react-konva";
-import { getGridCellOffset, getGridCellRenderSize, getGridSize } from "../utils";
+import { getGridCellBoundary, getGridCellRenderSize, getGridSize } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
 export const BeadingGridBackgroundPattern: FC = () => {
@@ -19,7 +19,7 @@ export const BeadingGridBackgroundPattern: FC = () => {
                 )
                 .flat()
                 .map(cell => {
-                    const { x, y } = getGridCellOffset(cell.offset, options, styles);
+                    const { x, y } = getGridCellBoundary(cell.offset, options, styles);
                     const { height, width } = getGridCellRenderSize(options, styles);
 
                     return (
