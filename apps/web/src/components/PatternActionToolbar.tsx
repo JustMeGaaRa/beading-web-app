@@ -1,4 +1,10 @@
-import { Box, Button, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    ButtonGroup,
+    IconButton,
+    Tooltip,
+} from "@chakra-ui/react";
 import { Check, Flip, XmarkCircle, Copy } from "iconoir-react";
 import { FC, memo } from "react";
 import { ToolState } from "./ToolsProvider";
@@ -9,26 +15,17 @@ export const PatternActionToolbar: FC<{
     onDuplicate?: () => void;
     onClear?: () => void;
     onDone?: () => void;
-}> = memo(({
-    tool,
-    onMirror,
-    onDuplicate,
-    onClear,
-    onDone
-}) => {
-    const isCursorEnabled = tool.name === "cursor" && tool.state.currentAction === "default";
-    const isMirroringEnabled = tool.name === "cursor" && tool.state.currentAction === "mirror";
-    const isDuplicatingEnabled = tool.name === "cursor" && tool.state.currentAction === "duplicate";
+}> = memo(({ tool, onMirror, onDuplicate, onClear, onDone }) => {
+    const isCursorEnabled =
+        tool.name === "cursor" && tool.state.currentAction === "default";
+    const isMirroringEnabled =
+        tool.name === "cursor" && tool.state.currentAction === "mirror";
+    const isDuplicatingEnabled =
+        tool.name === "cursor" && tool.state.currentAction === "duplicate";
 
     return (
-        <Box
-            paddingBottom={4}
-            transform={"translate(-50%, -50%)"}
-        >
-            <Box
-                backgroundColor={"gray.900"}
-                borderRadius={"md"}
-            >
+        <Box paddingBottom={4} transform={"translate(-50%, -50%)"}>
+            <Box backgroundColor={"gray.900"} borderRadius={"md"}>
                 {isCursorEnabled && (
                     <ButtonGroup
                         colorScheme={"gray"}

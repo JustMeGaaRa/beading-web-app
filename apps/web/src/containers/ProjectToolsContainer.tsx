@@ -4,12 +4,12 @@ import {
     IconButton,
     StackDivider,
     Tooltip,
-    VStack
+    VStack,
 } from "@chakra-ui/react";
 import {
     getPatternSummary,
     usePatterHistory,
-    usePatternStore
+    usePatternStore,
 } from "@repo/bead-pattern-editor";
 import {
     ColorPickerIcon,
@@ -17,14 +17,11 @@ import {
     NavigationIcon,
     PencilIcon,
     ReverseLeftIcon,
-    ReverseRightIcon
+    ReverseRightIcon,
 } from "@repo/icons";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import {
-    Shortcuts,
-    useTools
-} from "../components";
+import { Shortcuts, useTools } from "../components";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 const hotkeysOptions = { preventDefault: true };
@@ -32,19 +29,58 @@ const hotkeysOptions = { preventDefault: true };
 export const ProjectToolsContainer: FC = () => {
     const { tool, toggleTool } = useTools();
     const { pastStates, futureStates, undo, redo } = usePatterHistory();
-    const pattern = usePatternStore(state => state.pattern);
+    const pattern = usePatternStore((state) => state.pattern);
 
-    const onSetCursorTool = useCallback(() => toggleTool({ name: "cursor", state: { currentAction: "default" } }), [toggleTool]);
-    const onSetPencilTool = useCallback(() => toggleTool({ name: "pencil", state: { currentAction: "default" } }), [toggleTool]);
-    const onSetEraserTool = useCallback(() => toggleTool({ name: "eraser", state: { currentAction: "default" } }), [toggleTool]);
-    const onSetPickerTool = useCallback(() => toggleTool({ name: "picker", state: { currentAction: "default" } }), [toggleTool]);
+    const onSetCursorTool = useCallback(
+        () =>
+            toggleTool({ name: "cursor", state: { currentAction: "default" } }),
+        [toggleTool]
+    );
+    const onSetPencilTool = useCallback(
+        () =>
+            toggleTool({ name: "pencil", state: { currentAction: "default" } }),
+        [toggleTool]
+    );
+    const onSetEraserTool = useCallback(
+        () =>
+            toggleTool({ name: "eraser", state: { currentAction: "default" } }),
+        [toggleTool]
+    );
+    const onSetPickerTool = useCallback(
+        () =>
+            toggleTool({ name: "picker", state: { currentAction: "default" } }),
+        [toggleTool]
+    );
 
-    useHotkeys(Shortcuts.toolCursor.keyString, onSetCursorTool, hotkeysOptions, [onSetCursorTool]);
-    useHotkeys(Shortcuts.toolPencil.keyString, onSetPencilTool, hotkeysOptions, [onSetPencilTool]);
-    useHotkeys(Shortcuts.toolEraser.keyString, onSetEraserTool, hotkeysOptions, [onSetEraserTool]);
-    useHotkeys(Shortcuts.toolPicker.keyString, onSetPickerTool, hotkeysOptions, [onSetPickerTool]);
+    useHotkeys(
+        Shortcuts.toolCursor.keyString,
+        onSetCursorTool,
+        hotkeysOptions,
+        [onSetCursorTool]
+    );
+    useHotkeys(
+        Shortcuts.toolPencil.keyString,
+        onSetPencilTool,
+        hotkeysOptions,
+        [onSetPencilTool]
+    );
+    useHotkeys(
+        Shortcuts.toolEraser.keyString,
+        onSetEraserTool,
+        hotkeysOptions,
+        [onSetEraserTool]
+    );
+    useHotkeys(
+        Shortcuts.toolPicker.keyString,
+        onSetPickerTool,
+        hotkeysOptions,
+        [onSetPickerTool]
+    );
 
-    const summary = useMemo(() => getPatternSummary(pattern.grids, pattern.options), [pattern]);
+    const summary = useMemo(
+        () => getPatternSummary(pattern.grids, pattern.options),
+        [pattern]
+    );
 
     const handleOnUndoClick = useCallback(() => undo(), [undo]);
     const handleOnRedoClick = useCallback(() => redo(), [redo]);

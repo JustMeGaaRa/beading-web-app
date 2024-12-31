@@ -16,27 +16,13 @@ import {
     changePatternNameAction,
     dirtyStateSelector,
     patternSelector,
-    usePatternStore
+    usePatternStore,
 } from "@repo/bead-pattern-editor";
-import {
-    ArrowLeft,
-    CloudCheck,
-    CloudSync,
-    Page
-} from "iconoir-react";
-import {
-    FC,
-    ChangeEvent,
-    useCallback,
-    useRef
-} from "react";
+import { ArrowLeft, CloudCheck, CloudSync, Page } from "iconoir-react";
+import { FC, ChangeEvent, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate } from "react-router";
-import {
-    Header,
-    Shortcuts,
-    PatternSummaryPanel
-} from "../components";
+import { Header, Shortcuts, PatternSummaryPanel } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { savePatternAction } from "../creators";
 
@@ -45,16 +31,26 @@ const hotkeysOptions = { preventDefault: true };
 export const ProjectHeader: FC = () => {
     const navigate = useNavigate();
     const editableRef = useRef<HTMLInputElement>(null);
-    const dispatchCollection = usePatternCollectionStore(state => state.dispatch);
+    const dispatchCollection = usePatternCollectionStore(
+        (state) => state.dispatch
+    );
 
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
 
-    useHotkeys(Shortcuts.patternRename.keyString, () => editableRef.current?.focus(), hotkeysOptions, [editableRef.current]);
+    useHotkeys(
+        Shortcuts.patternRename.keyString,
+        () => editableRef.current?.focus(),
+        hotkeysOptions,
+        [editableRef.current]
+    );
 
-    const handleOnChangeName = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        dispatch(changePatternNameAction(event.target.value));
-    }, [dispatch]);
+    const handleOnChangeName = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+            dispatch(changePatternNameAction(event.target.value));
+        },
+        [dispatch]
+    );
 
     const handleOnGoBackClick = useCallback(() => {
         navigate("/");
@@ -68,10 +64,7 @@ export const ProjectHeader: FC = () => {
     return (
         <Header>
             <HStack ml={2}>
-                <Tooltip
-                    label={"Navigate to homepage"}
-                    placement={"bottom"}
-                >
+                <Tooltip label={"Navigate to homepage"} placement={"bottom"}>
                     <IconButton
                         aria-label={"navigate to homepage"}
                         icon={<ArrowLeft />}
@@ -109,10 +102,7 @@ export const ProjectHeader: FC = () => {
                 </Tooltip>
                 <Popover size={"xs"}>
                     <PopoverTrigger>
-                        <IconButton
-                            aria-label={"summary"}
-                            icon={<Page />}
-                        />
+                        <IconButton aria-label={"summary"} icon={<Page />} />
                     </PopoverTrigger>
                     <PopoverContent>
                         <PopoverCloseButton />

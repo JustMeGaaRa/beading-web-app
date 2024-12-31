@@ -14,8 +14,8 @@ const ColorPaletteContext = createContext<{
 }>({
     colors: [],
     selectedColor: "",
-    setColors: () => { },
-    setSelectedColor: () => { },
+    setColors: () => {},
+    setSelectedColor: () => {},
 });
 
 export const ColorPaletteProvider: FC<
@@ -24,7 +24,9 @@ export const ColorPaletteProvider: FC<
     }>
 > = ({ children, colors: initialColors = [] }) => {
     const [colors, setColors] = useState<Array<string>>(initialColors);
-    const [selectedColor, setSelectedColor] = useState<string>(initialColors[0]);
+    const [selectedColor, setSelectedColor] = useState<string>(
+        initialColors[0]
+    );
 
     return (
         <ColorPaletteContext.Provider

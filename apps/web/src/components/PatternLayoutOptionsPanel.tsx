@@ -17,151 +17,167 @@ import { PatternLayoutOptions } from "@repo/bead-pattern-editor";
 import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "@repo/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
-export const PatternLayoutOptionsPanel: FC<PropsWithChildren<{
-    size?: "xs" | "sm" | "md" | "lg";
-    layout: PatternLayoutOptions;
-    onChange?: (layout: PatternLayoutOptions) => void;
-}>> = ({
-    size = "xs",
-    layout,
-    onChange
-}) => {
-        const handleOnVerticalClick = useCallback(() => {
-            onChange?.({
-                ...layout,
-                orientation: "vertical",
-            });
-        }, [onChange, layout]);
+export const PatternLayoutOptionsPanel: FC<
+    PropsWithChildren<{
+        size?: "xs" | "sm" | "md" | "lg";
+        layout: PatternLayoutOptions;
+        onChange?: (layout: PatternLayoutOptions) => void;
+    }>
+> = ({ size = "xs", layout, onChange }) => {
+    const handleOnVerticalClick = useCallback(() => {
+        onChange?.({
+            ...layout,
+            orientation: "vertical",
+        });
+    }, [onChange, layout]);
 
-        const handleOnHorizontalClick = useCallback(() => {
-            onChange?.({
-                ...layout,
-                orientation: "horizontal",
-            });
-        }, [onChange, layout]);
+    const handleOnHorizontalClick = useCallback(() => {
+        onChange?.({
+            ...layout,
+            orientation: "horizontal",
+        });
+    }, [onChange, layout]);
 
-        const handleOnHeightChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
-            const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+    const handleOnHeightChange = useCallback(
+        (event: React.FocusEvent<HTMLInputElement>) => {
+            const isValidInteger =
+                Number.parseInt(event.target.value) &&
+                !Number.isNaN(event.target.value);
             if (isValidInteger) {
                 onChange?.({
                     ...layout,
                     height: Number.parseInt(event.target.value),
                 });
             }
-        }, [onChange, layout]);
+        },
+        [onChange, layout]
+    );
 
-        const handleOnWidthChange = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
-            const isValidInteger = Number.parseInt(event.target.value) && !Number.isNaN(event.target.value);
+    const handleOnWidthChange = useCallback(
+        (event: React.FocusEvent<HTMLInputElement>) => {
+            const isValidInteger =
+                Number.parseInt(event.target.value) &&
+                !Number.isNaN(event.target.value);
             if (isValidInteger) {
                 onChange?.({
                     ...layout,
                     width: Number.parseInt(event.target.value),
                 });
             }
-        }, [onChange, layout]);
+        },
+        [onChange, layout]
+    );
 
-        const handleOnBeadSizeChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-            const beadSize = BEAD_OPTIONS.find((beadSize) => beadSize.title === event.target.value);
+    const handleOnBeadSizeChange = useCallback(
+        (event: ChangeEvent<HTMLSelectElement>) => {
+            const beadSize = BEAD_OPTIONS.find(
+                (beadSize) => beadSize.title === event.target.value
+            );
             if (beadSize) {
                 onChange?.({
                     ...layout,
                     beadSize: beadSize,
                 });
             }
-        }, [onChange, layout]);
+        },
+        [onChange, layout]
+    );
 
-        return (
-            <Flex flexDirection={"column"} gap={2} w={"100%"}>
-                <ButtonGroup isAttached size={size} variant={"outline"}>
-                    <Button
-                        aria-selected={layout.orientation === "vertical"}
-                        borderColor={"gray.400"}
-                        leftIcon={<Icon as={VerticalAlignBottomIcon} />}
-                        width={"50%"}
-                        _selected={{
-                            backgroundColor: "gray.900",
-                            color: "gray.50",
-                        }}
-                        _hover={{
-                            backgroundColor: "gray.700",
-                            color: "gray.50",
-                        }}
-                        onClick={handleOnVerticalClick}
-                    >
-                        Vertical
-                    </Button>
-                    <Button
-                        aria-selected={layout.orientation === "horizontal"}
-                        borderColor={"gray.400"}
-                        leftIcon={<Icon as={HorizontalAlignRightIcon} />}
-                        width={"50%"}
-                        _selected={{
-                            backgroundColor: "gray.900",
-                            color: "gray.50",
-                        }}
-                        _hover={{
-                            backgroundColor: "gray.700",
-                            color: "gray.50",
-                        }}
-                        onClick={handleOnHorizontalClick}
-                    >
-                        Horizontal
-                    </Button>
-                </ButtonGroup>
+    return (
+        <Flex flexDirection={"column"} gap={2} w={"100%"}>
+            <ButtonGroup isAttached size={size} variant={"outline"}>
+                <Button
+                    aria-selected={layout.orientation === "vertical"}
+                    borderColor={"gray.400"}
+                    leftIcon={<Icon as={VerticalAlignBottomIcon} />}
+                    width={"50%"}
+                    _selected={{
+                        backgroundColor: "gray.900",
+                        color: "gray.50",
+                    }}
+                    _hover={{
+                        backgroundColor: "gray.700",
+                        color: "gray.50",
+                    }}
+                    onClick={handleOnVerticalClick}
+                >
+                    Vertical
+                </Button>
+                <Button
+                    aria-selected={layout.orientation === "horizontal"}
+                    borderColor={"gray.400"}
+                    leftIcon={<Icon as={HorizontalAlignRightIcon} />}
+                    width={"50%"}
+                    _selected={{
+                        backgroundColor: "gray.900",
+                        color: "gray.50",
+                    }}
+                    _hover={{
+                        backgroundColor: "gray.700",
+                        color: "gray.50",
+                    }}
+                    onClick={handleOnHorizontalClick}
+                >
+                    Horizontal
+                </Button>
+            </ButtonGroup>
+            <InputGroup borderColor={"gray.400"} size={size}>
+                <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
+                <Select
+                    borderColor={"gray.400"}
+                    onChange={handleOnBeadSizeChange}
+                >
+                    {BEAD_OPTIONS.map((beadSize, index) => (
+                        <option key={index} value={beadSize.title}>
+                            {beadSize.title}
+                        </option>
+                    ))}
+                </Select>
+            </InputGroup>
+            {layout.orientation === "horizontal" && (
                 <InputGroup borderColor={"gray.400"} size={size}>
-                    <InputLeftAddon width={"60px"}>Bead</InputLeftAddon>
-                    <Select borderColor={"gray.400"} onChange={handleOnBeadSizeChange}>
-                        {BEAD_OPTIONS.map((beadSize, index) => (
-                            <option key={index} value={beadSize.title}>
-                                {beadSize.title}
-                            </option>
-                        ))}
-                    </Select>
+                    <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={layout.height}
+                        keepWithinRange
+                        min={1}
+                        max={100}
+                        width={"100%"}
+                        onBlur={handleOnHeightChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
                 </InputGroup>
-                {layout.orientation === "horizontal" && (
-                    <InputGroup borderColor={"gray.400"} size={size}>
-                        <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
-                        <NumberInput
-                            allowMouseWheel
-                            borderColor={"gray.400"}
-                            clampValueOnBlur
-                            defaultValue={layout.height}
-                            keepWithinRange
-                            min={1}
-                            max={100}
-                            width={"100%"}
-                            onBlur={handleOnHeightChange}
-                        >
-                            <NumberInputField />
-                            <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                            </NumberInputStepper>
-                        </NumberInput>
-                    </InputGroup>
-                )}
-                {layout.orientation === "vertical" && (
-                    <InputGroup borderColor={"gray.400"} size={size}>
-                        <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
-                        <NumberInput
-                            allowMouseWheel
-                            borderColor={"gray.400"}
-                            clampValueOnBlur
-                            defaultValue={layout.width}
-                            keepWithinRange
-                            min={1}
-                            max={100}
-                            width={"100%"}
-                            onBlur={handleOnWidthChange}
-                        >
-                            <NumberInputField />
-                            <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                            </NumberInputStepper>
-                        </NumberInput>
-                    </InputGroup>
-                )}
-            </Flex>
-        );
-    };
+            )}
+            {layout.orientation === "vertical" && (
+                <InputGroup borderColor={"gray.400"} size={size}>
+                    <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
+                    <NumberInput
+                        allowMouseWheel
+                        borderColor={"gray.400"}
+                        clampValueOnBlur
+                        defaultValue={layout.width}
+                        keepWithinRange
+                        min={1}
+                        max={100}
+                        width={"100%"}
+                        onBlur={handleOnWidthChange}
+                    >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+                </InputGroup>
+            )}
+        </Flex>
+    );
+};

@@ -29,7 +29,7 @@ export type CursorActionName =
 
 export type ToolInfo<
     TTool extends string,
-    TState extends { currentAction: string | "default" }
+    TState extends { currentAction: string | "default" },
 > = {
     name: TTool;
     state: TState;
@@ -48,13 +48,13 @@ const ToolsContext = createContext<{
     setTool: Dispatch<SetStateAction<ToolState>>;
 }>({
     tool: { name: "move", state: { currentAction: "default" } },
-    setTool: () => { },
+    setTool: () => {},
 });
 
 export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
     const [tool, setTool] = useState<ToolState>({
         name: "pencil",
-        state: { currentAction: "default" }
+        state: { currentAction: "default" },
     });
 
     return (
@@ -67,16 +67,20 @@ export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
 export const useTools = () => {
     const { tool, setTool } = useContext(ToolsContext);
 
-    const toggleTool = useCallback((tool: ToolState) => {
-        setTool(state => state.name === tool.name
-            ? { name: "move", state: { currentAction: "default" } }
-            : tool
-        );
-    }, [setTool]);
+    const toggleTool = useCallback(
+        (tool: ToolState) => {
+            setTool((state) =>
+                state.name === tool.name
+                    ? { name: "move", state: { currentAction: "default" } }
+                    : tool
+            );
+        },
+        [setTool]
+    );
 
     return {
         tool,
         setTool,
-        toggleTool
-    }
+        toggleTool,
+    };
 };

@@ -23,40 +23,63 @@ export const BeadingGridCell: FC<{
     onPointerOver,
     onPointerEnter,
 }) => {
-        const { styles } = useGridStyles();
-        const { options } = useGrid();
+    const { styles } = useGridStyles();
+    const { options } = useGrid();
 
-        const { x, y, height, width } = getGridCellBoundary(offset, options, styles);
+    const { x, y, height, width } = getGridCellBoundary(
+        offset,
+        options,
+        styles
+    );
 
-        const handleOnClick = useCallback(() => {
-            onClick?.({ cell: { offset, color } });
-        }, [onClick, offset, color]);
+    const handleOnClick = useCallback(() => {
+        onClick?.({ cell: { offset, color } });
+    }, [onClick, offset, color]);
 
-        const handleOnPointerDown = useCallback(() => {
-            onPointerDown?.({ cell: { offset, color } });
-        }, [onPointerDown, offset, color]);
+    const handleOnPointerDown = useCallback(() => {
+        onPointerDown?.({ cell: { offset, color } });
+    }, [onPointerDown, offset, color]);
 
-        const handleOnPointerUp = useCallback(() => {
-            onPointerUp?.({ cell: { offset, color } });
-        }, [onPointerUp, offset, color]);
+    const handleOnPointerUp = useCallback(() => {
+        onPointerUp?.({ cell: { offset, color } });
+    }, [onPointerUp, offset, color]);
 
-        const handleOnPointerOver = useCallback(() => {
-            onPointerOver?.({ cell: { offset, color } });
-        }, [onPointerOver, offset, color]);
+    const handleOnPointerOver = useCallback(() => {
+        onPointerOver?.({ cell: { offset, color } });
+    }, [onPointerOver, offset, color]);
 
-        const handleOnPointerEnter = useCallback(() => {
-            onPointerEnter?.({ cell: { offset, color } });
-        }, [onPointerEnter, offset, color]);
+    const handleOnPointerEnter = useCallback(() => {
+        onPointerEnter?.({ cell: { offset, color } });
+    }, [onPointerEnter, offset, color]);
 
-        return (
-            <Fragment>
+    return (
+        <Fragment>
+            <Rect
+                cornerRadius={styles.components.cell.borderRadius}
+                fill={color}
+                height={height}
+                listening={false}
+                stroke={styles.components.cell.borderColor}
+                strokeWidth={1}
+                width={width}
+                x={x}
+                y={y}
+                onClick={handleOnClick}
+                onTap={handleOnClick}
+                onPointerDown={handleOnPointerDown}
+                onPointerUp={handleOnPointerUp}
+                onPointerOver={handleOnPointerOver}
+                onPointerEnter={handleOnPointerEnter}
+            />
+            {isSelected && (
                 <Rect
-                    cornerRadius={styles.components.cell.borderRadius}
-                    fill={color}
+                    cornerRadius={styles.components.cell._selected.borderRadius}
+                    fill={styles.components.cell._selected.backgroundColor}
                     height={height}
                     listening={false}
-                    stroke={styles.components.cell.borderColor}
-                    strokeWidth={1}
+                    opacity={0.5}
+                    stroke={styles.components.cell._selected.borderColor}
+                    strokeWidth={styles.components.cell._selected.borderWidth}
                     width={width}
                     x={x}
                     y={y}
@@ -67,26 +90,7 @@ export const BeadingGridCell: FC<{
                     onPointerOver={handleOnPointerOver}
                     onPointerEnter={handleOnPointerEnter}
                 />
-                {/* {isSelected && (
-                    <Rect
-                        cornerRadius={styles.components.cell._selected.borderRadius}
-                        fill={styles.components.cell._selected.backgroundColor}
-                        height={height}
-                        listening={false}
-                        opacity={0.5}
-                        stroke={styles.components.cell._selected.borderColor}
-                        strokeWidth={styles.components.cell._selected.borderWidth}
-                        width={width}
-                        x={x}
-                        y={y}
-                        onClick={handleOnClick}
-                        onTap={handleOnClick}
-                        onPointerDown={handleOnPointerDown}
-                        onPointerUp={handleOnPointerUp}
-                        onPointerOver={handleOnPointerOver}
-                        onPointerEnter={handleOnPointerEnter}
-                    />
-                )} */}
-            </Fragment>
-        );
-    };
+            )}
+        </Fragment>
+    );
+};

@@ -35,7 +35,7 @@ import {
     InfoCircleIcon,
     PaintingIcon,
     PlusIcon,
-    SettingsIcon
+    SettingsIcon,
 } from "@repo/icons";
 import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -50,8 +50,12 @@ import {
 const hotkeysOptions = { preventDefault: true };
 
 export const ProjectSettingsContainer: FC = () => {
-    const [colorPaletteIndex, setColorPaletteIndex] = useState<number | number[]>(0);
-    const [gridOptionsIndex, setGridOptionsIndex] = useState<number | number[]>(0);
+    const [colorPaletteIndex, setColorPaletteIndex] = useState<
+        number | number[]
+    >(0);
+    const [gridOptionsIndex, setGridOptionsIndex] = useState<number | number[]>(
+        0
+    );
 
     const { setSelectedColor } = useColorPalette();
     const { pattern, dispatch } = usePatternStore(patternSelector);
@@ -61,7 +65,12 @@ export const ProjectSettingsContainer: FC = () => {
         setGridOptionsIndex((state) => (state === 0 ? 1 : 0));
     }, [setColorPaletteIndex, setGridOptionsIndex]);
 
-    useHotkeys(Shortcuts.panelToggleAll.keyString, () => togglePanels(), hotkeysOptions, [togglePanels]);
+    useHotkeys(
+        Shortcuts.panelToggleAll.keyString,
+        () => togglePanels(),
+        hotkeysOptions,
+        [togglePanels]
+    );
 
     const handleOnAddGridClick = useCallback(() => {
         dispatch(addBeadingGridAction());
@@ -90,7 +99,12 @@ export const ProjectSettingsContainer: FC = () => {
                     <AccordionItem>
                         <AccordionButton>
                             <Icon as={PaintingIcon} mr={1} />
-                            <Text as={"b"} flex={1} fontSize={"sm"} textAlign={"left"}>
+                            <Text
+                                as={"b"}
+                                flex={1}
+                                fontSize={"sm"}
+                                textAlign={"left"}
+                            >
                                 Colors
                             </Text>
                             <AccordionIcon />
@@ -112,7 +126,12 @@ export const ProjectSettingsContainer: FC = () => {
                     <AccordionItem>
                         <AccordionButton>
                             <Icon as={SettingsIcon} mr={1} />
-                            <Text as={"b"} flex={1} fontSize={"sm"} textAlign={"left"}>
+                            <Text
+                                as={"b"}
+                                flex={1}
+                                fontSize={"sm"}
+                                textAlign={"left"}
+                            >
                                 Settings
                             </Text>
                             <AccordionIcon />
@@ -120,12 +139,17 @@ export const ProjectSettingsContainer: FC = () => {
                         <AccordionPanel maxHeight={"40vh"} overflowY={"scroll"}>
                             <VStack
                                 alignItems={"start"}
-                                divider={<StackDivider borderColor="gray.200" />}
+                                divider={
+                                    <StackDivider borderColor="gray.200" />
+                                }
                                 spacing={4}
                             >
                                 <PatternOptionsContainer />
                                 {pattern.grids.map((grid) => (
-                                    <BeadingGridOptionContainer key={grid.name} grid={grid} />
+                                    <BeadingGridOptionContainer
+                                        key={grid.name}
+                                        grid={grid}
+                                    />
                                 ))}
                                 <Button
                                     leftIcon={<PlusIcon />}
@@ -147,12 +171,15 @@ export const ProjectSettingsContainer: FC = () => {
 };
 
 const PatternOptionsContainer: FC = () => {
-    const pattern = usePatternStore(state => state.pattern);
-    const dispatch = usePatternStore(state => state.dispatch);
+    const pattern = usePatternStore((state) => state.pattern);
+    const dispatch = usePatternStore((state) => state.dispatch);
 
-    const handleOnLayoutChange = useCallback((layout: PatternLayoutOptions) => {
-        dispatch(applyPatternOptionsAction({ layout }));
-    }, [dispatch]);
+    const handleOnLayoutChange = useCallback(
+        (layout: PatternLayoutOptions) => {
+            dispatch(applyPatternOptionsAction({ layout }));
+        },
+        [dispatch]
+    );
 
     return (
         <Flex flexDirection={"column"} gap={2} w={"100%"}>
@@ -166,7 +193,11 @@ const PatternOptionsContainer: FC = () => {
             />
             <HStack alignItems={"center"} gap={1}>
                 <Icon as={InfoCircleIcon} boxSize={4} />
-                <Text fontSize={"xs"} fontWeight={"400"} justifyContent={"center"}>
+                <Text
+                    fontSize={"xs"}
+                    fontWeight={"400"}
+                    justifyContent={"center"}
+                >
                     Small tips to grids
                 </Text>
             </HStack>
@@ -174,20 +205,33 @@ const PatternOptionsContainer: FC = () => {
     );
 };
 
-const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({ grid }) => {
+const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({
+    grid,
+}) => {
     const { pattern, dispatch } = usePatternStore(patternSelector);
 
     const handleOnDeleteGridClick = useCallback(() => {
         dispatch(deleteBeadingGridAction(grid.name));
     }, [dispatch, grid?.name]);
 
-    const handleOnTypeClick = useCallback((type: BeadingGridType) => {
-        dispatch(applyBeadingGridOptionsAction({ ...grid.options, type } as BeadingGridProperties));
-    }, [dispatch, grid.options]);
+    const handleOnTypeClick = useCallback(
+        (type: BeadingGridType) => {
+            dispatch(
+                applyBeadingGridOptionsAction({
+                    ...grid.options,
+                    type,
+                } as BeadingGridProperties)
+            );
+        },
+        [dispatch, grid.options]
+    );
 
-    const handleOnOptionsChange = useCallback((modifiedOptions: BeadingGridProperties) => {
-        dispatch(applyBeadingGridOptionsAction(modifiedOptions));
-    }, [dispatch]);
+    const handleOnOptionsChange = useCallback(
+        (modifiedOptions: BeadingGridProperties) => {
+            dispatch(applyBeadingGridOptionsAction(modifiedOptions));
+        },
+        [dispatch]
+    );
 
     const isBrickLayout = pattern.options.layout.type === "brick";
 

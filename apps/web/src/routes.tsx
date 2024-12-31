@@ -14,6 +14,6 @@ export const routes = createBrowserRouter([
     },
     {
         path: "/preview",
-        element: <PreviewPage />
-    }
+        element: <PreviewPage />,
+    },
 ]);

@@ -16,30 +16,25 @@ const hotkeysOptions = { preventDefault: true, keydown: true, keyup: true };
 export const ProjectHelpContainer: FC = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const peekShortcuts = useCallback((keyboardEvent: KeyboardEvent) => {
-        if (keyboardEvent.type === "keydown") {
-            onOpen();
-        }
-        if (keyboardEvent.type === "keyup") {
-            onClose();
-        }
-    }, [onOpen, onClose]);
+    const peekShortcuts = useCallback(
+        (keyboardEvent: KeyboardEvent) => {
+            if (keyboardEvent.type === "keydown") {
+                onOpen();
+            }
+            if (keyboardEvent.type === "keyup") {
+                onClose();
+            }
+        },
+        [onOpen, onClose]
+    );
 
-    useHotkeys(Shortcuts.help.keyString, peekShortcuts, hotkeysOptions, [peekShortcuts]);
+    useHotkeys(Shortcuts.help.keyString, peekShortcuts, hotkeysOptions, [
+        peekShortcuts,
+    ]);
 
     return (
-        <Box
-            padding={3}
-            position={"absolute"}
-            left={0}
-            bottom={0}
-            zIndex={1}
-        >
-            <Box
-                backgroundColor={"white"}
-                borderRadius={"lg"}
-                padding={1}
-            >
+        <Box padding={3} position={"absolute"} left={0} bottom={0} zIndex={1}>
+            <Box backgroundColor={"white"} borderRadius={"lg"} padding={1}>
                 <ButtonGroup
                     colorScheme={"gray"}
                     orientation={"vertical"}

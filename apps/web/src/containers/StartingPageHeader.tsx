@@ -5,7 +5,7 @@ import {
     Input,
     Text,
     useDisclosure,
-    useToast
+    useToast,
 } from "@chakra-ui/react";
 import { isPattern } from "@repo/bead-pattern-editor";
 import { Plus, Upload } from "iconoir-react";
@@ -13,11 +13,7 @@ import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { v6 } from "uuid";
 import { CreatePatternModal } from "./CreatePatternModal";
-import {
-    Header,
-    Shortcuts,
-    ShortcutTableModal
-} from "../components";
+import { Header, Shortcuts, ShortcutTableModal } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction } from "../creators";
 
@@ -27,77 +23,111 @@ const hotkeysKeyOptions = { preventDefault: true, keydown: true, keyup: true };
 export const StartingPageHeader: FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
-    const { isOpen: isHelpOpen, onOpen: onHelpOpen, onClose: onHelpClose } = useDisclosure();
-    const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
+    const {
+        isOpen: isHelpOpen,
+        onOpen: onHelpOpen,
+        onClose: onHelpClose,
+    } = useDisclosure();
+    const {
+        isOpen: isModalOpen,
+        onOpen: onModalOpen,
+        onClose: onModalClose,
+    } = useDisclosure();
     const { dispatch } = usePatternCollectionStore();
 
-    const onPeekShortcuts = useCallback((keyboardEvent: KeyboardEvent) => {
-        if (keyboardEvent.type === "keydown") {
-            onHelpOpen();
-        }
-        if (keyboardEvent.type === "keyup") {
-            onHelpClose();
-        }
-    }, [onHelpOpen, onHelpClose]);
+    const onPeekShortcuts = useCallback(
+        (keyboardEvent: KeyboardEvent) => {
+            if (keyboardEvent.type === "keydown") {
+                onHelpOpen();
+            }
+            if (keyboardEvent.type === "keyup") {
+                onHelpClose();
+            }
+        },
+        [onHelpOpen, onHelpClose]
+    );
 
-    useHotkeys(Shortcuts.help.keyString, onPeekShortcuts, hotkeysKeyOptions, []);
-    useHotkeys(Shortcuts.patternCreate.keyString, () => onModalOpen(), hotkeysOptions, []);
-    useHotkeys(Shortcuts.patternOpen.keyString, () => fileInputRef.current?.click(), hotkeysOptions, [fileInputRef.current]);
+    useHotkeys(
+        Shortcuts.help.keyString,
+        onPeekShortcuts,
+        hotkeysKeyOptions,
+        []
+    );
+    useHotkeys(
+        Shortcuts.patternCreate.keyString,
+        () => onModalOpen(),
+        hotkeysOptions,
+        []
+    );
+    useHotkeys(
+        Shortcuts.patternOpen.keyString,
+        () => fileInputRef.current?.click(),
+        hotkeysOptions,
+        [fileInputRef.current]
+    );
 
-    const handleFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
+    const handleFileImport = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
 
-        if (!file) return;
+            if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const fileContent = event.target?.result as string;
-                const patternJson = JSON.parse(fileContent);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const fileContent = event.target?.result as string;
+                    const patternJson = JSON.parse(fileContent);
 
-                if (isPattern(patternJson)) {
-                    dispatch(addPatternAction({
-                        ...patternJson,
-                        patternId: `pattern-${v6()}`
-                    }));
-                    toast({
-                        title: "Pattern import successful",
-                        description: "The pattern has been successfully imported",
-                        status: "success",
-                        duration: 10000,
-                        position: "bottom-right",
-                        variant: "subtle",
-                        isClosable: true
-                    });
-                } else {
+                    if (isPattern(patternJson)) {
+                        dispatch(
+                            addPatternAction({
+                                ...patternJson,
+                                patternId: `pattern-${v6()}`,
+                            })
+                        );
+                        toast({
+                            title: "Pattern import successful",
+                            description:
+                                "The pattern has been successfully imported",
+                            status: "success",
+                            duration: 10000,
+                            position: "bottom-right",
+                            variant: "subtle",
+                            isClosable: true,
+                        });
+                    } else {
+                        toast({
+                            title: "Pattern import failed",
+                            description:
+                                "The file does not have a valid JSON structure",
+                            status: "error",
+                            duration: 10000,
+                            position: "bottom-right",
+                            variant: "subtle",
+                            isClosable: true,
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
                     toast({
                         title: "Pattern import failed",
-                        description: "The file does not have a valid JSON structure",
+                        description:
+                            "The file does not have a valid JSON structure",
                         status: "error",
-                        duration: 10000,
-                        position: "bottom-right",
-                        variant: "subtle",
-                        isClosable: true
+                        duration: 5000,
+                        isClosable: true,
                     });
                 }
-            }
-            catch (error) {
-                console.error(error);
-                toast({
-                    title: "Pattern import failed",
-                    description: "The file does not have a valid JSON structure",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true
-                });
-            }
-        };
+            };
 
-        reader.readAsText(file);
-    }, [dispatch, toast]);
+            reader.readAsText(file);
+        },
+        [dispatch, toast]
+    );
 
     const handleOnOpenFileClick = useCallback(() => {
         fileInputRef.current?.click();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fileInputRef.current]);
 
     const handleOnCreatePatternClick = useCallback(() => {
@@ -116,7 +146,12 @@ export const StartingPageHeader: FC = () => {
                     onChange={handleFileImport}
                 />
             </Flex>
-            <ButtonGroup id={"header-actions-group"} mr={3} size={"sm"} variant={"outline"}>
+            <ButtonGroup
+                id={"header-actions-group"}
+                mr={3}
+                size={"sm"}
+                variant={"outline"}
+            >
                 <Button
                     aria-label={"import"}
                     rightIcon={<Upload />}
@@ -141,7 +176,11 @@ export const StartingPageHeader: FC = () => {
             </ButtonGroup>
 
             <CreatePatternModal isOpen={isModalOpen} onClose={onModalClose} />
-            <ShortcutTableModal scope={"page.starting"} isOpen={isHelpOpen} onClose={onHelpClose} />
+            <ShortcutTableModal
+                scope={"page.starting"}
+                isOpen={isHelpOpen}
+                onClose={onHelpClose}
+            />
         </Header>
     );
 };

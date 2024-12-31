@@ -15,7 +15,14 @@ import {
     BeadingGridSelectionProvider,
 } from "@repo/bead-grid";
 import { getPatternSize, PatternOptions } from "@repo/bead-pattern-editor";
-import { FC, useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+    FC,
+    useCallback,
+    useEffect,
+    useReducer,
+    useRef,
+    useState,
+} from "react";
 import { Layer, Stage } from "react-konva";
 import Konva from "konva";
 import { ColorPaletteProvider, Content, Page } from "../components";
@@ -77,7 +84,6 @@ export const PreviewPage: FC = () => {
         "pink.100",
     ]);
 
-
     const [state, dispatch] = useReducer(gridReducer, {
         name: "Brick Grid 1",
         cells: [],
@@ -88,7 +94,7 @@ export const PreviewPage: FC = () => {
             width: 20,
             drop: 3,
             fringe: 5,
-        }
+        },
     });
 
     useEffect(() => {
@@ -104,11 +110,19 @@ export const PreviewPage: FC = () => {
         resizeStage();
     }, []);
 
-    const handleOnCellEnter = useCallback((_: BeadingGridState, event: BeadingPointerEvent) => {
-        if (event.isPointerDown) {
-            dispatch(setBeadingGridCellAction({ ...event.cell, color: colors[0] }));
-        }
-    }, [colors]);
+    const handleOnCellEnter = useCallback(
+        (_: BeadingGridState, event: BeadingPointerEvent) => {
+            if (event.isPointerDown) {
+                dispatch(
+                    setBeadingGridCellAction({
+                        ...event.cell,
+                        color: colors[0],
+                    })
+                );
+            }
+        },
+        [colors]
+    );
 
     const patternOptions: PatternOptions = {
         layout: {
@@ -117,8 +131,8 @@ export const PreviewPage: FC = () => {
             beadSize: DefaultGridStyles.bead,
             height: 30,
             width: 20,
-        }
-    }
+        },
+    };
 
     const { height, width } = getPatternSize([state], patternOptions);
 
@@ -135,9 +149,10 @@ export const PreviewPage: FC = () => {
                             width={stageSize.width}
                         >
                             <Layer>
-                                <BeadingGridStylesProvider styles={DefaultGridStyles}>
+                                <BeadingGridStylesProvider
+                                    styles={DefaultGridStyles}
+                                >
                                     <BeadingGridSelectionProvider>
-
                                         <BeadingGridProvider>
                                             <BeadingGrid
                                                 cells={state.cells}
@@ -148,15 +163,22 @@ export const PreviewPage: FC = () => {
                                                 <BeadingGridBackgroundPattern />
                                                 <BeadingText
                                                     text={state.name}
-                                                    offset={{ columnIndex: -4, rowIndex: 0 }}
+                                                    offset={{
+                                                        columnIndex: -4,
+                                                        rowIndex: 0,
+                                                    }}
                                                     options={state.options}
                                                 />
                                                 <BeadingGridDivider
-                                                    length={state.options.width + 4}
+                                                    length={
+                                                        state.options.width + 4
+                                                    }
                                                     orientation={"horizontal"}
-                                                    offset={{ columnIndex: -4, rowIndex: 0 }}
+                                                    offset={{
+                                                        columnIndex: -4,
+                                                        rowIndex: 0,
+                                                    }}
                                                 />
-
                                             </BeadingGrid>
                                         </BeadingGridProvider>
 
@@ -165,7 +187,6 @@ export const PreviewPage: FC = () => {
                                             width={width}
                                             options={state.options}
                                         />
-
                                     </BeadingGridSelectionProvider>
                                 </BeadingGridStylesProvider>
                             </Layer>
