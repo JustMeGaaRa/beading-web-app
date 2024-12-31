@@ -3,7 +3,7 @@ import {
     BeadingGridState,
     BrickGridProperties,
     DefaultGridProperties,
-    getGridActualHeight,
+    getGridHeight,
 } from "@repo/bead-grid";
 import { PatternOptions } from "../types";
 
@@ -14,10 +14,9 @@ export const getPatternSize = (
     const isHorizontal = patternOptions.layout.orientation === "horizontal";
 
     const height = isHorizontal
-        ? Math.max(...grids.map((grid) => getGridActualHeight(grid.options)))
+        ? Math.max(...grids.map((grid) => getGridHeight(grid.options)))
         : grids.reduce(
-              (totalHeight, grid) =>
-                  totalHeight + getGridActualHeight(grid.options),
+              (totalHeight, grid) => totalHeight + getGridHeight(grid.options),
               0
           );
     const width = isHorizontal

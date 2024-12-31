@@ -22,7 +22,7 @@ import {
     BeadingFrame,
     BeadingGridState,
     BeadingGridBackgroundPattern,
-    getGridActualHeight,
+    getGridHeight,
     DefaultGridProperties,
     addBeadingGridColumnAfterAction,
     addBeadingGridRowBeforeAction,
@@ -37,7 +37,7 @@ import {
     BeadingGridSelectedArea,
     setSelectedCellsAction,
     hitTestArea,
-    createBoundary,
+    createRenderBounds,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -498,13 +498,9 @@ export const PatternContainer: FC = () => {
                 setEndPosition(position);
 
                 if (startPosition && endPosition) {
-                    const area = createBoundary(startPosition, endPosition);
+                    const area = createRenderBounds(startPosition, endPosition);
                     const hitTest = hitTestArea(pattern.grids[0], styles, area);
-                    const selectedCells = hitTest.hits.map((cell) => ({
-                        ...cell,
-                        isSelected: true,
-                    }));
-                    const action = setSelectedCellsAction(selectedCells);
+                    const action = setSelectedCellsAction(hitTest.hits);
                     dispatch(action);
                 }
             }
@@ -592,7 +588,7 @@ export const PatternContainer: FC = () => {
                                         <BeadingGridDivider
                                             length={
                                                 isLayoutHorizontal
-                                                    ? getGridActualHeight(
+                                                    ? getGridHeight(
                                                           grid.options
                                                       ) + 4
                                                     : grid.options.width + 4

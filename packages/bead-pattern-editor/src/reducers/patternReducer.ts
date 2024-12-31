@@ -1,8 +1,8 @@
 import {
     BeadingGridProperties,
     DefaultGridProperties,
-    gridApplyOptions,
-    gridCreateDefault,
+    gridApplyOptionsReducer,
+    createDefault,
     gridReducer,
 } from "@repo/bead-grid";
 import { PatternActions } from "../actions";
@@ -22,7 +22,7 @@ export const createPattern = (
         lastModified: new Date(),
         options: patternOptions,
         grids: [
-            gridCreateDefault(gridOptions ?? createGridOptions(patternOptions)),
+            createDefault(gridOptions ?? createGridOptions(patternOptions)),
         ],
         gridCount: 1,
     };
@@ -53,7 +53,7 @@ export const patternReducer = (
                 lastModified: new Date(),
                 grids: [
                     ...state.grids,
-                    gridCreateDefault({
+                    createDefault({
                         ...DefaultGridProperties,
                         type: state.options.layout.type,
                         height: state.options.layout.height,
@@ -99,7 +99,9 @@ export const applyPatternOptions = (
     return {
         ...state,
         lastModified: new Date(),
-        grids: state.grids.map((grid) => gridApplyOptions(grid, grid.options)),
+        grids: state.grids.map((grid) =>
+            gridApplyOptionsReducer(grid, grid.options)
+        ),
         options: options,
     };
 };

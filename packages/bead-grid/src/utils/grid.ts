@@ -1,35 +1,68 @@
-import { BeadingGridOffset, BeadingGridProperties } from "../types";
+import {
+    BeadingGridBounds,
+    BeadingGridCellState,
+    BeadingGridOffset,
+    BeadingGridProperties,
+    BeadingGridState,
+    shallowEqualsCell,
+    shift,
+} from "../types";
 import { capitalize } from "./common";
+import { indeciesInBounds } from "./hittest";
 
-export const areEqualDeep = (
-    left: BeadingGridProperties,
-    right: BeadingGridProperties
-) => {
-    return JSON.stringify(left) === JSON.stringify(right);
+export const createDefault = (
+    options: BeadingGridProperties
+): BeadingGridState => {
+    return {
+        name: buildGridName(options),
+        offset: { columnIndex: 0, rowIndex: 0 },
+        cells: [],
+        options: options,
+    };
 };
 
-export const isInBounds = (
-    options: BeadingGridProperties,
+// primitive actions: copy, paste, clear, shift, flip, set
+
+export const copy = (
+    grid: BeadingGridState,
+    area: BeadingGridBounds
+): Array<BeadingGridCellState> => {
+    return grid.cells.filter((cell) => indeciesInBounds(area, cell.offset));
+};
+
+export const paste = (
+    grid: BeadingGridState,
+    cells: Array<BeadingGridCellState>,
     offset: BeadingGridOffset
-) => {
-    if (options.type === "brick") {
-        return (
-            offset.rowIndex >= 0 &&
-            offset.columnIndex >= 0 &&
-            offset.rowIndex < options.height + options.fringe &&
-            offset.columnIndex < options.width
-        );
-    }
-
-    return (
-        offset.rowIndex >= 0 &&
-        offset.columnIndex >= 0 &&
-        offset.rowIndex < options.height &&
-        offset.columnIndex < options.width
-    );
+): BeadingGridState => {
+    const modifiedCells = cells.map((cell) => shift(cell, offset));
+    return {
+        ...grid,
+        cells: [
+            ...grid.cells.filter(
+                (cell) =>
+                    !modifiedCells.some((target) =>
+                        shallowEqualsCell(target, cell)
+                    )
+            ),
+            ...modifiedCells,
+        ],
+    };
 };
 
-export const getGridActualHeight = (options: BeadingGridProperties) => {
+export const clear = (
+    grid: BeadingGridState,
+    cells: Array<BeadingGridCellState>
+): BeadingGridState => {
+    return {
+        ...grid,
+        cells: grid.cells.filter(
+            (cell) => !cells.some((target) => shallowEqualsCell(target, cell))
+        ),
+    };
+};
+
+export const getGridHeight = (options: BeadingGridProperties) => {
     return options.type === "brick"
         ? options.height + options.fringe
         : options.height;
@@ -37,11 +70,18 @@ export const getGridActualHeight = (options: BeadingGridProperties) => {
 
 export const getGridSize = (options: BeadingGridProperties) => {
     return {
-        height:
-            options.type === "brick"
-                ? options.height + options.fringe
-                : options.height,
+        height: getGridHeight(options),
         width: options.width,
+    };
+};
+
+export const getGridBounds = (
+    options: BeadingGridProperties,
+    offset: BeadingGridOffset
+) => {
+    return {
+        ...offset,
+        ...getGridSize(options),
     };
 };
 

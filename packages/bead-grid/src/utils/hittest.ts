@@ -1,38 +1,40 @@
 import {
     BeadingGridCellState,
     BeadingGridOffset,
-    BeadingGridBoundary,
     BeadingGridState,
     BeadingGridStyles,
+    BeadingGridBounds,
+    RenderBounds,
 } from "../types";
-import { getGridCellBoundary, getGridCellRenderSize } from "./rendering";
+import { getGridBounds } from "./grid";
+import { getGridCellRenderBounds, getGridCellRenderSize } from "./rendering";
 
 export type HitTestResult = {
     successfull: boolean;
     hits: Array<BeadingGridCellState>;
 };
 
-const isInBounds = (
+export const pointInBounds = (
     area: { x: number; y: number; width: number; height: number },
     point: { x: number; y: number }
 ) => {
     return (
         point.x >= area.x &&
-        point.x <= area.x + area.width &&
+        point.x < area.x + area.width &&
         point.y >= area.y &&
-        point.y <= area.y + area.height
+        point.y < area.y + area.height
     );
 };
 
-const indeciesInBounds = (
-    area: { height: number; width: number },
+export const indeciesInBounds = (
+    area: BeadingGridBounds,
     offset: BeadingGridOffset
 ) => {
     return (
         offset.columnIndex >= 0 &&
-        offset.columnIndex < area.width &&
+        offset.columnIndex < area.columnIndex + area.width &&
         offset.rowIndex >= 0 &&
-        offset.rowIndex < area.height
+        offset.rowIndex < area.rowIndex + area.height
     );
 };
 
@@ -118,17 +120,22 @@ export const hitTestCursor = (
         grid.options.type === "square"
             ? [{ offset: hitCellApproximation, color: "" }]
             : getNeighbourCells(hitCellApproximation).filter((cell) =>
-                  isInBounds(
-                      getGridCellBoundary(cell.offset, grid.options, styles),
+                  pointInBounds(
+                      getGridCellRenderBounds(
+                          cell.offset,
+                          grid.options,
+                          styles
+                      ),
                       cursor
                   )
               )!;
 
     // TODO: consider filtering out the cells that are out of bounds
     return {
-        successfull: hitCells.every((cell) =>
-            indeciesInBounds(grid.options, cell.offset)
-        ),
+        successfull: hitCells.every((cell) => {
+            const area = getGridBounds(grid.options, grid.offset);
+            return indeciesInBounds(area, cell.offset);
+        }),
         hits: hitCells,
     };
 };
@@ -136,18 +143,22 @@ export const hitTestCursor = (
 export const hitTestArea = (
     grid: BeadingGridState,
     styles: BeadingGridStyles,
-    area: BeadingGridBoundary
+    area: RenderBounds
 ): HitTestResult => {
     const hitCells = grid.cells.filter((cell) => {
-        const boundary = getGridCellBoundary(cell.offset, grid.options, styles);
+        const boundary = getGridCellRenderBounds(
+            cell.offset,
+            grid.options,
+            styles
+        );
         const boundaryTopLeft = { x: boundary.x, y: boundary.y };
         const boundaryBottomRight = {
-            x: boundary.x + boundary.width,
-            y: boundary.y + boundary.height,
+            x: boundary.x + boundary.width - 1,
+            y: boundary.y + boundary.height - 1,
         };
         return (
-            isInBounds(area, boundaryTopLeft) &&
-            isInBounds(area, boundaryBottomRight)
+            pointInBounds(area, boundaryTopLeft) &&
+            pointInBounds(area, boundaryBottomRight)
         );
     });
     return {

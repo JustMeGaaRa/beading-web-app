@@ -1,6 +1,10 @@
 import { FC } from "react";
 import { Circle, Group } from "react-konva";
-import { getGridCellBoundary, getGridCellRenderSize, getGridSize } from "../utils";
+import {
+    getGridCellRenderBounds,
+    getGridCellRenderSize,
+    getGridSize,
+} from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
 export const BeadingGridBackgroundPattern: FC = () => {
@@ -11,16 +15,24 @@ export const BeadingGridBackgroundPattern: FC = () => {
 
     return (
         <Group>
-            {Array
-                .from({ length: height })
-                .map((_, rowIndex) => Array
-                    .from({ length: width })
-                    .map((_, columnIndex) => ({ color: "", offset: { rowIndex, columnIndex } }))
+            {Array.from({ length: height })
+                .map((_, rowIndex) =>
+                    Array.from({ length: width }).map((_, columnIndex) => ({
+                        color: "",
+                        offset: { rowIndex, columnIndex },
+                    }))
                 )
                 .flat()
-                .map(cell => {
-                    const { x, y } = getGridCellBoundary(cell.offset, options, styles);
-                    const { height, width } = getGridCellRenderSize(options, styles);
+                .map((cell) => {
+                    const { x, y } = getGridCellRenderBounds(
+                        cell.offset,
+                        options,
+                        styles
+                    );
+                    const { height, width } = getGridCellRenderSize(
+                        options,
+                        styles
+                    );
 
                     return (
                         <Circle
@@ -35,5 +47,5 @@ export const BeadingGridBackgroundPattern: FC = () => {
                     );
                 })}
         </Group>
-    )
+    );
 };

@@ -58,21 +58,21 @@ export type GridSetSelectedCellsAction = Action<
 // export type GridMirrorSectionAction = Action<
 //     "BEADING_GRID_MIRROR_SECTION",
 //     {
-//         target: BeadingGridWindow;
-//         source: BeadingGridWindow;
+//         target: BeadingGridBounds;
+//         source: BeadingGridBounds;
 //         direction: "vertical" | "horizontal";
 //     }
 // >;
 // export type GridDuplicateSectionAction = Action<
 //     "BEADING_GRID_DUPLICATE_SECTION",
 //     {
-//         target: BeadingGridWindow;
-//         source: BeadingGridWindow;
+//         target: BeadingGridBounds;
+//         source: BeadingGridBounds;
 //     }
 // >;
 // export type GridClearSectionAction = Action<
 //     "BEADING_GRID_CLEAR_SECTION",
-//     { section: BeadingGridWindow }
+//     { section: BeadingGridBounds }
 // >;
 
 export type GridActions =

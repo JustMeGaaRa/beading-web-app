@@ -1,6 +1,6 @@
 import { BeadingGridState } from "../types";
 
-export const gridInsertRow = (
+export const gridInsertRowReducer = (
     state: BeadingGridState,
     rowIndex: number
 ): BeadingGridState => {

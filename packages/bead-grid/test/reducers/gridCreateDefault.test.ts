@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { gridCreateDefault } from "../../src";
+import { createDefault } from "../../src";
 
 test.each([
     [
@@ -27,7 +27,7 @@ test.each([
         },
     ],
 ])("should create a new grid with name ($name)", ({ options, name }) => {
-    const defaultGrid = gridCreateDefault(options as any);
+    const defaultGrid = createDefault(options as any);
 
     expect(defaultGrid).toBeDefined();
     expect(defaultGrid.options).toBeDefined();

@@ -1,7 +1,7 @@
 import { FC, useCallback, Fragment } from "react";
 import { Rect } from "react-konva";
 import { BeadingGridOffset, BeadingPointerEvent } from "../types";
-import { getGridCellBoundary } from "../utils";
+import { getGridCellRenderBounds } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
 export const BeadingGridCell: FC<{
@@ -26,7 +26,7 @@ export const BeadingGridCell: FC<{
     const { styles } = useGridStyles();
     const { options } = useGrid();
 
-    const { x, y, height, width } = getGridCellBoundary(
+    const { x, y, height, width } = getGridCellRenderBounds(
         offset,
         options,
         styles

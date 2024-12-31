@@ -1,11 +1,9 @@
 import {
-    BeadingGridBoundary,
+    RenderBounds,
     BeadingGridOffset,
     BeadingGridProperties,
-    BeadingGridRectangle,
     BeadingGridStyles,
     BeadingGridType,
-    BeadingGridWindow,
     BeadProperties,
     BrickGridProperties,
 } from "../types";
@@ -16,7 +14,7 @@ export const getGridCellRenderSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ) => {
-    const getGridCellSizeSimple = (
+    const getGridCellSize = (
         type: BeadingGridType,
         pixelPerPoint: number,
         bead: BeadProperties
@@ -28,18 +26,18 @@ export const getGridCellRenderSize = (
         return { height, width };
     };
 
-    return getGridCellSizeSimple(
+    return getGridCellSize(
         options.type,
         styles.rendering.pixelPerPoint,
         styles.bead
     );
 };
 
-export const getGridCellBoundary = (
+export const getGridCellRenderBounds = (
     offset: BeadingGridOffset,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
-): BeadingGridBoundary => {
+): RenderBounds => {
     const { height, width } = getGridCellRenderSize(options, styles);
 
     const cellStaggerX = width / 2;
@@ -120,24 +118,5 @@ export const getGridRenderSize = (
         height:
             gridSize.height * cellSize.height * styles.rendering.pixelPerPoint,
         width: gridSize.width * cellSize.width * styles.rendering.pixelPerPoint,
-    };
-};
-
-export const getGridSectionArea = (
-    section: BeadingGridWindow,
-    options: BeadingGridProperties,
-    styles: BeadingGridStyles
-): BeadingGridRectangle => {
-    const cellSize = getGridCellRenderSize(options, styles);
-    const topLeftPosition = getGridCellBoundary(
-        section.offset,
-        options,
-        styles
-    );
-
-    return {
-        position: topLeftPosition,
-        width: section.width * cellSize.width,
-        height: section.height * cellSize.height,
     };
 };

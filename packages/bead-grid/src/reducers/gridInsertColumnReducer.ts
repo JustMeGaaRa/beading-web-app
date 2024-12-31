@@ -1,6 +1,6 @@
 import { BeadingGridState } from "../types";
 
-export const gridDeleteColumn = (
+export const gridInsertColumnReducer = (
     state: BeadingGridState,
     columnIndex: number
 ): BeadingGridState => {
@@ -11,23 +11,21 @@ export const gridDeleteColumn = (
     return {
         ...state,
         cells: state.cells
-            // filter our the cells in the current column
-            .filter((cell) => cell.offset.columnIndex !== columnIndex)
-            // shift all cells in the next columns to the left
+            // shift all cells in the next columns to the right
             .map((cell) =>
-                cell.offset.columnIndex > columnIndex
+                cell.offset.columnIndex >= columnIndex
                     ? {
                           ...cell,
                           offset: {
                               rowIndex: cell.offset.rowIndex,
-                              columnIndex: cell.offset.columnIndex - 1,
+                              columnIndex: cell.offset.columnIndex + 1,
                           },
                       }
                     : cell
             ),
         options: {
             ...state.options,
-            width: state.options.width - 1,
+            width: state.options.width + 1,
         },
     };
 };

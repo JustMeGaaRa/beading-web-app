@@ -1,29 +1,12 @@
-import { BeadingGridState, BeadingGridCellState } from "../types";
-import { isInBounds, isNullOrEmpty } from "../utils";
+import {
+    BeadingGridState,
+    BeadingGridCellState,
+    shallowEqualsCell,
+    deepEqualsCell,
+} from "../types";
+import { getGridBounds, indeciesInBounds, isNullOrEmpty } from "../utils";
 
-const deepEqualsCell = (
-    left: BeadingGridCellState,
-    right: BeadingGridCellState
-) => {
-    return (
-        left.offset.columnIndex === right.offset.columnIndex &&
-        left.offset.rowIndex === right.offset.rowIndex &&
-        left.color === right.color &&
-        left.isSelected === right.isSelected
-    );
-};
-
-const shallowEqualsCell = (
-    left: BeadingGridCellState,
-    right: BeadingGridCellState
-) => {
-    return (
-        left.offset.columnIndex === right.offset.columnIndex &&
-        left.offset.rowIndex === right.offset.rowIndex
-    );
-};
-
-export const gridSetCell = (
+export const gridSetCellReducer = (
     grid: BeadingGridState,
     modifiedCell: BeadingGridCellState
 ): BeadingGridState => {
@@ -36,7 +19,8 @@ export const gridSetCell = (
     }
 
     // check if the target cell is out of bounds or has no color
-    if (!isInBounds(grid.options, modifiedCell.offset)) {
+    const area = getGridBounds(grid.options, grid.offset);
+    if (!indeciesInBounds(area, modifiedCell.offset)) {
         return grid;
     }
 
@@ -60,11 +44,4 @@ export const gridSetCell = (
             modifiedCell,
         ],
     };
-};
-
-export const gridSetCells = (
-    grid: BeadingGridState,
-    modifiedCells: Array<BeadingGridCellState>
-): BeadingGridState => {
-    return modifiedCells.reduce(gridSetCell, grid);
 };

@@ -1,25 +1,25 @@
 import {
+    BeadingGridBounds,
     BeadingGridOffset,
     BeadingGridSection,
     BeadingGridState,
-    BeadingGridWindow,
 } from "../types";
 
-export * from "./gridApplyOptions";
-export * from "./gridClearColumn";
-export * from "./gridClearRow";
-export * from "./gridCreateDefault";
-export * from "./gridDeleteColumn";
-export * from "./gridDeleteRow";
-export * from "./gridInsertColumn";
-export * from "./gridInsertRow";
+export * from "./gridApplyOptionsReducer";
+export * from "./gridClearColumnReducer";
+export * from "./gridClearRowReducer";
+export * from "./gridDeleteColumnReducer";
+export * from "./gridDeleteRowReducer";
+export * from "./gridInsertColumnReducer";
+export * from "./gridInsertRowReducer";
 export * from "./gridReducer";
-export * from "./gridSetCell";
+export * from "./gridSetCellReducer";
+export * from "./gridSetSelectedCellsReducer";
 
 export const getGridWindow = (
     startCell: BeadingGridOffset,
     endCell: BeadingGridOffset
-) => {
+): BeadingGridBounds => {
     const topLeftRowIndex = Math.min(startCell.rowIndex, endCell.rowIndex);
     const topLeftColumnIndex = Math.min(
         startCell.columnIndex,
@@ -32,7 +32,8 @@ export const getGridWindow = (
     );
 
     return {
-        offset: { rowIndex: topLeftRowIndex, columnIndex: topLeftColumnIndex },
+        rowIndex: topLeftRowIndex,
+        columnIndex: topLeftColumnIndex,
         height: bottomRightRowIndex - topLeftRowIndex + 1,
         width: bottomRightColumnIndex - topLeftColumnIndex + 1,
     };
@@ -40,15 +41,14 @@ export const getGridWindow = (
 
 export const getGridWindowProjection = (
     grid: BeadingGridState,
-    centerSection: BeadingGridWindow,
+    centerSection: BeadingGridBounds,
     projection: "horizontal" | "vertical"
-): Array<BeadingGridWindow> => {
+): Array<BeadingGridBounds> => {
     const gridHeight = grid.options.height - 1;
     const gridWidth = grid.options.width - 1;
-    const mirrors: BeadingGridWindow[] = [];
+    const mirrors: BeadingGridBounds[] = [];
 
-    const { columnIndex: columnIndex, rowIndex: rowIndex } =
-        centerSection.offset;
+    const { columnIndex: columnIndex, rowIndex: rowIndex } = centerSection;
     const { width, height } = centerSection;
 
     const rightEdge = columnIndex + width;
@@ -108,21 +108,20 @@ export const getGridWindowProjection = (
 };
 
 export const getSection = (
-    grid: BeadingGridState,
-    window: BeadingGridWindow
-): BeadingGridSection => {
-    const { offset, height } = window;
-
-    return {
-        ...window,
-        rows: grid.cells.slice(offset.rowIndex, offset.rowIndex + height),
-        // .map((row) => ({
-        //     cells: row.cells.slice(
-        //         offset.columnIndex,
-        //         offset.columnIndex + width
-        //     ),
-        // })),
-    };
+    _grid: BeadingGridState,
+    _window: BeadingGridBounds
+) => {
+    // const { columnIndex, rowIndex, height } = window;
+    // return {
+    //     ...window,
+    //     rows: grid.cells.slice(rowIndex, rowIndex + height),
+    //     // .map((row) => ({
+    //     //     cells: row.cells.slice(
+    //     //         offset.columnIndex,
+    //     //         offset.columnIndex + width
+    //     //     ),
+    //     // })),
+    // };
 };
 
 export const flipSection = (
@@ -165,9 +164,24 @@ export const flipSection = (
     // };
 };
 
+// TODO: replace with indeciesInBounds in the grid.ts file
+export const isPositionInBounds = (
+    grid: BeadingGridState,
+    offset: BeadingGridOffset,
+    columnIndex: number,
+    rowIndex: number
+) => {
+    return (
+        offset.rowIndex + rowIndex >= 0 &&
+        offset.rowIndex + rowIndex < grid.options.height &&
+        offset.columnIndex + columnIndex >= 0 &&
+        offset.columnIndex + columnIndex < grid.options.width
+    );
+};
+
 export const mergeSection = (
     _grid: BeadingGridState,
-    _targetWindow: BeadingGridWindow,
+    _targetWindow: BeadingGridBounds,
     _sourceSection: BeadingGridSection
 ) => {
     // const clonedRows = grid.rows.map((row) => ({ cells: [...row.cells] }));
@@ -199,8 +213,8 @@ export const mergeSection = (
 
 export const mirrorSection = (
     _grid: BeadingGridState,
-    _targetWindow: BeadingGridWindow,
-    _sourceWindow: BeadingGridWindow,
+    _targetWindow: BeadingGridBounds,
+    _sourceWindow: BeadingGridBounds,
     _direction: "horizontal" | "vertical"
 ) => {
     // const sourceSection = getSection(grid, sourceWindow);
@@ -210,13 +224,13 @@ export const mirrorSection = (
 };
 
 export const dulicateSection = (
-    grid: BeadingGridState,
-    targetWindow: BeadingGridWindow,
-    sourceWindow: BeadingGridWindow
+    _grid: BeadingGridState,
+    _targetWindow: BeadingGridBounds,
+    _sourceWindow: BeadingGridBounds
 ) => {
-    const sourceSection = getSection(grid, sourceWindow);
-    const modifiedGrid = mergeSection(grid, targetWindow, sourceSection);
-    return modifiedGrid;
+    // const sourceSection = getSection(grid, sourceWindow);
+    // const modifiedGrid = mergeSection(grid, targetWindow, sourceSection);
+    // return modifiedGrid;
 };
 
 export const clearSection = (grid: BeadingGridState) => {

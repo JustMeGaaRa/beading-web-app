@@ -97,8 +97,8 @@ export const setSelectedCellsAction = (
 });
 
 // export const mirrorBeadingGridSectionAction = (
-//     target: BeadingGridWindow,
-//     source: BeadingGridWindow,
+//     target: BeadingGridBounds,
+//     source: BeadingGridBounds,
 //     direction: "vertical" | "horizontal"
 // ): GridMirrorSectionAction => ({
 //     type: "BEADING_GRID_MIRROR_SECTION",
@@ -106,15 +106,15 @@ export const setSelectedCellsAction = (
 // });
 
 // export const duplicateBeadingGridSectionAction = (
-//     target: BeadingGridWindow,
-//     source: BeadingGridWindow
+//     target: BeadingGridBounds,
+//     source: BeadingGridBounds
 // ): GridDuplicateSectionAction => ({
 //     type: "BEADING_GRID_DUPLICATE_SECTION",
 //     payload: { target, source },
 // });
 
 // export const clearBeadingGridSectionAction = (
-//     section: BeadingGridWindow
+//     section: BeadingGridBounds
 // ): GridClearSectionAction => ({
 //     type: "BEADING_GRID_CLEAR_SECTION",
 //     payload: { section },

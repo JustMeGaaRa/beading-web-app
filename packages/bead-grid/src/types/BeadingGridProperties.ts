@@ -46,3 +46,10 @@ export function isBrickGridProperties(
         "fringe" in properties
     );
 }
+
+export const deepEqualGridOptions = (
+    left: BeadingGridProperties,
+    right: BeadingGridProperties
+) => {
+    return JSON.stringify(left) === JSON.stringify(right);
+};

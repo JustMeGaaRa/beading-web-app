@@ -1,14 +1,14 @@
-export type BeadingGridBoundary = {
+export type RenderBounds = {
     x: number;
     y: number;
     height: number;
     width: number;
 };
 
-export const createBoundary = (
+export const createRenderBounds = (
     point1: { x: number; y: number },
     point2: { x: number; y: number }
-): BeadingGridBoundary => {
+): RenderBounds => {
     const x = Math.min(point1.x, point2.x);
     const y = Math.min(point1.y, point2.y);
     const width = Math.abs(point2.x - point1.x);
