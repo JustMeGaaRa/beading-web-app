@@ -22,14 +22,6 @@ export const createDefault = (
     };
 };
 
-// primitive actions:
-// - copy
-// - paste
-// - clear
-// - flip
-// - shift
-// - set
-
 export const copy = (
     grid: BeadingGridState,
     area: BeadingGridBounds

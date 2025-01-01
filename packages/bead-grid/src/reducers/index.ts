@@ -32,8 +32,10 @@ export const getGridWindow = (
     );
 
     return {
-        rowIndex: topLeftRowIndex,
-        columnIndex: topLeftColumnIndex,
+        offset: {
+            rowIndex: topLeftRowIndex,
+            columnIndex: topLeftColumnIndex,
+        },
         height: bottomRightRowIndex - topLeftRowIndex + 1,
         width: bottomRightColumnIndex - topLeftColumnIndex + 1,
     };
@@ -48,7 +50,7 @@ export const getGridWindowProjection = (
     const gridWidth = grid.options.width - 1;
     const mirrors: BeadingGridBounds[] = [];
 
-    const { columnIndex: columnIndex, rowIndex: rowIndex } = centerSection;
+    const { columnIndex, rowIndex } = centerSection.offset;
     const { width, height } = centerSection;
 
     const rightEdge = columnIndex + width;

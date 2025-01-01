@@ -11,14 +11,25 @@ import { gridSetCellReducer } from "./gridSetCellReducer";
 import { gridSetSelectedCellsReducer } from "./gridSetSelectedCellsReducer";
 
 // user actions:
-// - mirror = copy + flip + paste
-// - duplicate = copy + shift + paste
-// - move = copy + shift + paste
-// - flip = copy + flip + paste
-// - cut = copy + clear + paste
-// - select = set
-// - select all = set
-// - deselect all = set
+// - clear selected = clear
+// - copy section = copy
+// - paste section = paste
+// - cut section = copy + clear + paste
+// - select area = hittest + select
+// - select all = hittest + select
+// - reset selected = select
+// - mirror section = copy + flip + paste
+// - duplicate section = copy + shift + paste
+// - move section = copy + shift + paste
+// - flip section = copy + flip + paste
+
+// primitive actions:
+// - copy
+// - paste
+// - clear
+// - flip
+// - shift
+// - set
 
 // user tools:
 // - Select cursor tool - Drag to select area - select mirror tool - click highlighted area to apply
