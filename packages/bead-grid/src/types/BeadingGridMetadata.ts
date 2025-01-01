@@ -1,4 +1,4 @@
-import { BeadingGridOffset } from "./BeadingGridOffset";
+import { BeadingGridOffset } from "./BeadingGridBounds";
 
 export type BeadingGridMetadata = {
     offset: BeadingGridOffset;

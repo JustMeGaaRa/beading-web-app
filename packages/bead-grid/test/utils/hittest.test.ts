@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
 import { DefaultGridStyles } from "../../src";
 import { hitTestCursor, hitTestArea } from "../../src/utils/hittest";
-import { Square3x3GridWithCells, SquareEmptyGrid } from "../constants";
+import { Square3x3GridWithCells, Square10x10EmptyGrid } from "../constants";
 
 test.each([
     [
@@ -62,7 +62,7 @@ test.each([
 ])(
     "should have successfull ($successfull) and cell count ($hitCells.length) at cursor ($cursor.x, $cursor.y)",
     ({ cursor, hitCells, successfull }) => {
-        const grid = SquareEmptyGrid;
+        const grid = Square10x10EmptyGrid;
         const gridStyles = DefaultGridStyles;
 
         const hitResult = hitTestCursor(grid, gridStyles, cursor);

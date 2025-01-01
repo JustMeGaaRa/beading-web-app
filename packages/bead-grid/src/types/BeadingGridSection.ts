@@ -1,8 +1,6 @@
-import { BeadingGridOffset } from "./BeadingGridOffset";
+import { BeadingGridBounds } from "./BeadingGridBounds";
+import { BeadingGridCellState } from "./BeadingGridCellState";
 
 export type BeadingGridSection = {
-    offset: BeadingGridOffset;
-    height: number;
-    width: number;
-    rows: Array<any>;
-};
+    cells: Array<BeadingGridCellState>;
+} & BeadingGridBounds;

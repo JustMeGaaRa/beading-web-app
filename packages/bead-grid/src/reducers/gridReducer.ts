@@ -10,20 +10,23 @@ import { gridInsertRowReducer } from "./gridInsertRowReducer";
 import { gridSetCellReducer } from "./gridSetCellReducer";
 import { gridSetSelectedCellsReducer } from "./gridSetSelectedCellsReducer";
 
-// user actions: duplicate, move, mirror, cut, select, select all, deselect all
-//
-// mirror = copy + flip + paste
-// duplicate = copy + shift + paste
-// move = copy + shift + paste
-// flip = copy + flip + paste
-// cut = copy + clear
+// user actions:
+// - mirror = copy + flip + paste
+// - duplicate = copy + shift + paste
+// - move = copy + shift + paste
+// - flip = copy + flip + paste
+// - cut = copy + clear + paste
+// - select = set
+// - select all = set
+// - deselect all = set
 
-// 1. Select cursor tool - Drag to select area - select mirror tool - click highlighted area to apply
-// 2. Select cursor tool - drag to select area - select flip tool
-// 3. Select cursor tool - drag to select area - cut tool - click on cell - paste tool
-// 4. Select cursor tool - drag to select area - duplicate tool - click on highlighted area to apply
-// 5. Select pencil tool - click on cell to apply OR press down mouse and drag to apply
-// 6. Select eraser tool - click on cell to apply OR press down mouse and drag to apply
+// user tools:
+// - Select cursor tool - Drag to select area - select mirror tool - click highlighted area to apply
+// - Select cursor tool - drag to select area - select flip tool
+// - Select cursor tool - drag to select area - cut tool - click on cell - paste tool
+// - Select cursor tool - drag to select area - duplicate tool - click on highlighted area to apply
+// - Select pencil tool - click on cell to apply OR press down mouse and drag to apply
+// - Select eraser tool - click on cell to apply OR press down mouse and drag to apply
 
 export const gridReducer = (
     state: BeadingGridState,

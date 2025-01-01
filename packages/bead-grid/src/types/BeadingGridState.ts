@@ -1,5 +1,5 @@
-import { BeadingGridCellState } from "./BeadingGridCell";
-import { BeadingGridOffset } from "./BeadingGridOffset";
+import { BeadingGridCellState } from "./BeadingGridCellState";
+import { BeadingGridOffset } from "./BeadingGridBounds";
 import { BeadingGridProperties } from "./BeadingGridProperties";
 
 export type BeadingGridState = {

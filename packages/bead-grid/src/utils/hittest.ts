@@ -31,10 +31,10 @@ export const indeciesInBounds = (
     offset: BeadingGridOffset
 ) => {
     return (
-        offset.columnIndex >= 0 &&
-        offset.columnIndex < area.columnIndex + area.width &&
-        offset.rowIndex >= 0 &&
-        offset.rowIndex < area.rowIndex + area.height
+        offset.columnIndex >= area.offset.columnIndex &&
+        offset.columnIndex < area.offset.columnIndex + area.width &&
+        offset.rowIndex >= area.offset.rowIndex &&
+        offset.rowIndex < area.offset.rowIndex + area.height
     );
 };
 

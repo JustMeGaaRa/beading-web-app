@@ -8,4 +8,6 @@ export type BeadingGridSize = {
     width: number;
 };
 
-export type BeadingGridBounds = BeadingGridOffset & BeadingGridSize;
+export type BeadingGridBounds = {
+    offset: BeadingGridOffset;
+} & BeadingGridSize;

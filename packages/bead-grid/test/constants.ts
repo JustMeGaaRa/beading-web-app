@@ -13,7 +13,7 @@ export const Brick10x10GridWitoutCells: BeadingGridState = {
     },
 };
 
-export const SquareEmptyGrid: BeadingGridState = {
+export const Square10x10EmptyGrid: BeadingGridState = {
     name: "Test Grid",
     offset: { columnIndex: 0, rowIndex: 0 },
     cells: [],

@@ -3,6 +3,7 @@ import {
     BeadingGridCellState,
     BeadingGridOffset,
     BeadingGridProperties,
+    BeadingGridSection,
     BeadingGridState,
     shallowEqualsCell,
     shift,
@@ -21,32 +22,50 @@ export const createDefault = (
     };
 };
 
-// primitive actions: copy, paste, clear, shift, flip, set
+// primitive actions:
+// - copy
+// - paste
+// - clear
+// - flip
+// - shift
+// - set
 
 export const copy = (
     grid: BeadingGridState,
     area: BeadingGridBounds
-): Array<BeadingGridCellState> => {
-    return grid.cells.filter((cell) => indeciesInBounds(area, cell.offset));
+): BeadingGridSection => {
+    const gridRelativeCells = grid.cells.filter((cell) =>
+        indeciesInBounds(area, cell.offset)
+    );
+
+    return {
+        ...area,
+        cells: gridRelativeCells,
+    };
 };
 
 export const paste = (
     grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>,
+    section: BeadingGridSection,
     offset: BeadingGridOffset
 ): BeadingGridState => {
-    const modifiedCells = cells.map((cell) => shift(cell, offset));
+    const targetOffset = {
+        columnIndex: offset.columnIndex - section.offset.columnIndex,
+        rowIndex: offset.rowIndex - section.offset.rowIndex,
+    };
+    const targetBounds = getGridBounds(grid.options, grid.offset);
+
+    const gridTargetCells = section.cells
+        .map((cell) => shift(cell, targetOffset))
+        .filter((cell) => indeciesInBounds(targetBounds, cell.offset));
+    const gridFilteredCells = grid.cells.filter(
+        (cell) =>
+            !gridTargetCells.some((target) => shallowEqualsCell(target, cell))
+    );
+
     return {
         ...grid,
-        cells: [
-            ...grid.cells.filter(
-                (cell) =>
-                    !modifiedCells.some((target) =>
-                        shallowEqualsCell(target, cell)
-                    )
-            ),
-            ...modifiedCells,
-        ],
+        cells: [...gridFilteredCells, ...gridTargetCells],
     };
 };
 
@@ -58,6 +77,39 @@ export const clear = (
         ...grid,
         cells: grid.cells.filter(
             (cell) => !cells.some((target) => shallowEqualsCell(target, cell))
+        ),
+    };
+};
+
+export const flip = (
+    grid: BeadingGridState,
+    area: BeadingGridBounds,
+    axis: "horizontal" | "vertical"
+): BeadingGridState => {
+    return {
+        ...grid,
+        cells: grid.cells.map((cell) =>
+            indeciesInBounds(area, cell.offset)
+                ? {
+                      ...cell,
+                      offset: {
+                          columnIndex:
+                              axis === "horizontal"
+                                  ? area.offset.columnIndex +
+                                    area.width -
+                                    1 -
+                                    cell.offset.columnIndex
+                                  : cell.offset.columnIndex,
+                          rowIndex:
+                              axis === "vertical"
+                                  ? area.offset.rowIndex +
+                                    area.height -
+                                    1 -
+                                    cell.offset.rowIndex
+                                  : cell.offset.rowIndex,
+                      },
+                  }
+                : cell
         ),
     };
 };
@@ -80,12 +132,12 @@ export const getGridBounds = (
     offset: BeadingGridOffset
 ) => {
     return {
-        ...offset,
+        offset,
         ...getGridSize(options),
     };
 };
 
-export const getGridNumber = (name: string) => {
+const getGridNumber = (name: string) => {
     const numbersInName = name
         .split(" ")
         .map((word) => Number(word))
@@ -94,7 +146,7 @@ export const getGridNumber = (name: string) => {
     return lasteGridNumber;
 };
 
-export const buildGridName = (
+const buildGridName = (
     options: BeadingGridProperties,
     gridCount: number = 1
 ) => {

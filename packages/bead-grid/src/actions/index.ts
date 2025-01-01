@@ -15,6 +15,10 @@ export type GridSetCellAction = Action<
     "BEADING_GRID_SET_CELL",
     { cell: BeadingGridCellState }
 >;
+export type GridSetSelectedCellsAction = Action<
+    "BEADING_GRID_SET_SELECTED_CELLS",
+    { cells: Array<BeadingGridCellState> }
+>;
 export type GridClearCellsAction = Action<
     "BEADING_GRID_CLEAR_CELLS",
     { cells: Array<BeadingGridCellState> }
@@ -50,10 +54,6 @@ export type GridDeleteRowAction = Action<
 export type GridClearRowAction = Action<
     "BEADING_GRID_CLEAR_ROW",
     { row: number }
->;
-export type GridSetSelectedCellsAction = Action<
-    "BEADING_GRID_SET_SELECTED_CELLS",
-    { cells: Array<BeadingGridCellState> }
 >;
 // export type GridMirrorSectionAction = Action<
 //     "BEADING_GRID_MIRROR_SECTION",

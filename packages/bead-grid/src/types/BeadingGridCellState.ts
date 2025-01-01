@@ -1,8 +1,9 @@
-import { BeadingGridOffset } from "./BeadingGridOffset";
+import { BeadingGridOffset } from "./BeadingGridBounds";
 
 export type BeadingGridCellState = {
     color: string;
     offset: BeadingGridOffset;
+    // TODO: replace isSelected with array of selected indices in the provider to avoid saving this state
     isSelected?: boolean;
 };
 
