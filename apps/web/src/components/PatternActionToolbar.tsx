@@ -5,9 +5,17 @@ import {
     IconButton,
     Tooltip,
 } from "@chakra-ui/react";
-import { Check, Flip, XmarkCircle, Copy } from "iconoir-react";
+import { Check } from "iconoir-react";
 import { FC, memo } from "react";
 import { ToolState } from "./ToolsProvider";
+import {
+    ClipboardAddIcon,
+    ClipboardIcon,
+    CopyIcon,
+    FlipVerticalIcon,
+    RemoveCircleIcon,
+    VerticalMirrorIcon,
+} from "@repo/icons";
 
 export const PatternActionToolbar: FC<{
     tool: ToolState;
@@ -36,27 +44,54 @@ export const PatternActionToolbar: FC<{
                         <Tooltip label={"Duplicate selection"}>
                             <IconButton
                                 aria-label={"duplicate selection"}
-                                icon={<Copy />}
+                                icon={<CopyIcon />}
                                 color={"white"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}
                                 onClick={onDuplicate}
                             />
                         </Tooltip>
+                        <Tooltip label={"Copy selection"}>
+                            <IconButton
+                                aria-label={"copy selection"}
+                                icon={<ClipboardIcon />}
+                                color={"white"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{ backgroundColor: "gray.600" }}
+                            />
+                        </Tooltip>
+                        <Tooltip label={"Paste selection"}>
+                            <IconButton
+                                aria-label={"paste selection"}
+                                icon={<ClipboardAddIcon />}
+                                color={"white"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{ backgroundColor: "gray.600" }}
+                            />
+                        </Tooltip>
                         <Tooltip label={"Mirror selection"}>
                             <IconButton
                                 aria-label={"mirror selection"}
-                                icon={<Flip />}
+                                icon={<VerticalMirrorIcon />}
                                 color={"white"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}
                                 onClick={onMirror}
                             />
                         </Tooltip>
+                        <Tooltip label={"Flip selection"}>
+                            <IconButton
+                                aria-label={"flip selection"}
+                                icon={<FlipVerticalIcon />}
+                                color={"white"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{ backgroundColor: "gray.600" }}
+                            />
+                        </Tooltip>
                         <Tooltip label={"Clear selection"}>
                             <IconButton
                                 aria-label={"clear selection"}
-                                icon={<XmarkCircle />}
+                                icon={<RemoveCircleIcon />}
                                 color={"red.600"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}

@@ -14,6 +14,13 @@ import {
     GridSetSelectedCellsAction,
 } from "../actions";
 
+export const applyBeadingGridOptionsAction = (
+    options: BeadingGridProperties
+): GridApplyOptionsAction => ({
+    type: "BEADING_GRID_APPLY_OPTIONS",
+    payload: { options },
+});
+
 export const setBeadingGridCellAction = (
     cell: BeadingGridCellState
 ): GridSetCellAction => ({
@@ -21,11 +28,11 @@ export const setBeadingGridCellAction = (
     payload: { cell },
 });
 
-export const applyBeadingGridOptionsAction = (
-    options: BeadingGridProperties
-): GridApplyOptionsAction => ({
-    type: "BEADING_GRID_APPLY_OPTIONS",
-    payload: { options },
+export const setSelectedCellsAction = (
+    cells: Array<BeadingGridCellState>
+): GridSetSelectedCellsAction => ({
+    type: "BEADING_GRID_SELECT_CELLS",
+    payload: { cells },
 });
 
 export const clearBeadingGridCellsAction = (
@@ -88,34 +95,3 @@ export const clearBeadingGridRowAction = (row: number): GridClearRowAction => ({
     type: "BEADING_GRID_CLEAR_ROW",
     payload: { row },
 });
-
-export const setSelectedCellsAction = (
-    cells: Array<BeadingGridCellState>
-): GridSetSelectedCellsAction => ({
-    type: "BEADING_GRID_SET_SELECTED_CELLS",
-    payload: { cells },
-});
-
-// export const mirrorBeadingGridSectionAction = (
-//     target: BeadingGridBounds,
-//     source: BeadingGridBounds,
-//     direction: "vertical" | "horizontal"
-// ): GridMirrorSectionAction => ({
-//     type: "BEADING_GRID_MIRROR_SECTION",
-//     payload: { target, source, direction },
-// });
-
-// export const duplicateBeadingGridSectionAction = (
-//     target: BeadingGridBounds,
-//     source: BeadingGridBounds
-// ): GridDuplicateSectionAction => ({
-//     type: "BEADING_GRID_DUPLICATE_SECTION",
-//     payload: { target, source },
-// });
-
-// export const clearBeadingGridSectionAction = (
-//     section: BeadingGridBounds
-// ): GridClearSectionAction => ({
-//     type: "BEADING_GRID_CLEAR_SECTION",
-//     payload: { section },
-// });

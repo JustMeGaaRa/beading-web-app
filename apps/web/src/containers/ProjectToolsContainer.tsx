@@ -113,7 +113,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Cursor"} placement={"right"}>
                         <IconButton
                             aria-label={"cursor"}
-                            icon={<NavigationIcon boxSize={5} />}
+                            icon={<NavigationIcon size={20} />}
                             isActive={tool.name === "cursor"}
                             onClick={onSetCursorTool}
                         />
@@ -121,7 +121,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Pencil"} placement={"right"}>
                         <IconButton
                             aria-label={"pencil"}
-                            icon={<PencilIcon boxSize={5} />}
+                            icon={<PencilIcon size={20} />}
                             isActive={tool.name === "pencil"}
                             onClick={onSetPencilTool}
                         />
@@ -129,7 +129,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Eraser"} placement={"right"}>
                         <IconButton
                             aria-label={"eraser"}
-                            icon={<EraserIcon boxSize={5} />}
+                            icon={<EraserIcon size={20} />}
                             isActive={tool.name === "eraser"}
                             onClick={onSetEraserTool}
                         />
@@ -137,7 +137,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Color Picker"} placement={"right"}>
                         <IconButton
                             aria-label={"picker"}
-                            icon={<ColorPickerIcon boxSize={5} />}
+                            icon={<ColorPickerIcon size={20} />}
                             isActive={tool.name === "picker"}
                             onClick={onSetPickerTool}
                         />
@@ -160,7 +160,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Undo"} placement={"right"}>
                         <IconButton
                             aria-label={"undo"}
-                            icon={<ReverseLeftIcon boxSize={5} />}
+                            icon={<ReverseLeftIcon size={20} />}
                             isDisabled={pastStates.length === 0}
                             onClick={handleOnUndoClick}
                         />
@@ -168,7 +168,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Redo"} placement={"right"}>
                         <IconButton
                             aria-label={"redo"}
-                            icon={<ReverseRightIcon boxSize={5} />}
+                            icon={<ReverseRightIcon size={20} />}
                             isDisabled={futureStates.length === 0}
                             onClick={handleOnRedoClick}
                         />

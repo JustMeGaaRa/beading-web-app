@@ -96,7 +96,7 @@ export const PatternCard: FC<{
                             fontSize={"xs"}
                             fontWeight={400}
                         >
-                            {pattern.lastModified?.toLocaleString()}
+                            {new Date(pattern.lastModified).toUTCString()}
                         </Text>
                     </Flex>
                     <Menu>

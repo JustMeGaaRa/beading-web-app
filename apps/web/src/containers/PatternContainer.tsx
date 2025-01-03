@@ -33,11 +33,10 @@ import {
     clearBeadingGridColumnAction,
     deleteBeadingGridColumnAction,
     setBeadingGridCellAction,
-    BeadingGridSelectionProvider,
     BeadingGridSelectedArea,
-    setSelectedCellsAction,
     hitTestArea,
     createRenderBounds,
+    getGridCellRenderBounds,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -48,14 +47,25 @@ import {
     dirtyStateSelector,
     getPatternSize,
 } from "@repo/bead-pattern-editor";
-import { MediaImage, NavArrowDown, Page } from "iconoir-react";
+import {
+    ArrowDownIcon,
+    DocumentCodeIcon,
+    DocumentImageIcon,
+} from "@repo/icons";
+// import throttle from "just-throttle";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Layer, Stage } from "react-konva";
+import { Html } from "react-konva-utils";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
-import { useColorPalette, useTools, Shortcuts } from "../components";
+import {
+    useColorPalette,
+    useTools,
+    Shortcuts,
+    PatternActionToolbar,
+} from "../components";
 import {
     calculateNewPosition,
     downloadUri,
@@ -80,6 +90,7 @@ export const PatternContainer: FC = () => {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | null>(null);
     const [rowState, setRowState] = useState<TextState | null>();
+    const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -87,8 +98,14 @@ export const PatternContainer: FC = () => {
     const { tool } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
-    const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } =
-        useGridSelection();
+    const {
+        selectedCells,
+        selectedColumn,
+        selectedRow,
+        setSelectedCells,
+        setSelectedColumn,
+        setSelectedRow,
+    } = useGridSelection();
     const { undo, redo } = usePatterHistory();
 
     const { styles } = useGridStyles();
@@ -500,14 +517,24 @@ export const PatternContainer: FC = () => {
                 if (startPosition && endPosition) {
                     const area = createRenderBounds(startPosition, endPosition);
                     const hitTest = hitTestArea(pattern.grids[0], styles, area);
-                    const action = setSelectedCellsAction(hitTest.hits);
-                    dispatch(action);
+                    setSelectedCells(hitTest.hits);
+
+                    if (hitTest.hits.length > 0) {
+                        const position = getGridCellRenderBounds(
+                            hitTest.hits[0].offset,
+                            pattern.grids[0].options,
+                            styles
+                        );
+                        setToolbarPosition(position);
+                    }
                 }
             }
             setIsMouseDown(false);
+            setStarPosition(undefined);
+            setEndPosition(undefined);
         },
         [
-            dispatch,
+            setSelectedCells,
             endPosition,
             isCursorEnabled,
             pattern.grids,
@@ -558,62 +585,57 @@ export const PatternContainer: FC = () => {
             >
                 <Layer>
                     <BeadingGridStylesProvider styles={DefaultGridStyles}>
-                        <BeadingGridSelectionProvider>
-                            {pattern.grids.map((grid) => (
-                                <BeadingGridProvider key={grid.name}>
-                                    <BeadingGrid
-                                        cells={grid.cells}
-                                        offset={grid.offset}
-                                        options={grid.options}
-                                        onCellEnter={
-                                            handleOnGridCellPointerEnter
+                        {pattern.grids.map((grid) => (
+                            <BeadingGridProvider key={grid.name}>
+                                <BeadingGrid
+                                    cells={grid.cells}
+                                    offset={grid.offset}
+                                    options={grid.options}
+                                    onCellEnter={handleOnGridCellPointerEnter}
+                                >
+                                    <BeadingGridBackgroundPattern />
+                                    <BeadingText
+                                        text={grid.name}
+                                        offset={
+                                            isLayoutHorizontal
+                                                ? {
+                                                      columnIndex: 1,
+                                                      rowIndex: -4,
+                                                  }
+                                                : {
+                                                      columnIndex: -4,
+                                                      rowIndex: 0,
+                                                  }
                                         }
-                                    >
-                                        <BeadingGridBackgroundPattern />
-                                        <BeadingText
-                                            text={grid.name}
-                                            offset={
-                                                isLayoutHorizontal
-                                                    ? {
-                                                          columnIndex: 1,
-                                                          rowIndex: -4,
-                                                      }
-                                                    : {
-                                                          columnIndex: -4,
-                                                          rowIndex: 0,
-                                                      }
-                                            }
-                                            options={grid.options}
-                                        />
-                                        <BeadingGridDivider
-                                            length={
-                                                isLayoutHorizontal
-                                                    ? getGridHeight(
-                                                          grid.options
-                                                      ) + 4
-                                                    : grid.options.width + 4
-                                            }
-                                            offset={
-                                                isLayoutHorizontal
-                                                    ? {
-                                                          columnIndex: 0,
-                                                          rowIndex: -4,
-                                                      }
-                                                    : {
-                                                          columnIndex: -4,
-                                                          rowIndex: 0,
-                                                      }
-                                            }
-                                            orientation={
-                                                isLayoutHorizontal
-                                                    ? "vertical"
-                                                    : "horizontal"
-                                            }
-                                        />
-                                    </BeadingGrid>
-                                </BeadingGridProvider>
-                            ))}
-                        </BeadingGridSelectionProvider>
+                                        options={grid.options}
+                                    />
+                                    <BeadingGridDivider
+                                        length={
+                                            isLayoutHorizontal
+                                                ? getGridHeight(grid.options) +
+                                                  4
+                                                : grid.options.width + 4
+                                        }
+                                        offset={
+                                            isLayoutHorizontal
+                                                ? {
+                                                      columnIndex: 0,
+                                                      rowIndex: -4,
+                                                  }
+                                                : {
+                                                      columnIndex: -4,
+                                                      rowIndex: 0,
+                                                  }
+                                        }
+                                        orientation={
+                                            isLayoutHorizontal
+                                                ? "vertical"
+                                                : "horizontal"
+                                        }
+                                    />
+                                </BeadingGrid>
+                            </BeadingGridProvider>
+                        ))}
 
                         {startPosition && endPosition && isCursorEnabled && (
                             <BeadingGridSelectedArea
@@ -636,6 +658,28 @@ export const PatternContainer: FC = () => {
                                 onRowClick={handleOnPatternRowClick}
                                 onContextMenu={handleOnPatternContextMenu}
                             />
+                        )}
+
+                        {isCursorEnabled && selectedCells.length > 0 && (
+                            <Html
+                                groupProps={toolbarPosition}
+                                transform
+                                transformFunc={(attr) => ({
+                                    ...attr,
+                                    scaleX: 1,
+                                    scaleY: 1,
+                                })}
+                            >
+                                <PatternActionToolbar
+                                    tool={tool}
+                                    // onMirror={handleOnMirrorSelectionClick}
+                                    // onDuplicate={
+                                    //     handleOnDuplicateSelectionClick
+                                    // }
+                                    // onClear={handleOnClearClick}
+                                    // onDone={handleOnDoneClick}
+                                />
+                            </Html>
                         )}
                     </BeadingGridStylesProvider>
                 </Layer>
@@ -695,7 +739,7 @@ export const PatternContainer: FC = () => {
                         <MenuButton
                             as={Button}
                             colorScheme={"gray"}
-                            rightIcon={<NavArrowDown />}
+                            rightIcon={<ArrowDownIcon />}
                             size={"sm"}
                             variant={"solid"}
                             backgroundColor={"gray.900"}
@@ -707,13 +751,13 @@ export const PatternContainer: FC = () => {
                         </MenuButton>
                         <MenuList zIndex={1000}>
                             <MenuItem
-                                icon={<MediaImage />}
+                                icon={<DocumentImageIcon />}
                                 onClick={handleOnPatternSavePngClick}
                             >
                                 Image (.png)
                             </MenuItem>
                             <MenuItem
-                                icon={<Page />}
+                                icon={<DocumentCodeIcon />}
                                 onClick={handleOnPatternSaveJsonClick}
                             >
                                 Pattern (.json)

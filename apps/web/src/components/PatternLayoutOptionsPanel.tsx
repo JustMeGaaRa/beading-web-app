@@ -2,7 +2,6 @@ import {
     Button,
     ButtonGroup,
     Flex,
-    Icon,
     InputGroup,
     InputLeftAddon,
     NumberDecrementStepper,
@@ -14,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { BEAD_OPTIONS } from "@repo/bead-grid";
 import { PatternLayoutOptions } from "@repo/bead-pattern-editor";
-import { HorizontalAlignRightIcon, VerticalAlignBottomIcon } from "@repo/icons";
+import { AlignRightIcon, AlignBottomIcon } from "@repo/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
 export const PatternLayoutOptionsPanel: FC<
@@ -89,7 +88,7 @@ export const PatternLayoutOptionsPanel: FC<
                 <Button
                     aria-selected={layout.orientation === "vertical"}
                     borderColor={"gray.400"}
-                    leftIcon={<Icon as={VerticalAlignBottomIcon} />}
+                    leftIcon={<AlignBottomIcon size={16} />}
                     width={"50%"}
                     _selected={{
                         backgroundColor: "gray.900",
@@ -106,7 +105,7 @@ export const PatternLayoutOptionsPanel: FC<
                 <Button
                     aria-selected={layout.orientation === "horizontal"}
                     borderColor={"gray.400"}
-                    leftIcon={<Icon as={HorizontalAlignRightIcon} />}
+                    leftIcon={<AlignRightIcon size={16} />}
                     width={"50%"}
                     _selected={{
                         backgroundColor: "gray.900",

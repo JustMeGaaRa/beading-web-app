@@ -8,7 +8,7 @@ import { gridDeleteRowReducer } from "./gridDeleteRowReducer";
 import { gridInsertColumnReducer } from "./gridInsertColumnReducer";
 import { gridInsertRowReducer } from "./gridInsertRowReducer";
 import { gridSetCellReducer } from "./gridSetCellReducer";
-import { gridSetSelectedCellsReducer } from "./gridSetSelectedCellsReducer";
+import { gridSelectCellsReducer } from "./gridSelectCellsReducer";
 
 // user actions:
 // - clear selected = clear
@@ -44,10 +44,14 @@ export const gridReducer = (
     action: GridActions
 ): BeadingGridState => {
     switch (action.type) {
-        case "BEADING_GRID_SET_CELL":
-            return gridSetCellReducer(state, action.payload.cell);
         case "BEADING_GRID_APPLY_OPTIONS":
             return gridApplyOptionsReducer(state, action.payload.options);
+        case "BEADING_GRID_SET_CELL":
+            return gridSetCellReducer(state, action.payload.cell);
+        case "BEADING_GRID_SELECT_CELLS":
+            return gridSelectCellsReducer(state, action.payload.cells);
+        case "BEADING_GRID_CLEAR_CELLS":
+            return gridSelectCellsReducer(state, action.payload.cells);
         case "BEADING_GRID_ADD_COLUMN_BEFORE":
             return gridInsertColumnReducer(state, action.payload.column);
         case "BEADING_GRID_ADD_COLUMN_AFTER":
@@ -64,23 +68,6 @@ export const gridReducer = (
             return gridDeleteRowReducer(state, action.payload.row);
         case "BEADING_GRID_CLEAR_ROW":
             return gridClearRowReducer(state, action.payload.row);
-        case "BEADING_GRID_SET_SELECTED_CELLS":
-            return gridSetSelectedCellsReducer(state, action.payload.cells);
-        // case "BEADING_GRID_MIRROR_SECTION":
-        //     return mirrorSection(
-        //         state,
-        //         action.payload.target,
-        //         action.payload.source,
-        //         "horizontal"
-        //     );
-        // case "BEADING_GRID_DUPLICATE_SECTION":
-        //     return dulicateSection(
-        //         state,
-        //         action.payload.target,
-        //         action.payload.source
-        //     );
-        // case "BEADING_GRID_CLEAR_SECTION":
-        //     return clearSection(state);
         default:
             return state;
     }

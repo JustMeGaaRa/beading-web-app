@@ -18,7 +18,12 @@ import {
     patternSelector,
     usePatternStore,
 } from "@repo/bead-pattern-editor";
-import { ArrowLeft, CloudCheck, CloudSync, Page } from "iconoir-react";
+import {
+    ArrowLeftMDIcon,
+    CloudCheckIcon,
+    CloudRefreshIcon,
+    DocumentIcon,
+} from "@repo/icons";
 import { FC, ChangeEvent, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate } from "react-router";
@@ -67,7 +72,7 @@ export const ProjectHeader: FC = () => {
                 <Tooltip label={"Navigate to homepage"} placement={"bottom"}>
                     <IconButton
                         aria-label={"navigate to homepage"}
-                        icon={<ArrowLeft />}
+                        icon={<ArrowLeftMDIcon />}
                         size={"sm"}
                         variant={"ghost"}
                         onClick={handleOnGoBackClick}
@@ -93,7 +98,9 @@ export const ProjectHeader: FC = () => {
                 >
                     <IconButton
                         aria-label={"periodic backup"}
-                        icon={isDirty ? <CloudSync /> : <CloudCheck />}
+                        icon={
+                            isDirty ? <CloudRefreshIcon /> : <CloudCheckIcon />
+                        }
                         colorScheme={isDirty ? "blue" : "gray"}
                         size={"sm"}
                         variant={"ghost"}
@@ -102,7 +109,10 @@ export const ProjectHeader: FC = () => {
                 </Tooltip>
                 <Popover size={"xs"}>
                     <PopoverTrigger>
-                        <IconButton aria-label={"summary"} icon={<Page />} />
+                        <IconButton
+                            aria-label={"summary"}
+                            icon={<DocumentIcon />}
+                        />
                     </PopoverTrigger>
                     <PopoverContent>
                         <PopoverCloseButton />

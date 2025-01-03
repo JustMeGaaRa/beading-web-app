@@ -160,3 +160,96 @@ export const nextGridName = (
     const lasteGridNumber = getGridNumber(currentName);
     return buildGridName(options, lasteGridNumber + 1);
 };
+
+export const getGridWindow = (
+    startCell: BeadingGridOffset,
+    endCell: BeadingGridOffset
+): BeadingGridBounds => {
+    const topLeftRowIndex = Math.min(startCell.rowIndex, endCell.rowIndex);
+    const topLeftColumnIndex = Math.min(
+        startCell.columnIndex,
+        endCell.columnIndex
+    );
+    const bottomRightRowIndex = Math.max(startCell.rowIndex, endCell.rowIndex);
+    const bottomRightColumnIndex = Math.max(
+        startCell.columnIndex,
+        endCell.columnIndex
+    );
+
+    return {
+        offset: {
+            rowIndex: topLeftRowIndex,
+            columnIndex: topLeftColumnIndex,
+        },
+        height: bottomRightRowIndex - topLeftRowIndex + 1,
+        width: bottomRightColumnIndex - topLeftColumnIndex + 1,
+    };
+};
+
+export const getGridWindowProjection = (
+    grid: BeadingGridState,
+    centerSection: BeadingGridBounds,
+    projection: "horizontal" | "vertical"
+): Array<BeadingGridBounds> => {
+    const gridHeight = grid.options.height - 1;
+    const gridWidth = grid.options.width - 1;
+    const mirrors: BeadingGridBounds[] = [];
+
+    const { columnIndex, rowIndex } = centerSection.offset;
+    const { width, height } = centerSection;
+
+    const rightEdge = columnIndex + width;
+    const bottomEdge = rowIndex + height;
+
+    if (projection === "horizontal") {
+        // left window
+        if (columnIndex > 0) {
+            mirrors.push(
+                getGridWindow(
+                    { columnIndex: columnIndex - width, rowIndex: rowIndex },
+                    { columnIndex: columnIndex - 1, rowIndex: bottomEdge - 1 }
+                )
+            );
+        }
+
+        // right window
+        if (rightEdge < gridWidth) {
+            mirrors.push(
+                getGridWindow(
+                    { columnIndex: rightEdge, rowIndex: rowIndex },
+                    {
+                        columnIndex: rightEdge + width - 1,
+                        rowIndex: bottomEdge - 1,
+                    }
+                )
+            );
+        }
+    }
+
+    if (projection === "vertical") {
+        // top window
+        if (rowIndex > 0) {
+            mirrors.push(
+                getGridWindow(
+                    { columnIndex: columnIndex, rowIndex: rowIndex - height },
+                    { columnIndex: rightEdge - 1, rowIndex: rowIndex - 1 }
+                )
+            );
+        }
+
+        // bottom window
+        if (bottomEdge < gridHeight) {
+            mirrors.push(
+                getGridWindow(
+                    { columnIndex: columnIndex, rowIndex: bottomEdge },
+                    {
+                        columnIndex: rightEdge - 1,
+                        rowIndex: bottomEdge + height - 1,
+                    }
+                )
+            );
+        }
+    }
+
+    return mirrors;
+};

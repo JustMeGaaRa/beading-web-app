@@ -5,10 +5,16 @@ import {
     BeadingGridProperties,
     BeadingGridState,
     BeadingPointerEvent,
+    shallowEqualsCell,
 } from "../types";
 import { BeadingGridCell } from "./BeadingGridCell";
 import { BeadingGridDivider } from "./BeadingGridDivider";
-import { useGrid, useGridStyles, usePointerDisclosure } from "../hooks";
+import {
+    useGrid,
+    useGridSelection,
+    useGridStyles,
+    usePointerDisclosure,
+} from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
 import { getGridRenderSize, hitTestCursor } from "../utils";
@@ -37,6 +43,7 @@ export const BeadingGrid: FC<
     const { styles } = useGridStyles();
     const { cells, offset, options, setCells, setOffset, setOptions } =
         useGrid();
+    const { selectedCells } = useGridSelection();
     const { isPointerDown, onPointerDown, onPointerUp } =
         usePointerDisclosure();
 
@@ -95,7 +102,9 @@ export const BeadingGrid: FC<
                     key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
                     color={cell.color}
                     offset={cell.offset}
-                    isSelected={cell.isSelected}
+                    isSelected={selectedCells.some((target) =>
+                        shallowEqualsCell(target, cell)
+                    )}
                 />
             ))}
             {options.type === "brick" && options.fringe > 0 && (

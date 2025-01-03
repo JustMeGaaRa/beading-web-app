@@ -1,4 +1,10 @@
-import { BeadingGridCellState, BeadingGridProperties } from "../types";
+import {
+    BeadingGridBounds,
+    BeadingGridCellState,
+    BeadingGridOffset,
+    BeadingGridProperties,
+    BeadingGridSection,
+} from "../types";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;
@@ -16,7 +22,7 @@ export type GridSetCellAction = Action<
     { cell: BeadingGridCellState }
 >;
 export type GridSetSelectedCellsAction = Action<
-    "BEADING_GRID_SET_SELECTED_CELLS",
+    "BEADING_GRID_SELECT_CELLS",
     { cells: Array<BeadingGridCellState> }
 >;
 export type GridClearCellsAction = Action<
@@ -55,25 +61,14 @@ export type GridClearRowAction = Action<
     "BEADING_GRID_CLEAR_ROW",
     { row: number }
 >;
-// export type GridMirrorSectionAction = Action<
-//     "BEADING_GRID_MIRROR_SECTION",
-//     {
-//         target: BeadingGridBounds;
-//         source: BeadingGridBounds;
-//         direction: "vertical" | "horizontal";
-//     }
-// >;
-// export type GridDuplicateSectionAction = Action<
-//     "BEADING_GRID_DUPLICATE_SECTION",
-//     {
-//         target: BeadingGridBounds;
-//         source: BeadingGridBounds;
-//     }
-// >;
-// export type GridClearSectionAction = Action<
-//     "BEADING_GRID_CLEAR_SECTION",
-//     { section: BeadingGridBounds }
-// >;
+export type GridCopySectionAction = Action<
+    "BEADING_GRID_COPY_SECTION",
+    { bounds: BeadingGridBounds }
+>;
+export type GridPasteSectionAction = Action<
+    "BEADING_GRID_PASTE_SECTION",
+    { section: BeadingGridSection; offset: BeadingGridOffset }
+>;
 
 export type GridActions =
     | GridSetCellAction
@@ -88,6 +83,3 @@ export type GridActions =
     | GridDeleteColumnAction
     | GridClearColumnAction
     | GridSetSelectedCellsAction;
-// | GridMirrorSectionAction
-// | GridDuplicateSectionAction
-// | GridClearSectionAction;

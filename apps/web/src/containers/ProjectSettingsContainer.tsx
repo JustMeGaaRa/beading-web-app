@@ -33,7 +33,7 @@ import {
     PeyoteIcon,
     CloseIcon,
     InfoCircleIcon,
-    PaintingIcon,
+    PaintingPaletteIcon,
     PlusIcon,
     SettingsIcon,
 } from "@repo/icons";
@@ -98,9 +98,10 @@ export const ProjectSettingsContainer: FC = () => {
                 >
                     <AccordionItem>
                         <AccordionButton>
-                            <Icon as={PaintingIcon} mr={1} />
+                            <PaintingPaletteIcon size={16} />
                             <Text
                                 as={"b"}
+                                ml={1}
                                 flex={1}
                                 fontSize={"sm"}
                                 textAlign={"left"}
@@ -120,14 +121,15 @@ export const ProjectSettingsContainer: FC = () => {
                     borderRadius={8}
                     index={gridOptionsIndex}
                     mt={2}
-                    onChange={setGridOptionsIndex}
                     visibility={"hidden"}
+                    onChange={setGridOptionsIndex}
                 >
                     <AccordionItem>
                         <AccordionButton>
-                            <Icon as={SettingsIcon} mr={1} />
+                            <SettingsIcon size={16} />
                             <Text
                                 as={"b"}
+                                ml={1}
                                 flex={1}
                                 fontSize={"sm"}
                                 textAlign={"left"}
@@ -243,7 +245,7 @@ const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({
                 </Text>
                 {pattern.grids.length > 0 && (
                     <Button
-                        rightIcon={<CloseIcon />}
+                        rightIcon={<CloseIcon size={16} stroke={"2"} />}
                         size={"xs"}
                         variant={"ghost"}
                         onClick={handleOnDeleteGridClick}
