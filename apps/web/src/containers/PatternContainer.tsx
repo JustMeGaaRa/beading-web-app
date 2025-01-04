@@ -36,7 +36,8 @@ import {
     BeadingGridSelectedArea,
     hitTestArea,
     createRenderBounds,
-    getGridCellRenderBounds,
+    getGridSectionRenderBounds,
+    getGridSectionBounds,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -520,11 +521,20 @@ export const PatternContainer: FC = () => {
                     setSelectedCells(hitTest.hits);
 
                     if (hitTest.hits.length > 0) {
-                        const position = getGridCellRenderBounds(
-                            hitTest.hits[0].offset,
+                        const sectionBounds = getGridSectionBounds(
+                            hitTest.hits
+                        );
+                        const sectionRenderBounds = getGridSectionRenderBounds(
+                            sectionBounds,
                             pattern.grids[0].options,
                             styles
                         );
+                        const position = {
+                            x:
+                                sectionRenderBounds.x +
+                                sectionRenderBounds.width / 2,
+                            y: sectionRenderBounds.y,
+                        };
                         setToolbarPosition(position);
                     }
                 }
@@ -589,7 +599,7 @@ export const PatternContainer: FC = () => {
                             <BeadingGridProvider key={grid.name}>
                                 <BeadingGrid
                                     cells={grid.cells}
-                                    offset={grid.offset}
+                                    offset={{ columnIndex: 0, rowIndex: 0 }}
                                     options={grid.options}
                                     onCellEnter={handleOnGridCellPointerEnter}
                                 >

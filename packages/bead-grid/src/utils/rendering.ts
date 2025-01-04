@@ -6,6 +6,8 @@ import {
     BeadingGridType,
     BeadProperties,
     BrickGridProperties,
+    BeadingGridSize,
+    BeadingGridSection,
 } from "../types";
 import { flipBead } from "./common";
 import { getGridSize } from "./grid";
@@ -13,7 +15,7 @@ import { getGridSize } from "./grid";
 export const getGridCellRenderSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
-) => {
+): BeadingGridSize => {
     const getGridCellSize = (
         type: BeadingGridType,
         pixelPerPoint: number,
@@ -107,10 +109,30 @@ export const getGridCellRenderBounds = (
           : getSquaredCellOffset(offset);
 };
 
+export const getGridSectionRenderBounds = (
+    bounds: BeadingGridSection,
+    options: BeadingGridProperties,
+    styles: BeadingGridStyles
+): RenderBounds => {
+    const cellBounds = getGridCellRenderBounds(bounds.topLeft, options, styles);
+    const topLeftBounds = getGridCellRenderBounds(
+        bounds.topLeft,
+        options,
+        styles
+    );
+
+    return {
+        x: topLeftBounds.x,
+        y: topLeftBounds.y,
+        height: cellBounds.height * bounds.height,
+        width: cellBounds.width * bounds.width,
+    };
+};
+
 export const getGridRenderSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
-) => {
+): BeadingGridSize => {
     const cellSize = getGridCellRenderSize(options, styles);
     const gridSize = getGridSize(options);
 

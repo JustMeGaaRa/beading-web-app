@@ -19,7 +19,7 @@ export const gridSetCellReducer = (
     }
 
     // check if the target cell is out of bounds or has no color
-    const area = getGridBounds(grid.options, grid.offset);
+    const area = getGridBounds(grid.options);
     if (!indeciesInBounds(area, modifiedCell.offset)) {
         return grid;
     }

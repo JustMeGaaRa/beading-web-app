@@ -18,7 +18,7 @@ export const gridApplyOptionsReducer = (
         name: restoreGridName(modifiedGridOptions, grid.name),
         options: modifiedGridOptions,
         cells: grid.cells.filter((cell) => {
-            const area = getGridBounds(modifiedGridOptions, grid.offset);
+            const area = getGridBounds(modifiedGridOptions);
             return indeciesInBounds(area, cell.offset);
         }),
     };

@@ -3,7 +3,7 @@ import {
     BeadingGridOffset,
     BeadingGridState,
     BeadingGridStyles,
-    BeadingGridBounds,
+    BeadingGridSectionBounds,
     RenderBounds,
 } from "../types";
 import { getGridBounds } from "./grid";
@@ -27,14 +27,14 @@ export const pointInBounds = (
 };
 
 export const indeciesInBounds = (
-    area: BeadingGridBounds,
+    area: BeadingGridSectionBounds,
     offset: BeadingGridOffset
 ) => {
     return (
-        offset.columnIndex >= area.offset.columnIndex &&
-        offset.columnIndex < area.offset.columnIndex + area.width &&
-        offset.rowIndex >= area.offset.rowIndex &&
-        offset.rowIndex < area.offset.rowIndex + area.height
+        offset.columnIndex >= area.topLeft.columnIndex &&
+        offset.columnIndex < area.topLeft.columnIndex + area.width &&
+        offset.rowIndex >= area.topLeft.rowIndex &&
+        offset.rowIndex < area.topLeft.rowIndex + area.height
     );
 };
 
@@ -133,7 +133,7 @@ export const hitTestCursor = (
     // TODO: consider filtering out the cells that are out of bounds
     return {
         successfull: hitCells.every((cell) => {
-            const area = getGridBounds(grid.options, grid.offset);
+            const area = getGridBounds(grid.options);
             return indeciesInBounds(area, cell.offset);
         }),
         hits: hitCells,

@@ -1,9 +1,10 @@
 import {
-    BeadingGridBounds,
+    BeadingGridSectionBounds,
     BeadingGridCellState,
     BeadingGridOffset,
     BeadingGridProperties,
     BeadingGridSection,
+    BeadingGridSize,
     BeadingGridState,
     shallowEqualsCell,
     shift,
@@ -16,7 +17,6 @@ export const createDefault = (
 ): BeadingGridState => {
     return {
         name: buildGridName(options),
-        offset: { columnIndex: 0, rowIndex: 0 },
         cells: [],
         options: options,
     };
@@ -24,14 +24,14 @@ export const createDefault = (
 
 export const copy = (
     grid: BeadingGridState,
-    area: BeadingGridBounds
+    bounds: BeadingGridSectionBounds
 ): BeadingGridSection => {
     const gridRelativeCells = grid.cells.filter((cell) =>
-        indeciesInBounds(area, cell.offset)
+        indeciesInBounds(bounds, cell.offset)
     );
 
     return {
-        ...area,
+        ...bounds,
         cells: gridRelativeCells,
     };
 };
@@ -42,10 +42,10 @@ export const paste = (
     offset: BeadingGridOffset
 ): BeadingGridState => {
     const targetOffset = {
-        columnIndex: offset.columnIndex - section.offset.columnIndex,
-        rowIndex: offset.rowIndex - section.offset.rowIndex,
+        columnIndex: offset.columnIndex - section.topLeft.columnIndex,
+        rowIndex: offset.rowIndex - section.topLeft.rowIndex,
     };
-    const targetBounds = getGridBounds(grid.options, grid.offset);
+    const targetBounds = getGridBounds(grid.options);
 
     const gridTargetCells = section.cells
         .map((cell) => shift(cell, targetOffset))
@@ -75,7 +75,7 @@ export const clear = (
 
 export const flip = (
     grid: BeadingGridState,
-    area: BeadingGridBounds,
+    area: BeadingGridSectionBounds,
     axis: "horizontal" | "vertical"
 ): BeadingGridState => {
     return {
@@ -87,14 +87,14 @@ export const flip = (
                       offset: {
                           columnIndex:
                               axis === "horizontal"
-                                  ? area.offset.columnIndex +
+                                  ? area.topLeft.columnIndex +
                                     area.width -
                                     1 -
                                     cell.offset.columnIndex
                                   : cell.offset.columnIndex,
                           rowIndex:
                               axis === "vertical"
-                                  ? area.offset.rowIndex +
+                                  ? area.topLeft.rowIndex +
                                     area.height -
                                     1 -
                                     cell.offset.rowIndex
@@ -112,7 +112,9 @@ export const getGridHeight = (options: BeadingGridProperties) => {
         : options.height;
 };
 
-export const getGridSize = (options: BeadingGridProperties) => {
+export const getGridSize = (
+    options: BeadingGridProperties
+): BeadingGridSize => {
     return {
         height: getGridHeight(options),
         width: options.width,
@@ -120,12 +122,33 @@ export const getGridSize = (options: BeadingGridProperties) => {
 };
 
 export const getGridBounds = (
-    options: BeadingGridProperties,
-    offset: BeadingGridOffset
-) => {
+    options: BeadingGridProperties
+): BeadingGridSectionBounds => {
     return {
-        offset,
+        topLeft: { columnIndex: 0, rowIndex: 0 },
         ...getGridSize(options),
+    };
+};
+
+export const getGridSectionBounds = (
+    cells: Array<BeadingGridCellState>
+): BeadingGridSection => {
+    const minColumnIndex = Math.min(
+        ...cells.map((cell) => cell.offset.columnIndex)
+    );
+    const minRowIndex = Math.min(...cells.map((cell) => cell.offset.rowIndex));
+    const maxColumnIndex = Math.max(
+        ...cells.map((cell) => cell.offset.columnIndex)
+    );
+    const maxRowIndex = Math.max(...cells.map((cell) => cell.offset.rowIndex));
+    const height = maxRowIndex - minRowIndex + 1;
+    const width = maxColumnIndex - minColumnIndex + 1;
+
+    return {
+        topLeft: { columnIndex: minColumnIndex, rowIndex: minRowIndex },
+        height,
+        width,
+        cells,
     };
 };
 
@@ -164,7 +187,7 @@ export const nextGridName = (
 export const getGridWindow = (
     startCell: BeadingGridOffset,
     endCell: BeadingGridOffset
-): BeadingGridBounds => {
+): BeadingGridSectionBounds => {
     const topLeftRowIndex = Math.min(startCell.rowIndex, endCell.rowIndex);
     const topLeftColumnIndex = Math.min(
         startCell.columnIndex,
@@ -177,7 +200,7 @@ export const getGridWindow = (
     );
 
     return {
-        offset: {
+        topLeft: {
             rowIndex: topLeftRowIndex,
             columnIndex: topLeftColumnIndex,
         },
@@ -188,14 +211,14 @@ export const getGridWindow = (
 
 export const getGridWindowProjection = (
     grid: BeadingGridState,
-    centerSection: BeadingGridBounds,
+    centerSection: BeadingGridSectionBounds,
     projection: "horizontal" | "vertical"
-): Array<BeadingGridBounds> => {
+): Array<BeadingGridSectionBounds> => {
     const gridHeight = grid.options.height - 1;
     const gridWidth = grid.options.width - 1;
-    const mirrors: BeadingGridBounds[] = [];
+    const mirrors: BeadingGridSectionBounds[] = [];
 
-    const { columnIndex, rowIndex } = centerSection.offset;
+    const { columnIndex, rowIndex } = centerSection.topLeft;
     const { width, height } = centerSection;
 
     const rightEdge = columnIndex + width;

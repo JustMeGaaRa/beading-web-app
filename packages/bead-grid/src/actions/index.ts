@@ -1,5 +1,5 @@
 import {
-    BeadingGridBounds,
+    BeadingGridSectionBounds,
     BeadingGridCellState,
     BeadingGridOffset,
     BeadingGridProperties,
@@ -63,7 +63,7 @@ export type GridClearRowAction = Action<
 >;
 export type GridCopySectionAction = Action<
     "BEADING_GRID_COPY_SECTION",
-    { bounds: BeadingGridBounds }
+    { bounds: BeadingGridSectionBounds }
 >;
 export type GridPasteSectionAction = Action<
     "BEADING_GRID_PASTE_SECTION",

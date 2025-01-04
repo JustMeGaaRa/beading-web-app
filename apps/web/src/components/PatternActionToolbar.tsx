@@ -32,25 +32,16 @@ export const PatternActionToolbar: FC<{
         tool.name === "cursor" && tool.state.currentAction === "duplicate";
 
     return (
-        <Box paddingBottom={4} transform={"translate(-50%, -50%)"}>
+        <Box paddingBottom={4} transform={"translate(-50%, -100%)"}>
             <Box backgroundColor={"gray.900"} borderRadius={"md"}>
                 {isCursorEnabled && (
                     <ButtonGroup
                         colorScheme={"gray"}
                         orientation={"horizontal"}
+                        isAttached
                         size={"md"}
                         variant={"ghost"}
                     >
-                        <Tooltip label={"Duplicate selection"}>
-                            <IconButton
-                                aria-label={"duplicate selection"}
-                                icon={<CopyIcon />}
-                                color={"white"}
-                                _hover={{ backgroundColor: "gray.700" }}
-                                _active={{ backgroundColor: "gray.600" }}
-                                onClick={onDuplicate}
-                            />
-                        </Tooltip>
                         <Tooltip label={"Copy selection"}>
                             <IconButton
                                 aria-label={"copy selection"}
@@ -69,16 +60,6 @@ export const PatternActionToolbar: FC<{
                                 _active={{ backgroundColor: "gray.600" }}
                             />
                         </Tooltip>
-                        <Tooltip label={"Mirror selection"}>
-                            <IconButton
-                                aria-label={"mirror selection"}
-                                icon={<VerticalMirrorIcon />}
-                                color={"white"}
-                                _hover={{ backgroundColor: "gray.700" }}
-                                _active={{ backgroundColor: "gray.600" }}
-                                onClick={onMirror}
-                            />
-                        </Tooltip>
                         <Tooltip label={"Flip selection"}>
                             <IconButton
                                 aria-label={"flip selection"}
@@ -86,6 +67,28 @@ export const PatternActionToolbar: FC<{
                                 color={"white"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{ backgroundColor: "gray.600" }}
+                            />
+                        </Tooltip>
+                        <Tooltip label={"Mirror selection"}>
+                            <IconButton
+                                aria-label={"mirror selection"}
+                                icon={<VerticalMirrorIcon />}
+                                color={"white"}
+                                display={"none"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{ backgroundColor: "gray.600" }}
+                                onClick={onMirror}
+                            />
+                        </Tooltip>
+                        <Tooltip label={"Duplicate selection"}>
+                            <IconButton
+                                aria-label={"duplicate selection"}
+                                icon={<CopyIcon />}
+                                color={"white"}
+                                display={"none"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{ backgroundColor: "gray.600" }}
+                                onClick={onDuplicate}
                             />
                         </Tooltip>
                         <Tooltip label={"Clear selection"}>

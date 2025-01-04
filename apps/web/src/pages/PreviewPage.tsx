@@ -87,7 +87,6 @@ export const PreviewPage: FC = () => {
     const [state, dispatch] = useReducer(gridReducer, {
         name: "Brick Grid 1",
         cells: [],
-        offset: { rowIndex: 0, columnIndex: 0 },
         options: {
             type: "brick",
             height: 30,
@@ -156,7 +155,10 @@ export const PreviewPage: FC = () => {
                                         <BeadingGridProvider>
                                             <BeadingGrid
                                                 cells={state.cells}
-                                                offset={state.offset}
+                                                offset={{
+                                                    rowIndex: 0,
+                                                    columnIndex: 0,
+                                                }}
                                                 options={state.options}
                                                 onCellEnter={handleOnCellEnter}
                                             >

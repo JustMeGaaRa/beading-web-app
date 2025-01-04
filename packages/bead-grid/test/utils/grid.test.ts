@@ -4,23 +4,23 @@ import { copy, paste } from "../../src";
 
 test.each([
     {
-        area: { offset: { columnIndex: 0, rowIndex: 0 }, width: 1, height: 1 },
+        area: { topLeft: { columnIndex: 0, rowIndex: 0 }, width: 1, height: 1 },
         length: 1,
     },
     {
-        area: { offset: { columnIndex: 0, rowIndex: 0 }, width: 2, height: 2 },
+        area: { topLeft: { columnIndex: 0, rowIndex: 0 }, width: 2, height: 2 },
         length: 2,
     },
     {
-        area: { offset: { columnIndex: 1, rowIndex: 1 }, width: 1, height: 1 },
+        area: { topLeft: { columnIndex: 1, rowIndex: 1 }, width: 1, height: 1 },
         length: 1,
     },
     {
-        area: { offset: { columnIndex: 1, rowIndex: 0 }, width: 1, height: 3 },
+        area: { topLeft: { columnIndex: 1, rowIndex: 0 }, width: 1, height: 3 },
         length: 1,
     },
     {
-        area: { offset: { columnIndex: 1, rowIndex: 1 }, width: 3, height: 3 },
+        area: { topLeft: { columnIndex: 1, rowIndex: 1 }, width: 3, height: 3 },
         length: 2,
     },
 ])(
@@ -39,7 +39,7 @@ test.each([
         grid: Square10x10EmptyGrid,
         section: {
             cells: [{ offset: { columnIndex: 0, rowIndex: 0 }, color: "blue" }],
-            offset: { columnIndex: 0, rowIndex: 0 },
+            topLeft: { columnIndex: 0, rowIndex: 0 },
             height: 1,
             width: 1,
         },
@@ -49,7 +49,7 @@ test.each([
         grid: Square10x10EmptyGrid,
         section: {
             cells: [{ offset: { columnIndex: 1, rowIndex: 1 }, color: "blue" }],
-            offset: { columnIndex: 1, rowIndex: 1 },
+            topLeft: { columnIndex: 1, rowIndex: 1 },
             height: 1,
             width: 1,
         },
@@ -63,7 +63,7 @@ test.each([
                 { offset: { columnIndex: 0, rowIndex: 1 }, color: "green" },
                 { offset: { columnIndex: 1, rowIndex: 0 }, color: "red" },
             ],
-            offset: { columnIndex: 0, rowIndex: 0 },
+            topLeft: { columnIndex: 0, rowIndex: 0 },
             height: 2,
             width: 2,
         },
@@ -77,7 +77,7 @@ test.each([
                 { offset: { columnIndex: 2, rowIndex: 4 }, color: "green" },
                 { offset: { columnIndex: 3, rowIndex: 3 }, color: "red" },
             ],
-            offset: { columnIndex: 2, rowIndex: 3 },
+            topLeft: { columnIndex: 2, rowIndex: 3 },
             height: 2,
             width: 2,
         },
@@ -98,11 +98,11 @@ test.each([
                         gridCell.offset.columnIndex ===
                             sectionCell.offset.columnIndex +
                                 offset.columnIndex -
-                                section.offset.columnIndex &&
+                                section.topLeft.columnIndex &&
                         gridCell.offset.rowIndex ===
                             sectionCell.offset.rowIndex +
                                 offset.rowIndex -
-                                section.offset.rowIndex &&
+                                section.topLeft.rowIndex &&
                         gridCell.color === sectionCell.color
                 )
             ),

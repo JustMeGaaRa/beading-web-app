@@ -1,10 +1,10 @@
-import { BeadingGridBounds, BeadingGridState } from "../types";
+import { BeadingGridSectionBounds, BeadingGridState } from "../types";
 
 export type FlipDirection = "horizontal" | "vertical";
 
 export const gridFlipSectionReducer = (
     grid: BeadingGridState,
-    section: BeadingGridBounds,
+    section: BeadingGridSectionBounds,
     direction: FlipDirection
 ): BeadingGridState => {
     console.log(grid);
