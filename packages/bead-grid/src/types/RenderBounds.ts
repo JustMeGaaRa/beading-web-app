@@ -1,3 +1,8 @@
+export type RenderPoint = {
+    x: number;
+    y: number;
+};
+
 export type RenderBounds = {
     x: number;
     y: number;

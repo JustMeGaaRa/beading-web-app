@@ -14,6 +14,7 @@ import {
     GridSetSelectedCellsAction,
 } from "../actions";
 
+// TODO: remove action creators
 export const applyBeadingGridOptionsAction = (
     options: BeadingGridProperties
 ): GridApplyOptionsAction => ({

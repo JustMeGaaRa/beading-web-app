@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useCallback, useEffect } from "react";
-import { Group, Rect } from "react-konva";
+import { Layer, Rect } from "react-konva";
 import {
     BeadingGridCellState,
     BeadingGridProperties,
@@ -86,7 +86,7 @@ export const BeadingGrid: FC<
     const positionY = (offset?.rowIndex ?? 0) * height;
 
     return (
-        <Group x={positionX} y={positionY}>
+        <Layer x={positionX} y={positionY}>
             <Rect
                 fill={"transparent"}
                 height={height}
@@ -114,6 +114,6 @@ export const BeadingGrid: FC<
                     orientation={"horizontal"}
                 />
             )}
-        </Group>
+        </Layer>
     );
 };

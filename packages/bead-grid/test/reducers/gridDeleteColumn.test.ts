@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { gridDeleteColumnReducer } from "../../src";
-import { Square3x3GridWithCells } from "../constants";
+import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 import { eachColumnMatchesCellCount } from "../helpers";
 
 test.each([
@@ -11,14 +11,14 @@ test.each([
     "should delete column at index ($deleteColumnIndex), decrease width by 1, and shift all cells",
     ({ deleteColumnIndex, columnCellCount }) => {
         const modifiedGrid = gridDeleteColumnReducer(
-            Square3x3GridWithCells,
+            Square3x3GridWithCellsOnDiagonal,
             deleteColumnIndex
         );
 
         expect(modifiedGrid).toBeDefined();
         expect(modifiedGrid.options).toBeDefined();
         expect(modifiedGrid.options.width).toBe(
-            Square3x3GridWithCells.options.width - 1
+            Square3x3GridWithCellsOnDiagonal.options.width - 1
         );
         expect(
             eachColumnMatchesCellCount(modifiedGrid, columnCellCount),
@@ -31,15 +31,15 @@ test.each([[{ deleteColumnIndex: -1 }], [{ deleteColumnIndex: 10 }]])(
     "should return the same grid when deleting column at invalid index ($deleteColumnIndex)",
     ({ deleteColumnIndex }) => {
         const modifiedGrid = gridDeleteColumnReducer(
-            Square3x3GridWithCells,
+            Square3x3GridWithCellsOnDiagonal,
             deleteColumnIndex
         );
 
         expect(modifiedGrid).toBeDefined();
         expect(modifiedGrid.options).toBeDefined();
         expect(modifiedGrid.options.width).toBe(
-            Square3x3GridWithCells.options.width
+            Square3x3GridWithCellsOnDiagonal.options.width
         );
-        expect(modifiedGrid).toBe(Square3x3GridWithCells);
+        expect(modifiedGrid).toBe(Square3x3GridWithCellsOnDiagonal);
     }
 );

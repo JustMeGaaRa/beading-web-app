@@ -1,6 +1,6 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback } from "react";
-import { Group } from "react-konva";
+import { Layer } from "react-konva";
 import { BeadingFrameRowLabels } from "./BeadingFrameRowLabels";
 import { BeadingFrameColumnLabels } from "./BeadingFrameColumnLabels";
 import { BeadingFrameMiddleMarker } from "./BeadingFrameMiddleMarker";
@@ -73,7 +73,7 @@ export const BeadingFrame: FC<{
     );
 
     return (
-        <Group>
+        <Layer>
             {columnsTextArray.map((column) => (
                 <BeadingFrameColumnLabels
                     key={`column-label-${column.patternIndex}`}
@@ -118,6 +118,6 @@ export const BeadingFrame: FC<{
                 height={cellHeight}
                 width={cellWidth}
             />
-        </Group>
+        </Layer>
     );
 };

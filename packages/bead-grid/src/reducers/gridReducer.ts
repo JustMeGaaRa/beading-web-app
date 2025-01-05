@@ -9,6 +9,7 @@ import { gridInsertColumnReducer } from "./gridInsertColumnReducer";
 import { gridInsertRowReducer } from "./gridInsertRowReducer";
 import { gridSetCellReducer } from "./gridSetCellReducer";
 import { gridSelectCellsReducer } from "./gridSelectCellsReducer";
+import { gridFlipSectionReducer } from "./gridFlipSectionReducer";
 
 // user actions:
 // - clear selected = clear
@@ -20,8 +21,8 @@ import { gridSelectCellsReducer } from "./gridSelectCellsReducer";
 // - reset selected = select
 // - mirror section = copy + flip + paste
 // - duplicate section = copy + shift + paste
-// - move section = copy + shift + paste
-// - flip section = copy + flip + paste
+// - move section = copy + shift + clear + paste
+// - flip section = copy + flip + clear + paste
 
 // primitive actions:
 // - copy
@@ -68,6 +69,12 @@ export const gridReducer = (
             return gridDeleteRowReducer(state, action.payload.row);
         case "BEADING_GRID_CLEAR_ROW":
             return gridClearRowReducer(state, action.payload.row);
+        case "BEADING_GRID_FLIP_SECTION":
+            return gridFlipSectionReducer(
+                state,
+                action.payload.cells,
+                action.payload.axis
+            );
         default:
             return state;
     }

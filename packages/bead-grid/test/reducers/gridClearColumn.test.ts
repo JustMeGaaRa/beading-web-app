@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { gridClearColumnReducer } from "../../src";
-import { Square3x3GridWithCells } from "../constants";
+import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 import { eachColumnMatchesCellCount } from "../helpers";
 
 test.each([
@@ -13,7 +13,7 @@ test.each([
     "should not have any cells at column ($clearColumnIndex) after clearing column",
     ({ clearColumnIndex, columnCellCount }) => {
         const modifiedGrid = gridClearColumnReducer(
-            Square3x3GridWithCells,
+            Square3x3GridWithCellsOnDiagonal,
             clearColumnIndex
         );
 

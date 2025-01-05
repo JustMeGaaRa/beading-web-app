@@ -5,6 +5,7 @@ import {
     BeadingGridProperties,
     BeadingGridSection,
 } from "../types";
+import { FlipAxis } from "../utils";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;
@@ -69,6 +70,10 @@ export type GridPasteSectionAction = Action<
     "BEADING_GRID_PASTE_SECTION",
     { section: BeadingGridSection; offset: BeadingGridOffset }
 >;
+export type GridFlipSectionAction = Action<
+    "BEADING_GRID_FLIP_SECTION",
+    { cells: Array<BeadingGridCellState>; axis: FlipAxis }
+>;
 
 export type GridActions =
     | GridSetCellAction
@@ -82,4 +87,7 @@ export type GridActions =
     | GridAddColumnAfterAction
     | GridDeleteColumnAction
     | GridClearColumnAction
-    | GridSetSelectedCellsAction;
+    | GridSetSelectedCellsAction
+    | GridCopySectionAction
+    | GridPasteSectionAction
+    | GridFlipSectionAction;

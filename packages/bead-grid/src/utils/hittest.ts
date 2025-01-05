@@ -5,6 +5,7 @@ import {
     BeadingGridStyles,
     BeadingGridSectionBounds,
     RenderBounds,
+    RenderPoint,
 } from "../types";
 import { getGridBounds } from "./grid";
 import { getGridCellRenderBounds, getGridCellRenderSize } from "./rendering";
@@ -14,10 +15,7 @@ export type HitTestResult = {
     hits: Array<BeadingGridCellState>;
 };
 
-export const pointInBounds = (
-    area: { x: number; y: number; width: number; height: number },
-    point: { x: number; y: number }
-) => {
+export const pointInBounds = (area: RenderBounds, point: RenderPoint) => {
     return (
         point.x >= area.x &&
         point.x < area.x + area.width &&

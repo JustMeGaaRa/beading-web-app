@@ -1,14 +1,18 @@
-import { BeadingGridSectionBounds, BeadingGridState } from "../types";
-
-export type FlipDirection = "horizontal" | "vertical";
+import { BeadingGridCellState, BeadingGridState } from "../types";
+import { clear, flip, FlipAxis, getGridSectionBounds, paste } from "../utils";
 
 export const gridFlipSectionReducer = (
     grid: BeadingGridState,
-    section: BeadingGridSectionBounds,
-    direction: FlipDirection
+    cells: Array<BeadingGridCellState>,
+    direction: FlipAxis
 ): BeadingGridState => {
-    console.log(grid);
-    console.log(section);
-    console.log(direction);
-    throw new Error("Not implemented");
+    const sectionBounds = getGridSectionBounds(cells);
+    const flippedSection = flip(sectionBounds, direction);
+    const clearedGrid = clear(grid, cells);
+    const modifiedGrid = paste(
+        clearedGrid,
+        flippedSection,
+        flippedSection.topLeft
+    );
+    return modifiedGrid;
 };

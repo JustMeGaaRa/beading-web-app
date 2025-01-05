@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { gridApplyOptionsReducer } from "../../src";
-import { Square3x3GridWithCells } from "../constants";
+import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 
 test.each([
     [
@@ -31,7 +31,7 @@ test.each([
     "should have type ($options.type), name ($name), and cell count outside of bounds (0)",
     ({ options, name }) => {
         const modifiedGrid = gridApplyOptionsReducer(
-            Square3x3GridWithCells,
+            Square3x3GridWithCellsOnDiagonal,
             options as any
         );
 
@@ -54,9 +54,9 @@ test.each([
 
 test("should return same grid object", () => {
     const modifiedGrid = gridApplyOptionsReducer(
-        Square3x3GridWithCells,
-        Square3x3GridWithCells.options
+        Square3x3GridWithCellsOnDiagonal,
+        Square3x3GridWithCellsOnDiagonal.options
     );
 
-    expect(modifiedGrid).toBe(Square3x3GridWithCells);
+    expect(modifiedGrid).toBe(Square3x3GridWithCellsOnDiagonal);
 });

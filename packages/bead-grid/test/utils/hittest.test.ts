@@ -1,7 +1,10 @@
 import { test, expect } from "vitest";
 import { DefaultGridStyles } from "../../src";
 import { hitTestCursor, hitTestArea } from "../../src/utils/hittest";
-import { Square3x3GridWithCells, Square10x10EmptyGrid } from "../constants";
+import {
+    Square3x3GridWithCellsOnDiagonal,
+    Square10x10EmptyGrid,
+} from "../constants";
 
 test.each([
     [
@@ -60,7 +63,7 @@ test.each([
         },
     ],
 ])(
-    "should have successfull ($successfull) and cell count ($hitCells.length) at cursor ($cursor.x, $cursor.y)",
+    "hitTestCursor should return successfull ($successfull) and cell count ($hitCells.length) at cursor ($cursor.x, $cursor.y)",
     ({ cursor, hitCells, successfull }) => {
         const grid = Square10x10EmptyGrid;
         const gridStyles = DefaultGridStyles;
@@ -77,22 +80,22 @@ test.each([
 test.each([
     {
         area: { x: -10, y: -10, height: 32 + 20, width: 26 + 20 },
-        hitCells: Square3x3GridWithCells.cells.slice(0, 1),
+        hitCells: Square3x3GridWithCellsOnDiagonal.cells.slice(0, 1),
         successfull: true,
     },
     {
         area: { x: -10, y: -10, height: 64 + 20, width: 52 + 20 },
-        hitCells: Square3x3GridWithCells.cells.slice(0, 2),
+        hitCells: Square3x3GridWithCellsOnDiagonal.cells.slice(0, 2),
         successfull: true,
     },
     {
         area: { x: -10, y: -10, height: 96 + 20, width: 78 + 20 },
-        hitCells: Square3x3GridWithCells.cells.slice(0, 3),
+        hitCells: Square3x3GridWithCellsOnDiagonal.cells.slice(0, 3),
         successfull: true,
     },
     {
         area: { x: 0, y: 0, height: 32, width: 26 },
-        hitCells: Square3x3GridWithCells.cells.slice(0, 1),
+        hitCells: Square3x3GridWithCellsOnDiagonal.cells.slice(0, 1),
         successfull: true,
     },
     {
@@ -102,13 +105,13 @@ test.each([
     },
     {
         area: { x: 26, y: 0, height: 96, width: 26 },
-        hitCells: Square3x3GridWithCells.cells.slice(1, 2),
+        hitCells: Square3x3GridWithCellsOnDiagonal.cells.slice(1, 2),
         successfull: true,
     },
 ])(
-    "should have successfull ($successfull) and cell count ($hitCells.length) in area ($area.x, $area.y, $area.height, $area.width)",
+    "hitTestArea should return successfull ($successfull) and cell count ($hitCells.length) in area ($area.x, $area.y, $area.height, $area.width)",
     ({ area, hitCells, successfull }) => {
-        const grid = Square3x3GridWithCells;
+        const grid = Square3x3GridWithCellsOnDiagonal;
         const gridStyles = DefaultGridStyles;
 
         const hitResult = hitTestArea(grid, gridStyles, area);

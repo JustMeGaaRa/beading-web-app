@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { gridInsertRowReducer } from "../../src";
-import { Square3x3GridWithCells } from "../constants";
+import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 import { eachRowMatchesCellCount } from "../helpers";
 
 test.each([
@@ -11,19 +11,19 @@ test.each([
     "should insert empty row at index ($insertRowIndex), increase height by 1, and shift all cells ",
     ({ insertRowIndex, rowCellCount }) => {
         const modifiedGrid = gridInsertRowReducer(
-            Square3x3GridWithCells,
+            Square3x3GridWithCellsOnDiagonal,
             insertRowIndex
         );
 
         expect(modifiedGrid).toBeDefined();
         expect(modifiedGrid.options).toBeDefined();
         expect(modifiedGrid.options.height).toBe(
-            Square3x3GridWithCells.options.height + 1
+            Square3x3GridWithCellsOnDiagonal.options.height + 1
         );
         expect(
             modifiedGrid.cells,
             "should have same number of cells as original"
-        ).toHaveLength(Square3x3GridWithCells.cells.length);
+        ).toHaveLength(Square3x3GridWithCellsOnDiagonal.cells.length);
         expect(
             modifiedGrid.cells.filter(
                 (cell) => cell.offset.rowIndex === insertRowIndex
@@ -41,15 +41,15 @@ test.each([[{ insertRowIndex: -1 }], [{ insertRowIndex: 10 }]])(
     "should return the same grid as original when inserting row at invalid index ($insertRowIndex)",
     ({ insertRowIndex }) => {
         const modifiedGrid = gridInsertRowReducer(
-            Square3x3GridWithCells,
+            Square3x3GridWithCellsOnDiagonal,
             insertRowIndex
         );
 
         expect(modifiedGrid).toBeDefined();
         expect(modifiedGrid.options).toBeDefined();
         expect(modifiedGrid.options.height).toBe(
-            Square3x3GridWithCells.options.height
+            Square3x3GridWithCellsOnDiagonal.options.height
         );
-        expect(modifiedGrid).toBe(Square3x3GridWithCells);
+        expect(modifiedGrid).toBe(Square3x3GridWithCellsOnDiagonal);
     }
 );

@@ -73,36 +73,51 @@ export const clear = (
     };
 };
 
+export type FlipAxis = "horizontal" | "vertical";
+
 export const flip = (
-    grid: BeadingGridState,
-    area: BeadingGridSectionBounds,
-    axis: "horizontal" | "vertical"
-): BeadingGridState => {
+    section: BeadingGridSection,
+    axis: FlipAxis
+): BeadingGridSection => {
     return {
-        ...grid,
-        cells: grid.cells.map((cell) =>
-            indeciesInBounds(area, cell.offset)
-                ? {
-                      ...cell,
-                      offset: {
-                          columnIndex:
-                              axis === "horizontal"
-                                  ? area.topLeft.columnIndex +
-                                    area.width -
-                                    1 -
-                                    cell.offset.columnIndex
-                                  : cell.offset.columnIndex,
-                          rowIndex:
-                              axis === "vertical"
-                                  ? area.topLeft.rowIndex +
-                                    area.height -
-                                    1 -
-                                    cell.offset.rowIndex
-                                  : cell.offset.rowIndex,
-                      },
-                  }
-                : cell
-        ),
+        ...section,
+        cells: section.cells.map((cell) => {
+            const sectionRelativeOffset = {
+                columnIndex:
+                    cell.offset.columnIndex - section.topLeft.columnIndex,
+                rowIndex: cell.offset.rowIndex - section.topLeft.rowIndex,
+            };
+
+            const cellOffset = {
+                columnIndex:
+                    axis === "vertical"
+                        ? Math.abs(
+                              section.width -
+                                  1 -
+                                  sectionRelativeOffset.columnIndex
+                          )
+                        : sectionRelativeOffset.columnIndex,
+                rowIndex:
+                    axis === "horizontal"
+                        ? Math.abs(
+                              section.height -
+                                  1 -
+                                  sectionRelativeOffset.rowIndex
+                          )
+                        : sectionRelativeOffset.rowIndex,
+            };
+
+            const gridRelativeOffset = {
+                columnIndex:
+                    cellOffset.columnIndex + section.topLeft.columnIndex,
+                rowIndex: cellOffset.rowIndex + section.topLeft.rowIndex,
+            };
+
+            return {
+                ...cell,
+                offset: gridRelativeOffset,
+            };
+        }),
     };
 };
 

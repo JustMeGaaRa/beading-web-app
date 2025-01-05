@@ -21,6 +21,7 @@ export * from "./DocumentImageIcon";
 export * from "./DocumentPenIcon";
 export * from "./DocumentUploadIcon";
 export * from "./EraserIcon";
+export * from "./FlipHorizontalIcon";
 export * from "./FlipVerticalIcon";
 export * from "./GridBrickIcon";
 export * from "./GridLoomIcon";
