@@ -10,6 +10,7 @@ import { gridInsertRowReducer } from "./gridInsertRowReducer";
 import { gridSetCellReducer } from "./gridSetCellReducer";
 import { gridSelectCellsReducer } from "./gridSelectCellsReducer";
 import { gridFlipSectionReducer } from "./gridFlipSectionReducer";
+import { gridClearCellsReducer } from "./gridClearCellsReducer";
 
 // user actions:
 // - clear selected = clear
@@ -52,7 +53,7 @@ export const gridReducer = (
         case "BEADING_GRID_SELECT_CELLS":
             return gridSelectCellsReducer(state, action.payload.cells);
         case "BEADING_GRID_CLEAR_CELLS":
-            return gridSelectCellsReducer(state, action.payload.cells);
+            return gridClearCellsReducer(state, action.payload.cells);
         case "BEADING_GRID_ADD_COLUMN_BEFORE":
             return gridInsertColumnReducer(state, action.payload.column);
         case "BEADING_GRID_ADD_COLUMN_AFTER":

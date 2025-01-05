@@ -568,7 +568,7 @@ export const PatternContainer: FC = () => {
     );
 
     // SECTION: toolbar action handlers
-    const handleOnFlipHorizontalClick = useCallback(() => {
+    const handleOnSectionFlipHorizontalClick = useCallback(() => {
         if (isCursorEnabled && selectedCells.length > 0) {
             setSelectedCells([]);
             dispatch({
@@ -581,7 +581,7 @@ export const PatternContainer: FC = () => {
         }
     }, [dispatch, isCursorEnabled, selectedCells, setSelectedCells]);
 
-    const handleOnFlipVerticalClick = useCallback(() => {
+    const handleOnSectionFlipVerticalClick = useCallback(() => {
         if (isCursorEnabled && selectedCells.length > 0) {
             setSelectedCells([]);
             dispatch({
@@ -590,6 +590,16 @@ export const PatternContainer: FC = () => {
                     cells: selectedCells,
                     axis: "vertical",
                 },
+            });
+        }
+    }, [dispatch, isCursorEnabled, selectedCells, setSelectedCells]);
+
+    const handleOnSectionClearClick = useCallback(() => {
+        if (isCursorEnabled && selectedCells.length > 0) {
+            setSelectedCells([]);
+            dispatch({
+                type: "BEADING_GRID_CLEAR_CELLS",
+                payload: { cells: selectedCells },
             });
         }
     }, [dispatch, isCursorEnabled, selectedCells, setSelectedCells]);
@@ -694,15 +704,12 @@ export const PatternContainer: FC = () => {
                                 <PatternActionToolbar
                                     tool={tool}
                                     onFlipHorizontal={
-                                        handleOnFlipHorizontalClick
+                                        handleOnSectionFlipHorizontalClick
                                     }
-                                    onFlipVertical={handleOnFlipVerticalClick}
-                                    // onMirror={handleOnMirrorSelectionClick}
-                                    // onDuplicate={
-                                    //     handleOnDuplicateSelectionClick
-                                    // }
-                                    // onClear={handleOnClearClick}
-                                    // onDone={handleOnDoneClick}
+                                    onFlipVertical={
+                                        handleOnSectionFlipVerticalClick
+                                    }
+                                    onClear={handleOnSectionClearClick}
                                 />
                             </Html>
                         )}
