@@ -79,9 +79,12 @@ export const PatternContainer: FC = () => {
     const lastTouchDistanceRef = useRef(0);
 
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const [columnState, setColumnState] = useState<TextState | null>(null);
-    const [rowState, setRowState] = useState<TextState | null>();
-    const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+    const [columnState, setColumnState] = useState<TextState | undefined>();
+    const [rowState, setRowState] = useState<TextState | undefined>();
+    const [toolbarPosition, setToolbarPosition] = useState<RenderPoint>({
+        x: 0,
+        y: 0,
+    });
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -503,22 +506,88 @@ export const PatternContainer: FC = () => {
         [isPencilEnabled, isEraserEnabled, selectedColor, dispatch]
     );
 
-    const handleOnGridCellPointerClick = useCallback(
-        (_: BeadingGridState, event: BeadingPointerEvent) => {
-            if (isPencilEnabled) {
+    // SECTION: cursor selection handlers
+    const [mouseDownPosition, setMouseDownPosition] = useState<
+        RenderPoint | undefined
+    >();
+    const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
+        RenderPoint | undefined
+    >();
+    const [, setIsMouseDown] = useState(false);
+
+    const handleOnPointerDown = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            const stage = event.target.getStage();
+            const currentPosition = stage?.getRelativePointerPosition() ?? {
+                x: 0,
+                y: 0,
+            };
+
+            setIsMouseDown(true);
+            setMouseDownPosition(currentPosition);
+            setMouseCurrentPosition(currentPosition);
+        },
+        []
+    );
+
+    const handleOnPointerUp = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            const stage = event.target.getStage();
+            const currentPosition = stage?.getRelativePointerPosition() ?? {
+                x: 0,
+                y: 0,
+            };
+
+            setIsMouseDown(false);
+            setMouseDownPosition(undefined);
+            setMouseCurrentPosition(currentPosition);
+
+            const isSelectedCell =
+                mouseDownPosition &&
+                mouseDownPosition?.x === currentPosition.x &&
+                mouseDownPosition?.y === currentPosition.y;
+
+            // calculate selected cells based on selected area
+            const hitTest = isSelectedCell
+                ? hitTestCursor(pattern.grids[0], styles, currentPosition)
+                : hitTestArea(
+                      pattern.grids[0],
+                      styles,
+                      createRenderBounds(mouseDownPosition!, currentPosition)
+                  );
+            setSelectedCells(hitTest.hits);
+
+            // calculate toolbar position based on selected cells
+            if (hitTest.hits.length > 0) {
+                const sectionBounds = getGridSectionBounds(hitTest.hits);
+                const sectionRenderBounds = getGridSectionRenderBounds(
+                    sectionBounds,
+                    pattern.grids[0].options,
+                    styles
+                );
+                const position = {
+                    x: sectionRenderBounds.x + sectionRenderBounds.width / 2,
+                    y: sectionRenderBounds.y,
+                };
+                setToolbarPosition(position);
+            }
+
+            if (isSelectedCell && isPencilEnabled) {
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
-                    payload: { cell: { ...event.cell, color: selectedColor } },
+                    payload: {
+                        cell: { ...hitTest.hits[0], color: selectedColor },
+                    },
                 });
             }
             if (isEraserEnabled) {
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
-                    payload: { cell: { ...event.cell, color: "" } },
+                    payload: { cell: { ...hitTest.hits[0], color: "" } },
                 });
             }
             if (isColorPickerEnabled) {
-                setSelectedColor(event.cell.color);
+                setSelectedColor(hitTest.hits[0].color);
                 setTool({
                     name: "pencil",
                     state: { currentAction: "default" },
@@ -526,6 +595,10 @@ export const PatternContainer: FC = () => {
             }
         },
         [
+            mouseDownPosition,
+            pattern.grids,
+            styles,
+            setSelectedCells,
             isPencilEnabled,
             isEraserEnabled,
             isColorPickerEnabled,
@@ -536,89 +609,16 @@ export const PatternContainer: FC = () => {
         ]
     );
 
-    // SECTION: cursor selection handlers
-    const [startPosition, setStarPosition] = useState<
-        RenderPoint | undefined
-    >();
-    const [endPosition, setEndPosition] = useState<RenderPoint | undefined>();
-    const [isMouseDown, setIsMouseDown] = useState(false);
-
-    const handleOnPointerDown = useCallback(
-        (event: KonvaEventObject<MouseEvent>) => {
-            if (isCursorEnabled) {
-                const stage = event.target.getStage();
-                const position = stage?.getRelativePointerPosition() ?? {
-                    x: 0,
-                    y: 0,
-                };
-                setStarPosition(position);
-                setEndPosition(undefined);
-            }
-            setIsMouseDown(true);
-        },
-        [isCursorEnabled]
-    );
-
-    const handleOnPointerUp = useCallback(
-        (event: KonvaEventObject<MouseEvent>) => {
-            if (isCursorEnabled) {
-                const stage = event.target.getStage();
-                const position = stage?.getRelativePointerPosition() ?? {
-                    x: 0,
-                    y: 0,
-                };
-                setEndPosition(position);
-
-                if (startPosition && endPosition) {
-                    const area = createRenderBounds(startPosition, endPosition);
-                    const hitTest = hitTestArea(pattern.grids[0], styles, area);
-                    setSelectedCells(hitTest.hits);
-
-                    if (hitTest.hits.length > 0) {
-                        const sectionBounds = getGridSectionBounds(
-                            hitTest.hits
-                        );
-                        const sectionRenderBounds = getGridSectionRenderBounds(
-                            sectionBounds,
-                            pattern.grids[0].options,
-                            styles
-                        );
-                        const position = {
-                            x:
-                                sectionRenderBounds.x +
-                                sectionRenderBounds.width / 2,
-                            y: sectionRenderBounds.y,
-                        };
-                        setToolbarPosition(position);
-                    }
-                }
-            }
-            setIsMouseDown(false);
-            setStarPosition(undefined);
-            setEndPosition(undefined);
-        },
-        [
-            setSelectedCells,
-            endPosition,
-            isCursorEnabled,
-            pattern.grids,
-            startPosition,
-            styles,
-        ]
-    );
-
     const handleOnPointerMove = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            if (isCursorEnabled && isMouseDown) {
-                const stage = event.target.getStage();
-                const position = stage?.getRelativePointerPosition() ?? {
-                    x: 0,
-                    y: 0,
-                };
-                setEndPosition(position);
-            }
+            const stage = event.target.getStage();
+            const position = stage?.getRelativePointerPosition() ?? {
+                x: 0,
+                y: 0,
+            };
+            setMouseCurrentPosition(position);
         },
-        [isCursorEnabled, isMouseDown]
+        []
     );
 
     // SECTION: toolbar action handlers
@@ -627,42 +627,36 @@ export const PatternContainer: FC = () => {
     const handleOnSectionCopyClick = useCallback(() => {
         if (isCursorEnabled && selectedCells.length > 0) {
             setCopiedCells(selectedCells);
-            console.log("Copied cells", selectedCells);
         }
     }, [isCursorEnabled, selectedCells]);
 
     const handleOnSectionPasteClick = useCallback(() => {
-        console.log(
-            "Pasted cells",
-            copiedCells,
-            startPosition,
-            isCursorEnabled
-        );
-        if (isCursorEnabled && copiedCells.length > 0 && startPosition) {
+        if (isCursorEnabled && copiedCells.length > 0 && mouseCurrentPosition) {
             const hitResult = hitTestCursor(
                 pattern.grids[0],
                 styles,
-                startPosition
+                mouseCurrentPosition
             );
 
             if (hitResult.hits.length > 0) {
-                const startOffset = hitResult.hits[0].offset;
-                console.log("Pasted cells", copiedCells, startOffset);
                 setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_PASTE_SECTION",
-                    payload: { cells: copiedCells, offset: startOffset },
+                    payload: {
+                        cells: copiedCells,
+                        offset: hitResult.hits[0].offset,
+                    },
                 });
             }
         }
     }, [
-        copiedCells,
-        dispatch,
         isCursorEnabled,
+        copiedCells,
+        mouseCurrentPosition,
         pattern.grids,
-        setSelectedCells,
-        startPosition,
         styles,
+        setSelectedCells,
+        dispatch,
     ]);
 
     const handleOnSectionFlipHorizontalClick = useCallback(() => {
@@ -734,7 +728,6 @@ export const PatternContainer: FC = () => {
                                 cells={grid.cells}
                                 options={grid.options}
                                 onCellEnter={handleOnGridCellPointerEnter}
-                                onCellClick={handleOnGridCellPointerClick}
                             >
                                 <BeadingGridBackgroundPattern />
                                 <BeadingText
@@ -780,14 +773,22 @@ export const PatternContainer: FC = () => {
                     ))}
 
                     <Layer>
-                        {startPosition && endPosition && isCursorEnabled && (
-                            <BeadingGridSelectedArea
-                                x={startPosition.x}
-                                y={startPosition.y}
-                                width={endPosition.x - startPosition.x}
-                                height={endPosition.y - startPosition.y}
-                            />
-                        )}
+                        {mouseDownPosition &&
+                            mouseCurrentPosition &&
+                            isCursorEnabled && (
+                                <BeadingGridSelectedArea
+                                    x={mouseDownPosition.x}
+                                    y={mouseDownPosition.y}
+                                    width={
+                                        mouseCurrentPosition.x -
+                                        mouseDownPosition.x
+                                    }
+                                    height={
+                                        mouseCurrentPosition.y -
+                                        mouseDownPosition.y
+                                    }
+                                />
+                            )}
 
                         {isCursorEnabled && selectedCells.length > 0 && (
                             <Html

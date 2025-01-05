@@ -17,7 +17,12 @@ import {
 } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
-import { getGridRenderSize, hitTestCursor } from "../utils";
+import {
+    getGridBounds,
+    getGridRenderSize,
+    hitTestCursor,
+    indeciesInBounds,
+} from "../utils";
 
 export const BeadingGrid: FC<
     PropsWithChildren<{
@@ -108,6 +113,10 @@ export const BeadingGrid: FC<
     const { height, width } = getGridRenderSize(options, styles);
     const positionX = (offset?.columnIndex ?? 0) * width;
     const positionY = (offset?.rowIndex ?? 0) * height;
+    const gridBounds = getGridBounds(options);
+    const selectedInBoundCells = selectedCells.filter((cell) =>
+        indeciesInBounds(gridBounds, cell.offset)
+    );
 
     return (
         <Layer x={positionX} y={positionY}>
@@ -127,9 +136,14 @@ export const BeadingGrid: FC<
                     key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
                     color={cell.color}
                     offset={cell.offset}
-                    isSelected={selectedCells.some((target) =>
-                        shallowEqualsCell(target, cell)
-                    )}
+                />
+            ))}
+            {selectedInBoundCells.map((cell) => (
+                <BeadingGridCell
+                    key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
+                    color={cell.color}
+                    offset={cell.offset}
+                    isSelected={true}
                 />
             ))}
             {options.type === "brick" && options.fringe > 0 && (
