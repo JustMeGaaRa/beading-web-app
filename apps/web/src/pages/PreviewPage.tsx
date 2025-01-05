@@ -5,7 +5,6 @@ import {
     BeadingGridProvider,
     BeadingGridStylesProvider,
     DefaultGridStyles,
-    setBeadingGridCellAction,
     BeadingPointerEvent,
     BeadingGridState,
     gridReducer,
@@ -112,12 +111,15 @@ export const PreviewPage: FC = () => {
     const handleOnCellEnter = useCallback(
         (_: BeadingGridState, event: BeadingPointerEvent) => {
             if (event.isPointerDown) {
-                dispatch(
-                    setBeadingGridCellAction({
-                        ...event.cell,
-                        color: colors[0],
-                    })
-                );
+                dispatch({
+                    type: "BEADING_GRID_SET_CELL",
+                    payload: {
+                        cell: {
+                            ...event.cell,
+                            color: colors[0],
+                        },
+                    },
+                });
             }
         },
         [colors]

@@ -6,6 +6,7 @@ import {
     BeadingGridSectionBounds,
     RenderBounds,
     RenderPoint,
+    shallowEqualsCell,
 } from "../types";
 import { getGridBounds } from "./grid";
 import { getGridCellRenderBounds, getGridCellRenderSize } from "./rendering";
@@ -36,7 +37,9 @@ export const indeciesInBounds = (
     );
 };
 
-const getNeighbourCells = (offset: BeadingGridOffset) => {
+const getNeighbourCells = (
+    offset: BeadingGridOffset
+): Array<BeadingGridCellState> => {
     return [
         {
             offset: {
@@ -110,14 +113,17 @@ export const hitTestCursor = (
     cursor: { x: number; y: number }
 ): HitTestResult => {
     const beadSize = getGridCellRenderSize(grid.options, styles);
-    const hitCellApproximation: BeadingGridOffset = {
-        columnIndex: Math.floor(cursor.x / beadSize.width),
-        rowIndex: Math.floor(cursor.y / beadSize.height),
+    const hitCellApproximation: BeadingGridCellState = {
+        offset: {
+            columnIndex: Math.floor(cursor.x / beadSize.width),
+            rowIndex: Math.floor(cursor.y / beadSize.height),
+        },
+        color: "",
     };
     const hitCells: Array<BeadingGridCellState> =
         grid.options.type === "square"
-            ? [{ offset: hitCellApproximation, color: "" }]
-            : getNeighbourCells(hitCellApproximation).filter((cell) =>
+            ? [hitCellApproximation]
+            : getNeighbourCells(hitCellApproximation.offset).filter((cell) =>
                   pointInBounds(
                       getGridCellRenderBounds(
                           cell.offset,
@@ -128,13 +134,18 @@ export const hitTestCursor = (
                   )
               )!;
 
+    const equalCellApproximation = (cell: BeadingGridCellState) => {
+        return shallowEqualsCell(cell, hitCellApproximation);
+    };
     // TODO: consider filtering out the cells that are out of bounds
     return {
         successfull: hitCells.every((cell) => {
-            const area = getGridBounds(grid.options);
-            return indeciesInBounds(area, cell.offset);
+            const bounds = getGridBounds(grid.options);
+            return indeciesInBounds(bounds, cell.offset);
         }),
-        hits: hitCells,
+        hits: hitCells.map(
+            (cell) => grid.cells.find(equalCellApproximation) ?? cell
+        ),
     };
 };
 

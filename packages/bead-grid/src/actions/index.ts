@@ -1,9 +1,7 @@
 import {
-    BeadingGridSectionBounds,
     BeadingGridCellState,
     BeadingGridOffset,
     BeadingGridProperties,
-    BeadingGridSection,
 } from "../types";
 import { FlipAxis } from "../utils";
 
@@ -62,13 +60,9 @@ export type GridClearRowAction = Action<
     "BEADING_GRID_CLEAR_ROW",
     { row: number }
 >;
-export type GridCopySectionAction = Action<
-    "BEADING_GRID_COPY_SECTION",
-    { bounds: BeadingGridSectionBounds }
->;
 export type GridPasteSectionAction = Action<
     "BEADING_GRID_PASTE_SECTION",
-    { section: BeadingGridSection; offset: BeadingGridOffset }
+    { cells: Array<BeadingGridCellState>; offset: BeadingGridOffset }
 >;
 export type GridFlipSectionAction = Action<
     "BEADING_GRID_FLIP_SECTION",
@@ -88,6 +82,5 @@ export type GridActions =
     | GridDeleteColumnAction
     | GridClearColumnAction
     | GridSetSelectedCellsAction
-    | GridCopySectionAction
     | GridPasteSectionAction
     | GridFlipSectionAction;

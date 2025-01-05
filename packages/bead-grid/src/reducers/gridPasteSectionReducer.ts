@@ -1,12 +1,16 @@
-import { BeadingGridOffset, BeadingGridState } from "../types";
+import {
+    BeadingGridCellState,
+    BeadingGridOffset,
+    BeadingGridState,
+} from "../types";
+import { getGridSectionBounds, paste } from "../utils";
 
 export const gridPasteSectionReducer = (
     grid: BeadingGridState,
-    section: BeadingGridState,
+    cells: Array<BeadingGridCellState>,
     offset: BeadingGridOffset
 ): BeadingGridState => {
-    console.log(grid);
-    console.log(section);
-    console.log(offset);
-    throw new Error("Not implemented");
+    const sectionBounds = getGridSectionBounds(cells);
+    const modifiedGrid = paste(grid, sectionBounds, offset);
+    return modifiedGrid;
 };

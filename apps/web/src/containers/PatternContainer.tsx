@@ -24,20 +24,14 @@ import {
     BeadingGridBackgroundPattern,
     getGridHeight,
     DefaultGridProperties,
-    addBeadingGridColumnAfterAction,
-    addBeadingGridRowBeforeAction,
-    addBeadingGridRowAfterAction,
-    clearBeadingGridRowAction,
-    deleteBeadingGridRowAction,
-    addBeadingGridColumnBeforeAction,
-    clearBeadingGridColumnAction,
-    deleteBeadingGridColumnAction,
-    setBeadingGridCellAction,
     BeadingGridSelectedArea,
     hitTestArea,
     createRenderBounds,
     getGridSectionRenderBounds,
     getGridSectionBounds,
+    BeadingGridCellState,
+    hitTestCursor,
+    RenderPoint,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -80,13 +74,9 @@ import { putPattern } from "../api";
 
 const hotkeysOptions = { preventDefault: true };
 
-type Position = { x: number; y: number } | undefined;
-
 export const PatternContainer: FC = () => {
     const stageRef = useRef<Konva.Stage>(null);
     const lastTouchDistanceRef = useRef(0);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const gridRefs = useRef<Record<string, any>>({});
 
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | null>(null);
@@ -95,8 +85,8 @@ export const PatternContainer: FC = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const { selectedColor } = useColorPalette();
-    const { tool } = useTools();
+    const { selectedColor, setSelectedColor } = useColorPalette();
+    const { tool, setTool } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
     const {
@@ -119,6 +109,34 @@ export const PatternContainer: FC = () => {
         tool.name === "cursor" && tool.state.currentAction === "default";
     const isPencilEnabled = tool.name === "pencil";
     const isEraserEnabled = tool.name === "eraser";
+    const isColorPickerEnabled = tool.name === "picker";
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // const gridRefs = useRef<Record<string, any>>({});
+    // const isPointerDown = false;
+
+    // const resetGridsSelection = useCallback((source?: unknown) => {
+    //     Object.entries(gridRefs.current).forEach(([name, ref]) => {
+    //         if (
+    //             typeof source === "object" &&
+    //             source &&
+    //             "name" in source &&
+    //             name !== source?.name
+    //         ) {
+    //             ref.onResetSelection();
+    //         }
+    //     });
+    // }, []);
+
+    // const handleOnGridSelectionChange = useCallback(
+    //     (source: unknown) => {
+    //         if (isPointerDown && isCursorEnabled) {
+    //             resetGridsSelection(source);
+    //         }
+    //     },
+    //     [isPointerDown, isCursorEnabled, resetGridsSelection]
+    // );
+    // console.log(handleOnGridSelectionChange);
 
     const centerStage = useCallback(
         (pattern: PatternState) => {
@@ -139,19 +157,6 @@ export const PatternContainer: FC = () => {
         [styles]
     );
 
-    const resetGridsSelection = useCallback((source?: unknown) => {
-        Object.entries(gridRefs.current).forEach(([name, ref]) => {
-            if (
-                typeof source === "object" &&
-                source &&
-                "name" in source &&
-                name !== source?.name
-            ) {
-                ref.onResetSelection();
-            }
-        });
-    }, []);
-
     useHotkeys(
         Shortcuts.patternCenter.keyString,
         () => centerStage(pattern),
@@ -165,9 +170,7 @@ export const PatternContainer: FC = () => {
         redo,
     ]);
 
-    useEffect(() => {
-        centerStage(pattern);
-    }, [centerStage]);
+    useEffect(() => centerStage(pattern), [centerStage]);
 
     useEffect(() => {
         // NOTE: auto save pattern cover every 5 seconds
@@ -357,8 +360,8 @@ export const PatternContainer: FC = () => {
         // NOTE: clear all active selections when clicked on stage empty space
         setSelectedColumn(-1);
         setSelectedRow(-1);
-        resetGridsSelection();
-    }, [resetGridsSelection, setSelectedColumn, setSelectedRow]);
+        // resetGridsSelection();
+    }, [setSelectedColumn, setSelectedRow]);
 
     const handleOnStageContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
@@ -395,6 +398,7 @@ export const PatternContainer: FC = () => {
         [onOpen]
     );
 
+    // SECTION: header menu handlers
     const handleOnPatternSavePngClick = useCallback(() => {
         const imageUri = stageRef.current?.toDataURL() ?? "";
         downloadUri(imageUri, `${pattern.name}.png`);
@@ -408,49 +412,73 @@ export const PatternContainer: FC = () => {
     // SECTION: context menu handlers
     const handleOnGridAddRowAbove = useCallback(() => {
         if (rowState) {
-            dispatch(addBeadingGridRowBeforeAction(rowState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_ADD_ROW_BEFORE",
+                payload: { row: rowState.gridIndex },
+            });
         }
     }, [dispatch, rowState]);
 
     const handleOnGridAddRowBelow = useCallback(() => {
         if (rowState) {
-            dispatch(addBeadingGridRowAfterAction(rowState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_ADD_ROW_AFTER",
+                payload: { row: rowState.gridIndex },
+            });
         }
     }, [rowState, dispatch]);
 
     const handleOnGridClearRow = useCallback(() => {
         if (rowState) {
-            dispatch(clearBeadingGridRowAction(rowState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_CLEAR_ROW",
+                payload: { row: rowState.gridIndex },
+            });
         }
     }, [rowState, dispatch]);
 
     const handleOnGridDeleteRow = useCallback(() => {
         if (rowState) {
-            dispatch(deleteBeadingGridRowAction(rowState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_DELETE_ROW",
+                payload: { row: rowState.gridIndex },
+            });
         }
     }, [rowState, dispatch]);
 
     const handleOnGridAddColumnLeft = useCallback(() => {
         if (columnState) {
-            dispatch(addBeadingGridColumnBeforeAction(columnState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_ADD_COLUMN_BEFORE",
+                payload: { column: columnState.gridIndex },
+            });
         }
     }, [columnState, dispatch]);
 
     const handleOnGridAddColumnRight = useCallback(() => {
         if (columnState) {
-            dispatch(addBeadingGridColumnAfterAction(columnState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_ADD_COLUMN_AFTER",
+                payload: { column: columnState.gridIndex },
+            });
         }
     }, [columnState, dispatch]);
 
     const handleOnGridClearColumn = useCallback(() => {
         if (columnState) {
-            dispatch(clearBeadingGridColumnAction(columnState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_CLEAR_COLUMN",
+                payload: { column: columnState.gridIndex },
+            });
         }
     }, [columnState, dispatch]);
 
     const handleOnGridDeleteColumn = useCallback(() => {
         if (columnState) {
-            dispatch(deleteBeadingGridColumnAction(columnState.gridIndex));
+            dispatch({
+                type: "BEADING_GRID_DELETE_COLUMN",
+                payload: { column: columnState.gridIndex },
+            });
         }
     }, [columnState, dispatch]);
 
@@ -458,35 +486,61 @@ export const PatternContainer: FC = () => {
     const handleOnGridCellPointerEnter = useCallback(
         (_: BeadingGridState, event: BeadingPointerEvent) => {
             if (event.isPointerDown && isPencilEnabled) {
-                dispatch(
-                    setBeadingGridCellAction({
-                        ...event.cell,
-                        color: selectedColor,
-                    })
-                );
+                dispatch({
+                    type: "BEADING_GRID_SET_CELL",
+                    payload: {
+                        cell: { ...event.cell, color: selectedColor },
+                    },
+                });
             }
             if (event.isPointerDown && isEraserEnabled) {
-                dispatch(
-                    setBeadingGridCellAction({ ...event.cell, color: "" })
-                );
+                dispatch({
+                    type: "BEADING_GRID_SET_CELL",
+                    payload: { cell: { ...event.cell, color: "" } },
+                });
             }
         },
         [isPencilEnabled, isEraserEnabled, selectedColor, dispatch]
     );
 
-    const isPointerDown = false;
-    const handleOnGridSelectionChange = useCallback(
-        (source: unknown) => {
-            if (isPointerDown && isCursorEnabled) {
-                resetGridsSelection(source);
+    const handleOnGridCellPointerClick = useCallback(
+        (_: BeadingGridState, event: BeadingPointerEvent) => {
+            if (isPencilEnabled) {
+                dispatch({
+                    type: "BEADING_GRID_SET_CELL",
+                    payload: { cell: { ...event.cell, color: selectedColor } },
+                });
+            }
+            if (isEraserEnabled) {
+                dispatch({
+                    type: "BEADING_GRID_SET_CELL",
+                    payload: { cell: { ...event.cell, color: "" } },
+                });
+            }
+            if (isColorPickerEnabled) {
+                setSelectedColor(event.cell.color);
+                setTool({
+                    name: "pencil",
+                    state: { currentAction: "default" },
+                });
             }
         },
-        [isPointerDown, isCursorEnabled, resetGridsSelection]
+        [
+            isPencilEnabled,
+            isEraserEnabled,
+            isColorPickerEnabled,
+            dispatch,
+            selectedColor,
+            setSelectedColor,
+            setTool,
+        ]
     );
-    console.log(handleOnGridSelectionChange);
 
-    const [startPosition, setStarPosition] = useState<Position>();
-    const [endPosition, setEndPosition] = useState<Position>();
+    // SECTION: cursor selection handlers
+    const [startPosition, setStarPosition] = useState<
+        RenderPoint | undefined
+    >();
+    const [endPosition, setEndPosition] = useState<RenderPoint | undefined>();
     const [isMouseDown, setIsMouseDown] = useState(false);
 
     const handleOnPointerDown = useCallback(
@@ -568,6 +622,49 @@ export const PatternContainer: FC = () => {
     );
 
     // SECTION: toolbar action handlers
+    const [copiedCells, setCopiedCells] = useState<BeadingGridCellState[]>([]);
+
+    const handleOnSectionCopyClick = useCallback(() => {
+        if (isCursorEnabled && selectedCells.length > 0) {
+            setCopiedCells(selectedCells);
+            console.log("Copied cells", selectedCells);
+        }
+    }, [isCursorEnabled, selectedCells]);
+
+    const handleOnSectionPasteClick = useCallback(() => {
+        console.log(
+            "Pasted cells",
+            copiedCells,
+            startPosition,
+            isCursorEnabled
+        );
+        if (isCursorEnabled && copiedCells.length > 0 && startPosition) {
+            const hitResult = hitTestCursor(
+                pattern.grids[0],
+                styles,
+                startPosition
+            );
+
+            if (hitResult.hits.length > 0) {
+                const startOffset = hitResult.hits[0].offset;
+                console.log("Pasted cells", copiedCells, startOffset);
+                setSelectedCells([]);
+                dispatch({
+                    type: "BEADING_GRID_PASTE_SECTION",
+                    payload: { cells: copiedCells, offset: startOffset },
+                });
+            }
+        }
+    }, [
+        copiedCells,
+        dispatch,
+        isCursorEnabled,
+        pattern.grids,
+        setSelectedCells,
+        startPosition,
+        styles,
+    ]);
+
     const handleOnSectionFlipHorizontalClick = useCallback(() => {
         if (isCursorEnabled && selectedCells.length > 0) {
             setSelectedCells([]);
@@ -637,6 +734,7 @@ export const PatternContainer: FC = () => {
                                 cells={grid.cells}
                                 options={grid.options}
                                 onCellEnter={handleOnGridCellPointerEnter}
+                                onCellClick={handleOnGridCellPointerClick}
                             >
                                 <BeadingGridBackgroundPattern />
                                 <BeadingText
@@ -703,6 +801,8 @@ export const PatternContainer: FC = () => {
                             >
                                 <PatternActionToolbar
                                     tool={tool}
+                                    onCopy={handleOnSectionCopyClick}
+                                    onPaste={handleOnSectionPasteClick}
                                     onFlipHorizontal={
                                         handleOnSectionFlipHorizontalClick
                                     }

@@ -15,7 +15,6 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import {
-    applyBeadingGridOptionsAction,
     BeadingGridProperties,
     BeadingGridState,
     BeadingGridType,
@@ -218,19 +217,25 @@ const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({
 
     const handleOnTypeClick = useCallback(
         (type: BeadingGridType) => {
-            dispatch(
-                applyBeadingGridOptionsAction({
-                    ...grid.options,
-                    type,
-                } as BeadingGridProperties)
-            );
+            dispatch({
+                type: "BEADING_GRID_APPLY_OPTIONS",
+                payload: {
+                    options: {
+                        ...grid.options,
+                        type,
+                    } as BeadingGridProperties,
+                },
+            });
         },
         [dispatch, grid.options]
     );
 
     const handleOnOptionsChange = useCallback(
         (modifiedOptions: BeadingGridProperties) => {
-            dispatch(applyBeadingGridOptionsAction(modifiedOptions));
+            dispatch({
+                type: "BEADING_GRID_APPLY_OPTIONS",
+                payload: { options: modifiedOptions },
+            });
         },
         [dispatch]
     );

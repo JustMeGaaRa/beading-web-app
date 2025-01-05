@@ -32,6 +32,10 @@ export const BeadingGrid: FC<
             source: BeadingGridState,
             event: BeadingPointerEvent
         ) => void;
+        onCellClick?: (
+            source: BeadingGridState,
+            event: BeadingPointerEvent
+        ) => void;
     }>
 > = ({
     children,
@@ -39,6 +43,7 @@ export const BeadingGrid: FC<
     cells: cellsProps,
     options: optionsProps,
     onCellEnter,
+    onCellClick,
 }) => {
     const { styles } = useGridStyles();
     const { cells, offset, options, setCells, setOffset, setOptions } =
@@ -81,6 +86,25 @@ export const BeadingGrid: FC<
         [onCellEnter, isPointerDown]
     );
 
+    const handleOnMouseClick = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            const gridState = { name: "", offset, cells, options };
+            const cursor = event.currentTarget.getRelativePointerPosition() ?? {
+                x: 0,
+                y: 0,
+            };
+            const hitResults = hitTestCursor(gridState, styles, cursor);
+            // TODO: check if hitResults is empty
+            const gridEvent = {
+                cell: hitResults.hits[0]!,
+                isPointerDown: false,
+            };
+
+            onCellClick?.(gridState, gridEvent);
+        },
+        [onCellClick]
+    );
+
     const { height, width } = getGridRenderSize(options, styles);
     const positionX = (offset?.columnIndex ?? 0) * width;
     const positionY = (offset?.rowIndex ?? 0) * height;
@@ -94,6 +118,7 @@ export const BeadingGrid: FC<
                 onMouseDown={handleOnMouseDown}
                 onMouseUp={handleOnMouseUp}
                 onMouseMove={handleOnMouseMove}
+                onClick={handleOnMouseClick}
             />
 
             {children}
