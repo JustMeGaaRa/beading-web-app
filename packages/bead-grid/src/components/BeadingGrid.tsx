@@ -5,7 +5,6 @@ import {
     BeadingGridProperties,
     BeadingGridState,
     BeadingPointerEvent,
-    shallowEqualsCell,
 } from "../types";
 import { BeadingGridCell } from "./BeadingGridCell";
 import { BeadingGridDivider } from "./BeadingGridDivider";
