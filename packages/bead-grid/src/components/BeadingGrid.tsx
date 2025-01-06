@@ -64,10 +64,12 @@ export const BeadingGrid: FC<
     useEffect(() => setOptions(optionsProps), [optionsProps]);
 
     const handleOnPointerDown = useCallback(() => {
+        console.log("grid pointer down", event);
         onPointerDown();
     }, [onCellEnter]);
 
     const handleOnPointerUp = useCallback(() => {
+        console.log("grid pointer up", event);
         onPointerUp();
     }, [onPointerUp]);
 
@@ -92,6 +94,7 @@ export const BeadingGrid: FC<
 
     const handleOnPointerClick = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
+            console.log("grid pointer click", event);
             const gridState = { name: "", offset, cells, options };
             const cursor = event.currentTarget.getRelativePointerPosition() ?? {
                 x: 0,
@@ -128,6 +131,12 @@ export const BeadingGrid: FC<
                 onPointerUp={handleOnPointerUp}
                 onPointerMove={handleOnPointerMove}
                 onPointerClick={handleOnPointerClick}
+                onMouseDown={(event) => console.log("grid mouse down", event)}
+                onMouseUp={(event) => console.log("grid mouse up", event)}
+                onClick={(event) => console.log("grid click", event)}
+                onTouchStart={(event) => console.log("grid touch start", event)}
+                onTouchEnd={(event) => console.log("grid touch end", event)}
+                onTap={(event) => console.log("grid tap", event)}
             />
             {cells.map((cell) => (
                 <BeadingGridCell
