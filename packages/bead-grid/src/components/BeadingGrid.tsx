@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useCallback, useEffect } from "react";
-import { Layer, Rect } from "react-konva";
+import { Group, Layer, Rect } from "react-konva";
 import {
     BeadingGridCellState,
     BeadingGridProperties,
@@ -18,7 +18,7 @@ import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
 import {
     getGridBounds,
-    getGridRenderSize,
+    getGridRenderBounds,
     hitTestCursor,
     indeciesInBounds,
 } from "../utils";
@@ -63,15 +63,15 @@ export const BeadingGrid: FC<
     useEffect(() => setCells(cellsProps ?? []), [cellsProps]);
     useEffect(() => setOptions(optionsProps), [optionsProps]);
 
-    const handleOnMouseDown = useCallback(() => {
+    const handleOnPointerDown = useCallback(() => {
         onPointerDown();
     }, [onCellEnter]);
 
-    const handleOnMouseUp = useCallback(() => {
+    const handleOnPointerUp = useCallback(() => {
         onPointerUp();
     }, [onPointerUp]);
 
-    const handleOnMouseMove = useCallback(
+    const handleOnPointerMove = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
             const gridState = { name: "", offset, cells, options };
             const cursor = event.currentTarget.getRelativePointerPosition() ?? {
@@ -90,7 +90,7 @@ export const BeadingGrid: FC<
         [onCellEnter, isPointerDown]
     );
 
-    const handleOnMouseClick = useCallback(
+    const handleOnPointerClick = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
             const gridState = { name: "", offset, cells, options };
             const cursor = event.currentTarget.getRelativePointerPosition() ?? {
@@ -109,7 +109,7 @@ export const BeadingGrid: FC<
         [onCellClick]
     );
 
-    const { height, width } = getGridRenderSize(options, styles);
+    const { height, width } = getGridRenderBounds(options, styles);
     const positionX = (offset?.columnIndex ?? 0) * width;
     const positionY = (offset?.rowIndex ?? 0) * height;
     const gridBounds = getGridBounds(options);
@@ -119,17 +119,16 @@ export const BeadingGrid: FC<
 
     return (
         <Layer x={positionX} y={positionY}>
+            <Group name={"background-pattern"}></Group>
             <Rect
                 fill={"transparent"}
                 height={height}
                 width={width}
-                onMouseDown={handleOnMouseDown}
-                onMouseUp={handleOnMouseUp}
-                onMouseMove={handleOnMouseMove}
-                onClick={handleOnMouseClick}
+                onPointerDown={handleOnPointerDown}
+                onPointerUp={handleOnPointerUp}
+                onPointerMove={handleOnPointerMove}
+                onPointerClick={handleOnPointerClick}
             />
-
-            {children}
             {cells.map((cell) => (
                 <BeadingGridCell
                     key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
@@ -152,6 +151,7 @@ export const BeadingGrid: FC<
                     orientation={"horizontal"}
                 />
             )}
+            {children}
         </Layer>
     );
 };

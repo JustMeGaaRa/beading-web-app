@@ -53,7 +53,7 @@ const ToolsContext = createContext<{
 
 export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
     const [tool, setTool] = useState<ToolState>({
-        name: "pencil",
+        name: "move",
         state: { currentAction: "default" },
     });
 

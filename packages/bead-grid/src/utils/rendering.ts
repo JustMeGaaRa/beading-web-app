@@ -129,14 +129,16 @@ export const getGridSectionRenderBounds = (
     };
 };
 
-export const getGridRenderSize = (
+export const getGridRenderBounds = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
-): BeadingGridSize => {
+): RenderBounds => {
     const cellSize = getGridCellRenderSize(options, styles);
     const gridSize = getGridSize(options);
 
     return {
+        x: 0,
+        y: 0,
         height:
             gridSize.height * cellSize.height * styles.rendering.pixelPerPoint,
         width: gridSize.width * cellSize.width * styles.rendering.pixelPerPoint,

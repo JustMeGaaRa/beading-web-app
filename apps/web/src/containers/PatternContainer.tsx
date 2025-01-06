@@ -32,6 +32,8 @@ import {
     BeadingGridCellState,
     hitTestCursor,
     RenderPoint,
+    pointInBounds,
+    getGridRenderBounds,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -52,7 +54,6 @@ import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Layer, Stage } from "react-konva";
-import { Html } from "react-konva-utils";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import {
@@ -81,10 +82,9 @@ export const PatternContainer: FC = () => {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | undefined>();
     const [rowState, setRowState] = useState<TextState | undefined>();
-    const [toolbarPosition, setToolbarPosition] = useState<RenderPoint>({
-        x: 0,
-        y: 0,
-    });
+    const [toolbarPosition, setToolbarPosition] = useState<
+        RenderPoint | undefined
+    >();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -113,33 +113,6 @@ export const PatternContainer: FC = () => {
     const isPencilEnabled = tool.name === "pencil";
     const isEraserEnabled = tool.name === "eraser";
     const isColorPickerEnabled = tool.name === "picker";
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // const gridRefs = useRef<Record<string, any>>({});
-    // const isPointerDown = false;
-
-    // const resetGridsSelection = useCallback((source?: unknown) => {
-    //     Object.entries(gridRefs.current).forEach(([name, ref]) => {
-    //         if (
-    //             typeof source === "object" &&
-    //             source &&
-    //             "name" in source &&
-    //             name !== source?.name
-    //         ) {
-    //             ref.onResetSelection();
-    //         }
-    //     });
-    // }, []);
-
-    // const handleOnGridSelectionChange = useCallback(
-    //     (source: unknown) => {
-    //         if (isPointerDown && isCursorEnabled) {
-    //             resetGridsSelection(source);
-    //         }
-    //     },
-    //     [isPointerDown, isCursorEnabled, resetGridsSelection]
-    // );
-    // console.log(handleOnGridSelectionChange);
 
     const centerStage = useCallback(
         (pattern: PatternState) => {
@@ -263,6 +236,9 @@ export const PatternContainer: FC = () => {
         (event: Konva.KonvaEventObject<TouchEvent>) => {
             event.evt.preventDefault();
 
+            // NOTE: only allow to zoom in move mode to avoid tools conflict
+            if (!isMoveEnabled) return;
+
             // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
             if (event.evt.touches.length !== 2) return;
 
@@ -352,7 +328,7 @@ export const PatternContainer: FC = () => {
 
             lastTouchDistanceRef.current = currentTouchDistance;
         },
-        [pattern.grids, pattern.options, styles]
+        [isMoveEnabled, pattern.grids, pattern.options, styles]
     );
 
     const handleOnStageTouchEnd = useCallback(() => {
@@ -555,7 +531,6 @@ export const PatternContainer: FC = () => {
                       styles,
                       createRenderBounds(mouseDownPosition!, currentPosition)
                   );
-            setSelectedCells(hitTest.hits);
 
             // calculate toolbar position based on selected cells
             if (hitTest.hits.length > 0) {
@@ -569,10 +544,20 @@ export const PatternContainer: FC = () => {
                     x: sectionRenderBounds.x + sectionRenderBounds.width / 2,
                     y: sectionRenderBounds.y,
                 };
-                setToolbarPosition(position);
+                const gridBounds = getGridRenderBounds(
+                    pattern.grids[0].options,
+                    styles
+                );
+                const isInBounds = pointInBounds(gridBounds, position);
+                setToolbarPosition(isInBounds ? position : undefined);
+            }
+
+            if (isCursorEnabled) {
+                setSelectedCells(hitTest.hits);
             }
 
             if (isSelectedCell && isPencilEnabled) {
+                setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
                     payload: {
@@ -580,13 +565,15 @@ export const PatternContainer: FC = () => {
                     },
                 });
             }
-            if (isEraserEnabled) {
+            if (isSelectedCell && isEraserEnabled) {
+                setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
                     payload: { cell: { ...hitTest.hits[0], color: "" } },
                 });
             }
-            if (isColorPickerEnabled) {
+            if (isSelectedCell && isColorPickerEnabled) {
+                setSelectedCells([]);
                 setSelectedColor(hitTest.hits[0].color);
                 setTool({
                     name: "pencil",
@@ -598,10 +585,11 @@ export const PatternContainer: FC = () => {
             mouseDownPosition,
             pattern.grids,
             styles,
-            setSelectedCells,
+            isCursorEnabled,
             isPencilEnabled,
             isEraserEnabled,
             isColorPickerEnabled,
+            setSelectedCells,
             dispatch,
             selectedColor,
             setSelectedColor,
@@ -790,45 +778,36 @@ export const PatternContainer: FC = () => {
                                 />
                             )}
 
-                        {isCursorEnabled && selectedCells.length > 0 && (
-                            <Html
-                                groupProps={toolbarPosition}
-                                transform
-                                transformFunc={(attr) => ({
-                                    ...attr,
-                                    scaleX: 1,
-                                    scaleY: 1,
-                                })}
-                            >
-                                <PatternActionToolbar
-                                    tool={tool}
-                                    onCopy={handleOnSectionCopyClick}
-                                    onPaste={handleOnSectionPasteClick}
-                                    onFlipHorizontal={
-                                        handleOnSectionFlipHorizontalClick
-                                    }
-                                    onFlipVertical={
-                                        handleOnSectionFlipVerticalClick
-                                    }
-                                    onClear={handleOnSectionClearClick}
-                                />
-                            </Html>
+                        {isCursorEnabled && toolbarPosition && (
+                            <PatternActionToolbar
+                                position={toolbarPosition}
+                                tool={tool}
+                                onCopy={handleOnSectionCopyClick}
+                                onPaste={handleOnSectionPasteClick}
+                                onFlipHorizontal={
+                                    handleOnSectionFlipHorizontalClick
+                                }
+                                onFlipVertical={
+                                    handleOnSectionFlipVerticalClick
+                                }
+                                onClear={handleOnSectionClearClick}
+                            />
+                        )}
+
+                        {pattern.grids.length > 0 && (
+                            <BeadingFrame
+                                height={height}
+                                width={width}
+                                options={
+                                    pattern.grids.at(0)?.options ??
+                                    DefaultGridProperties
+                                }
+                                onColumnClick={handleOnPatternColumnClick}
+                                onRowClick={handleOnPatternRowClick}
+                                onContextMenu={handleOnPatternContextMenu}
+                            />
                         )}
                     </Layer>
-
-                    {pattern.grids.length > 0 && (
-                        <BeadingFrame
-                            height={height}
-                            width={width}
-                            options={
-                                pattern.grids.at(0)?.options ??
-                                DefaultGridProperties
-                            }
-                            onColumnClick={handleOnPatternColumnClick}
-                            onRowClick={handleOnPatternRowClick}
-                            onContextMenu={handleOnPatternContextMenu}
-                        />
-                    )}
                 </BeadingGridStylesProvider>
             </Stage>
 

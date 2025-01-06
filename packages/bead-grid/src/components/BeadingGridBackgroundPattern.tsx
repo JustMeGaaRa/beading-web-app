@@ -1,5 +1,6 @@
 import { FC } from "react";
-import { Circle, Group } from "react-konva";
+import { Circle } from "react-konva";
+import { Portal } from "react-konva-utils";
 import {
     getGridCellRenderBounds,
     getGridCellRenderSize,
@@ -14,7 +15,7 @@ export const BeadingGridBackgroundPattern: FC = () => {
     const { height, width } = getGridSize(options);
 
     return (
-        <Group>
+        <Portal selector={".background-pattern"}>
             {Array.from({ length: height })
                 .map((_, rowIndex) =>
                     Array.from({ length: width }).map((_, columnIndex) => ({
@@ -46,6 +47,6 @@ export const BeadingGridBackgroundPattern: FC = () => {
                         />
                     );
                 })}
-        </Group>
+        </Portal>
     );
 };
