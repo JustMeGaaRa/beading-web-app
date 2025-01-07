@@ -2,6 +2,7 @@ export * from "./gridApplyOptionsReducer";
 export * from "./gridClearCellsReducer";
 export * from "./gridClearColumnReducer";
 export * from "./gridClearRowReducer";
+export * from "./gridCutSectionReducer";
 export * from "./gridDeleteColumnReducer";
 export * from "./gridDeleteRowReducer";
 export * from "./gridDuplicateSectionReducer";

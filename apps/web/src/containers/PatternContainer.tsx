@@ -49,7 +49,6 @@ import {
     DocumentCodeIcon,
     DocumentImageIcon,
 } from "@repo/icons";
-// import throttle from "just-throttle";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -331,13 +330,9 @@ export const PatternContainer: FC = () => {
         [isMoveEnabled, pattern.grids, pattern.options, styles]
     );
 
-    const handleOnStageTouchEnd = useCallback(
-        (event: Konva.KonvaEventObject<TouchEvent>) => {
-            console.log("stage touch end", event);
-            lastTouchDistanceRef.current = 0;
-        },
-        []
-    );
+    const handleOnStageTouchEnd = useCallback(() => {
+        lastTouchDistanceRef.current = 0;
+    }, []);
 
     const handleOnStageClick = useCallback(() => {
         // NOTE: clear all active selections when clicked on stage empty space
@@ -497,12 +492,12 @@ export const PatternContainer: FC = () => {
 
     const handleOnPointerDown = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            console.log("stage pointer down", event);
             const stage = event.target.getStage();
             const currentPosition = stage?.getRelativePointerPosition() ?? {
                 x: 0,
                 y: 0,
             };
+            console.log("stage pointer down", event, currentPosition);
 
             setIsMouseDown(true);
             setMouseDownPosition(currentPosition);
@@ -513,12 +508,12 @@ export const PatternContainer: FC = () => {
 
     const handleOnPointerUp = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            console.log("stage pointer up", event);
             const stage = event.target.getStage();
             const currentPosition = stage?.getRelativePointerPosition() ?? {
                 x: 0,
                 y: 0,
             };
+            console.log("stage pointer up", event, currentPosition);
 
             setIsMouseDown(false);
             setMouseDownPosition(undefined);
@@ -620,6 +615,7 @@ export const PatternContainer: FC = () => {
 
     const handleOnSectionCopyClick = useCallback(() => {
         if (isCursorEnabled && selectedCells.length > 0) {
+            // TODO: move copy to internal grid state and selection provider
             setCopiedCells(selectedCells);
         }
     }, [isCursorEnabled, selectedCells]);
@@ -713,12 +709,6 @@ export const PatternContainer: FC = () => {
                 onPointerDown={handleOnPointerDown}
                 onPointerUp={handleOnPointerUp}
                 onPointerMove={handleOnPointerMove}
-                onMouseDown={(event) => console.log("stage mouse down", event)}
-                onMouseUp={(event) => console.log("stage mouse up", event)}
-                onTouchStart={(event) =>
-                    console.log("stage touch start", event)
-                }
-                onTap={(event) => console.log("stage tap", event)}
                 onWheel={handleOnStageWheel}
             >
                 <BeadingGridStylesProvider styles={DefaultGridStyles}>

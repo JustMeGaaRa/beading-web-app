@@ -1,7 +1,6 @@
 export * from "./BeadingGridOptions";
 export * from "./PatternLayoutOptionsPanel";
 export * from "./ColorPalette";
-export * from "./ColorPaletteProvider";
 export * from "./Content";
 export * from "./Header";
 export * from "./hotkeys";

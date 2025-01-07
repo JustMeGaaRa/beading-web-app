@@ -1,6 +1,48 @@
 import { Box, SimpleGrid } from "@chakra-ui/react";
-import { FC, useCallback } from "react";
-import { useColorPalette } from "./ColorPaletteProvider";
+import {
+    createContext,
+    FC,
+    memo,
+    PropsWithChildren,
+    useCallback,
+    useContext,
+    useState,
+} from "react";
+
+const ColorPaletteContext = createContext<{
+    colors: Array<string>;
+    selectedColor: string;
+    setColors: (colors: Array<string>) => void;
+    setSelectedColor: (color: string) => void;
+}>({
+    colors: [],
+    selectedColor: "",
+    setColors: () => {},
+    setSelectedColor: () => {},
+});
+
+export const ColorPaletteProvider: FC<
+    PropsWithChildren<{
+        colors?: Array<string>;
+    }>
+> = ({ children, colors: initialColors = [] }) => {
+    const [colors, setColors] = useState<Array<string>>(initialColors);
+    const [selectedColor, setSelectedColor] = useState<string>(
+        initialColors[0]
+    );
+
+    return (
+        <ColorPaletteContext.Provider
+            value={{ colors, selectedColor, setColors, setSelectedColor }}
+        >
+            {children}
+        </ColorPaletteContext.Provider>
+    );
+};
+
+export const useColorPalette = () => {
+    return useContext(ColorPaletteContext);
+};
 
 export const ColorPalette: FC<{
     onSelect?: (color: string) => void;
@@ -25,7 +67,7 @@ export const ColorBox: FC<{
     color: string;
     isSelected?: boolean;
     onClick?: (color: string) => void;
-}> = ({ color, isSelected, onClick }) => {
+}> = memo(({ color, isSelected, onClick }) => {
     const handleOnClick = useCallback(() => onClick?.(color), [color, onClick]);
 
     return (
@@ -48,4 +90,4 @@ export const ColorBox: FC<{
             onClick={handleOnClick}
         />
     );
-};
+});

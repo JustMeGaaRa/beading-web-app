@@ -7,7 +7,7 @@ import {
     BeadingGridSize,
     BeadingGridState,
     shallowEqualsCell,
-    shift,
+    shiftCell,
 } from "../types";
 import { capitalize } from "./common";
 import { indeciesInBounds } from "./hittest";
@@ -48,7 +48,7 @@ export const paste = (
     const targetBounds = getGridBounds(grid.options);
 
     const gridTargetCells = section.cells
-        .map((cell) => shift(cell, targetOffset))
+        .map((cell) => shiftCell(cell, targetOffset))
         .filter((cell) => indeciesInBounds(targetBounds, cell.offset));
     const gridFilteredCells = grid.cells.filter(
         (cell) =>
@@ -70,6 +70,20 @@ export const clear = (
         cells: grid.cells.filter(
             (cell) => !cells.some((target) => shallowEqualsCell(target, cell))
         ),
+    };
+};
+
+export const shift = (
+    section: BeadingGridSection,
+    offset: BeadingGridOffset
+): BeadingGridSection => {
+    return {
+        ...section,
+        topLeft: {
+            columnIndex: section.topLeft.columnIndex + offset.columnIndex,
+            rowIndex: section.topLeft.rowIndex + offset.rowIndex,
+        },
+        cells: section.cells.map((cell) => shiftCell(cell, offset)),
     };
 };
 

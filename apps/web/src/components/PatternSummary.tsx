@@ -4,15 +4,12 @@ import {
     getPatternSummary,
     PatternState,
 } from "@repo/bead-pattern-editor";
-import { FC, useMemo } from "react";
+import { FC, memo } from "react";
 
 export const PatternSummaryPanel: FC<{
     pattern: PatternState;
-}> = ({ pattern }) => {
-    const summary = useMemo(
-        () => getPatternSummary(pattern.grids, pattern.options),
-        [pattern]
-    );
+}> = memo(({ pattern }) => {
+    const summary = getPatternSummary(pattern.grids, pattern.options);
 
     return (
         <Flex
@@ -34,13 +31,13 @@ export const PatternSummaryPanel: FC<{
             </VStack>
         </Flex>
     );
-};
+});
 
 export const BeadSummaryItem: FC<{
     color: string;
     colorName: string;
     number: number;
-}> = ({ color, colorName, number }) => {
+}> = memo(({ color, colorName, number }) => {
     return (
         <Flex
             alignItems={"center"}
@@ -63,4 +60,4 @@ export const BeadSummaryItem: FC<{
             </Flex>
         </Flex>
     );
-};
+});

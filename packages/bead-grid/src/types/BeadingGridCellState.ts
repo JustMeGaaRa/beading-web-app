@@ -3,8 +3,6 @@ import { BeadingGridOffset } from "./BeadingGridBounds";
 export type BeadingGridCellState = {
     color: string;
     offset: BeadingGridOffset;
-    // TODO: replace isSelected with array of selected indices in the provider to avoid saving this state
-    isSelected?: boolean;
 };
 
 export const deepEqualsCell = (
@@ -14,8 +12,7 @@ export const deepEqualsCell = (
     return (
         left.offset.columnIndex === right.offset.columnIndex &&
         left.offset.rowIndex === right.offset.rowIndex &&
-        left.color === right.color &&
-        left.isSelected === right.isSelected
+        left.color === right.color
     );
 };
 
@@ -29,7 +26,7 @@ export const shallowEqualsCell = (
     );
 };
 
-export const shift = (
+export const shiftCell = (
     cell: BeadingGridCellState,
     offset: BeadingGridOffset
 ) => {
