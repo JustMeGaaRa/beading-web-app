@@ -3,7 +3,7 @@ import {
     BeadingGridCellState,
     BeadingGridOffset,
     BeadingGridProperties,
-    BeadingGridSection,
+    BeadingGridSectionState,
     BeadingGridSize,
     BeadingGridState,
     shallowEqualsCell,
@@ -25,7 +25,7 @@ export const createDefault = (
 export const copy = (
     grid: BeadingGridState,
     bounds: BeadingGridSectionBounds
-): BeadingGridSection => {
+): BeadingGridSectionState => {
     const gridRelativeCells = grid.cells.filter((cell) =>
         indeciesInBounds(bounds, cell.offset)
     );
@@ -38,7 +38,7 @@ export const copy = (
 
 export const paste = (
     grid: BeadingGridState,
-    section: BeadingGridSection,
+    section: BeadingGridSectionState,
     offset: BeadingGridOffset
 ): BeadingGridState => {
     const targetOffset = {
@@ -74,9 +74,9 @@ export const clear = (
 };
 
 export const shift = (
-    section: BeadingGridSection,
+    section: BeadingGridSectionState,
     offset: BeadingGridOffset
-): BeadingGridSection => {
+): BeadingGridSectionState => {
     return {
         ...section,
         topLeft: {
@@ -90,9 +90,9 @@ export const shift = (
 export type FlipAxis = "horizontal" | "vertical";
 
 export const flip = (
-    section: BeadingGridSection,
+    section: BeadingGridSectionState,
     axis: FlipAxis
-): BeadingGridSection => {
+): BeadingGridSectionState => {
     return {
         ...section,
         cells: section.cells.map((cell) => {
@@ -161,7 +161,7 @@ export const getGridBounds = (
 
 export const getGridSectionBounds = (
     cells: Array<BeadingGridCellState>
-): BeadingGridSection => {
+): BeadingGridSectionState => {
     const minColumnIndex = Math.min(
         ...cells.map((cell) => cell.offset.columnIndex)
     );

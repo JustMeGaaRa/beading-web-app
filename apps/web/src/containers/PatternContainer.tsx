@@ -24,16 +24,13 @@ import {
     BeadingGridBackgroundPattern,
     getGridHeight,
     DefaultGridProperties,
-    BeadingGridSelectedArea,
+    BeadingGridSelectionFrame,
     hitTestArea,
     createRenderBounds,
-    getGridSectionRenderBounds,
-    getGridSectionBounds,
     BeadingGridCellState,
     hitTestCursor,
     RenderPoint,
-    pointInBounds,
-    getGridRenderBounds,
+    BeadingGridSection,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -59,7 +56,8 @@ import {
     useColorPalette,
     useTools,
     Shortcuts,
-    PatternActionToolbar,
+    BeadingGridSectionActionsToolbar,
+    BeadingGridSectionControlsToolbar,
 } from "../components";
 import {
     calculateNewPosition,
@@ -81,12 +79,8 @@ export const PatternContainer: FC = () => {
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | undefined>();
     const [rowState, setRowState] = useState<TextState | undefined>();
-    const [toolbarPosition, setToolbarPosition] = useState<
-        RenderPoint | undefined
-    >();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-
     const { selectedColor, setSelectedColor } = useColorPalette();
     const { tool, setTool } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
@@ -497,7 +491,6 @@ export const PatternContainer: FC = () => {
                 x: 0,
                 y: 0,
             };
-            console.log("stage pointer down", event, currentPosition);
 
             setIsMouseDown(true);
             setMouseDownPosition(currentPosition);
@@ -532,32 +525,19 @@ export const PatternContainer: FC = () => {
                       styles,
                       createRenderBounds(mouseDownPosition!, currentPosition)
                   );
-
-            // calculate toolbar position based on selected cells
-            if (hitTest.hits.length > 0) {
-                const sectionBounds = getGridSectionBounds(hitTest.hits);
-                const sectionRenderBounds = getGridSectionRenderBounds(
-                    sectionBounds,
-                    pattern.grids[0].options,
-                    styles
-                );
-                const position = {
-                    x: sectionRenderBounds.x + sectionRenderBounds.width / 2,
-                    y: sectionRenderBounds.y,
-                };
-                const gridBounds = getGridRenderBounds(
-                    pattern.grids[0].options,
-                    styles
-                );
-                const isInBounds = pointInBounds(gridBounds, position);
-                setToolbarPosition(isInBounds ? position : undefined);
-            }
+            console.log(
+                "stage pointer up",
+                hitTest,
+                mouseDownPosition,
+                mouseCurrentPosition
+            );
 
             if (isCursorEnabled) {
                 setSelectedCells(hitTest.hits);
             }
 
             if (isSelectedCell && isPencilEnabled) {
+                console.log("set cell");
                 setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
@@ -567,6 +547,7 @@ export const PatternContainer: FC = () => {
                 });
             }
             if (isSelectedCell && isEraserEnabled) {
+                console.log("clear cell");
                 setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
@@ -574,6 +555,7 @@ export const PatternContainer: FC = () => {
                 });
             }
             if (isSelectedCell && isColorPickerEnabled) {
+                console.log("pick color");
                 setSelectedCells([]);
                 setSelectedColor(hitTest.hits[0].color);
                 setTool({
@@ -586,6 +568,7 @@ export const PatternContainer: FC = () => {
             mouseDownPosition,
             pattern.grids,
             styles,
+            mouseCurrentPosition,
             isCursorEnabled,
             isPencilEnabled,
             isEraserEnabled,
@@ -758,6 +741,26 @@ export const PatternContainer: FC = () => {
                                             : "horizontal"
                                     }
                                 />
+                                <BeadingGridSection
+                                // onHover={handleOnGridSectionHover}
+                                >
+                                    <BeadingGridSectionControlsToolbar />
+
+                                    {/* TODO: consider moving this toolbar inside grid and handling state internally */}
+                                    <BeadingGridSectionActionsToolbar
+                                        isVisible={isCursorEnabled}
+                                        tool={tool}
+                                        onCopy={handleOnSectionCopyClick}
+                                        onPaste={handleOnSectionPasteClick}
+                                        onFlipHorizontal={
+                                            handleOnSectionFlipHorizontalClick
+                                        }
+                                        onFlipVertical={
+                                            handleOnSectionFlipVerticalClick
+                                        }
+                                        onClear={handleOnSectionClearClick}
+                                    />
+                                </BeadingGridSection>
                             </BeadingGrid>
                         </BeadingGridProvider>
                     ))}
@@ -766,7 +769,7 @@ export const PatternContainer: FC = () => {
                         {mouseDownPosition &&
                             mouseCurrentPosition &&
                             isCursorEnabled && (
-                                <BeadingGridSelectedArea
+                                <BeadingGridSelectionFrame
                                     x={mouseDownPosition.x}
                                     y={mouseDownPosition.y}
                                     width={
@@ -779,22 +782,6 @@ export const PatternContainer: FC = () => {
                                     }
                                 />
                             )}
-
-                        {isCursorEnabled && toolbarPosition && (
-                            <PatternActionToolbar
-                                position={toolbarPosition}
-                                tool={tool}
-                                onCopy={handleOnSectionCopyClick}
-                                onPaste={handleOnSectionPasteClick}
-                                onFlipHorizontal={
-                                    handleOnSectionFlipHorizontalClick
-                                }
-                                onFlipVertical={
-                                    handleOnSectionFlipVerticalClick
-                                }
-                                onClear={handleOnSectionClearClick}
-                            />
-                        )}
 
                         {pattern.grids.length > 0 && (
                             <BeadingFrame

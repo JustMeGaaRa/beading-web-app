@@ -7,7 +7,7 @@ import {
     BeadProperties,
     BrickGridProperties,
     BeadingGridSize,
-    BeadingGridSection,
+    BeadingGridSectionState,
 } from "../types";
 import { flipBead } from "./common";
 import { getGridSize } from "./grid";
@@ -110,7 +110,7 @@ export const getGridCellRenderBounds = (
 };
 
 export const getGridSectionRenderBounds = (
-    bounds: BeadingGridSection,
+    bounds: BeadingGridSectionState,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {

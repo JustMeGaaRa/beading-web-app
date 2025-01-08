@@ -5,6 +5,6 @@ export type BeadingGridSectionBounds = {
     topLeft: BeadingGridOffset;
 } & BeadingGridSize;
 
-export type BeadingGridSection = {
+export type BeadingGridSectionState = {
     cells: Array<BeadingGridCellState>;
 } & BeadingGridSectionBounds;
