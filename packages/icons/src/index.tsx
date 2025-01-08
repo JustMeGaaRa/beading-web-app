@@ -13,6 +13,7 @@ export * from "./CloudRefreshIcon";
 export * from "./ColorPickerIcon";
 export * from "./CombineIcon";
 export * from "./CopyIcon";
+export * from "./CutTweezersIcon";
 export * from "./DocumentCheckIcon";
 export * from "./DocumentCloudIcon";
 export * from "./DocumentCodeIcon";

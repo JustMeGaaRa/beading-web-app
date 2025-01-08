@@ -13,3 +13,4 @@ export * from "./BrickGridProperties";
 export * from "./PeyoteGridProperties";
 export * from "./SquareGridProperties";
 export * from "./TextState";
+export * from "./ToolbarPlacement";

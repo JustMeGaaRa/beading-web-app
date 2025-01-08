@@ -7,7 +7,10 @@ export const BeadingGridSectionControlsToolbar: FC<{
     isVisible?: boolean;
 }> = ({ isVisible = true }) => {
     return (
-        <BeadingGridSectionToolbar isVisible={isVisible} placement={"right"}>
+        <BeadingGridSectionToolbar
+            isVisible={isVisible}
+            placement={"top-right"}
+        >
             <Box
                 backgroundColor={"gray.100"}
                 borderRadius={"md"}

@@ -506,12 +506,13 @@ export const PatternContainer: FC = () => {
                 x: 0,
                 y: 0,
             };
-            console.log("stage pointer up", event, currentPosition);
 
             setIsMouseDown(false);
             setMouseDownPosition(undefined);
             setMouseCurrentPosition(currentPosition);
 
+            // TODO: check cell positions isntead of mouse positions
+            // stylus gives different values onpointerdown and onpointerup
             const isSelectedCell =
                 mouseDownPosition &&
                 mouseDownPosition?.x === currentPosition.x &&
@@ -525,19 +526,12 @@ export const PatternContainer: FC = () => {
                       styles,
                       createRenderBounds(mouseDownPosition!, currentPosition)
                   );
-            console.log(
-                "stage pointer up",
-                hitTest,
-                mouseDownPosition,
-                mouseCurrentPosition
-            );
 
             if (isCursorEnabled) {
                 setSelectedCells(hitTest.hits);
             }
 
             if (isSelectedCell && isPencilEnabled) {
-                console.log("set cell");
                 setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
@@ -547,7 +541,6 @@ export const PatternContainer: FC = () => {
                 });
             }
             if (isSelectedCell && isEraserEnabled) {
-                console.log("clear cell");
                 setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_SET_CELL",
@@ -555,7 +548,6 @@ export const PatternContainer: FC = () => {
                 });
             }
             if (isSelectedCell && isColorPickerEnabled) {
-                console.log("pick color");
                 setSelectedCells([]);
                 setSelectedColor(hitTest.hits[0].color);
                 setTool({
@@ -568,7 +560,6 @@ export const PatternContainer: FC = () => {
             mouseDownPosition,
             pattern.grids,
             styles,
-            mouseCurrentPosition,
             isCursorEnabled,
             isPencilEnabled,
             isEraserEnabled,

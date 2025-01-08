@@ -8,6 +8,7 @@ export * from "./BeadingGridCell";
 export * from "./BeadingGridDivider";
 export * from "./BeadingGridProvider";
 export * from "./BeadingGridSection";
+export * from "./BeadingGridSectionToolbar";
 export * from "./BeadingGridSelectionFrame";
 export * from "./BeadingGridSelectionProvider";
 export * from "./BeadingGridStylesProvider";

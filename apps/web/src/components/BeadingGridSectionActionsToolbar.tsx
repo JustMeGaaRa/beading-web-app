@@ -12,6 +12,7 @@ import {
     ClipboardAddIcon,
     ClipboardIcon,
     CopyIcon,
+    CutTweezersIcon,
     FlipHorizontalIcon,
     FlipVerticalIcon,
     RemoveCircleIcon,
@@ -23,6 +24,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
     isVisible?: boolean;
     tool: ToolState;
     onCopy?: () => void;
+    onCut?: () => void;
     onPaste?: () => void;
     onFlipHorizontal?: () => void;
     onFlipVertical?: () => void;
@@ -34,6 +36,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
     isVisible = true,
     tool,
     onCopy,
+    onCut,
     onPaste,
     onFlipHorizontal,
     onFlipVertical,
@@ -50,7 +53,10 @@ export const BeadingGridSectionActionsToolbar: FC<{
         tool.name === "cursor" && tool.state.currentAction === "duplicate";
 
     return (
-        <BeadingGridSectionToolbar isVisible={isVisible} placement={"top"}>
+        <BeadingGridSectionToolbar
+            isVisible={isVisible}
+            placement={"top-center"}
+        >
             <Box transform={"translate(-50%, -100%)"}>
                 {isCursorEnabled && (
                     <ButtonGroup
@@ -69,6 +75,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 aria-label={"copy selection"}
                                 icon={<ClipboardIcon />}
                                 color={"white"}
+                                display={onCopy ? "inline-flex" : "none"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
@@ -76,11 +83,25 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 onClick={onCopy}
                             />
                         </Tooltip>
+                        <Tooltip label={"Cut selection"}>
+                            <IconButton
+                                aria-label={"cut selection"}
+                                icon={<CutTweezersIcon />}
+                                color={"white"}
+                                display={onCut ? "inline-flex" : "none"}
+                                _hover={{ backgroundColor: "gray.700" }}
+                                _active={{
+                                    backgroundColor: "gray.600",
+                                }}
+                                onClick={onCut}
+                            />
+                        </Tooltip>
                         <Tooltip label={"Paste selection"}>
                             <IconButton
                                 aria-label={"paste selection"}
                                 icon={<ClipboardAddIcon />}
                                 color={"white"}
+                                display={onPaste ? "inline-flex" : "none"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
@@ -93,6 +114,9 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 aria-label={"flip selection vertical"}
                                 icon={<FlipVerticalIcon />}
                                 color={"white"}
+                                display={
+                                    onFlipVertical ? "inline-flex" : "none"
+                                }
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
@@ -105,6 +129,9 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 aria-label={"flip selection horizontal"}
                                 icon={<FlipHorizontalIcon />}
                                 color={"white"}
+                                display={
+                                    onFlipHorizontal ? "inline-flex" : "none"
+                                }
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
@@ -117,7 +144,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 aria-label={"mirror selection"}
                                 icon={<VerticalMirrorIcon />}
                                 color={"white"}
-                                display={"none"}
+                                display={onMirror ? "inline-flex" : "none"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
@@ -130,7 +157,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 aria-label={"duplicate selection"}
                                 icon={<CopyIcon />}
                                 color={"white"}
-                                display={"none"}
+                                display={onDuplicate ? "inline-flex" : "none"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
@@ -143,6 +170,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
                                 aria-label={"clear selection"}
                                 icon={<RemoveCircleIcon />}
                                 color={"red.600"}
+                                display={onClear ? "inline-flex" : "none"}
                                 _hover={{ backgroundColor: "gray.700" }}
                                 _active={{
                                     backgroundColor: "gray.600",
