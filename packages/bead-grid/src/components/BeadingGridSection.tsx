@@ -1,7 +1,12 @@
 import { FC, PropsWithChildren } from "react";
 import { Group, Rect } from "react-konva";
 import { useGrid, useGridSelection, useGridStyles } from "../hooks";
-import { getGridSectionBounds, getGridSectionRenderBounds } from "../utils";
+import {
+    getGridBounds,
+    getGridSectionBounds,
+    getGridSectionRenderBounds,
+    indeciesInBounds,
+} from "../utils";
 
 // TODO: introduce style props to support state styling from outside
 export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
@@ -15,19 +20,31 @@ export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
         styles
     );
 
+    const gridBounds = getGridBounds(options);
+    const sectionBoundsBottomRight = {
+        columnIndex:
+            sectionBounds.topLeft.columnIndex + sectionBounds.width - 1,
+        rowIndex: sectionBounds.topLeft.rowIndex + sectionBounds.height - 1,
+    };
+    const isInBounds =
+        indeciesInBounds(gridBounds, sectionBounds.topLeft) &&
+        indeciesInBounds(gridBounds, sectionBoundsBottomRight);
+
     return (
-        <Group>
-            <Rect
-                listening={false}
-                opacity={0.3}
-                stroke={styles.components.frame.selection.borderColor}
-                strokeWidth={styles.components.frame.selection.borderWidth}
-                height={sectionRenderBounds.height}
-                width={sectionRenderBounds.width}
-                x={sectionRenderBounds.x}
-                y={sectionRenderBounds.y}
-            />
-            {children}
-        </Group>
+        isInBounds && (
+            <Group>
+                <Rect
+                    listening={false}
+                    opacity={0.3}
+                    stroke={styles.components.frame.selection.borderColor}
+                    strokeWidth={styles.components.frame.selection.borderWidth}
+                    height={sectionRenderBounds.height}
+                    width={sectionRenderBounds.width}
+                    x={sectionRenderBounds.x}
+                    y={sectionRenderBounds.y}
+                />
+                {children}
+            </Group>
+        )
     );
 };

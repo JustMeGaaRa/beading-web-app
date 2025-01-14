@@ -1,4 +1,4 @@
-import { Box, Tooltip } from "@chakra-ui/react";
+import { Box, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
 import { BeadingGridSectionToolbar } from "@repo/bead-grid";
 import { TapMoveIcon } from "@repo/icons";
 import { FC } from "react";
@@ -16,11 +16,16 @@ export const BeadingGridSectionControlsToolbar: FC<{
                 borderRadius={"md"}
                 cursor={"move"}
                 pointerEvents={"all"}
-                transform={"translate(50%, 0%)"}
+                marginLeft={"2"}
             >
-                <Tooltip label={"Move section"}>
-                    <TapMoveIcon />
-                </Tooltip>
+                <ButtonGroup size={"sm"}>
+                    <Tooltip label={"Move section"} placement={"right"}>
+                        <IconButton
+                            aria-label={"Move section"}
+                            icon={<TapMoveIcon />}
+                        />
+                    </Tooltip>
+                </ButtonGroup>
             </Box>
         </BeadingGridSectionToolbar>
     );

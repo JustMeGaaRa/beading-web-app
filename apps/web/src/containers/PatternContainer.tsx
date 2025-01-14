@@ -27,7 +27,6 @@ import {
     BeadingGridSelectionFrame,
     hitTestArea,
     createRenderBounds,
-    BeadingGridCellState,
     hitTestCursor,
     RenderPoint,
     BeadingGridSection,
@@ -86,9 +85,11 @@ export const PatternContainer: FC = () => {
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
     const {
+        cliboardCells,
         selectedCells,
         selectedColumn,
         selectedRow,
+        setClipboardCells,
         setSelectedCells,
         setSelectedColumn,
         setSelectedRow,
@@ -482,7 +483,7 @@ export const PatternContainer: FC = () => {
     const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
         RenderPoint | undefined
     >();
-    const [, setIsMouseDown] = useState(false);
+    const [isMouseDown, setIsMouseDown] = useState(false);
 
     const handleOnPointerDown = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
@@ -574,40 +575,44 @@ export const PatternContainer: FC = () => {
 
     const handleOnPointerMove = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            const stage = event.target.getStage();
-            const position = stage?.getRelativePointerPosition() ?? {
-                x: 0,
-                y: 0,
-            };
-            setMouseCurrentPosition(position);
+            if (isMouseDown) {
+                const stage = event.target.getStage();
+                const position = stage?.getRelativePointerPosition() ?? {
+                    x: 0,
+                    y: 0,
+                };
+                setMouseCurrentPosition(position);
+            }
         },
-        []
+        [isMouseDown]
     );
 
     // SECTION: toolbar action handlers
-    const [copiedCells, setCopiedCells] = useState<BeadingGridCellState[]>([]);
-
     const handleOnSectionCopyClick = useCallback(() => {
         if (isCursorEnabled && selectedCells.length > 0) {
-            // TODO: move copy to internal grid state and selection provider
-            setCopiedCells(selectedCells);
+            setClipboardCells(selectedCells);
         }
-    }, [isCursorEnabled, selectedCells]);
+    }, [isCursorEnabled, selectedCells, setClipboardCells]);
 
     const handleOnSectionPasteClick = useCallback(() => {
-        if (isCursorEnabled && copiedCells.length > 0 && mouseCurrentPosition) {
+        if (
+            isCursorEnabled &&
+            cliboardCells.length > 0 &&
+            mouseCurrentPosition
+        ) {
             const hitResult = hitTestCursor(
                 pattern.grids[0],
                 styles,
                 mouseCurrentPosition
             );
+            console.log(hitResult);
 
             if (hitResult.hits.length > 0) {
                 setSelectedCells([]);
                 dispatch({
                     type: "BEADING_GRID_PASTE_SECTION",
                     payload: {
-                        cells: copiedCells,
+                        cells: cliboardCells,
                         offset: hitResult.hits[0].offset,
                     },
                 });
@@ -615,7 +620,7 @@ export const PatternContainer: FC = () => {
         }
     }, [
         isCursorEnabled,
-        copiedCells,
+        cliboardCells,
         mouseCurrentPosition,
         pattern.grids,
         styles,
@@ -735,7 +740,9 @@ export const PatternContainer: FC = () => {
                                 <BeadingGridSection
                                 // onHover={handleOnGridSectionHover}
                                 >
-                                    <BeadingGridSectionControlsToolbar />
+                                    <BeadingGridSectionControlsToolbar
+                                        isVisible={isCursorEnabled}
+                                    />
 
                                     {/* TODO: consider moving this toolbar inside grid and handling state internally */}
                                     <BeadingGridSectionActionsToolbar

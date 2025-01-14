@@ -2,9 +2,11 @@ import { FC, PropsWithChildren } from "react";
 import { ToolbarPlacement } from "../types";
 import { useGrid, useGridSelection, useGridStyles } from "../hooks";
 import {
+    getGridRenderBounds,
     getGridSectionBounds,
     getGridSectionRenderBounds,
     getPlacementPosition,
+    pointInBounds,
 } from "../utils";
 import { Html } from "react-konva-utils";
 
@@ -27,11 +29,12 @@ export const BeadingGridSectionToolbar: FC<
         placement,
         sectionRenderBounds
     );
-    // const gridBounds = getGridRenderBounds(options, styles);
-    // const isInBounds = pointInBounds(gridBounds, toolbarPosition);
+    const gridBounds = getGridRenderBounds(options, styles);
+    const isInBounds = pointInBounds(gridBounds, toolbarPosition);
 
     return (
-        isVisible && (
+        isVisible &&
+        isInBounds && (
             <Html
                 divProps={{ style: { pointerEvents: "none" } }}
                 groupProps={toolbarPosition}

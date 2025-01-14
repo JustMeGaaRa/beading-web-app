@@ -5,6 +5,9 @@ import { BeadingGridSelectionContext } from "../context";
 export const BeadingGridSelectionProvider: FC<PropsWithChildren> = ({
     children,
 }) => {
+    const [cliboardCells, setClipboardCells] = useState<
+        Array<BeadingGridCellState>
+    >([]);
     const [selectedCells, setSelectedCells] = useState<
         Array<BeadingGridCellState>
     >([]);
@@ -14,9 +17,11 @@ export const BeadingGridSelectionProvider: FC<PropsWithChildren> = ({
     return (
         <BeadingGridSelectionContext.Provider
             value={{
+                cliboardCells,
                 selectedCells,
                 selectedColumn,
                 selectedRow,
+                setClipboardCells,
                 setSelectedCells,
                 setSelectedColumn,
                 setSelectedRow,
