@@ -20,3 +20,19 @@ export const BeadingGridSelectionContext = createContext<{
     setSelectedColumn: () => {},
     setSelectedRow: () => {},
 });
+
+export const BeadingGridSelectionFrameContext = createContext<{
+    mouseDownPosition?: { x: number; y: number };
+    mouseCurrentPosition?: { x: number; y: number };
+    setMouseDownPosition: Dispatch<
+        SetStateAction<{ x: number; y: number } | undefined>
+    >;
+    setMouseCurrentPosition: Dispatch<
+        SetStateAction<{ x: number; y: number } | undefined>
+    >;
+}>({
+    mouseDownPosition: undefined,
+    mouseCurrentPosition: undefined,
+    setMouseDownPosition: () => {},
+    setMouseCurrentPosition: () => {},
+});

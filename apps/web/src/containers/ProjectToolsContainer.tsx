@@ -1,5 +1,4 @@
 import {
-    Box,
     ButtonGroup,
     IconButton,
     StackDivider,
@@ -21,7 +20,7 @@ import {
 } from "@repo/icons";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Shortcuts, useTools } from "../components";
+import { Shortcuts, Toolbar, useTools } from "../components";
 import { ColorPalettePopover } from "./ColorPalettePopover";
 
 const hotkeysOptions = { preventDefault: true };
@@ -86,15 +85,7 @@ export const ProjectToolsContainer: FC = () => {
     const handleOnRedoClick = useCallback(() => redo(), [redo]);
 
     return (
-        <Box
-            padding={3}
-            position={"absolute"}
-            pointerEvents={"none"}
-            left={0}
-            top={"50%"}
-            transform={"translate(0, -50%)"}
-            zIndex={1}
-        >
+        <Toolbar placement={"left"}>
             <VStack
                 backgroundColor={"white"}
                 borderRadius={"lg"}
@@ -175,6 +166,6 @@ export const ProjectToolsContainer: FC = () => {
                     </Tooltip>
                 </ButtonGroup>
             </VStack>
-        </Box>
+        </Toolbar>
     );
 };

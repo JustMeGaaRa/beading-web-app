@@ -5,7 +5,7 @@ import {
 } from "../types";
 import { clear, copy, getGridSectionBounds } from "../utils";
 
-export const gridCutSectionReducer = (
+export const gridCutSection = (
     grid: BeadingGridState,
     cells: Array<BeadingGridCellState>
 ): [BeadingGridState, BeadingGridSectionState] => {

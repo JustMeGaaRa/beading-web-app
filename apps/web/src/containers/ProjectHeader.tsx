@@ -13,7 +13,6 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import {
-    changePatternNameAction,
     dirtyStateSelector,
     patternSelector,
     usePatternStore,
@@ -27,7 +26,7 @@ import {
 import { FC, ChangeEvent, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate } from "react-router";
-import { Header, Shortcuts, PatternSummaryPanel } from "../components";
+import { PageHeader, Shortcuts, PatternSummaryPanel } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { savePatternAction } from "../creators";
 
@@ -52,7 +51,10 @@ export const ProjectHeader: FC = () => {
 
     const handleOnChangeName = useCallback(
         (event: ChangeEvent<HTMLInputElement>) => {
-            dispatch(changePatternNameAction(event.target.value));
+            dispatch({
+                type: "PATTERN_CHANGE_NAME",
+                name: event.target.value,
+            });
         },
         [dispatch]
     );
@@ -67,7 +69,7 @@ export const ProjectHeader: FC = () => {
     }, [pattern, resetDirty, dispatchCollection]);
 
     return (
-        <Header>
+        <PageHeader>
             <HStack ml={2}>
                 <Tooltip label={"Navigate to homepage"} placement={"bottom"}>
                     <IconButton
@@ -122,6 +124,6 @@ export const ProjectHeader: FC = () => {
                     </PopoverContent>
                 </Popover>
             </ButtonGroup>
-        </Header>
+        </PageHeader>
     );
 };

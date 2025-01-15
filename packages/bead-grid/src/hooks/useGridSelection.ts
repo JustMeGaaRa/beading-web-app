@@ -1,6 +1,13 @@
 import { useContext } from "react";
-import { BeadingGridSelectionContext } from "../context";
+import {
+    BeadingGridSelectionContext,
+    BeadingGridSelectionFrameContext,
+} from "../context";
 
 export const useGridSelection = () => {
     return useContext(BeadingGridSelectionContext);
+};
+
+export const useGridSelectionFrame = () => {
+    return useContext(BeadingGridSelectionFrameContext);
 };

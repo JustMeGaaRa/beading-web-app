@@ -16,9 +16,10 @@ export const BeadingGridSectionToolbar: FC<
         placement: ToolbarPlacement;
     }>
 > = ({ children, isVisible, placement }) => {
-    const { options } = useGrid();
+    const { offset, options } = useGrid();
     const { styles } = useGridStyles();
     const { selectedCells } = useGridSelection();
+    // TODO: section has to know about grid offset
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
         sectionBounds,
@@ -29,7 +30,7 @@ export const BeadingGridSectionToolbar: FC<
         placement,
         sectionRenderBounds
     );
-    const gridBounds = getGridRenderBounds(options, styles);
+    const gridBounds = getGridRenderBounds(offset, options, styles);
     const isInBounds = pointInBounds(gridBounds, toolbarPosition);
 
     return (

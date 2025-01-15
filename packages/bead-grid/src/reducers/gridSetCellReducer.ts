@@ -6,7 +6,7 @@ import {
 } from "../types";
 import { getGridBounds, indeciesInBounds, isNullOrEmpty } from "../utils";
 
-export const gridSetCellReducer = (
+export const gridSetCell = (
     grid: BeadingGridState,
     modifiedCell: BeadingGridCellState
 ): BeadingGridState => {

@@ -2,7 +2,7 @@ import { FC } from "react";
 import { Text } from "react-konva";
 import { useGridStyles } from "../hooks";
 import { BeadingGridOffset, BeadingGridProperties } from "../types";
-import { getGridCellRenderBounds, getGridCellRenderSize } from "../utils";
+import { getGridCellRenderBounds } from "../utils";
 
 export const BeadingText: FC<{
     text: string;
@@ -12,8 +12,7 @@ export const BeadingText: FC<{
     options: BeadingGridProperties;
 }> = ({ text, color, offset, padding = 0, options }) => {
     const { styles } = useGridStyles();
-    const { x, y } = getGridCellRenderBounds(offset, options, styles);
-    const { height } = getGridCellRenderSize(options, styles);
+    const { x, y, height } = getGridCellRenderBounds(offset, options, styles);
 
     return (
         <Text

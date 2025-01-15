@@ -1,6 +1,6 @@
 import { BeadingGridState } from "../types";
 
-export const gridClearColumnReducer = (
+export const gridClearColumn = (
     state: BeadingGridState,
     columnIndex: number
 ): BeadingGridState => {

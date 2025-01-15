@@ -8,10 +8,7 @@ import {
     PopoverTrigger,
     Text,
 } from "@chakra-ui/react";
-import {
-    changePatternColorAction,
-    usePatternStore,
-} from "@repo/bead-pattern-editor";
+import { usePatternStore } from "@repo/bead-pattern-editor";
 import { FC, PropsWithChildren, useCallback } from "react";
 import { BeadSummaryItem, ColorPalette } from "../components";
 
@@ -26,7 +23,11 @@ export const ColorPalettePopover: FC<
 
     const handleOnColorPaletteSelect = useCallback(
         (newColor: string) => {
-            dispatch(changePatternColorAction(color, newColor));
+            dispatch({
+                type: "PATTERN_REPLACE_COLOR",
+                oldColor: color,
+                newColor,
+            });
         },
         [color, dispatch]
     );

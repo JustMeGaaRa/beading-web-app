@@ -8,79 +8,94 @@ export const BeadingFrameColumnLabels: FC<{
     cellHeight: number;
     cellWidth: number;
     gridIndex: number;
-    gridName: string;
+    gridId: string;
     patternIndex: number;
     marginY: number;
     rows: number;
     isSelected: boolean;
-    onClick?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
-    onContextMenu?: (event: KonvaEventObject<MouseEvent>, columnState: TextState) => void;
+    onClick?: (
+        event: KonvaEventObject<MouseEvent>,
+        columnState: TextState
+    ) => void;
+    onContextMenu?: (
+        event: KonvaEventObject<MouseEvent>,
+        columnState: TextState
+    ) => void;
 }> = ({
     cellHeight,
     cellWidth,
     gridIndex,
-    gridName,
+    gridId,
     patternIndex,
     marginY,
     rows,
     isSelected,
     onClick,
-    onContextMenu
+    onContextMenu,
 }) => {
-        const { styles } = useGridStyles();
+    const { styles } = useGridStyles();
 
-        const handleOnClick = useCallback((event: KonvaEventObject<MouseEvent>) => {
-            onClick?.(event, { gridIndex, patternIndex, gridName });
-        }, [onClick, gridIndex, patternIndex, gridName]);
+    const handleOnClick = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            onClick?.(event, { gridIndex, patternIndex, gridId });
+        },
+        [onClick, gridIndex, patternIndex, gridId]
+    );
 
-        const handleOnContextMenu = useCallback((event: KonvaEventObject<MouseEvent>) => {
-            onContextMenu?.(event, { gridIndex, patternIndex, gridName });
-        }, [onContextMenu, gridIndex, patternIndex, gridName]);
+    const handleOnContextMenu = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            onContextMenu?.(event, { gridIndex, patternIndex, gridId });
+        },
+        [onContextMenu, gridIndex, patternIndex, gridId]
+    );
 
-        const frameTextOffsetY = cellHeight + marginY;
-        const selectedColumnPositionX = patternIndex * cellWidth;
-        const selectedColumnPositionY = -frameTextOffsetY;
-        const selectedColumnHeight = cellHeight * rows + 2 * frameTextOffsetY;
-        const selectedColumnWidth = cellWidth;
+    const frameTextOffsetY = cellHeight + marginY;
+    const selectedColumnPositionX = patternIndex * cellWidth;
+    const selectedColumnPositionY = -frameTextOffsetY;
+    const selectedColumnHeight = cellHeight * rows + 2 * frameTextOffsetY;
+    const selectedColumnWidth = cellWidth;
 
-        return (
-            <Fragment>
-                <Text
-                    key={`column-top-number-${patternIndex}`}
-                    align={"center"}
-                    fill={styles.components.text.color}
-                    height={cellHeight}
-                    text={(patternIndex + 1).toString()}
-                    verticalAlign={"middle"}
-                    width={cellWidth}
-                    x={patternIndex * cellWidth}
-                    y={-frameTextOffsetY}
-                    onClick={handleOnClick}
-                    onContextMenu={handleOnContextMenu} />
-                <Text
-                    key={`column-bottom-number-${patternIndex}`}
-                    align={"center"}
-                    fill={styles.components.text.color}
-                    height={cellHeight}
-                    text={(patternIndex + 1).toString()}
-                    verticalAlign={"middle"}
-                    width={cellWidth}
-                    x={patternIndex * cellWidth}
-                    y={rows * cellHeight + marginY}
-                    onClick={handleOnClick}
-                    onContextMenu={handleOnContextMenu} />
-                <Rect
-                    key={"selected-column-frame"}
-                    cornerRadius={20}
-                    height={selectedColumnHeight}
-                    width={selectedColumnWidth}
-                    stroke={styles.components.frame.selection.borderColor}
-                    strokeWidth={styles.components.frame.selection.borderWidth}
-                    x={selectedColumnPositionX}
-                    y={selectedColumnPositionY}
-                    visible={isSelected}
-                    onClick={handleOnClick}
-                    onContextMenu={handleOnContextMenu} />
-            </Fragment>
-        );
-    };
+    return (
+        <Fragment>
+            <Text
+                key={`column-top-number-${patternIndex}`}
+                align={"center"}
+                fill={styles.components.text.color}
+                height={cellHeight}
+                text={(patternIndex + 1).toString()}
+                verticalAlign={"middle"}
+                width={cellWidth}
+                x={patternIndex * cellWidth}
+                y={-frameTextOffsetY}
+                onClick={handleOnClick}
+                onContextMenu={handleOnContextMenu}
+            />
+            <Text
+                key={`column-bottom-number-${patternIndex}`}
+                align={"center"}
+                fill={styles.components.text.color}
+                height={cellHeight}
+                text={(patternIndex + 1).toString()}
+                verticalAlign={"middle"}
+                width={cellWidth}
+                x={patternIndex * cellWidth}
+                y={rows * cellHeight + marginY}
+                onClick={handleOnClick}
+                onContextMenu={handleOnContextMenu}
+            />
+            <Rect
+                key={"selected-column-frame"}
+                cornerRadius={20}
+                height={selectedColumnHeight}
+                width={selectedColumnWidth}
+                stroke={styles.components.frame.selection.borderColor}
+                strokeWidth={styles.components.frame.selection.borderWidth}
+                x={selectedColumnPositionX}
+                y={selectedColumnPositionY}
+                visible={isSelected}
+                onClick={handleOnClick}
+                onContextMenu={handleOnContextMenu}
+            />
+        </Fragment>
+    );
+};

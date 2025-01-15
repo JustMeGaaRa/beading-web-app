@@ -1,6 +1,6 @@
 import { BeadingGridState } from "../types";
 
-export const gridDeleteRowReducer = (
+export const gridDeleteRow = (
     state: BeadingGridState,
     rowIndex: number
 ): BeadingGridState => {

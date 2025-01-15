@@ -1,13 +1,13 @@
 import { Flex } from "@chakra-ui/react";
 import { FC, PropsWithChildren } from "react";
 
-export const Page: FC<PropsWithChildren> = ({ children }) => {
+export const PageBody: FC<PropsWithChildren> = ({ children }) => {
     return (
         <Flex
             backgroundColor={"blackAlpha.100"}
-            flexDirection={"column"}
-            height={"100vh"}
-            width={"100vw"}
+            flexGrow={1}
+            overflow={"hidden"}
+            position={"relative"}
         >
             {children}
         </Flex>

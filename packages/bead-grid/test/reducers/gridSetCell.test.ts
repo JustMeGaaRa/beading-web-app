@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { Square3x3GridWithCellsOnDiagonal } from "../constants";
-import { gridSetCellReducer } from "../../src";
+import { gridSetCell } from "../../src";
 
 test.each([
     [{ color: "blue", offset: { columnIndex: 0, rowIndex: 0 }, count: 1 }],
@@ -12,13 +12,10 @@ test.each([
 ])(
     "should have cell count ($count) for cell ($color, $offset.columnIndex, $offset.rowIndex)",
     ({ color, offset, count }) => {
-        const modifiedGrid = gridSetCellReducer(
-            Square3x3GridWithCellsOnDiagonal,
-            {
-                offset,
-                color,
-            }
-        );
+        const modifiedGrid = gridSetCell(Square3x3GridWithCellsOnDiagonal, {
+            offset,
+            color,
+        });
 
         expect(modifiedGrid).toBeDefined();
         expect(modifiedGrid.cells).toBeDefined();

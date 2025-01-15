@@ -12,30 +12,30 @@ import {
     Select,
 } from "@chakra-ui/react";
 import { BEAD_OPTIONS } from "@repo/bead-grid";
-import { PatternLayoutOptions } from "@repo/bead-pattern-editor";
+import { PatternOptions } from "@repo/bead-pattern-editor";
 import { AlignRightIcon, AlignBottomIcon } from "@repo/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
-export const PatternLayoutOptionsPanel: FC<
+export const PatternOptionsPanel: FC<
     PropsWithChildren<{
         size?: "xs" | "sm" | "md" | "lg";
-        layout: PatternLayoutOptions;
-        onChange?: (layout: PatternLayoutOptions) => void;
+        options: PatternOptions;
+        onChange?: (options: PatternOptions) => void;
     }>
-> = ({ size = "xs", layout, onChange }) => {
+> = ({ size = "xs", options, onChange }) => {
     const handleOnVerticalClick = useCallback(() => {
         onChange?.({
-            ...layout,
+            ...options,
             orientation: "vertical",
         });
-    }, [onChange, layout]);
+    }, [onChange, options]);
 
     const handleOnHorizontalClick = useCallback(() => {
         onChange?.({
-            ...layout,
+            ...options,
             orientation: "horizontal",
         });
-    }, [onChange, layout]);
+    }, [onChange, options]);
 
     const handleOnHeightChange = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
@@ -44,12 +44,12 @@ export const PatternLayoutOptionsPanel: FC<
                 !Number.isNaN(event.target.value);
             if (isValidInteger) {
                 onChange?.({
-                    ...layout,
+                    ...options,
                     height: Number.parseInt(event.target.value),
                 });
             }
         },
-        [onChange, layout]
+        [onChange, options]
     );
 
     const handleOnWidthChange = useCallback(
@@ -59,12 +59,12 @@ export const PatternLayoutOptionsPanel: FC<
                 !Number.isNaN(event.target.value);
             if (isValidInteger) {
                 onChange?.({
-                    ...layout,
+                    ...options,
                     width: Number.parseInt(event.target.value),
                 });
             }
         },
-        [onChange, layout]
+        [onChange, options]
     );
 
     const handleOnBeadSizeChange = useCallback(
@@ -74,19 +74,19 @@ export const PatternLayoutOptionsPanel: FC<
             );
             if (beadSize) {
                 onChange?.({
-                    ...layout,
+                    ...options,
                     beadSize: beadSize,
                 });
             }
         },
-        [onChange, layout]
+        [onChange, options]
     );
 
     return (
         <Flex flexDirection={"column"} gap={2} w={"100%"}>
             <ButtonGroup isAttached size={size} variant={"outline"}>
                 <Button
-                    aria-selected={layout.orientation === "vertical"}
+                    aria-selected={options.orientation === "vertical"}
                     borderColor={"gray.400"}
                     leftIcon={<AlignBottomIcon size={16} />}
                     width={"50%"}
@@ -103,7 +103,7 @@ export const PatternLayoutOptionsPanel: FC<
                     Vertical
                 </Button>
                 <Button
-                    aria-selected={layout.orientation === "horizontal"}
+                    aria-selected={options.orientation === "horizontal"}
                     borderColor={"gray.400"}
                     leftIcon={<AlignRightIcon size={16} />}
                     width={"50%"}
@@ -133,14 +133,14 @@ export const PatternLayoutOptionsPanel: FC<
                     ))}
                 </Select>
             </InputGroup>
-            {layout.orientation === "horizontal" && (
+            {options.orientation === "horizontal" && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Height</InputLeftAddon>
                     <NumberInput
                         allowMouseWheel
                         borderColor={"gray.400"}
                         clampValueOnBlur
-                        defaultValue={layout.height}
+                        defaultValue={options.height}
                         keepWithinRange
                         min={1}
                         max={100}
@@ -155,14 +155,14 @@ export const PatternLayoutOptionsPanel: FC<
                     </NumberInput>
                 </InputGroup>
             )}
-            {layout.orientation === "vertical" && (
+            {options.orientation === "vertical" && (
                 <InputGroup borderColor={"gray.400"} size={size}>
                     <InputLeftAddon width={"60px"}>Width</InputLeftAddon>
                     <NumberInput
                         allowMouseWheel
                         borderColor={"gray.400"}
                         clampValueOnBlur
-                        defaultValue={layout.width}
+                        defaultValue={options.width}
                         keepWithinRange
                         min={1}
                         max={100}

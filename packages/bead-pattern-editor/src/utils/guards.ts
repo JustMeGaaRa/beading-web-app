@@ -1,5 +1,5 @@
 import { isBeadingGrid } from "@repo/bead-grid";
-import { PatternLayoutOptions, PatternOptions, PatternState } from "../types";
+import { PatternOptions, PatternState } from "../types";
 
 export const isPattern = (data: unknown): data is PatternState => {
     if (typeof data !== "object" || data === null) {
@@ -29,16 +29,6 @@ export const isPattern = (data: unknown): data is PatternState => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isPatternOptions = (data: unknown): data is PatternOptions => {
-    if (typeof data !== "object" || data === null) {
-        return false;
-    }
-
-    return "layout" in data && isPatternLayoutOptions(data.layout);
-};
-
-export const isPatternLayoutOptions = (
-    data: unknown
-): data is PatternLayoutOptions => {
     if (typeof data !== "object" || data === null) {
         return false;
     }

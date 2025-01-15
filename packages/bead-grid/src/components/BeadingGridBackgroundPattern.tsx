@@ -10,12 +10,12 @@ import { useGrid, useGridStyles } from "../hooks";
 
 export const BeadingGridBackgroundPattern: FC = () => {
     const { styles } = useGridStyles();
-    const { options } = useGrid();
+    const { gridId, options } = useGrid();
 
     const { height, width } = getGridSize(options);
 
     return (
-        <Portal selector={".background-pattern"}>
+        <Portal selector={`.${gridId}`}>
             {Array.from({ length: height })
                 .map((_, rowIndex) =>
                     Array.from({ length: width }).map((_, columnIndex) => ({

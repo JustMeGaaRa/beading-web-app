@@ -4,8 +4,8 @@ import { FC } from "react";
 import { useLoaderData } from "react-router";
 import {
     ColorPaletteProvider,
-    Content,
-    Page,
+    PageBody,
+    PageContent,
     ToolsProvider,
 } from "../components";
 import {
@@ -15,7 +15,11 @@ import {
     ProjectSettingsContainer,
     ProjectToolsContainer,
 } from "../containers";
-import { BeadingGridSelectionProvider } from "@repo/bead-grid";
+import {
+    BeadingGridSelectionFrameProvider,
+    BeadingGridStylesProvider,
+    DefaultGridStyles,
+} from "@repo/bead-grid";
 
 export const ProjectPage: FC = () => {
     const pattern = useLoaderData() as PatternState;
@@ -76,17 +80,21 @@ export const ProjectPage: FC = () => {
         <PatternProvider pattern={pattern}>
             <ColorPaletteProvider colors={colors}>
                 <ToolsProvider>
-                    <Page>
+                    <PageContent>
                         <ProjectHeader />
-                        <Content>
-                            <BeadingGridSelectionProvider>
-                                <ProjectToolsContainer />
-                                <ProjectHelpContainer />
-                                <ProjectSettingsContainer />
-                                <PatternContainer />
-                            </BeadingGridSelectionProvider>
-                        </Content>
-                    </Page>
+                        <PageBody>
+                            <BeadingGridStylesProvider
+                                styles={DefaultGridStyles}
+                            >
+                                <BeadingGridSelectionFrameProvider>
+                                    <ProjectToolsContainer />
+                                    <ProjectHelpContainer />
+                                    <ProjectSettingsContainer />
+                                    <PatternContainer />
+                                </BeadingGridSelectionFrameProvider>
+                            </BeadingGridStylesProvider>
+                        </PageBody>
+                    </PageContent>
                 </ToolsProvider>
             </ColorPaletteProvider>
         </PatternProvider>

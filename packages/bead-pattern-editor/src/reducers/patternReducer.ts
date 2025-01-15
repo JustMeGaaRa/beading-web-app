@@ -1,32 +1,12 @@
 import {
-    BeadingGridProperties,
-    DefaultGridProperties,
-    gridApplyOptionsReducer,
-    createDefault,
+    gridApplyOptions,
     gridReducer,
+    DefaultGridProperties,
+    getGridHeight,
 } from "@repo/bead-grid";
 import { PatternActions } from "../actions";
-import { PatternOptions, PatternState } from "../types";
-import { v6 } from "uuid";
-import { createGridOptions } from "../utils";
-
-export const createPattern = (
-    patternOptions: PatternOptions,
-    gridOptions?: BeadingGridProperties
-): PatternState => {
-    return {
-        version: "1.0.0",
-        patternId: `pattern-${v6()}`,
-        name: "Untitled pattern",
-        coverUrl: "",
-        lastModified: new Date(),
-        options: patternOptions,
-        grids: [
-            createDefault(gridOptions ?? createGridOptions(patternOptions)),
-        ],
-        gridCount: 1,
-    };
-};
+import { PatternState } from "../types";
+import { createGrid, mergeOptions } from "../utils";
 
 export const patternReducer = (
     state: PatternState,
@@ -37,29 +17,36 @@ export const patternReducer = (
             return {
                 ...state,
                 lastModified: new Date(),
-                name: action.payload.name,
+                name: action.name,
             };
-        case "PATTERN_CHANGE_COLOR":
-            return changePatternColor(
-                state,
-                action.payload.oldColor,
-                action.payload.newColor
-            );
-        case "PATTERN_APPLY_OPTIONS":
-            return applyPatternOptions(state, action.payload.options);
         case "PATTERN_ADD_GRID":
+            // TODO: recalculate when grid is added, deleted, or size is changed
+            const previousGrid = state.grids.at(-1)!;
+            const currentGridOptions = mergeOptions(
+                state.options,
+                DefaultGridProperties
+            );
+            const currentGridOffset = {
+                columnIndex:
+                    state.options.orientation === "horizontal"
+                        ? previousGrid!.offset!.columnIndex +
+                          previousGrid!.options.width
+                        : 0,
+                rowIndex:
+                    state.options.orientation === "vertical"
+                        ? previousGrid!.offset!.rowIndex +
+                          getGridHeight(previousGrid!.options)
+                        : 0,
+            };
+            const currentGrid = createGrid(
+                currentGridOptions,
+                currentGridOffset,
+                previousGrid!.name
+            );
             return {
                 ...state,
                 lastModified: new Date(),
-                grids: [
-                    ...state.grids,
-                    createDefault({
-                        ...DefaultGridProperties,
-                        type: state.options.layout.type,
-                        height: state.options.layout.height,
-                        width: state.options.layout.width,
-                    } as any),
-                ],
+                grids: [...state.grids, currentGrid],
                 gridCount: state.gridCount + 1,
             };
         case "PATTERN_DELETE_GRID":
@@ -67,8 +54,33 @@ export const patternReducer = (
                 ...state,
                 lastModified: new Date(),
                 grids: state.grids.filter(
-                    (grid) => grid.name !== action.payload.name
+                    (grid) => grid.gridId !== action.gridId
                 ),
+            };
+        case "PATTERN_REPLACE_COLOR":
+            return {
+                ...state,
+                lastModified: new Date(),
+                grids: state.grids.map((grid) => ({
+                    ...grid,
+                    cells: grid.cells.map((cell) =>
+                        cell.color === action.oldColor
+                            ? { ...cell, color: action.newColor }
+                            : cell
+                    ),
+                })),
+            };
+        case "PATTERN_APPLY_OPTIONS":
+            return {
+                ...state,
+                lastModified: new Date(),
+                grids: state.grids.map((grid) =>
+                    gridApplyOptions(
+                        grid,
+                        mergeOptions(action.options, grid.options)
+                    )
+                ),
+                options: action.options,
             };
         case "BEADING_GRID_APPLY_OPTIONS":
         case "BEADING_GRID_SET_CELL":
@@ -87,40 +99,13 @@ export const patternReducer = (
             return {
                 ...state,
                 lastModified: new Date(),
-                grids: state.grids.map((grid) => gridReducer(grid, action)),
+                grids: state.grids.map((grid) =>
+                    grid.gridId === action.gridId
+                        ? gridReducer(grid, action)
+                        : grid
+                ),
             };
         default:
             return state;
     }
-};
-
-export const applyPatternOptions = (
-    state: PatternState,
-    options: PatternOptions
-): PatternState => {
-    return {
-        ...state,
-        lastModified: new Date(),
-        grids: state.grids.map((grid) =>
-            gridApplyOptionsReducer(grid, grid.options)
-        ),
-        options: options,
-    };
-};
-
-export const changePatternColor = (
-    state: PatternState,
-    oldColor: string,
-    newColor: string
-): PatternState => {
-    return {
-        ...state,
-        lastModified: new Date(),
-        grids: state.grids.map((grid) => ({
-            ...grid,
-            cells: grid.cells.map((cell) =>
-                cell.color === oldColor ? { ...cell, color: newColor } : cell
-            ),
-        })),
-    };
 };

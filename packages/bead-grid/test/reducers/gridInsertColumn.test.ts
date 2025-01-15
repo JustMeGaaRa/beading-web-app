@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { gridInsertColumnReducer } from "../../src";
+import { gridInsertColumn } from "../../src";
 import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 import { eachColumnMatchesCellCount } from "../helpers";
 
@@ -10,7 +10,7 @@ test.each([
 ])(
     "should insert empty column at index ($insertColumnIndex), increase width by 1, and shift all cells",
     ({ insertColumnIndex, columnCellCount }) => {
-        const modifiedGrid = gridInsertColumnReducer(
+        const modifiedGrid = gridInsertColumn(
             Square3x3GridWithCellsOnDiagonal,
             insertColumnIndex
         );
@@ -40,7 +40,7 @@ test.each([
 test.each([[{ insertColumnIndex: -1 }], [{ insertColumnIndex: 10 }]])(
     "should return the same grid as original when inserting column at invalid index ($insertColumnIndex)",
     ({ insertColumnIndex }) => {
-        const modifiedGrid = gridInsertColumnReducer(
+        const modifiedGrid = gridInsertColumn(
             Square3x3GridWithCellsOnDiagonal,
             insertColumnIndex
         );

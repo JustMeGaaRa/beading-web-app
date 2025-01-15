@@ -22,20 +22,16 @@ import {
 } from "@repo/bead-grid";
 import {
     formatPatternSize,
-    PatternLayoutOptions,
     PatternState,
     createPattern,
     PatternOptions,
     DefaultPatternOptions,
-    createGridOptions,
+    mergeOptions,
 } from "@repo/bead-pattern-editor";
 import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-    BeadingGridOptionsPanel,
-    PatternLayoutOptionsPanel,
-} from "../components";
+import { BeadingGridOptionsPanel, PatternOptionsPanel } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction, deletePatternAction } from "../creators";
 
@@ -61,35 +57,36 @@ export const CreatePatternModal: FC<{
     );
 
     useEffect(() => {
-        // reset to default setting when opened
+        // NOTE: reset to default setting when opened
         setPatternOptions(DefaultPatternOptions);
-        setGridOptions(createGridOptions(DefaultPatternOptions));
+        setGridOptions(
+            mergeOptions(DefaultPatternOptions, DefaultGridProperties)
+        );
     }, [isOpen]);
 
     const handleOnPatternTypeSelected = useCallback(
         (type: BeadingGridType) => {
             const modifiedPatternOptions = {
                 ...patternOptions,
-                layout: { ...patternOptions.layout, type },
+                type,
             } satisfies PatternOptions;
 
             setPatternOptions(modifiedPatternOptions);
-            setGridOptions(createGridOptions(DefaultPatternOptions));
+            setGridOptions((gridOptions) =>
+                mergeOptions(modifiedPatternOptions, gridOptions)
+            );
         },
         [patternOptions]
     );
 
     const handleOnPatternOptionsChange = useCallback(
-        (layout: PatternLayoutOptions) => {
-            const modifiedPatternOptions = {
-                ...patternOptions,
-                layout,
-            } satisfies PatternOptions;
-
+        (modifiedPatternOptions: PatternOptions) => {
             setPatternOptions(modifiedPatternOptions);
-            setGridOptions(createGridOptions(modifiedPatternOptions));
+            setGridOptions((gridOptions) =>
+                mergeOptions(modifiedPatternOptions, gridOptions)
+            );
         },
-        [patternOptions]
+        []
     );
 
     const handleOnGridOptionsChange = useCallback(
@@ -124,9 +121,7 @@ export const CreatePatternModal: FC<{
                             {BeadingGridTypes.map((type) => (
                                 <Flex
                                     key={type}
-                                    aria-selected={
-                                        patternOptions.layout.type === type
-                                    }
+                                    aria-selected={patternOptions.type === type}
                                     alignItems={"center"}
                                     borderColor={"gray.400"}
                                     borderRadius={8}
@@ -162,9 +157,9 @@ export const CreatePatternModal: FC<{
                         <Text color={"gray.700"} fontSize={"small"}>
                             Common pattern properties
                         </Text>
-                        <PatternLayoutOptionsPanel
+                        <PatternOptionsPanel
                             size={"sm"}
-                            layout={patternOptions.layout}
+                            options={patternOptions}
                             onChange={handleOnPatternOptionsChange}
                         />
                         <Text color={"gray.700"} fontSize={"small"}>
@@ -173,7 +168,7 @@ export const CreatePatternModal: FC<{
                         <BeadingGridOptionsPanel
                             name={"Initial Grid"}
                             options={gridOptions}
-                            orientation={patternOptions.layout.orientation}
+                            orientation={patternOptions.orientation}
                             size={"sm"}
                             onChange={handleOnGridOptionsChange}
                         />

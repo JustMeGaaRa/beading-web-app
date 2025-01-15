@@ -25,6 +25,8 @@ import {
 
 export const BeadingGrid: FC<
     PropsWithChildren<{
+        gridId?: string;
+        name?: string;
         offset?: BeadingGridOffset;
         cells?: Array<BeadingGridCellState>;
         options: BeadingGridProperties;
@@ -43,6 +45,8 @@ export const BeadingGrid: FC<
     }>
 > = ({
     children,
+    gridId: gridIdProps,
+    name: nameProps,
     offset: offsetProps,
     cells: cellsProps,
     options: optionsProps,
@@ -50,12 +54,24 @@ export const BeadingGrid: FC<
     onCellClick,
 }) => {
     const { styles } = useGridStyles();
-    const { cells, offset, options, setCells, setOffset, setOptions } =
-        useGrid();
+    const {
+        gridId,
+        name,
+        cells,
+        offset,
+        options,
+        setGridId,
+        setName,
+        setCells,
+        setOffset,
+        setOptions,
+    } = useGrid();
     const { selectedCells } = useGridSelection();
     const { isPointerDown, onPointerDown, onPointerUp } =
         usePointerDisclosure();
 
+    useEffect(() => setGridId(gridIdProps ?? ""), [gridIdProps]);
+    useEffect(() => setName(nameProps ?? ""), [nameProps]);
     useEffect(
         () => setOffset(offsetProps ?? { columnIndex: 0, rowIndex: 0 }),
         [offsetProps]
@@ -73,8 +89,9 @@ export const BeadingGrid: FC<
 
     const handleOnPointerMove = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            const gridState = { name: "", offset, cells, options };
-            const cursor = event.currentTarget.getRelativePointerPosition() ?? {
+            const gridState = { gridId, name, offset, cells, options };
+            const stage = event.currentTarget.getStage();
+            const cursor = stage?.getRelativePointerPosition() ?? {
                 x: 0,
                 y: 0,
             };
@@ -92,8 +109,9 @@ export const BeadingGrid: FC<
 
     const handleOnPointerClick = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            const gridState = { name: "", offset, cells, options };
-            const cursor = event.currentTarget.getRelativePointerPosition() ?? {
+            const gridState = { gridId, name, offset, cells, options };
+            const stage = event.currentTarget.getStage();
+            const cursor = stage?.getRelativePointerPosition() ?? {
                 x: 0,
                 y: 0,
             };
@@ -109,21 +127,19 @@ export const BeadingGrid: FC<
         [onCellClick]
     );
 
-    const { height, width } = getGridRenderBounds(options, styles);
-    const positionX = (offset?.columnIndex ?? 0) * width;
-    const positionY = (offset?.rowIndex ?? 0) * height;
+    const gridRenderBounds = getGridRenderBounds(offset, options, styles);
     const gridBounds = getGridBounds(options);
     const selectedInBoundCells = selectedCells.filter((cell) =>
         indeciesInBounds(gridBounds, cell.offset)
     );
 
     return (
-        <Layer x={positionX} y={positionY}>
-            <Group name={"background-pattern"}></Group>
+        <Layer x={gridRenderBounds.x} y={gridRenderBounds.y}>
+            <Group name={gridId}></Group>
             <Rect
                 fill={"transparent"}
-                height={height}
-                width={width}
+                height={gridRenderBounds.height}
+                width={gridRenderBounds.width}
                 onPointerDown={handleOnPointerDown}
                 onPointerUp={handleOnPointerUp}
                 onPointerMove={handleOnPointerMove}

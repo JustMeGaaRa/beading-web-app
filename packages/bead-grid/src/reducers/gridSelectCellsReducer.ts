@@ -1,11 +1,11 @@
 import { BeadingGridCellState, BeadingGridState } from "../types";
-import { gridSetCellReducer } from "./gridSetCellReducer";
+import { gridSetCell } from "./gridSetCellReducer";
 
-export const gridSelectCellsReducer = (
+export const gridSelectCells = (
     grid: BeadingGridState,
     modifiedCells: Array<BeadingGridCellState>
 ): BeadingGridState => {
     return modifiedCells
         .map((cell) => ({ ...cell, isSelected: true }))
-        .reduce(gridSetCellReducer, grid);
+        .reduce(gridSetCell, grid);
 };

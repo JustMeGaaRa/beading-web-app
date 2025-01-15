@@ -29,7 +29,7 @@ export const getPatternSummary = (
     return {
         totalBeads,
         totalSize,
-        beadSize: patternOptions.layout.beadSize,
+        beadSize: patternOptions.beadSize,
         beads,
     };
 };
@@ -40,9 +40,9 @@ export const getPatternRealSize = (
 ) => {
     const patternSize = getPatternSize(grids, patternOptions);
     const beadSize =
-        patternOptions.layout.type === "brick"
-            ? flipBead(patternOptions.layout.beadSize)
-            : patternOptions.layout.beadSize;
+        patternOptions.type === "brick"
+            ? flipBead(patternOptions.beadSize)
+            : patternOptions.beadSize;
 
     return {
         height: patternSize.height * beadSize.height,

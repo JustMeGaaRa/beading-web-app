@@ -4,7 +4,9 @@ import { create, useStore } from "zustand";
 import { temporal } from "zundo";
 import { DefaultPatternOptions, PatternState } from "../types";
 import { PatternActions } from "../actions";
-import { createPattern, patternReducer } from "../reducers";
+import { patternReducer } from "../reducers";
+import { createPattern } from "../utils";
+import { DefaultGridProperties } from "@repo/bead-grid";
 
 export const PatternContext = createContext<PatternTemporalStore | null>(null);
 
@@ -21,7 +23,9 @@ export const createPatterStore = (pattern?: PatternState) => {
     return create(
         temporal<PatternStore>(
             (set) => ({
-                pattern: pattern ?? createPattern(DefaultPatternOptions),
+                pattern:
+                    pattern ??
+                    createPattern(DefaultPatternOptions, DefaultGridProperties),
                 isDirty: false,
                 resetDirty: () => set({ isDirty: false }),
                 dispatch: (action) =>

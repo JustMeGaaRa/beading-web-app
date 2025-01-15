@@ -1,7 +1,7 @@
 import { BeadingGridCellState, BeadingGridState } from "../types";
 import { clear } from "../utils";
 
-export const gridClearCellsReducer = (
+export const gridClearCells = (
     grid: BeadingGridState,
     cells: Array<BeadingGridCellState>
 ): BeadingGridState => {

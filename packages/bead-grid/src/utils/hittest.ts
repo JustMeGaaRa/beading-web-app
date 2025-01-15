@@ -110,29 +110,34 @@ const getNeighbourCells = (
 export const hitTestCursor = (
     grid: BeadingGridState,
     styles: BeadingGridStyles,
-    cursor: { x: number; y: number }
+    cursor: RenderPoint
 ): HitTestResult => {
     const beadSize = getGridCellRenderSize(grid.options, styles);
     const hitCellApproximation: BeadingGridCellState = {
         offset: {
-            columnIndex: Math.floor(cursor.x / beadSize.width),
-            rowIndex: Math.floor(cursor.y / beadSize.height),
+            columnIndex:
+                Math.floor(cursor.x / beadSize.width) - grid.offset.columnIndex,
+            rowIndex:
+                Math.floor(cursor.y / beadSize.height) - grid.offset.rowIndex,
         },
         color: "",
     };
     const hitCells: Array<BeadingGridCellState> =
         grid.options.type === "square"
             ? [hitCellApproximation]
-            : getNeighbourCells(hitCellApproximation.offset).filter((cell) =>
-                  pointInBounds(
-                      getGridCellRenderBounds(
-                          cell.offset,
-                          grid.options,
-                          styles
-                      ),
-                      cursor
-                  )
-              )!;
+            : getNeighbourCells(hitCellApproximation.offset).filter((cell) => {
+                  const cellAbsoluteOffset = {
+                      columnIndex:
+                          cell.offset.columnIndex + grid.offset.columnIndex,
+                      rowIndex: cell.offset.rowIndex + grid.offset.rowIndex,
+                  };
+                  const bounds = getGridCellRenderBounds(
+                      cellAbsoluteOffset,
+                      grid.options,
+                      styles
+                  );
+                  return pointInBounds(bounds, cursor);
+              })!;
 
     const equalCellApproximation = (cell: BeadingGridCellState) => {
         return shallowEqualsCell(cell, hitCellApproximation);
@@ -155,8 +160,12 @@ export const hitTestArea = (
     area: RenderBounds
 ): HitTestResult => {
     const hitCells = grid.cells.filter((cell) => {
+        const cellAbsoluteOffset = {
+            columnIndex: cell.offset.columnIndex + grid.offset.columnIndex,
+            rowIndex: cell.offset.rowIndex + grid.offset.rowIndex,
+        };
         const boundary = getGridCellRenderBounds(
-            cell.offset,
+            cellAbsoluteOffset,
             grid.options,
             styles
         );

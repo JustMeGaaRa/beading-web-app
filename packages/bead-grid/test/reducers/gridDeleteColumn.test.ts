@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { gridDeleteColumnReducer } from "../../src";
+import { gridDeleteColumn } from "../../src";
 import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 import { eachColumnMatchesCellCount } from "../helpers";
 
@@ -10,7 +10,7 @@ test.each([
 ])(
     "should delete column at index ($deleteColumnIndex), decrease width by 1, and shift all cells",
     ({ deleteColumnIndex, columnCellCount }) => {
-        const modifiedGrid = gridDeleteColumnReducer(
+        const modifiedGrid = gridDeleteColumn(
             Square3x3GridWithCellsOnDiagonal,
             deleteColumnIndex
         );
@@ -30,7 +30,7 @@ test.each([
 test.each([[{ deleteColumnIndex: -1 }], [{ deleteColumnIndex: 10 }]])(
     "should return the same grid when deleting column at invalid index ($deleteColumnIndex)",
     ({ deleteColumnIndex }) => {
-        const modifiedGrid = gridDeleteColumnReducer(
+        const modifiedGrid = gridDeleteColumn(
             Square3x3GridWithCellsOnDiagonal,
             deleteColumnIndex
         );

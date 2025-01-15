@@ -130,17 +130,17 @@ export const getGridSectionRenderBounds = (
 };
 
 export const getGridRenderBounds = (
+    offset: BeadingGridOffset,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const cellSize = getGridCellRenderSize(options, styles);
+    const cellBounds = getGridCellRenderBounds(offset, options, styles);
     const gridSize = getGridSize(options);
 
     return {
-        x: 0,
-        y: 0,
-        height:
-            gridSize.height * cellSize.height * styles.rendering.pixelPerPoint,
-        width: gridSize.width * cellSize.width * styles.rendering.pixelPerPoint,
+        x: cellBounds.x,
+        y: cellBounds.y,
+        height: gridSize.height * cellBounds.height,
+        width: gridSize.width * cellBounds.width,
     };
 };

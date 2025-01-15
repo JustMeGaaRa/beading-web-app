@@ -5,7 +5,7 @@ import {
 } from "../types";
 import { getGridSectionBounds, paste } from "../utils";
 
-export const gridPasteSectionReducer = (
+export const gridPasteSection = (
     grid: BeadingGridState,
     cells: Array<BeadingGridCellState>,
     offset: BeadingGridOffset

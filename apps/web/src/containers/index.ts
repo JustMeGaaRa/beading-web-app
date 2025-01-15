@@ -1,3 +1,4 @@
+export * from "./BeadingGridContainer";
 export * from "./ColorPalettePopover";
 export * from "./PatternContainer";
 export * from "./PatternExplorer";

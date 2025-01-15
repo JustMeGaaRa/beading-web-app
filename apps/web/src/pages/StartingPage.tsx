@@ -1,14 +1,14 @@
 import { FC } from "react";
-import { Content, Page } from "../components";
+import { PageBody, PageContent } from "../components";
 import { PatternCollectionExplorer, StartingPageHeader } from "../containers";
 
 export const StartingPage: FC = () => {
     return (
-        <Page>
+        <PageContent>
             <StartingPageHeader />
-            <Content>
+            <PageBody>
                 <PatternCollectionExplorer />
-            </Content>
-        </Page>
+            </PageBody>
+        </PageContent>
     );
 };

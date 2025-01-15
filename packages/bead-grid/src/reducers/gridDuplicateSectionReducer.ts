@@ -1,6 +1,6 @@
 import { BeadingGridState } from "../types";
 
-export const gridDuplicateSectionReducer = (
+export const gridDuplicateSection = (
     grid: BeadingGridState
 ): BeadingGridState => {
     console.log(grid);

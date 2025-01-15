@@ -1,17 +1,17 @@
 import { GridActions } from "../actions";
 import { BeadingGridState } from "../types";
-import { gridApplyOptionsReducer } from "./gridApplyOptionsReducer";
-import { gridClearColumnReducer } from "./gridClearColumnReducer";
-import { gridClearRowReducer } from "./gridClearRowReducer";
-import { gridDeleteColumnReducer } from "./gridDeleteColumnReducer";
-import { gridDeleteRowReducer } from "./gridDeleteRowReducer";
-import { gridInsertColumnReducer } from "./gridInsertColumnReducer";
-import { gridInsertRowReducer } from "./gridInsertRowReducer";
-import { gridSetCellReducer } from "./gridSetCellReducer";
-import { gridSelectCellsReducer } from "./gridSelectCellsReducer";
-import { gridFlipSectionReducer } from "./gridFlipSectionReducer";
-import { gridClearCellsReducer } from "./gridClearCellsReducer";
-import { gridPasteSectionReducer } from "./gridPasteSectionReducer";
+import { gridApplyOptions } from "./gridApplyOptionsReducer";
+import { gridClearColumn } from "./gridClearColumnReducer";
+import { gridClearRow } from "./gridClearRowReducer";
+import { gridDeleteColumn } from "./gridDeleteColumnReducer";
+import { gridDeleteRow } from "./gridDeleteRowReducer";
+import { gridInsertColumn } from "./gridInsertColumnReducer";
+import { gridInsertRow } from "./gridInsertRowReducer";
+import { gridSetCell } from "./gridSetCellReducer";
+import { gridSelectCells } from "./gridSelectCellsReducer";
+import { gridFlipSection } from "./gridFlipSectionReducer";
+import { gridClearCells } from "./gridClearCellsReducer";
+import { gridPasteSection } from "./gridPasteSectionReducer";
 
 // user actions:
 // - clear selected = clear
@@ -48,41 +48,33 @@ export const gridReducer = (
 ): BeadingGridState => {
     switch (action.type) {
         case "BEADING_GRID_APPLY_OPTIONS":
-            return gridApplyOptionsReducer(state, action.payload.options);
+            return gridApplyOptions(state, action.options);
         case "BEADING_GRID_SET_CELL":
-            return gridSetCellReducer(state, action.payload.cell);
+            return gridSetCell(state, action.cell);
         case "BEADING_GRID_SELECT_CELLS":
-            return gridSelectCellsReducer(state, action.payload.cells);
+            return gridSelectCells(state, action.cells);
         case "BEADING_GRID_CLEAR_CELLS":
-            return gridClearCellsReducer(state, action.payload.cells);
+            return gridClearCells(state, action.cells);
         case "BEADING_GRID_ADD_COLUMN_BEFORE":
-            return gridInsertColumnReducer(state, action.payload.column);
+            return gridInsertColumn(state, action.column);
         case "BEADING_GRID_ADD_COLUMN_AFTER":
-            return gridInsertColumnReducer(state, action.payload.column + 1);
+            return gridInsertColumn(state, action.column + 1);
         case "BEADING_GRID_DELETE_COLUMN":
-            return gridDeleteColumnReducer(state, action.payload.column);
+            return gridDeleteColumn(state, action.column);
         case "BEADING_GRID_CLEAR_COLUMN":
-            return gridClearColumnReducer(state, action.payload.column);
+            return gridClearColumn(state, action.column);
         case "BEADING_GRID_ADD_ROW_BEFORE":
-            return gridInsertRowReducer(state, action.payload.row);
+            return gridInsertRow(state, action.row);
         case "BEADING_GRID_ADD_ROW_AFTER":
-            return gridInsertRowReducer(state, action.payload.row + 1);
+            return gridInsertRow(state, action.row + 1);
         case "BEADING_GRID_DELETE_ROW":
-            return gridDeleteRowReducer(state, action.payload.row);
+            return gridDeleteRow(state, action.row);
         case "BEADING_GRID_CLEAR_ROW":
-            return gridClearRowReducer(state, action.payload.row);
+            return gridClearRow(state, action.row);
         case "BEADING_GRID_PASTE_SECTION":
-            return gridPasteSectionReducer(
-                state,
-                action.payload.cells,
-                action.payload.offset
-            );
+            return gridPasteSection(state, action.cells, action.offset);
         case "BEADING_GRID_FLIP_SECTION":
-            return gridFlipSectionReducer(
-                state,
-                action.payload.cells,
-                action.payload.axis
-            );
+            return gridFlipSection(state, action.cells, action.axis);
         default:
             return state;
     }

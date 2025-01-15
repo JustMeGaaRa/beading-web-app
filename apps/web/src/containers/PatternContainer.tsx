@@ -9,27 +9,15 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import {
-    BeadingGrid,
-    BeadingGridStylesProvider,
     BeadingGridProvider,
-    BeadingGridDivider,
-    BeadingText,
-    BeadingPointerEvent,
     useGridStyles,
-    DefaultGridStyles,
     TextState,
     useGridSelection,
     BeadingFrame,
-    BeadingGridState,
-    BeadingGridBackgroundPattern,
-    getGridHeight,
     DefaultGridProperties,
     BeadingGridSelectionFrame,
-    hitTestArea,
-    createRenderBounds,
-    hitTestCursor,
-    RenderPoint,
-    BeadingGridSection,
+    useGridSelectionFrame,
+    BeadingGridSelectionProvider,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -48,16 +36,10 @@ import {
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Layer, Stage } from "react-konva";
+import { Stage } from "react-konva";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
-import {
-    useColorPalette,
-    useTools,
-    Shortcuts,
-    BeadingGridSectionActionsToolbar,
-    BeadingGridSectionControlsToolbar,
-} from "../components";
+import { useTools, Shortcuts } from "../components";
 import {
     calculateNewPosition,
     downloadUri,
@@ -67,7 +49,9 @@ import {
     toJsonUri,
     SCALE_MAXIMUM,
 } from "../utils";
+import Tools from "../utils/tools";
 import { putPattern } from "../api";
+import { BeadingGridContainer } from "./BeadingGridContainer";
 
 const hotkeysOptions = { preventDefault: true };
 
@@ -80,33 +64,17 @@ export const PatternContainer: FC = () => {
     const [rowState, setRowState] = useState<TextState | undefined>();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { selectedColor, setSelectedColor } = useColorPalette();
-    const { tool, setTool } = useTools();
+    const { tool } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
-    const {
-        cliboardCells,
-        selectedCells,
-        selectedColumn,
-        selectedRow,
-        setClipboardCells,
-        setSelectedCells,
-        setSelectedColumn,
-        setSelectedRow,
-    } = useGridSelection();
+    const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } =
+        useGridSelection();
     const { undo, redo } = usePatterHistory();
 
     const { styles } = useGridStyles();
     const { height, width } = getPatternSize(pattern.grids, pattern.options);
 
-    const isLayoutHorizontal =
-        pattern.options.layout.orientation === "horizontal";
-    const isMoveEnabled = tool.name === "move";
-    const isCursorEnabled =
-        tool.name === "cursor" && tool.state.currentAction === "default";
-    const isPencilEnabled = tool.name === "pencil";
-    const isEraserEnabled = tool.name === "eraser";
-    const isColorPickerEnabled = tool.name === "picker";
+    const isHorizontal = pattern.options.orientation === "horizontal";
 
     const centerStage = useCallback(
         (pattern: PatternState) => {
@@ -231,7 +199,7 @@ export const PatternContainer: FC = () => {
             event.evt.preventDefault();
 
             // NOTE: only allow to zoom in move mode to avoid tools conflict
-            if (!isMoveEnabled) return;
+            if (!Tools.isMovement(tool)) return;
 
             // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
             if (event.evt.touches.length !== 2) return;
@@ -322,7 +290,7 @@ export const PatternContainer: FC = () => {
 
             lastTouchDistanceRef.current = currentTouchDistance;
         },
-        [isMoveEnabled, pattern.grids, pattern.options, styles]
+        [tool, pattern.grids, pattern.options, styles]
     );
 
     const handleOnStageTouchEnd = useCallback(() => {
@@ -387,102 +355,85 @@ export const PatternContainer: FC = () => {
         if (rowState) {
             dispatch({
                 type: "BEADING_GRID_ADD_ROW_BEFORE",
-                payload: { row: rowState.gridIndex },
+                gridId: isHorizontal ? "all" : rowState.gridId,
+                row: rowState.gridIndex,
             });
         }
-    }, [dispatch, rowState]);
+    }, [dispatch, isHorizontal, rowState]);
 
     const handleOnGridAddRowBelow = useCallback(() => {
         if (rowState) {
             dispatch({
                 type: "BEADING_GRID_ADD_ROW_AFTER",
-                payload: { row: rowState.gridIndex },
+                gridId: isHorizontal ? "all" : rowState.gridId,
+                row: rowState.gridIndex,
             });
         }
-    }, [rowState, dispatch]);
+    }, [rowState, dispatch, isHorizontal]);
 
     const handleOnGridClearRow = useCallback(() => {
         if (rowState) {
             dispatch({
                 type: "BEADING_GRID_CLEAR_ROW",
-                payload: { row: rowState.gridIndex },
+                gridId: isHorizontal ? "all" : rowState.gridId,
+                row: rowState.gridIndex,
             });
         }
-    }, [rowState, dispatch]);
+    }, [rowState, dispatch, isHorizontal]);
 
     const handleOnGridDeleteRow = useCallback(() => {
         if (rowState) {
             dispatch({
                 type: "BEADING_GRID_DELETE_ROW",
-                payload: { row: rowState.gridIndex },
+                gridId: isHorizontal ? "all" : rowState.gridId,
+                row: rowState.gridIndex,
             });
         }
-    }, [rowState, dispatch]);
+    }, [rowState, dispatch, isHorizontal]);
 
     const handleOnGridAddColumnLeft = useCallback(() => {
         if (columnState) {
             dispatch({
                 type: "BEADING_GRID_ADD_COLUMN_BEFORE",
-                payload: { column: columnState.gridIndex },
+                gridId: isHorizontal ? columnState.gridId : "all",
+                column: columnState.gridIndex,
             });
         }
-    }, [columnState, dispatch]);
+    }, [columnState, dispatch, isHorizontal]);
 
     const handleOnGridAddColumnRight = useCallback(() => {
         if (columnState) {
             dispatch({
                 type: "BEADING_GRID_ADD_COLUMN_AFTER",
-                payload: { column: columnState.gridIndex },
+                gridId: isHorizontal ? columnState.gridId : "all",
+                column: columnState.gridIndex,
             });
         }
-    }, [columnState, dispatch]);
+    }, [columnState, dispatch, isHorizontal]);
 
     const handleOnGridClearColumn = useCallback(() => {
         if (columnState) {
             dispatch({
                 type: "BEADING_GRID_CLEAR_COLUMN",
-                payload: { column: columnState.gridIndex },
+                gridId: isHorizontal ? columnState.gridId : "all",
+                column: columnState.gridIndex,
             });
         }
-    }, [columnState, dispatch]);
+    }, [columnState, dispatch, isHorizontal]);
 
     const handleOnGridDeleteColumn = useCallback(() => {
         if (columnState) {
             dispatch({
                 type: "BEADING_GRID_DELETE_COLUMN",
-                payload: { column: columnState.gridIndex },
+                gridId: isHorizontal ? columnState.gridId : "all",
+                column: columnState.gridIndex,
             });
         }
-    }, [columnState, dispatch]);
-
-    // SECTION: grid event handlers
-    const handleOnGridCellPointerEnter = useCallback(
-        (_: BeadingGridState, event: BeadingPointerEvent) => {
-            if (event.isPointerDown && isPencilEnabled) {
-                dispatch({
-                    type: "BEADING_GRID_SET_CELL",
-                    payload: {
-                        cell: { ...event.cell, color: selectedColor },
-                    },
-                });
-            }
-            if (event.isPointerDown && isEraserEnabled) {
-                dispatch({
-                    type: "BEADING_GRID_SET_CELL",
-                    payload: { cell: { ...event.cell, color: "" } },
-                });
-            }
-        },
-        [isPencilEnabled, isEraserEnabled, selectedColor, dispatch]
-    );
+    }, [columnState, dispatch, isHorizontal]);
 
     // SECTION: cursor selection handlers
-    const [mouseDownPosition, setMouseDownPosition] = useState<
-        RenderPoint | undefined
-    >();
-    const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
-        RenderPoint | undefined
-    >();
+    const { setMouseCurrentPosition, setMouseDownPosition } =
+        useGridSelectionFrame();
     const [isMouseDown, setIsMouseDown] = useState(false);
 
     const handleOnPointerDown = useCallback(
@@ -497,7 +448,7 @@ export const PatternContainer: FC = () => {
             setMouseDownPosition(currentPosition);
             setMouseCurrentPosition(currentPosition);
         },
-        []
+        [setMouseCurrentPosition, setMouseDownPosition]
     );
 
     const handleOnPointerUp = useCallback(
@@ -511,66 +462,8 @@ export const PatternContainer: FC = () => {
             setIsMouseDown(false);
             setMouseDownPosition(undefined);
             setMouseCurrentPosition(currentPosition);
-
-            // TODO: check cell positions isntead of mouse positions
-            // stylus gives different values onpointerdown and onpointerup
-            const isSelectedCell =
-                mouseDownPosition &&
-                mouseDownPosition?.x === currentPosition.x &&
-                mouseDownPosition?.y === currentPosition.y;
-
-            // calculate selected cells based on selected area
-            const hitTest = isSelectedCell
-                ? hitTestCursor(pattern.grids[0], styles, currentPosition)
-                : hitTestArea(
-                      pattern.grids[0],
-                      styles,
-                      createRenderBounds(mouseDownPosition!, currentPosition)
-                  );
-
-            if (isCursorEnabled) {
-                setSelectedCells(hitTest.hits);
-            }
-
-            if (isSelectedCell && isPencilEnabled) {
-                setSelectedCells([]);
-                dispatch({
-                    type: "BEADING_GRID_SET_CELL",
-                    payload: {
-                        cell: { ...hitTest.hits[0], color: selectedColor },
-                    },
-                });
-            }
-            if (isSelectedCell && isEraserEnabled) {
-                setSelectedCells([]);
-                dispatch({
-                    type: "BEADING_GRID_SET_CELL",
-                    payload: { cell: { ...hitTest.hits[0], color: "" } },
-                });
-            }
-            if (isSelectedCell && isColorPickerEnabled) {
-                setSelectedCells([]);
-                setSelectedColor(hitTest.hits[0].color);
-                setTool({
-                    name: "pencil",
-                    state: { currentAction: "default" },
-                });
-            }
         },
-        [
-            mouseDownPosition,
-            pattern.grids,
-            styles,
-            isCursorEnabled,
-            isPencilEnabled,
-            isEraserEnabled,
-            isColorPickerEnabled,
-            setSelectedCells,
-            dispatch,
-            selectedColor,
-            setSelectedColor,
-            setTool,
-        ]
+        [setMouseDownPosition, setMouseCurrentPosition]
     );
 
     const handleOnPointerMove = useCallback(
@@ -584,101 +477,14 @@ export const PatternContainer: FC = () => {
                 setMouseCurrentPosition(position);
             }
         },
-        [isMouseDown]
+        [isMouseDown, setMouseCurrentPosition]
     );
 
-    // SECTION: toolbar action handlers
-    const handleOnSectionCopyClick = useCallback(() => {
-        if (isCursorEnabled && selectedCells.length > 0) {
-            setClipboardCells(selectedCells);
-        }
-    }, [isCursorEnabled, selectedCells, setClipboardCells]);
-
-    const handleOnSectionPasteClick = useCallback(() => {
-        if (
-            isCursorEnabled &&
-            cliboardCells.length > 0 &&
-            mouseCurrentPosition
-        ) {
-            const hitResult = hitTestCursor(
-                pattern.grids[0],
-                styles,
-                mouseCurrentPosition
-            );
-            console.log(hitResult);
-
-            if (hitResult.hits.length > 0) {
-                setSelectedCells([]);
-                dispatch({
-                    type: "BEADING_GRID_PASTE_SECTION",
-                    payload: {
-                        cells: cliboardCells,
-                        offset: hitResult.hits[0].offset,
-                    },
-                });
-            }
-        }
-    }, [
-        isCursorEnabled,
-        cliboardCells,
-        mouseCurrentPosition,
-        pattern.grids,
-        styles,
-        setSelectedCells,
-        dispatch,
-    ]);
-
-    const handleOnSectionFlipHorizontalClick = useCallback(() => {
-        if (isCursorEnabled && selectedCells.length > 0) {
-            setSelectedCells([]);
-            dispatch({
-                type: "BEADING_GRID_FLIP_SECTION",
-                payload: {
-                    cells: selectedCells,
-                    axis: "horizontal",
-                },
-            });
-        }
-    }, [dispatch, isCursorEnabled, selectedCells, setSelectedCells]);
-
-    const handleOnSectionFlipVerticalClick = useCallback(() => {
-        if (isCursorEnabled && selectedCells.length > 0) {
-            setSelectedCells([]);
-            dispatch({
-                type: "BEADING_GRID_FLIP_SECTION",
-                payload: {
-                    cells: selectedCells,
-                    axis: "vertical",
-                },
-            });
-        }
-    }, [dispatch, isCursorEnabled, selectedCells, setSelectedCells]);
-
-    const handleOnSectionClearClick = useCallback(() => {
-        if (isCursorEnabled && selectedCells.length > 0) {
-            setSelectedCells([]);
-            dispatch({
-                type: "BEADING_GRID_CLEAR_CELLS",
-                payload: { cells: selectedCells },
-            });
-        }
-    }, [dispatch, isCursorEnabled, selectedCells, setSelectedCells]);
-
     return (
-        <Box
-            cursor={
-                tool.name === "move"
-                    ? "grab"
-                    : tool.name === "cursor"
-                      ? "crosshair"
-                      : "cursor"
-            }
-            height={"100%"}
-            width={"100%"}
-        >
+        <Box cursor={Tools.getCursor(tool)} height={"100%"} width={"100%"}>
             <Stage
                 ref={stageRef}
-                draggable={isMoveEnabled}
+                draggable={Tools.isMovement(tool)}
                 height={window.innerHeight}
                 width={window.innerWidth}
                 onClick={handleOnStageClick}
@@ -690,112 +496,29 @@ export const PatternContainer: FC = () => {
                 onPointerMove={handleOnPointerMove}
                 onWheel={handleOnStageWheel}
             >
-                <BeadingGridStylesProvider styles={DefaultGridStyles}>
-                    {pattern.grids.map((grid) => (
-                        <BeadingGridProvider key={grid.name}>
-                            <BeadingGrid
-                                cells={grid.cells}
-                                options={grid.options}
-                                onCellEnter={handleOnGridCellPointerEnter}
-                            >
-                                <BeadingGridBackgroundPattern />
-                                <BeadingText
-                                    text={grid.name}
-                                    offset={
-                                        isLayoutHorizontal
-                                            ? {
-                                                  columnIndex: 1,
-                                                  rowIndex: -4,
-                                              }
-                                            : {
-                                                  columnIndex: -4,
-                                                  rowIndex: 0,
-                                              }
-                                    }
-                                    options={grid.options}
-                                />
-                                <BeadingGridDivider
-                                    length={
-                                        isLayoutHorizontal
-                                            ? getGridHeight(grid.options) + 4
-                                            : grid.options.width + 4
-                                    }
-                                    offset={
-                                        isLayoutHorizontal
-                                            ? {
-                                                  columnIndex: 0,
-                                                  rowIndex: -4,
-                                              }
-                                            : {
-                                                  columnIndex: -4,
-                                                  rowIndex: 0,
-                                              }
-                                    }
-                                    orientation={
-                                        isLayoutHorizontal
-                                            ? "vertical"
-                                            : "horizontal"
-                                    }
-                                />
-                                <BeadingGridSection
-                                // onHover={handleOnGridSectionHover}
-                                >
-                                    <BeadingGridSectionControlsToolbar
-                                        isVisible={isCursorEnabled}
-                                    />
-
-                                    {/* TODO: consider moving this toolbar inside grid and handling state internally */}
-                                    <BeadingGridSectionActionsToolbar
-                                        isVisible={isCursorEnabled}
-                                        tool={tool}
-                                        onCopy={handleOnSectionCopyClick}
-                                        onPaste={handleOnSectionPasteClick}
-                                        onFlipHorizontal={
-                                            handleOnSectionFlipHorizontalClick
-                                        }
-                                        onFlipVertical={
-                                            handleOnSectionFlipVerticalClick
-                                        }
-                                        onClear={handleOnSectionClearClick}
-                                    />
-                                </BeadingGridSection>
-                            </BeadingGrid>
-                        </BeadingGridProvider>
-                    ))}
-
-                    <Layer>
-                        {mouseDownPosition &&
-                            mouseCurrentPosition &&
-                            isCursorEnabled && (
-                                <BeadingGridSelectionFrame
-                                    x={mouseDownPosition.x}
-                                    y={mouseDownPosition.y}
-                                    width={
-                                        mouseCurrentPosition.x -
-                                        mouseDownPosition.x
-                                    }
-                                    height={
-                                        mouseCurrentPosition.y -
-                                        mouseDownPosition.y
-                                    }
-                                />
-                            )}
-
-                        {pattern.grids.length > 0 && (
-                            <BeadingFrame
-                                height={height}
-                                width={width}
-                                options={
-                                    pattern.grids.at(0)?.options ??
-                                    DefaultGridProperties
-                                }
-                                onColumnClick={handleOnPatternColumnClick}
-                                onRowClick={handleOnPatternRowClick}
-                                onContextMenu={handleOnPatternContextMenu}
+                {pattern.grids.map((grid) => (
+                    <BeadingGridSelectionProvider key={grid.name}>
+                        <BeadingGridProvider>
+                            <BeadingGridContainer
+                                grid={grid}
+                                isLayoutHorizontal={isHorizontal}
                             />
-                        )}
-                    </Layer>
-                </BeadingGridStylesProvider>
+                        </BeadingGridProvider>
+                    </BeadingGridSelectionProvider>
+                ))}
+
+                <BeadingGridSelectionFrame isVisible={Tools.isCursor(tool)} />
+                <BeadingFrame
+                    height={height}
+                    width={width}
+                    options={
+                        pattern.grids.at(0)?.options ?? DefaultGridProperties
+                    }
+                    isVisible={pattern.grids.length > 0}
+                    onColumnClick={handleOnPatternColumnClick}
+                    onRowClick={handleOnPatternRowClick}
+                    onContextMenu={handleOnPatternContextMenu}
+                />
             </Stage>
 
             <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>

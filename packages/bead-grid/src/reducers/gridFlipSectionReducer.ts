@@ -1,7 +1,7 @@
 import { BeadingGridCellState, BeadingGridState } from "../types";
 import { clear, flip, FlipAxis, getGridSectionBounds, paste } from "../utils";
 
-export const gridFlipSectionReducer = (
+export const gridFlipSection = (
     grid: BeadingGridState,
     cells: Array<BeadingGridCellState>,
     axis: FlipAxis

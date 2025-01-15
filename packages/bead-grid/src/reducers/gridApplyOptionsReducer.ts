@@ -3,9 +3,9 @@ import {
     BeadingGridProperties,
     deepEqualGridOptions,
 } from "../types";
-import { getGridBounds, indeciesInBounds, restoreGridName } from "../utils";
+import { getGridBounds, indeciesInBounds, getCurrentGridName } from "../utils";
 
-export const gridApplyOptionsReducer = (
+export const gridApplyOptions = (
     grid: BeadingGridState,
     modifiedGridOptions: BeadingGridProperties
 ): BeadingGridState => {
@@ -15,7 +15,7 @@ export const gridApplyOptionsReducer = (
 
     const modifiedGrid = {
         ...grid,
-        name: restoreGridName(modifiedGridOptions, grid.name),
+        name: getCurrentGridName(modifiedGridOptions, grid.name),
         options: modifiedGridOptions,
         cells: grid.cells.filter((cell) => {
             const area = getGridBounds(modifiedGridOptions);

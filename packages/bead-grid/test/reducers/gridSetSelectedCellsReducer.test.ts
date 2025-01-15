@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { Square3x3GridWithCellsOnDiagonal } from "../constants";
-import { gridSetCellReducer } from "../../src";
+import { gridSetCell } from "../../src";
 
 test.each([
     [{ color: "", offset: { columnIndex: 0, rowIndex: 0 } }],
@@ -9,13 +9,10 @@ test.each([
 ])(
     "should remove the existing cell at ($offset.columnIndex, $offset.rowIndex)",
     ({ color, offset }) => {
-        const modifiedGrid = gridSetCellReducer(
-            Square3x3GridWithCellsOnDiagonal,
-            {
-                offset,
-                color,
-            }
-        );
+        const modifiedGrid = gridSetCell(Square3x3GridWithCellsOnDiagonal, {
+            offset,
+            color,
+        });
 
         expect(modifiedGrid).toBeDefined();
         expect(modifiedGrid.cells).toBeDefined();

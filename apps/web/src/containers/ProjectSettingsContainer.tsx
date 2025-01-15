@@ -6,45 +6,17 @@ import {
     AccordionPanel,
     Box,
     Button,
-    ButtonGroup,
-    Flex,
-    HStack,
-    Icon,
     StackDivider,
     Text,
     VStack,
 } from "@chakra-ui/react";
-import {
-    BeadingGridProperties,
-    BeadingGridState,
-    BeadingGridType,
-} from "@repo/bead-grid";
-import {
-    PatternLayoutOptions,
-    usePatternStore,
-    patternSelector,
-    addBeadingGridAction,
-    applyPatternOptionsAction,
-    deleteBeadingGridAction,
-} from "@repo/bead-pattern-editor";
-import {
-    LoomIcon,
-    PeyoteIcon,
-    CloseIcon,
-    InfoCircleIcon,
-    PaintingPaletteIcon,
-    PlusIcon,
-    SettingsIcon,
-} from "@repo/icons";
+import { usePatternStore, patternSelector } from "@repo/bead-pattern-editor";
+import { PaintingPaletteIcon, PlusIcon, SettingsIcon } from "@repo/icons";
 import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import {
-    BeadingGridOptionsPanel,
-    PatternLayoutOptionsPanel,
-    ColorPalette,
-    useColorPalette,
-    Shortcuts,
-} from "../components";
+import { ColorPalette, useColorPalette, Shortcuts } from "../components";
+import { PatternOptionsContainer } from "./PatternOptionsContainer";
+import { BeadingGridOptionsContainer } from "./BeadingGridOptionsContainer";
 
 const hotkeysOptions = { preventDefault: true };
 
@@ -72,7 +44,7 @@ export const ProjectSettingsContainer: FC = () => {
     );
 
     const handleOnAddGridClick = useCallback(() => {
-        dispatch(addBeadingGridAction());
+        dispatch({ type: "PATTERN_ADD_GRID" });
     }, [dispatch]);
 
     return (
@@ -120,7 +92,6 @@ export const ProjectSettingsContainer: FC = () => {
                     borderRadius={8}
                     index={gridOptionsIndex}
                     mt={2}
-                    visibility={"hidden"}
                     onChange={setGridOptionsIndex}
                 >
                     <AccordionItem>
@@ -147,7 +118,7 @@ export const ProjectSettingsContainer: FC = () => {
                             >
                                 <PatternOptionsContainer />
                                 {pattern.grids.map((grid) => (
-                                    <BeadingGridOptionContainer
+                                    <BeadingGridOptionsContainer
                                         key={grid.name}
                                         grid={grid}
                                     />
@@ -168,141 +139,5 @@ export const ProjectSettingsContainer: FC = () => {
                 </Accordion>
             </Box>
         </Box>
-    );
-};
-
-const PatternOptionsContainer: FC = () => {
-    const pattern = usePatternStore((state) => state.pattern);
-    const dispatch = usePatternStore((state) => state.dispatch);
-
-    const handleOnLayoutChange = useCallback(
-        (layout: PatternLayoutOptions) => {
-            dispatch(applyPatternOptionsAction({ layout }));
-        },
-        [dispatch]
-    );
-
-    return (
-        <Flex flexDirection={"column"} gap={2} w={"100%"}>
-            <Text fontSize={"xs"} fontWeight={"600"}>
-                Layout
-            </Text>
-            <PatternLayoutOptionsPanel
-                layout={pattern.options.layout}
-                size={"xs"}
-                onChange={handleOnLayoutChange}
-            />
-            <HStack alignItems={"center"} gap={1}>
-                <Icon as={InfoCircleIcon} boxSize={4} />
-                <Text
-                    fontSize={"xs"}
-                    fontWeight={"400"}
-                    justifyContent={"center"}
-                >
-                    Small tips to grids
-                </Text>
-            </HStack>
-        </Flex>
-    );
-};
-
-const BeadingGridOptionContainer: FC<{ grid: BeadingGridState }> = ({
-    grid,
-}) => {
-    const { pattern, dispatch } = usePatternStore(patternSelector);
-
-    const handleOnDeleteGridClick = useCallback(() => {
-        dispatch(deleteBeadingGridAction(grid.name));
-    }, [dispatch, grid?.name]);
-
-    const handleOnTypeClick = useCallback(
-        (type: BeadingGridType) => {
-            dispatch({
-                type: "BEADING_GRID_APPLY_OPTIONS",
-                payload: {
-                    options: {
-                        ...grid.options,
-                        type,
-                    } as BeadingGridProperties,
-                },
-            });
-        },
-        [dispatch, grid.options]
-    );
-
-    const handleOnOptionsChange = useCallback(
-        (modifiedOptions: BeadingGridProperties) => {
-            dispatch({
-                type: "BEADING_GRID_APPLY_OPTIONS",
-                payload: { options: modifiedOptions },
-            });
-        },
-        [dispatch]
-    );
-
-    const isBrickLayout = pattern.options.layout.type === "brick";
-
-    return (
-        <Flex flexDirection={"column"} gap={2} w={"100%"}>
-            <Flex alignItems={"center"} justifyContent={"space-between"}>
-                <Text fontSize={"xs"} fontWeight={"600"}>
-                    {grid.name}
-                </Text>
-                {pattern.grids.length > 0 && (
-                    <Button
-                        rightIcon={<CloseIcon size={16} stroke={"2"} />}
-                        size={"xs"}
-                        variant={"ghost"}
-                        onClick={handleOnDeleteGridClick}
-                    >
-                        Delete
-                    </Button>
-                )}
-            </Flex>
-            {!isBrickLayout && (
-                <ButtonGroup isAttached size={"xs"} variant={"outline"}>
-                    <Button
-                        aria-selected={grid.options.type === "square"}
-                        borderColor={"gray.400"}
-                        leftIcon={<Icon as={LoomIcon} boxSize={4} />}
-                        width={"50%"}
-                        _selected={{
-                            backgroundColor: "gray.900",
-                            color: "gray.50",
-                        }}
-                        _hover={{
-                            backgroundColor: "gray.700",
-                            color: "gray.50",
-                        }}
-                        onClick={() => handleOnTypeClick("square")}
-                    >
-                        Square
-                    </Button>
-                    <Button
-                        aria-selected={grid.options.type === "peyote"}
-                        borderColor={"gray.400"}
-                        leftIcon={<Icon as={PeyoteIcon} boxSize={4} />}
-                        width={"50%"}
-                        _selected={{
-                            backgroundColor: "gray.900",
-                            color: "gray.50",
-                        }}
-                        _hover={{
-                            backgroundColor: "gray.700",
-                            color: "gray.50",
-                        }}
-                        onClick={() => handleOnTypeClick("peyote")}
-                    >
-                        Peyote
-                    </Button>
-                </ButtonGroup>
-            )}
-            <BeadingGridOptionsPanel
-                name={grid.name}
-                options={grid.options}
-                orientation={pattern.options.layout.orientation}
-                onChange={handleOnOptionsChange}
-            />
-        </Flex>
     );
 };

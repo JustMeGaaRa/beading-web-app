@@ -1,17 +1,79 @@
 import {
+    BeadingGridOffset,
     BeadingGridProperties,
     BeadingGridState,
     BrickGridProperties,
     DefaultGridProperties,
+    getCurrentGridName,
     getGridHeight,
+    getNextGridName,
 } from "@repo/bead-grid";
-import { PatternOptions } from "../types";
+import { PatternOptions, PatternState } from "../types";
+
+export const mergeOptions = (
+    patternOptions: PatternOptions,
+    gridOptions: BeadingGridProperties
+): BeadingGridProperties => {
+    const isHorizontal = patternOptions.orientation === "horizontal";
+    if (patternOptions.type === "brick")
+        return {
+            type: patternOptions.type,
+            height: isHorizontal ? patternOptions.height : gridOptions.height,
+            width: isHorizontal ? gridOptions.width : patternOptions.width,
+            drop:
+                "drop" in gridOptions
+                    ? gridOptions.drop
+                    : DefaultGridProperties.drop,
+            fringe:
+                "fringe" in gridOptions
+                    ? gridOptions.fringe
+                    : DefaultGridProperties.fringe,
+        } satisfies BrickGridProperties;
+
+    return {
+        type: patternOptions.type,
+        height: isHorizontal ? patternOptions.height : gridOptions.height,
+        width: isHorizontal ? gridOptions.width : patternOptions.width,
+    } satisfies BeadingGridProperties;
+};
+
+export const createGrid = (
+    options: BeadingGridProperties,
+    offset?: BeadingGridOffset,
+    name?: string
+): BeadingGridState => {
+    return {
+        gridId: `grid-${crypto.randomUUID()}`,
+        offset: offset ?? { rowIndex: 0, columnIndex: 0 },
+        name: name
+            ? getNextGridName(options, name)
+            : getCurrentGridName(options, name),
+        cells: [],
+        options: options,
+    };
+};
+
+export const createPattern = (
+    patternOptions: PatternOptions,
+    gridOptions: BeadingGridProperties
+): PatternState => {
+    return {
+        version: "1.0.0",
+        patternId: `pattern-${crypto.randomUUID()}`,
+        name: "Untitled pattern",
+        coverUrl: "",
+        lastModified: new Date(),
+        options: patternOptions,
+        grids: [createGrid(mergeOptions(patternOptions, gridOptions))],
+        gridCount: 1,
+    };
+};
 
 export const getPatternSize = (
     grids: Array<BeadingGridState>,
     patternOptions: PatternOptions
 ) => {
-    const isHorizontal = patternOptions.layout.orientation === "horizontal";
+    const isHorizontal = patternOptions.orientation === "horizontal";
 
     const height = isHorizontal
         ? Math.max(...grids.map((grid) => getGridHeight(grid.options)))
@@ -24,58 +86,4 @@ export const getPatternSize = (
         : Math.max(...grids.map((grid) => grid.options.width));
 
     return { height, width };
-};
-
-export const createGridOptions = (
-    patternOptions: PatternOptions
-): BeadingGridProperties => {
-    const isHorizontal = patternOptions.layout.orientation === "horizontal";
-    return patternOptions.layout.type === "brick"
-        ? ({
-              type: patternOptions.layout.type,
-              height: isHorizontal
-                  ? patternOptions.layout.height
-                  : DefaultGridProperties.height,
-              width: isHorizontal
-                  ? DefaultGridProperties.width
-                  : patternOptions.layout.width,
-              drop: DefaultGridProperties.drop,
-              fringe: DefaultGridProperties.fringe,
-          } satisfies BrickGridProperties)
-        : ({
-              type: patternOptions.layout.type,
-              height: isHorizontal
-                  ? patternOptions.layout.height
-                  : DefaultGridProperties.height,
-              width: isHorizontal
-                  ? DefaultGridProperties.width
-                  : patternOptions.layout.width,
-          } satisfies BeadingGridProperties);
-};
-
-export const synchronizeOptions = (
-    patternOptions: PatternOptions,
-    gridOptions: BeadingGridProperties
-): [PatternOptions, BeadingGridProperties] => {
-    const isHorizontal = patternOptions.layout.orientation === "horizontal";
-    const modifiedPatternOptions = {
-        ...patternOptions,
-        layout: {
-            ...patternOptions.layout,
-            height: isHorizontal
-                ? patternOptions.layout.height
-                : gridOptions.height,
-            width: isHorizontal
-                ? gridOptions.width
-                : patternOptions.layout.width,
-        },
-    } satisfies PatternOptions;
-    const modifiedGridOptions = {
-        ...gridOptions,
-        height: isHorizontal
-            ? patternOptions.layout.height
-            : gridOptions.height,
-        width: isHorizontal ? gridOptions.width : patternOptions.layout.width,
-    };
-    return [modifiedPatternOptions, modifiedGridOptions];
 };

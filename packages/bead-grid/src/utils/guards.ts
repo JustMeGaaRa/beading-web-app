@@ -10,13 +10,13 @@ export const isBeadingGrid = (data: unknown): data is BeadingGridState => {
     }
 
     return (
+        "gridId" in data &&
         "name" in data &&
         "options" in data &&
-        "offset" in data &&
         "cells" in data &&
+        typeof data.gridId === "string" &&
         typeof data.name === "string" &&
         typeof data.options === "object" &&
-        typeof data.offset === "object" &&
         typeof data.cells === "object" &&
         Array.isArray(data.cells) &&
         data.cells.every((cell: unknown) => isBeadingGridCell(cell))

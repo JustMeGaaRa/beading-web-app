@@ -5,7 +5,7 @@ import {
 } from "../types";
 import { clear, getGridSectionBounds, paste, shift } from "../utils";
 
-export const gridMoveSectionReducer = (
+export const gridMoveSection = (
     grid: BeadingGridState,
     cells: Array<BeadingGridCellState>,
     offset: BeadingGridOffset

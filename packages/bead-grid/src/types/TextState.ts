@@ -1,5 +1,5 @@
 export type TextState = {
-    gridName: string;
+    gridId: string;
     gridIndex: number;
     patternIndex: number;
 };

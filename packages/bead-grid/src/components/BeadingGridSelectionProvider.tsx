@@ -1,6 +1,9 @@
 import { BeadingGridCellState } from "@repo/bead-grid";
 import { FC, PropsWithChildren, useState } from "react";
-import { BeadingGridSelectionContext } from "../context";
+import {
+    BeadingGridSelectionContext,
+    BeadingGridSelectionFrameContext,
+} from "../context";
 
 export const BeadingGridSelectionProvider: FC<PropsWithChildren> = ({
     children,
@@ -29,5 +32,37 @@ export const BeadingGridSelectionProvider: FC<PropsWithChildren> = ({
         >
             {children}
         </BeadingGridSelectionContext.Provider>
+    );
+};
+
+export const BeadingGridSelectionFrameProvider: FC<PropsWithChildren> = ({
+    children,
+}) => {
+    const [mouseDownPosition, setMouseDownPosition] = useState<
+        | {
+              x: number;
+              y: number;
+          }
+        | undefined
+    >(undefined);
+    const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
+        | {
+              x: number;
+              y: number;
+          }
+        | undefined
+    >(undefined);
+
+    return (
+        <BeadingGridSelectionFrameContext.Provider
+            value={{
+                mouseDownPosition,
+                mouseCurrentPosition,
+                setMouseDownPosition,
+                setMouseCurrentPosition,
+            }}
+        >
+            {children}
+        </BeadingGridSelectionFrameContext.Provider>
     );
 };

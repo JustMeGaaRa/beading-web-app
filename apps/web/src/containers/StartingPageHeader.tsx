@@ -11,9 +11,8 @@ import { isPattern } from "@repo/bead-pattern-editor";
 import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { v6 } from "uuid";
 import { CreatePatternModal } from "./CreatePatternModal";
-import { Header, Shortcuts, ShortcutTableModal } from "../components";
+import { PageHeader, Shortcuts, ShortcutTableModal } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction } from "../creators";
 
@@ -82,7 +81,7 @@ export const StartingPageHeader: FC = () => {
                         dispatch(
                             addPatternAction({
                                 ...patternJson,
-                                patternId: `pattern-${v6()}`,
+                                patternId: `pattern-${crypto.randomUUID()}`,
                             })
                         );
                         toast({
@@ -135,7 +134,7 @@ export const StartingPageHeader: FC = () => {
     }, [onModalOpen]);
 
     return (
-        <Header>
+        <PageHeader>
             <Flex alignItems={"center"} cursor={"pointer"} ml={3} gap={2}>
                 <Text fontWeight={600}>Beadee</Text>
                 <Input
@@ -181,6 +180,6 @@ export const StartingPageHeader: FC = () => {
                 isOpen={isHelpOpen}
                 onClose={onHelpClose}
             />
-        </Header>
+        </PageHeader>
     );
 };

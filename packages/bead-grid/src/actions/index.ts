@@ -7,8 +7,7 @@ import { FlipAxis } from "../utils";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;
-    payload: TPayload;
-};
+} & TPayload;
 
 export type GridName = string | "all";
 

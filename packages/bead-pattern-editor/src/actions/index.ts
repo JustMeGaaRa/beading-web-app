@@ -3,15 +3,14 @@ import { PatternOptions } from "../types";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;
-    payload: TPayload;
-};
+} & TPayload;
 
 export type PatternSetNameAction = Action<
     "PATTERN_CHANGE_NAME",
     { name: string }
 >;
-export type PatternChangeColorAction = Action<
-    "PATTERN_CHANGE_COLOR",
+export type PatternReplaceColorAction = Action<
+    "PATTERN_REPLACE_COLOR",
     {
         oldColor: string;
         newColor: string;
@@ -21,16 +20,19 @@ export type PatternApplyOptionsAction = Action<
     "PATTERN_APPLY_OPTIONS",
     { options: PatternOptions }
 >;
-export type PatternAddGridAction = Action<"PATTERN_ADD_GRID", unknown>;
+export type PatternAddGridAction = Action<"PATTERN_ADD_GRID", {}>;
 export type PatternDeleteGridAction = Action<
     "PATTERN_DELETE_GRID",
-    { name: string }
+    { gridId: string }
 >;
+export type PatternGridAction = GridActions & {
+    gridId: string | "all";
+};
 
 export type PatternActions =
     | PatternSetNameAction
-    | PatternChangeColorAction
+    | PatternReplaceColorAction
     | PatternApplyOptionsAction
     | PatternAddGridAction
     | PatternDeleteGridAction
-    | GridActions;
+    | PatternGridAction;
