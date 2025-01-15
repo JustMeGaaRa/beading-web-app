@@ -66,14 +66,14 @@ export const getGridCellRenderBounds = (
             options.height - 1,
             options.drop
         );
-
-        return {
+        const position = {
             x: width * columnIndex + brickOffsetX,
             y: height * rowIndex,
-            absolutePosition: {
-                x: width * columnIndex + brickOffsetX,
-                y: height * rowIndex,
-            },
+        };
+
+        return {
+            absolutePosition: position,
+            relativePosition: position,
             height: height,
             width: width,
         };
@@ -87,14 +87,14 @@ export const getGridCellRenderBounds = (
 
         const { columnIndex, rowIndex } = offset;
         const peyoteOffsetY = getPeyoteOffsetY(columnIndex);
-
-        return {
+        const position = {
             x: width * columnIndex,
             y: height * rowIndex + peyoteOffsetY,
-            absolutePosition: {
-                x: width * columnIndex,
-                y: height * rowIndex + peyoteOffsetY,
-            },
+        };
+
+        return {
+            absolutePosition: position,
+            relativePosition: position,
             height: height,
             width: width,
         };
@@ -102,14 +102,14 @@ export const getGridCellRenderBounds = (
 
     const getSquaredCellOffset = (offset: BeadingGridOffset) => {
         const { columnIndex, rowIndex } = offset;
-
-        return {
+        const position = {
             x: width * columnIndex,
             y: height * rowIndex,
-            absolutePosition: {
-                x: width * columnIndex,
-                y: height * rowIndex,
-            },
+        };
+
+        return {
+            absolutePosition: position,
+            relativePosition: position,
             height: height,
             width: width,
         };
@@ -141,9 +141,8 @@ export const getGridSectionRenderBounds = (
     );
 
     return {
-        x: topLeftCellRelativeBounds.x,
-        y: topLeftCellRelativeBounds.y,
-        absolutePosition: topLeftCellAbsoluteBounds,
+        absolutePosition: topLeftCellAbsoluteBounds.absolutePosition,
+        relativePosition: topLeftCellRelativeBounds.relativePosition,
         height: topLeftCellRelativeBounds.height * bounds.height,
         width: topLeftCellRelativeBounds.width * bounds.width,
     };
@@ -158,9 +157,8 @@ export const getGridRenderBounds = (
     const gridSize = getGridSize(options);
 
     return {
-        x: topLeftCellBounds.x,
-        y: topLeftCellBounds.y,
-        absolutePosition: topLeftCellBounds,
+        absolutePosition: topLeftCellBounds.absolutePosition,
+        relativePosition: topLeftCellBounds.relativePosition,
         height: gridSize.height * topLeftCellBounds.height,
         width: gridSize.width * topLeftCellBounds.width,
     };

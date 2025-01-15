@@ -26,7 +26,7 @@ export const BeadingGridCell: FC<{
     const { styles } = useGridStyles();
     const { options } = useGrid();
 
-    const { x, y, height, width } = getGridCellRenderBounds(
+    const { relativePosition, height, width } = getGridCellRenderBounds(
         offset,
         options,
         styles
@@ -62,8 +62,8 @@ export const BeadingGridCell: FC<{
                 stroke={styles.components.cell.borderColor}
                 strokeWidth={1}
                 width={width}
-                x={x}
-                y={y}
+                x={relativePosition.x}
+                y={relativePosition.y}
                 onClick={handleOnClick}
                 onTap={handleOnClick}
                 onPointerDown={handleOnPointerDown}
@@ -81,8 +81,8 @@ export const BeadingGridCell: FC<{
                     stroke={styles.components.cell._selected.borderColor}
                     strokeWidth={styles.components.cell._selected.borderWidth}
                     width={width}
-                    x={x}
-                    y={y}
+                    x={relativePosition.x}
+                    y={relativePosition.y}
                     onClick={handleOnClick}
                     onTap={handleOnClick}
                     onPointerDown={handleOnPointerDown}

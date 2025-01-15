@@ -7,6 +7,7 @@ import {
     RenderBounds,
     RenderPoint,
     shallowEqualsCell,
+    shiftOffset,
 } from "../types";
 import { getGridBounds } from "./grid";
 import { getGridCellRenderBounds, getGridCellRenderSize } from "./rendering";
@@ -18,10 +19,10 @@ export type HitTestResult = {
 
 export const pointInBounds = (area: RenderBounds, point: RenderPoint) => {
     return (
-        point.x >= area.x &&
-        point.x < area.x + area.width &&
-        point.y >= area.y &&
-        point.y < area.y + area.height
+        point.x >= area.relativePosition.x &&
+        point.x < area.relativePosition.x + area.width &&
+        point.y >= area.relativePosition.y &&
+        point.y < area.relativePosition.y + area.height
     );
 };
 
@@ -126,11 +127,10 @@ export const hitTestCursor = (
         grid.options.type === "square"
             ? [hitCellApproximation]
             : getNeighbourCells(hitCellApproximation.offset).filter((cell) => {
-                  const cellAbsoluteOffset = {
-                      columnIndex:
-                          cell.offset.columnIndex + grid.offset.columnIndex,
-                      rowIndex: cell.offset.rowIndex + grid.offset.rowIndex,
-                  };
+                  const cellAbsoluteOffset = shiftOffset(
+                      cell.offset,
+                      grid.offset
+                  );
                   const bounds = getGridCellRenderBounds(
                       cellAbsoluteOffset,
                       grid.options,
@@ -160,19 +160,19 @@ export const hitTestArea = (
     area: RenderBounds
 ): HitTestResult => {
     const hitCells = grid.cells.filter((cell) => {
-        const cellAbsoluteOffset = {
-            columnIndex: cell.offset.columnIndex + grid.offset.columnIndex,
-            rowIndex: cell.offset.rowIndex + grid.offset.rowIndex,
-        };
+        const cellAbsoluteOffset = shiftOffset(cell.offset, grid.offset);
         const boundary = getGridCellRenderBounds(
             cellAbsoluteOffset,
             grid.options,
             styles
         );
-        const boundaryTopLeft = { x: boundary.x, y: boundary.y };
+        const boundaryTopLeft = {
+            x: boundary.relativePosition.x,
+            y: boundary.relativePosition.y,
+        };
         const boundaryBottomRight = {
-            x: boundary.x + boundary.width - 1,
-            y: boundary.y + boundary.height - 1,
+            x: boundary.relativePosition.x + boundary.width - 1,
+            y: boundary.relativePosition.y + boundary.height - 1,
         };
         return (
             pointInBounds(area, boundaryTopLeft) &&

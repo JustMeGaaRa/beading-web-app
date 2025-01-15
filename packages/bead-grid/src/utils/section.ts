@@ -47,7 +47,7 @@ export const getPlacementRelativePosition = (
 ) => {
     return getPlacementPosition(
         placement,
-        { x: bounds.x, y: bounds.y },
+        bounds.relativePosition,
         bounds.height,
         bounds.width
     );

@@ -17,3 +17,10 @@ export const shiftOffset = (
         rowIndex: offset.rowIndex + shift.rowIndex,
     };
 };
+
+export const negateOffset = (offset: BeadingGridOffset): BeadingGridOffset => {
+    return {
+        columnIndex: -offset.columnIndex,
+        rowIndex: -offset.rowIndex,
+    };
+};

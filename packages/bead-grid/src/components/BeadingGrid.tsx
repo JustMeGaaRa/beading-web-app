@@ -134,7 +134,10 @@ export const BeadingGrid: FC<
     );
 
     return (
-        <Layer x={gridRenderBounds.x} y={gridRenderBounds.y}>
+        <Layer
+            x={gridRenderBounds.relativePosition.x}
+            y={gridRenderBounds.relativePosition.y}
+        >
             <Group name={gridId}></Group>
             <Rect
                 fill={"transparent"}

@@ -1,6 +1,8 @@
 import { BeadingGridState } from "../src";
 
 export const Brick10x10EmptyGrid: BeadingGridState = {
+    gridId: "brick-10x10-empty",
+    offset: { columnIndex: 0, rowIndex: 0 },
     name: "Brick Grid 1",
     cells: [],
     options: {
@@ -13,6 +15,8 @@ export const Brick10x10EmptyGrid: BeadingGridState = {
 };
 
 export const Square10x10EmptyGrid: BeadingGridState = {
+    gridId: "square-10x10-empty",
+    offset: { columnIndex: 0, rowIndex: 0 },
     name: "Test Grid",
     cells: [],
     options: {
@@ -23,6 +27,8 @@ export const Square10x10EmptyGrid: BeadingGridState = {
 };
 
 export const Square3x3GridWithCellsOnDiagonal: BeadingGridState = {
+    gridId: "square-3x3-diagonal",
+    offset: { columnIndex: 0, rowIndex: 0 },
     name: "Square Grid 1",
     cells: [
         { color: "red", offset: { columnIndex: 0, rowIndex: 0 } },
@@ -37,6 +43,8 @@ export const Square3x3GridWithCellsOnDiagonal: BeadingGridState = {
 };
 
 export const Square7x9GridWithCellsFormingLetterS: BeadingGridState = {
+    gridId: "square-7x9-s",
+    offset: { columnIndex: 0, rowIndex: 0 },
     name: "Square Grid 1",
     cells: [
         { color: "blue", offset: { columnIndex: 2, rowIndex: 2 } },

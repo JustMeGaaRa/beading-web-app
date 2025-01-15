@@ -41,8 +41,8 @@ export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
                     strokeWidth={styles.components.frame.selection.borderWidth}
                     height={sectionRenderBounds.height}
                     width={sectionRenderBounds.width}
-                    x={sectionRenderBounds.x}
-                    y={sectionRenderBounds.y}
+                    x={sectionRenderBounds.relativePosition.x}
+                    y={sectionRenderBounds.relativePosition.y}
                 />
                 {children}
             </Group>

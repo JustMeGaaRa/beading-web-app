@@ -12,7 +12,11 @@ export const BeadingText: FC<{
     options: BeadingGridProperties;
 }> = ({ text, color, offset, padding = 0, options }) => {
     const { styles } = useGridStyles();
-    const { x, y, height } = getGridCellRenderBounds(offset, options, styles);
+    const { relativePosition, height } = getGridCellRenderBounds(
+        offset,
+        options,
+        styles
+    );
 
     return (
         <Text
@@ -22,8 +26,8 @@ export const BeadingText: FC<{
             padding={padding}
             text={text}
             fill={color ?? styles.components.text.color}
-            x={x}
-            y={y}
+            x={relativePosition.x}
+            y={relativePosition.y}
         />
     );
 };

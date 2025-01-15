@@ -1,11 +1,7 @@
 import { FC } from "react";
 import { Circle } from "react-konva";
 import { Portal } from "react-konva-utils";
-import {
-    getGridCellRenderBounds,
-    getGridCellRenderSize,
-    getGridSize,
-} from "../utils";
+import { getGridCellRenderBounds, getGridSize } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
 export const BeadingGridBackgroundPattern: FC = () => {
@@ -25,15 +21,8 @@ export const BeadingGridBackgroundPattern: FC = () => {
                 )
                 .flat()
                 .map((cell) => {
-                    const { x, y } = getGridCellRenderBounds(
-                        cell.offset,
-                        options,
-                        styles
-                    );
-                    const { height, width } = getGridCellRenderSize(
-                        options,
-                        styles
-                    );
+                    const { relativePosition, height, width } =
+                        getGridCellRenderBounds(cell.offset, options, styles);
 
                     return (
                         <Circle
@@ -42,8 +31,8 @@ export const BeadingGridBackgroundPattern: FC = () => {
                             fill={styles.components.pattern.color}
                             height={4}
                             width={4}
-                            x={x + width / 2}
-                            y={y + height / 2}
+                            x={relativePosition.x + width / 2}
+                            y={relativePosition.y + height / 2}
                         />
                     );
                 })}
