@@ -5,10 +5,10 @@ import {
     IconButton,
     Tooltip,
 } from "@chakra-ui/react";
-import { Check } from "iconoir-react";
 import { FC } from "react";
 import { ToolState } from "./ToolsProvider";
 import {
+    CheckmarkIcon,
     ClipboardAddIcon,
     ClipboardIcon,
     CopyIcon,
@@ -188,7 +188,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
                         variant={"ghost"}
                     >
                         <Button
-                            rightIcon={<Check />}
+                            rightIcon={<CheckmarkIcon />}
                             color={"white"}
                             _hover={{ backgroundColor: "gray.700" }}
                             _active={{ backgroundColor: "gray.600" }}

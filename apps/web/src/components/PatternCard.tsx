@@ -5,7 +5,6 @@ import {
     CardBody,
     CardFooter,
     Flex,
-    Icon,
     IconButton,
     Image,
     Menu,
@@ -15,7 +14,7 @@ import {
     Text,
 } from "@chakra-ui/react";
 import { PatternState } from "@repo/bead-pattern-editor";
-import { MoreHoriz } from "iconoir-react";
+import { MoreMenuIcon } from "@repo/icons";
 import { FC, useCallback } from "react";
 
 export type PatternEventHandler<TEvent> = (
@@ -104,7 +103,7 @@ export const PatternCard: FC<{
                             as={IconButton}
                             aria-label={"more options"}
                             colorScheme={"gray"}
-                            icon={<Icon as={MoreHoriz} boxSize={5} />}
+                            icon={<MoreMenuIcon />}
                             size={"md"}
                             variant={"ghost"}
                             title={"more options"}

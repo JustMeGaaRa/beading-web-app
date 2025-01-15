@@ -2,7 +2,7 @@ import { IconlyIconProps } from "./IconlyIconProps";
 
 export const LoomIcon = ({
     size = 32,
-    color = "currentColor",
+    // color = "currentColor",
 }: IconlyIconProps) => {
     // displayName: "LoomIcon",
     // viewBox: "0 0 32 32",

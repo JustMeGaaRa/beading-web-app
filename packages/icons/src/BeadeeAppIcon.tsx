@@ -2,7 +2,7 @@ import { IconlyIconProps } from "./IconlyIconProps";
 
 export const BeadeeAppIcon = ({
     size = 32,
-    color = "currentColor",
+    // color = "currentColor",
 }: IconlyIconProps) => {
     return (
         <svg

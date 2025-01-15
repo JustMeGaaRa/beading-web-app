@@ -8,13 +8,13 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import { PatternState } from "@repo/bead-pattern-editor";
-import { Plus } from "iconoir-react";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
 import { PatternCard } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
 import { usePatternCollectionStore } from "../store";
+import { PlusIcon } from "@repo/icons";
 
 const comparePatterns = (a: PatternState, b: PatternState) => {
     return (
@@ -112,7 +112,7 @@ export const PatternCollectionExplorer: FC = () => {
         >
             <Button
                 aria-label={"create pattern"}
-                rightIcon={<Plus />}
+                rightIcon={<PlusIcon />}
                 variant={"solid"}
                 title={"create pattern"}
                 backgroundColor={"gray.900"}

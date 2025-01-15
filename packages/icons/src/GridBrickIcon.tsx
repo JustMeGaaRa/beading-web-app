@@ -2,7 +2,7 @@ import { IconlyIconProps } from "./IconlyIconProps";
 
 export const BrickIcon = ({
     size = 32,
-    color = "currentColor",
+    // color = "currentColor",
 }: IconlyIconProps) => {
     // displayName: "BrickIcon",
     // viewBox: "0 0 32 32",

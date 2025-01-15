@@ -2,7 +2,7 @@ import { IconlyIconProps } from "./IconlyIconProps";
 
 export const PeyoteIcon = ({
     size = 32,
-    color = "currentColor",
+    // color = "currentColor",
 }: IconlyIconProps) => {
     // displayName: "PeyoteIcon",
     // viewBox: "0 0 32 32",

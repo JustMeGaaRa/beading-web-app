@@ -1,15 +1,14 @@
 import {
     Box,
     ButtonGroup,
-    Icon,
     IconButton,
     Tooltip,
     useDisclosure,
 } from "@chakra-ui/react";
-import { HelpCircle } from "iconoir-react";
 import { FC, useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Shortcuts, ShortcutTableModal } from "../components";
+import { QuestionmarkCircleIcon } from "@repo/icons";
 
 const hotkeysOptions = { preventDefault: true, keydown: true, keyup: true };
 
@@ -45,7 +44,7 @@ export const ProjectHelpContainer: FC = () => {
                     <Tooltip label={"Show help"} placement={"right"}>
                         <IconButton
                             aria-label={"help"}
-                            icon={<Icon as={HelpCircle} boxSize={5} />}
+                            icon={<QuestionmarkCircleIcon />}
                             onClick={onOpen}
                         />
                     </Tooltip>

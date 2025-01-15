@@ -35,6 +35,7 @@ export * from "./NavigationIcon";
 export * from "./PaintingPaletteIcon";
 export * from "./PencilIcon";
 export * from "./PlusIcon";
+export * from "./QuestionmarkCircleIcon";
 export * from "./RemoveCircleIcon";
 export * from "./ReverseLeftIcon";
 export * from "./ReverseRightIcon";
