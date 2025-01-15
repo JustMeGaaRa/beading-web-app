@@ -5,7 +5,8 @@ import {
     getGridRenderBounds,
     getGridSectionBounds,
     getGridSectionRenderBounds,
-    getPlacementPosition,
+    getPlacementAbsolutePosition,
+    getPlacementRelativePosition,
     pointInBounds,
 } from "../utils";
 import { Html } from "react-konva-utils";
@@ -22,23 +23,28 @@ export const BeadingGridSectionToolbar: FC<
     // TODO: section has to know about grid offset
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
+        offset,
         sectionBounds,
         options,
         styles
     );
-    const toolbarPosition = getPlacementPosition(
+    const toolbarAbsolutePosition = getPlacementAbsolutePosition(
+        placement,
+        sectionRenderBounds
+    );
+    const toolbarRelativePosition = getPlacementRelativePosition(
         placement,
         sectionRenderBounds
     );
     const gridBounds = getGridRenderBounds(offset, options, styles);
-    const isInBounds = pointInBounds(gridBounds, toolbarPosition);
+    const isInBounds = pointInBounds(gridBounds, toolbarAbsolutePosition);
 
     return (
         isVisible &&
         isInBounds && (
             <Html
                 divProps={{ style: { pointerEvents: "none" } }}
-                groupProps={toolbarPosition}
+                groupProps={toolbarRelativePosition}
                 transform
                 transformFunc={(attr) => ({
                     ...attr,

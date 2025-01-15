@@ -1,9 +1,18 @@
-import { RenderBounds, ToolbarPlacement } from "../types";
+import { RenderBounds, RenderPoint, ToolbarPlacement } from "../types";
 
 export const getPlacementPosition = (
     placement: ToolbarPlacement,
-    bounds: RenderBounds
+    position: RenderPoint,
+    height: number,
+    width: number
 ) => {
+    const bounds = {
+        x: position.x,
+        y: position.y,
+        height: height,
+        width: width,
+    };
+
     switch (placement) {
         case "top-center":
             return { x: bounds.x + bounds.width / 2, y: bounds.y };
@@ -30,4 +39,28 @@ export const getPlacementPosition = (
         default:
             return { x: 0, y: 0 };
     }
+};
+
+export const getPlacementRelativePosition = (
+    placement: ToolbarPlacement,
+    bounds: RenderBounds
+) => {
+    return getPlacementPosition(
+        placement,
+        { x: bounds.x, y: bounds.y },
+        bounds.height,
+        bounds.width
+    );
+};
+
+export const getPlacementAbsolutePosition = (
+    placement: ToolbarPlacement,
+    bounds: RenderBounds
+) => {
+    return getPlacementPosition(
+        placement,
+        bounds.absolutePosition,
+        bounds.height,
+        bounds.width
+    );
 };

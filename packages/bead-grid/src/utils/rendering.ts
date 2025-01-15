@@ -8,6 +8,7 @@ import {
     BrickGridProperties,
     BeadingGridSize,
     BeadingGridSectionState,
+    shiftOffset,
 } from "../types";
 import { flipBead } from "./common";
 import { getGridSize } from "./grid";
@@ -69,6 +70,10 @@ export const getGridCellRenderBounds = (
         return {
             x: width * columnIndex + brickOffsetX,
             y: height * rowIndex,
+            absolutePosition: {
+                x: width * columnIndex + brickOffsetX,
+                y: height * rowIndex,
+            },
             height: height,
             width: width,
         };
@@ -86,6 +91,10 @@ export const getGridCellRenderBounds = (
         return {
             x: width * columnIndex,
             y: height * rowIndex + peyoteOffsetY,
+            absolutePosition: {
+                x: width * columnIndex,
+                y: height * rowIndex + peyoteOffsetY,
+            },
             height: height,
             width: width,
         };
@@ -97,6 +106,10 @@ export const getGridCellRenderBounds = (
         return {
             x: width * columnIndex,
             y: height * rowIndex,
+            absolutePosition: {
+                x: width * columnIndex,
+                y: height * rowIndex,
+            },
             height: height,
             width: width,
         };
@@ -110,22 +123,29 @@ export const getGridCellRenderBounds = (
 };
 
 export const getGridSectionRenderBounds = (
+    offset: BeadingGridOffset,
     bounds: BeadingGridSectionState,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const cellBounds = getGridCellRenderBounds(bounds.topLeft, options, styles);
-    const topLeftBounds = getGridCellRenderBounds(
+    const topLeftCellAbsoluteOffset = shiftOffset(bounds.topLeft, offset);
+    const topLeftCellAbsoluteBounds = getGridCellRenderBounds(
+        topLeftCellAbsoluteOffset,
+        options,
+        styles
+    );
+    const topLeftCellRelativeBounds = getGridCellRenderBounds(
         bounds.topLeft,
         options,
         styles
     );
 
     return {
-        x: topLeftBounds.x,
-        y: topLeftBounds.y,
-        height: cellBounds.height * bounds.height,
-        width: cellBounds.width * bounds.width,
+        x: topLeftCellRelativeBounds.x,
+        y: topLeftCellRelativeBounds.y,
+        absolutePosition: topLeftCellAbsoluteBounds,
+        height: topLeftCellRelativeBounds.height * bounds.height,
+        width: topLeftCellRelativeBounds.width * bounds.width,
     };
 };
 
@@ -134,13 +154,14 @@ export const getGridRenderBounds = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const cellBounds = getGridCellRenderBounds(offset, options, styles);
+    const topLeftCellBounds = getGridCellRenderBounds(offset, options, styles);
     const gridSize = getGridSize(options);
 
     return {
-        x: cellBounds.x,
-        y: cellBounds.y,
-        height: gridSize.height * cellBounds.height,
-        width: gridSize.width * cellBounds.width,
+        x: topLeftCellBounds.x,
+        y: topLeftCellBounds.y,
+        absolutePosition: topLeftCellBounds,
+        height: gridSize.height * topLeftCellBounds.height,
+        width: gridSize.width * topLeftCellBounds.width,
     };
 };

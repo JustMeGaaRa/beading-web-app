@@ -1,4 +1,4 @@
-import { BeadingGridOffset } from "./BeadingGridBounds";
+import { BeadingGridOffset, shiftOffset } from "./BeadingGridBounds";
 
 export type BeadingGridCellState = {
     color: string;
@@ -32,9 +32,6 @@ export const shiftCell = (
 ) => {
     return {
         ...cell,
-        offset: {
-            columnIndex: cell.offset.columnIndex + offset.columnIndex,
-            rowIndex: cell.offset.rowIndex + offset.rowIndex,
-        },
+        offset: shiftOffset(cell.offset, offset),
     };
 };

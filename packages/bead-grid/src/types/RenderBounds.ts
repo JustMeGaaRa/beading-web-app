@@ -6,6 +6,7 @@ export type RenderPoint = {
 export type RenderBounds = {
     x: number;
     y: number;
+    absolutePosition: RenderPoint;
     height: number;
     width: number;
 };
@@ -22,6 +23,10 @@ export const createRenderBounds = (
     return {
         x,
         y,
+        absolutePosition: {
+            x: x,
+            y: y,
+        },
         height,
         width,
     };

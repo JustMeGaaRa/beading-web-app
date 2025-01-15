@@ -10,11 +10,12 @@ import {
 
 // TODO: introduce style props to support state styling from outside
 export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
-    const { options } = useGrid();
+    const { offset, options } = useGrid();
     const { styles } = useGridStyles();
     const { selectedCells } = useGridSelection();
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
+        offset,
         sectionBounds,
         options,
         styles
