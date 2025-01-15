@@ -8,13 +8,13 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { isPattern } from "@repo/bead-pattern-editor";
-import { Plus, Upload } from "iconoir-react";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CreatePatternModal } from "./CreatePatternModal";
 import { PageHeader, Shortcuts, ShortcutTableModal } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction } from "../creators";
+import { BeadeeAppIcon, DocumentUploadIcon, PlusIcon } from "@repo/icons";
 
 const hotkeysOptions = { preventDefault: true };
 const hotkeysKeyOptions = { preventDefault: true, keydown: true, keyup: true };
@@ -136,6 +136,7 @@ export const StartingPageHeader: FC = () => {
     return (
         <PageHeader>
             <Flex alignItems={"center"} cursor={"pointer"} ml={3} gap={2}>
+                <BeadeeAppIcon size={20} />
                 <Text fontWeight={600}>Beadee</Text>
                 <Input
                     accept={".json"}
@@ -153,7 +154,7 @@ export const StartingPageHeader: FC = () => {
             >
                 <Button
                     aria-label={"import"}
-                    rightIcon={<Upload />}
+                    rightIcon={<DocumentUploadIcon />}
                     title={"import"}
                     onClick={handleOnOpenFileClick}
                 >
@@ -161,7 +162,7 @@ export const StartingPageHeader: FC = () => {
                 </Button>
                 <Button
                     aria-label={"create pattern"}
-                    rightIcon={<Plus />}
+                    rightIcon={<PlusIcon />}
                     variant={"solid"}
                     title={"create pattern"}
                     backgroundColor={"gray.900"}

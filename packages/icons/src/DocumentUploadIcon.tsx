@@ -13,9 +13,7 @@ export const DocumentUploadIcon = ({
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
         >
-            <title>Iconly/Light/Paper Upload</title>
             <g
-                id="Iconly/Light/Paper-Upload"
                 stroke="none"
                 strokeWidth="1.5"
                 fill="none"
@@ -24,7 +22,6 @@ export const DocumentUploadIcon = ({
                 strokeLinejoin="round"
             >
                 <g
-                    id="Paper-Upload"
                     transform="translate(3.500000, 2.000000)"
                     stroke={color}
                     strokeWidth="1.5"

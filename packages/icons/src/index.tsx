@@ -4,6 +4,7 @@ export * from "./AlignRightIcon";
 export * from "./AlignTopIcon";
 export * from "./ArrowDownIcon";
 export * from "./ArrowLeftMDIcon";
+export * from "./BeadeeAppIcon";
 export * from "./CheckmarkIcon";
 export * from "./ClipboardAddIcon";
 export * from "./ClipboardIcon";

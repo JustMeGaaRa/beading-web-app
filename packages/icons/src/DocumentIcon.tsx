@@ -13,9 +13,7 @@ export const DocumentIcon = ({
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
         >
-            <title>Iconly/Light/Document</title>
             <g
-                id="Iconly/Light/Document"
                 stroke="none"
                 strokeWidth="1.5"
                 fill="none"
@@ -24,7 +22,6 @@ export const DocumentIcon = ({
                 strokeLinejoin="round"
             >
                 <g
-                    id="Document"
                     transform="translate(3.000000, 2.000000)"
                     stroke={color}
                     strokeWidth="1.5"

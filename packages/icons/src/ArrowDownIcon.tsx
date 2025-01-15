@@ -13,9 +13,7 @@ export const ArrowDownIcon = ({
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
         >
-            <title>Iconly/Light/Arrow - Down 2</title>
             <g
-                id="Iconly/Light/Arrow---Down-2"
                 stroke="none"
                 strokeWidth="1.5"
                 fill="none"
@@ -24,7 +22,6 @@ export const ArrowDownIcon = ({
                 strokeLinejoin="round"
             >
                 <g
-                    id="Arrow---Down-2"
                     transform="translate(5.000000, 8.500000)"
                     stroke={color}
                     strokeWidth="1.5"

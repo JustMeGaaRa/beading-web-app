@@ -14,9 +14,7 @@ export const SettingsIcon = ({
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
         >
-            <title>Iconly/Light/Setting</title>
             <g
-                id="Iconly/Light/Setting"
                 stroke="none"
                 strokeWidth={stroke}
                 fill="none"
@@ -25,7 +23,6 @@ export const SettingsIcon = ({
                 strokeLinejoin="round"
             >
                 <g
-                    id="Setting"
                     transform="translate(2.500000, 1.500000)"
                     stroke={color}
                     strokeWidth={stroke}
