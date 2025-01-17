@@ -80,8 +80,7 @@ test.each([
 test.each([
     {
         area: {
-            relativePosition: { x: -10, y: -10 },
-            absolutePosition: { x: -10, y: -10 },
+            position: { x: -10, y: -10 },
             height: 32 + 20,
             width: 26 + 20,
         },
@@ -90,8 +89,7 @@ test.each([
     },
     {
         area: {
-            relativePosition: { x: -10, y: -10 },
-            absolutePosition: { x: -10, y: -10 },
+            position: { x: -10, y: -10 },
             height: 64 + 20,
             width: 52 + 20,
         },
@@ -100,8 +98,7 @@ test.each([
     },
     {
         area: {
-            relativePosition: { x: -10, y: -10 },
-            absolutePosition: { x: -10, y: -10 },
+            position: { x: -10, y: -10 },
             height: 96 + 20,
             width: 78 + 20,
         },
@@ -110,8 +107,7 @@ test.each([
     },
     {
         area: {
-            relativePosition: { x: 0, y: 0 },
-            absolutePosition: { x: 0, y: 0 },
+            position: { x: 0, y: 0 },
             height: 32,
             width: 26,
         },
@@ -120,8 +116,7 @@ test.each([
     },
     {
         area: {
-            relativePosition: { x: 26, y: 0 },
-            absolutePosition: { x: 26, y: 0 },
+            position: { x: 26, y: 0 },
             height: 32,
             width: 26,
         },
@@ -130,8 +125,7 @@ test.each([
     },
     {
         area: {
-            relativePosition: { x: 26, y: 0 },
-            absolutePosition: { x: 26, y: 0 },
+            position: { x: 26, y: 0 },
             height: 96,
             width: 26,
         },

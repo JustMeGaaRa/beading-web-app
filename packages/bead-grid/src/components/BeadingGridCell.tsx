@@ -26,11 +26,11 @@ export const BeadingGridCell: FC<{
     const { styles } = useGridStyles();
     const { options } = useGrid();
 
-    const { relativePosition, height, width } = getGridCellRenderBounds(
-        offset,
-        options,
-        styles
-    );
+    const {
+        position: relativePosition,
+        height,
+        width,
+    } = getGridCellRenderBounds(offset, options, styles);
 
     const handleOnClick = useCallback(() => {
         onClick?.({ cell: { offset, color } });

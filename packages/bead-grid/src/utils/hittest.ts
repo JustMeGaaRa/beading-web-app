@@ -19,10 +19,10 @@ export type HitTestResult = {
 
 export const pointInBounds = (area: RenderBounds, point: RenderPoint) => {
     return (
-        point.x >= area.relativePosition.x &&
-        point.x < area.relativePosition.x + area.width &&
-        point.y >= area.relativePosition.y &&
-        point.y < area.relativePosition.y + area.height
+        point.x >= area.position.x &&
+        point.x < area.position.x + area.width &&
+        point.y >= area.position.y &&
+        point.y < area.position.y + area.height
     );
 };
 
@@ -167,12 +167,12 @@ export const hitTestArea = (
             styles
         );
         const boundaryTopLeft = {
-            x: boundary.relativePosition.x,
-            y: boundary.relativePosition.y,
+            x: boundary.position.x,
+            y: boundary.position.y,
         };
         const boundaryBottomRight = {
-            x: boundary.relativePosition.x + boundary.width - 1,
-            y: boundary.relativePosition.y + boundary.height - 1,
+            x: boundary.position.x + boundary.width - 1,
+            y: boundary.position.y + boundary.height - 1,
         };
         return (
             pointInBounds(area, boundaryTopLeft) &&

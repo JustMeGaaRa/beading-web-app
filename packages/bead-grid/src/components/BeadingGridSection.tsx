@@ -10,12 +10,11 @@ import {
 
 // TODO: introduce style props to support state styling from outside
 export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
-    const { offset, options } = useGrid();
+    const { options } = useGrid();
     const { styles } = useGridStyles();
     const { selectedCells } = useGridSelection();
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
-        offset,
         sectionBounds,
         options,
         styles
@@ -41,8 +40,8 @@ export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
                     strokeWidth={styles.components.frame.selection.borderWidth}
                     height={sectionRenderBounds.height}
                     width={sectionRenderBounds.width}
-                    x={sectionRenderBounds.relativePosition.x}
-                    y={sectionRenderBounds.relativePosition.y}
+                    x={sectionRenderBounds.position.x}
+                    y={sectionRenderBounds.position.y}
                 />
                 {children}
             </Group>

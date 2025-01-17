@@ -2,6 +2,7 @@ import { FC, PropsWithChildren } from "react";
 import { ToolbarPlacement } from "../types";
 import { useGrid, useGridSelection, useGridStyles } from "../hooks";
 import {
+    getGridCellRenderBounds,
     getGridRenderBounds,
     getGridSectionBounds,
     getGridSectionRenderBounds,
@@ -23,13 +24,13 @@ export const BeadingGridSectionToolbar: FC<
     // TODO: section has to know about grid offset
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
-        offset,
         sectionBounds,
         options,
         styles
     );
     const toolbarAbsolutePosition = getPlacementAbsolutePosition(
         placement,
+        getGridCellRenderBounds(offset, options, styles).position,
         sectionRenderBounds
     );
     const toolbarRelativePosition = getPlacementRelativePosition(

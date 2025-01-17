@@ -4,8 +4,7 @@ export type RenderPoint = {
 };
 
 export type RenderBounds = {
-    absolutePosition: RenderPoint;
-    relativePosition: RenderPoint;
+    position: RenderPoint;
     height: number;
     width: number;
 };
@@ -20,8 +19,7 @@ export const createRenderBounds = (
     const height = Math.abs(point2.y - point1.y);
 
     return {
-        absolutePosition: { x, y },
-        relativePosition: { x, y },
+        position: { x, y },
         height,
         width,
     };

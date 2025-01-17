@@ -8,7 +8,6 @@ import {
     BrickGridProperties,
     BeadingGridSize,
     BeadingGridSectionState,
-    shiftOffset,
 } from "../types";
 import { flipBead } from "./common";
 import { getGridSize } from "./grid";
@@ -73,7 +72,7 @@ export const getGridCellRenderBounds = (
 
         return {
             absolutePosition: position,
-            relativePosition: position,
+            position: position,
             height: height,
             width: width,
         };
@@ -94,7 +93,7 @@ export const getGridCellRenderBounds = (
 
         return {
             absolutePosition: position,
-            relativePosition: position,
+            position: position,
             height: height,
             width: width,
         };
@@ -109,7 +108,7 @@ export const getGridCellRenderBounds = (
 
         return {
             absolutePosition: position,
-            relativePosition: position,
+            position: position,
             height: height,
             width: width,
         };
@@ -123,17 +122,10 @@ export const getGridCellRenderBounds = (
 };
 
 export const getGridSectionRenderBounds = (
-    offset: BeadingGridOffset,
     bounds: BeadingGridSectionState,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const topLeftCellAbsoluteOffset = shiftOffset(bounds.topLeft, offset);
-    const topLeftCellAbsoluteBounds = getGridCellRenderBounds(
-        topLeftCellAbsoluteOffset,
-        options,
-        styles
-    );
     const topLeftCellRelativeBounds = getGridCellRenderBounds(
         bounds.topLeft,
         options,
@@ -141,8 +133,7 @@ export const getGridSectionRenderBounds = (
     );
 
     return {
-        absolutePosition: topLeftCellAbsoluteBounds.absolutePosition,
-        relativePosition: topLeftCellRelativeBounds.relativePosition,
+        position: topLeftCellRelativeBounds.position,
         height: topLeftCellRelativeBounds.height * bounds.height,
         width: topLeftCellRelativeBounds.width * bounds.width,
     };
@@ -157,8 +148,7 @@ export const getGridRenderBounds = (
     const gridSize = getGridSize(options);
 
     return {
-        absolutePosition: topLeftCellBounds.absolutePosition,
-        relativePosition: topLeftCellBounds.relativePosition,
+        position: topLeftCellBounds.position,
         height: gridSize.height * topLeftCellBounds.height,
         width: gridSize.width * topLeftCellBounds.width,
     };

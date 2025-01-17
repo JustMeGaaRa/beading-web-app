@@ -21,8 +21,11 @@ export const BeadingGridBackgroundPattern: FC = () => {
                 )
                 .flat()
                 .map((cell) => {
-                    const { relativePosition, height, width } =
-                        getGridCellRenderBounds(cell.offset, options, styles);
+                    const {
+                        position: relativePosition,
+                        height,
+                        width,
+                    } = getGridCellRenderBounds(cell.offset, options, styles);
 
                     return (
                         <Circle

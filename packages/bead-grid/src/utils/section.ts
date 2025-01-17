@@ -47,7 +47,7 @@ export const getPlacementRelativePosition = (
 ) => {
     return getPlacementPosition(
         placement,
-        bounds.relativePosition,
+        bounds.position,
         bounds.height,
         bounds.width
     );
@@ -55,11 +55,16 @@ export const getPlacementRelativePosition = (
 
 export const getPlacementAbsolutePosition = (
     placement: ToolbarPlacement,
+    gridPosition: RenderPoint,
     bounds: RenderBounds
 ) => {
+    const cellAbsoluteOffset = {
+        x: bounds.position.x + gridPosition.x,
+        y: bounds.position.y + gridPosition.y,
+    };
     return getPlacementPosition(
         placement,
-        bounds.absolutePosition,
+        cellAbsoluteOffset,
         bounds.height,
         bounds.width
     );
