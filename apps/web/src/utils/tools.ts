@@ -1,5 +1,9 @@
 import { ToolState } from "../components";
 
+export function isNone(tool: ToolState): boolean {
+    return tool.name === "none";
+}
+
 export function isPencil(tool: ToolState): boolean {
     return tool.name === "pencil";
 }
@@ -38,6 +42,7 @@ export function getCursor(
 }
 
 export default {
+    isNone,
     isPencil,
     isEraser,
     isCursor,
