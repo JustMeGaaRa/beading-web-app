@@ -188,6 +188,8 @@ export const PatternContainer: FC = () => {
         (event: Konva.KonvaEventObject<TouchEvent>) => {
             event.evt.preventDefault();
 
+            if (!Tools.isMovement(tool)) return;
+
             // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
             if (event.evt.touches.length !== 2) return;
 
