@@ -174,6 +174,16 @@ export const PatternContainer: FC = () => {
         [pattern.grids, pattern.options, styles]
     );
 
+    const [touchZoom, setTouchZoom] = useState(false);
+
+    const handleOnStageTouchStart = useCallback(
+        (event: Konva.KonvaEventObject<TouchEvent>) => {
+            // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
+            setTouchZoom(event.evt.touches.length === 2);
+        },
+        []
+    );
+
     const handleOnStageTouchMove = useCallback(
         (event: Konva.KonvaEventObject<TouchEvent>) => {
             event.evt.preventDefault();
@@ -236,11 +246,12 @@ export const PatternContainer: FC = () => {
 
             lastTouchDistanceRef.current = currentTouchDistance;
         },
-        [tool, pattern.grids, pattern.options, styles]
+        [pattern.grids, pattern.options, styles]
     );
 
     const handleOnStageTouchEnd = useCallback(() => {
         lastTouchDistanceRef.current = 0;
+        setTouchZoom(false);
     }, []);
 
     const handleOnStageClick = useCallback(() => {
@@ -430,11 +441,12 @@ export const PatternContainer: FC = () => {
         <Box cursor={Tools.getCursor(tool)} height={"100%"} width={"100%"}>
             <Stage
                 ref={stageRef}
-                draggable={Tools.isMovement(tool)}
+                draggable={Tools.isMovement(tool) && !touchZoom}
                 height={window.innerHeight}
                 width={window.innerWidth}
                 onClick={handleOnStageClick}
                 onContextMenu={handleOnStageContextMenu}
+                onTouchStart={handleOnStageTouchStart}
                 onTouchMove={handleOnStageTouchMove}
                 onTouchEnd={handleOnStageTouchEnd}
                 onPointerDown={handleOnPointerDown}
