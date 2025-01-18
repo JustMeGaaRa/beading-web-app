@@ -49,13 +49,13 @@ const ToolsContext = createContext<{
     tool: ToolState;
     setTool: Dispatch<SetStateAction<ToolState>>;
 }>({
-    tool: { name: "none", state: { currentAction: "default" } },
+    tool: { name: "move", state: { currentAction: "default" } },
     setTool: () => {},
 });
 
 export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
     const [tool, setTool] = useState<ToolState>({
-        name: "none",
+        name: "move",
         state: { currentAction: "default" },
     });
 
@@ -73,7 +73,7 @@ export const useTools = () => {
         (tool: ToolState) => {
             setTool((state) =>
                 state.name === tool.name
-                    ? { name: "none", state: { currentAction: "default" } }
+                    ? { name: "move", state: { currentAction: "default" } }
                     : tool
             );
         },

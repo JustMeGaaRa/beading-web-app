@@ -41,4 +41,5 @@ export * from "./ReverseLeftIcon";
 export * from "./ReverseRightIcon";
 export * from "./SettingsIcon";
 export * from "./TapMoveIcon";
+export * from "./ThermometerIcon";
 export * from "./VerticalMirrorIcon";

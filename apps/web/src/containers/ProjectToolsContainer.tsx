@@ -11,13 +11,12 @@ import {
     usePatternStore,
 } from "@repo/bead-pattern-editor";
 import {
-    ColorPickerIcon,
-    DragIcon,
     EraserIcon,
     NavigationIcon,
     PencilIcon,
     ReverseLeftIcon,
     ReverseRightIcon,
+    ThermometerIcon,
 } from "@repo/icons";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -117,14 +116,6 @@ export const ProjectToolsContainer: FC = () => {
                             onClick={onSetCursorTool}
                         />
                     </Tooltip>
-                    <Tooltip label={"Drag"} placement={"right"}>
-                        <IconButton
-                            aria-label={"drag"}
-                            icon={<DragIcon size={20} />}
-                            isActive={tool.name === "move"}
-                            onClick={onSetMoveTool}
-                        />
-                    </Tooltip>
                     <Tooltip label={"Pencil"} placement={"right"}>
                         <IconButton
                             aria-label={"pencil"}
@@ -144,7 +135,7 @@ export const ProjectToolsContainer: FC = () => {
                     <Tooltip label={"Color Picker"} placement={"right"}>
                         <IconButton
                             aria-label={"picker"}
-                            icon={<ColorPickerIcon size={20} />}
+                            icon={<ThermometerIcon size={20} />}
                             isActive={tool.name === "picker"}
                             onClick={onSetPickerTool}
                         />
