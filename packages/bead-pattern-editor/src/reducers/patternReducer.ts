@@ -3,10 +3,46 @@ import {
     gridReducer,
     DefaultGridProperties,
     getGridHeight,
+    BeadingGridState,
 } from "@repo/bead-grid";
 import { PatternActions } from "../actions";
 import { PatternState } from "../types";
 import { createGrid, mergeOptions } from "../utils";
+
+const getCurrentGridOffset = (
+    previousGrid: BeadingGridState | undefined,
+    orientation: "horizontal" | "vertical"
+) => {
+    if (!previousGrid) return { columnIndex: 0, rowIndex: 0 };
+
+    const currentGridOffset = {
+        columnIndex:
+            orientation === "horizontal"
+                ? previousGrid!.offset!.columnIndex +
+                  previousGrid!.options.width
+                : 0,
+        rowIndex:
+            orientation === "vertical"
+                ? previousGrid!.offset!.rowIndex +
+                  getGridHeight(previousGrid!.options)
+                : 0,
+    };
+
+    return currentGridOffset;
+};
+
+const mapGridOffset = (
+    grids: Array<BeadingGridState>,
+    orientation: "horizontal" | "vertical"
+) => {
+    return grids.map((grid, index) => ({
+        ...grid,
+        offset: getCurrentGridOffset(
+            index === 0 ? undefined : grids.at(index - 1),
+            orientation
+        ),
+    }));
+};
 
 export const patternReducer = (
     state: PatternState,
@@ -20,27 +56,10 @@ export const patternReducer = (
                 name: action.name,
             };
         case "PATTERN_ADD_GRID":
-            // TODO: recalculate when grid is added, deleted, or size is changed
-            const previousGrid = state.grids.at(-1)!;
-            const currentGridOptions = mergeOptions(
-                state.options,
-                DefaultGridProperties
-            );
-            const currentGridOffset = {
-                columnIndex:
-                    state.options.orientation === "horizontal"
-                        ? previousGrid!.offset!.columnIndex +
-                          previousGrid!.options.width
-                        : 0,
-                rowIndex:
-                    state.options.orientation === "vertical"
-                        ? previousGrid!.offset!.rowIndex +
-                          getGridHeight(previousGrid!.options)
-                        : 0,
-            };
+            const previousGrid = state.grids.at(-1);
             const currentGrid = createGrid(
-                currentGridOptions,
-                currentGridOffset,
+                mergeOptions(state.options, DefaultGridProperties),
+                getCurrentGridOffset(previousGrid, state.options.orientation),
                 previousGrid!.name
             );
             return {
@@ -53,8 +72,9 @@ export const patternReducer = (
             return {
                 ...state,
                 lastModified: new Date(),
-                grids: state.grids.filter(
-                    (grid) => grid.gridId !== action.gridId
+                grids: mapGridOffset(
+                    state.grids.filter((grid) => grid.gridId !== action.gridId),
+                    state.options.orientation
                 ),
             };
         case "PATTERN_REPLACE_COLOR":
@@ -74,11 +94,14 @@ export const patternReducer = (
             return {
                 ...state,
                 lastModified: new Date(),
-                grids: state.grids.map((grid) =>
-                    gridApplyOptions(
-                        grid,
-                        mergeOptions(action.options, grid.options)
-                    )
+                grids: mapGridOffset(
+                    state.grids.map((grid) =>
+                        gridApplyOptions(
+                            grid,
+                            mergeOptions(action.options, grid.options)
+                        )
+                    ),
+                    action.options.orientation
                 ),
                 options: action.options,
             };

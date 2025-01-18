@@ -302,7 +302,7 @@ export const PatternContainer: FC = () => {
     const handleOnPatternSavePngClick = useCallback(() => {
         const imageUri = stageRef.current?.toDataURL() ?? "";
         downloadUri(imageUri, `${pattern.name}.png`);
-    }, [pattern]);
+    }, [pattern.name]);
 
     const handleOnPatternSaveJsonClick = useCallback(() => {
         const patternUri = toJsonUri(pattern);

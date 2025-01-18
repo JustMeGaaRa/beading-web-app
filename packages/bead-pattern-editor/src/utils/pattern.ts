@@ -40,14 +40,14 @@ export const mergeOptions = (
 export const createGrid = (
     options: BeadingGridProperties,
     offset?: BeadingGridOffset,
-    name?: string
+    previousName?: string
 ): BeadingGridState => {
     return {
         gridId: `grid-${crypto.randomUUID()}`,
         offset: offset ?? { rowIndex: 0, columnIndex: 0 },
-        name: name
-            ? getNextGridName(options, name)
-            : getCurrentGridName(options, name),
+        name: previousName
+            ? getNextGridName(options, previousName)
+            : getCurrentGridName(options, previousName),
         cells: [],
         options: options,
     };
