@@ -10,6 +10,7 @@ import {
 } from "react";
 
 export type ToolName =
+    | "none"
     | "move"
     | "cursor"
     | "pencil"
@@ -36,6 +37,7 @@ export type ToolInfo<
 };
 
 export type ToolState =
+    | ToolInfo<"none", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"move", { currentAction: ToolDefaultActionName }>
     | ToolInfo<"cursor", { currentAction: CursorActionName }>
     | ToolInfo<"pencil", { currentAction: ToolDefaultActionName }>
@@ -47,13 +49,13 @@ const ToolsContext = createContext<{
     tool: ToolState;
     setTool: Dispatch<SetStateAction<ToolState>>;
 }>({
-    tool: { name: "move", state: { currentAction: "default" } },
+    tool: { name: "none", state: { currentAction: "default" } },
     setTool: () => {},
 });
 
 export const ToolsProvider: FC<PropsWithChildren> = ({ children }) => {
     const [tool, setTool] = useState<ToolState>({
-        name: "move",
+        name: "none",
         state: { currentAction: "default" },
     });
 
@@ -71,7 +73,7 @@ export const useTools = () => {
         (tool: ToolState) => {
             setTool((state) =>
                 state.name === tool.name
-                    ? { name: "move", state: { currentAction: "default" } }
+                    ? { name: "none", state: { currentAction: "default" } }
                     : tool
             );
         },

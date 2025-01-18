@@ -23,6 +23,7 @@ export type ShortcutKeys =
     | "patternRedo"
     | "patternSave"
     | "toolCursor"
+    | "toolMove"
     | "toolPencil"
     | "toolEraser"
     | "toolPicker"
@@ -38,6 +39,7 @@ export const ShortcutKeyArray: Array<ShortcutKeys> = [
     "patternRedo",
     "patternSave",
     "toolCursor",
+    "toolMove",
     "toolPencil",
     "toolEraser",
     "toolPicker",

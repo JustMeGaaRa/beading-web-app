@@ -12,6 +12,7 @@ import {
 } from "@repo/bead-pattern-editor";
 import {
     ColorPickerIcon,
+    DragIcon,
     EraserIcon,
     NavigationIcon,
     PencilIcon,
@@ -33,6 +34,10 @@ export const ProjectToolsContainer: FC = () => {
     const onSetCursorTool = useCallback(
         () =>
             toggleTool({ name: "cursor", state: { currentAction: "default" } }),
+        [toggleTool]
+    );
+    const onSetMoveTool = useCallback(
+        () => toggleTool({ name: "move", state: { currentAction: "default" } }),
         [toggleTool]
     );
     const onSetPencilTool = useCallback(
@@ -57,6 +62,9 @@ export const ProjectToolsContainer: FC = () => {
         hotkeysOptions,
         [onSetCursorTool]
     );
+    useHotkeys(Shortcuts.toolMove.keyString, onSetMoveTool, hotkeysOptions, [
+        onSetMoveTool,
+    ]);
     useHotkeys(
         Shortcuts.toolPencil.keyString,
         onSetPencilTool,
@@ -107,6 +115,14 @@ export const ProjectToolsContainer: FC = () => {
                             icon={<NavigationIcon size={20} />}
                             isActive={tool.name === "cursor"}
                             onClick={onSetCursorTool}
+                        />
+                    </Tooltip>
+                    <Tooltip label={"Drag"} placement={"right"}>
+                        <IconButton
+                            aria-label={"drag"}
+                            icon={<DragIcon size={20} />}
+                            isActive={tool.name === "move"}
+                            onClick={onSetMoveTool}
                         />
                     </Tooltip>
                     <Tooltip label={"Pencil"} placement={"right"}>
