@@ -248,7 +248,7 @@ export const PatternContainer: FC = () => {
 
             lastTouchDistanceRef.current = currentTouchDistance;
         },
-        [pattern.grids, pattern.options, styles]
+        [pattern.grids, pattern.options, styles, tool]
     );
 
     const handleOnStageTouchEnd = useCallback(() => {
