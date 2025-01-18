@@ -84,7 +84,10 @@ export const ProjectPage: FC = () => {
                         <ProjectHeader />
                         <PageBody>
                             <BeadingGridStylesProvider
-                                styles={DefaultGridStyles}
+                                styles={{
+                                    ...DefaultGridStyles,
+                                    bead: pattern.options.beadSize,
+                                }}
                             >
                                 <BeadingGridSelectionFrameProvider>
                                     <ProjectToolsContainer />

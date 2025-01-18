@@ -1,16 +1,19 @@
-import { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren, useEffect, useState } from "react";
 import { BeadingGridStylesContext } from "../context";
-import { BeadingGridStyles } from "../types";
+import { BeadingGridStyles, DefaultGridStyles } from "../types";
 
-export const BeadingGridStylesProvider: FC<PropsWithChildren<{
-    styles: BeadingGridStyles;
-}>> = ({
-    children,
-    styles
-}) => {
-        return (
-            <BeadingGridStylesContext.Provider value={{ styles }}>
-                {children}
-            </BeadingGridStylesContext.Provider>
-        );
-    };
+export const BeadingGridStylesProvider: FC<
+    PropsWithChildren<{
+        styles: BeadingGridStyles;
+    }>
+> = ({ children, styles: stylesProps }) => {
+    const [styles, setStyles] = useState(DefaultGridStyles);
+
+    useEffect(() => setStyles(stylesProps), [stylesProps]);
+
+    return (
+        <BeadingGridStylesContext.Provider value={{ styles, setStyles }}>
+            {children}
+        </BeadingGridStylesContext.Provider>
+    );
+};

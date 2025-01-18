@@ -17,6 +17,8 @@ export type BeadingGridStyles = {
             borderColor: string;
             borderWidth: number;
             borderRadius: number;
+            height: number;
+            width: number;
             _selected: {
                 backgroundColor: string;
                 borderColor: string;
@@ -43,6 +45,7 @@ export type BeadingGridStyles = {
             };
         };
     };
+    // TODO: merge this bead with cell styles, as they are basically the same
     bead: BeadProperties;
 };
 
@@ -63,6 +66,8 @@ export const DefaultGridStyles: BeadingGridStyles = {
             borderColor: "#718096",
             borderWidth: 1,
             borderRadius: 2,
+            height: 1.6,
+            width: 1.3,
             _selected: {
                 backgroundColor: "#9DECF9",
                 borderColor: "#0BC5EA",

@@ -1,7 +1,7 @@
 import {
     BeadingGridType,
     BeadProperties,
-    DefaultGridStyles,
+    ONE_SIX_BY_ONE_THREE,
 } from "@repo/bead-grid";
 import { PatternLayoutOrientation } from "./PatternLayoutOrientation";
 
@@ -16,7 +16,7 @@ export type PatternOptions = {
 export const DefaultPatternOptions: PatternOptions = {
     type: "brick",
     orientation: "vertical",
-    beadSize: DefaultGridStyles.bead,
+    beadSize: ONE_SIX_BY_ONE_THREE,
     height: 16,
     width: 16,
 };

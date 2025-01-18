@@ -3,19 +3,25 @@ import { PatternOptions, usePatternStore } from "@repo/bead-pattern-editor";
 import { FC, useCallback } from "react";
 import { PatternOptionsPanel } from "../components";
 import { InfoCircleIcon } from "@repo/icons";
+import { useGridStyles } from "@repo/bead-grid";
 
 export const PatternOptionsContainer: FC = () => {
     const pattern = usePatternStore((state) => state.pattern);
     const dispatch = usePatternStore((state) => state.dispatch);
+    const { setStyles } = useGridStyles();
 
     const handleOnLayoutChange = useCallback(
         (options: PatternOptions) => {
+            setStyles((styles) => ({
+                ...styles,
+                bead: options.beadSize,
+            }));
             dispatch({
                 type: "PATTERN_APPLY_OPTIONS",
                 options,
             });
         },
-        [dispatch]
+        [dispatch, setStyles]
     );
 
     return (
