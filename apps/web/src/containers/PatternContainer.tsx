@@ -41,11 +41,8 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { useTools, Shortcuts } from "../components";
 import {
-    calculateNewPosition,
     downloadUri,
-    getContentOffset,
     getContentScale,
-    getPointerOffset,
     toJsonUri,
     SCALE_MAXIMUM,
 } from "../utils";
@@ -151,43 +148,26 @@ export const PatternContainer: FC = () => {
             let newScale =
                 direction > 0 ? currentScale * scaleBy : currentScale / scaleBy;
 
+            const mousePointTo = {
+                x: (pointerPosition.x - stagePosition.x) / currentScale,
+                y: (pointerPosition.y - stagePosition.y) / currentScale,
+            };
+
             if (direction > 0) {
                 // Zoom In: Keep the point under cursor stationary
                 newScale = Math.min(maxScale, newScale);
-
-                const mousePointTo = {
-                    x: (pointerPosition.x - stagePosition.x) / currentScale,
-                    y: (pointerPosition.y - stagePosition.y) / currentScale,
-                };
-
-                const newPos = {
-                    x: pointerPosition.x - mousePointTo.x * newScale,
-                    y: pointerPosition.y - mousePointTo.y * newScale,
-                };
-
-                stage.scale({ x: newScale, y: newScale });
-                stage.position(newPos);
             } else {
-                // Zoom Out: Return view towards center
+                // Zoom Out: Keep the point under cursor stationary
                 newScale = Math.max(minScale, newScale);
-
-                const stageCenter = {
-                    x: stageSize.width / 2,
-                    y: stageSize.height / 2,
-                };
-                const patternCenter = {
-                    x: patternSize.width / 2,
-                    y: patternSize.height / 2,
-                };
-
-                const newPos = {
-                    x: stageCenter.x - patternCenter.x * newScale,
-                    y: stageCenter.y - patternCenter.y * newScale,
-                };
-
-                stage.scale({ x: newScale, y: newScale });
-                stage.position(newPos);
             }
+
+            const newPos = {
+                x: pointerPosition.x - mousePointTo.x * newScale,
+                y: pointerPosition.y - mousePointTo.y * newScale,
+            };
+
+            stage.scale({ x: newScale, y: newScale });
+            stage.position(newPos);
 
             stage.batchDraw();
         },
@@ -218,9 +198,6 @@ export const PatternContainer: FC = () => {
                 return;
             }
 
-            const isZoomingOut =
-                currentTouchDistance < lastTouchDistanceRef.current;
-
             const stage = event.target.getStage();
             if (!stage) return;
 
@@ -236,7 +213,6 @@ export const PatternContainer: FC = () => {
                 styles,
                 pattern.options
             );
-            const patternCenter = getContentOffset(stageSize, patternSize);
             const minScale = getContentScale(stageSize, patternSize);
             const maxScale = SCALE_MAXIMUM;
             const oldScale = stage.scaleX();
@@ -245,47 +221,20 @@ export const PatternContainer: FC = () => {
                 oldScale *
                 (currentTouchDistance / lastTouchDistanceRef.current);
 
-            if (isZoomingOut) {
-                // Zooming out: limit to minimum scale and gravitate toward rectangle center
-                newScale = Math.max(minScale, newScale);
+            newScale = Math.max(minScale, Math.min(maxScale, newScale));
 
-                // Calculate the interpolation factor
-                const interpolationFactor =
-                    (newScale - minScale) / (oldScale - minScale);
+            const mousePointTo = {
+                x: (pointerPosition.x - stagePosition.x) / oldScale,
+                y: (pointerPosition.y - stagePosition.y) / oldScale,
+            };
 
-                if (interpolationFactor > 0) {
-                    // Calculate the new position interpolated toward the center of the stage
-                    const newPosition = {
-                        x:
-                            stagePosition.x +
-                            (patternCenter.x - stagePosition.x) *
-                                (1 - interpolationFactor),
-                        y:
-                            stagePosition.y +
-                            (patternCenter.y - stagePosition.y) *
-                                (1 - interpolationFactor),
-                    };
-
-                    stage.position(newPosition);
-                }
-            } else {
-                newScale = Math.min(maxScale, newScale);
-
-                const targetPoint = getPointerOffset(
-                    pointerPosition,
-                    stagePosition,
-                    oldScale
-                );
-                const newPosition = calculateNewPosition(
-                    targetPoint,
-                    pointerPosition,
-                    newScale
-                );
-
-                stage.position(newPosition);
-            }
+            const newPos = {
+                x: pointerPosition.x - mousePointTo.x * newScale,
+                y: pointerPosition.y - mousePointTo.y * newScale,
+            };
 
             stage.scale({ x: newScale, y: newScale });
+            stage.position(newPos);
             stage.batchDraw();
 
             lastTouchDistanceRef.current = currentTouchDistance;
