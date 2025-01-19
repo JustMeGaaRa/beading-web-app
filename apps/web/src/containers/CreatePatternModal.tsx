@@ -18,7 +18,7 @@ import {
     BeadingGridType,
     capitalize,
     DefaultGridProperties,
-    getGridSize,
+    getGridRealSize,
 } from "@repo/bead-grid";
 import {
     formatPatternSize,
@@ -173,7 +173,7 @@ export const CreatePatternModal: FC<{
                             onChange={handleOnGridOptionsChange}
                         />
                         <Text color={"gray.700"} fontSize={"small"} mt={4}>
-                            {`Finished size: ${formatPatternSize(getGridSize(gridOptions))}`}
+                            {`Finished size: ${formatPatternSize(getGridRealSize(gridOptions, patternOptions.beadSize))}`}
                         </Text>
                     </VStack>
                 </ModalBody>

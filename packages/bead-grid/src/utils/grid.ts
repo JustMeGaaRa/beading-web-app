@@ -8,6 +8,7 @@ import {
     BeadingGridState,
     shallowEqualsCell,
     shiftCell,
+    BeadProperties,
 } from "../types";
 import { capitalize } from "./common";
 import { indeciesInBounds } from "./hittest";
@@ -137,6 +138,18 @@ export const getGridSize = (
     return {
         height: getGridHeight(options),
         width: options.width,
+    };
+};
+
+export const getGridRealSize = (
+    options: BeadingGridProperties,
+    bead: BeadProperties
+) => {
+    const gridSize = getGridSize(options);
+
+    return {
+        height: gridSize.height * bead.height,
+        width: gridSize.width * bead.width,
     };
 };
 
