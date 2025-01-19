@@ -46,7 +46,7 @@ export const BeadingGridSectionToolbar: FC<
         isInBounds && (
             <Html
                 divProps={{ style: { pointerEvents: "none" } }}
-                groupProps={{ toolbarRelativePosition }}
+                groupProps={toolbarRelativePosition}
                 transform
                 transformFunc={(attr) => ({
                     ...attr,
