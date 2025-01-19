@@ -4,7 +4,7 @@ import { Group, Rect } from "react-konva";
 import { useGridStyles } from "../hooks";
 import { RenderPoint } from "../types";
 
-export const BeadingGridSelectionFrame: FC<
+export const BeadeeGridSelectionFrame: FC<
     PropsWithChildren<{
         backgroundColor?: string;
         position: RenderPoint;

@@ -3,11 +3,11 @@ import { Group } from "react-konva";
 import { useGrid, useGridSelection, useGridStyles } from "../hooks";
 import { getGridSectionBounds, getGridSectionRenderBounds } from "../utils";
 import { BeadingGridCellState } from "../types";
-import { BeadingGridCell } from "./BeadingGridCell";
-import { BeadingGridSelectionFrame } from "./BeadingGridSelectionFrame";
+import { BeadeeGridCell } from "./BeadeeGridCell";
+import { BeadeeGridSelectionFrame } from "./BeadeeGridSelectionFrame";
 
 // TODO: introduce style props to support state styling from outside
-export const BeadingGridSection: FC<
+export const BeadeeGridSection: FC<
     PropsWithChildren<{
         cells?: Array<BeadingGridCellState>;
     }>
@@ -25,7 +25,7 @@ export const BeadingGridSection: FC<
 
     return (
         <Group>
-            <BeadingGridSelectionFrame
+            <BeadeeGridSelectionFrame
                 backgroundColor={"transparent"}
                 position={sectionRenderBounds.position}
                 height={sectionRenderBounds.height}
@@ -33,7 +33,7 @@ export const BeadingGridSection: FC<
                 isVisible
             />
             {cells?.map((cell) => (
-                <BeadingGridCell
+                <BeadeeGridCell
                     key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
                     color={cell.color}
                     offset={cell.offset}

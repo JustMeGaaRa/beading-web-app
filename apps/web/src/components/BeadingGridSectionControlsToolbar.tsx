@@ -1,5 +1,5 @@
 import { Box, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
-import { BeadingGridSectionToolbar } from "@repo/bead-grid";
+import { BeadeeGridSectionToolbar } from "@repo/bead-grid";
 import { TapMoveIcon } from "@repo/icons";
 import { FC } from "react";
 
@@ -7,10 +7,7 @@ export const BeadingGridSectionControlsToolbar: FC<{
     isVisible?: boolean;
 }> = ({ isVisible = true }) => {
     return (
-        <BeadingGridSectionToolbar
-            isVisible={isVisible}
-            placement={"top-right"}
-        >
+        <BeadeeGridSectionToolbar isVisible={isVisible} placement={"top-right"}>
             <Box
                 backgroundColor={"gray.100"}
                 borderRadius={"md"}
@@ -27,6 +24,6 @@ export const BeadingGridSectionControlsToolbar: FC<{
                     </Tooltip>
                 </ButtonGroup>
             </Box>
-        </BeadingGridSectionToolbar>
+        </BeadeeGridSectionToolbar>
     );
 };

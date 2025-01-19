@@ -4,7 +4,7 @@ import { useGridStyles } from "../hooks";
 import { BeadingGridOffset, BeadingGridProperties } from "../types";
 import { getGridCellRenderBounds } from "../utils";
 
-export const BeadingText: FC<{
+export const BeadeeText: FC<{
     text: string;
     color?: string;
     offset: BeadingGridOffset;

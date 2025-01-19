@@ -4,7 +4,7 @@ import { Portal } from "react-konva-utils";
 import { getGridCellRenderBounds, getGridSize } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
-export const BeadingGridBackgroundPattern: FC = () => {
+export const BeadeeGridBackgroundPattern: FC = () => {
     const { styles } = useGridStyles();
     const { gridId, options } = useGrid();
 

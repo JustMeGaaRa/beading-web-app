@@ -18,7 +18,7 @@ import {
     RemoveCircleIcon,
     VerticalMirrorIcon,
 } from "@repo/icons";
-import { BeadingGridSectionToolbar } from "@repo/bead-grid";
+import { BeadeeGridSectionToolbar } from "@repo/bead-grid";
 
 export const BeadingGridSectionActionsToolbar: FC<{
     isVisible?: boolean;
@@ -53,7 +53,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
         tool.name === "cursor" && tool.state.currentAction === "duplicate";
 
     return (
-        <BeadingGridSectionToolbar
+        <BeadeeGridSectionToolbar
             isVisible={isVisible}
             placement={"top-center"}
         >
@@ -199,6 +199,6 @@ export const BeadingGridSectionActionsToolbar: FC<{
                     </ButtonGroup>
                 )}
             </Box>
-        </BeadingGridSectionToolbar>
+        </BeadeeGridSectionToolbar>
     );
 };

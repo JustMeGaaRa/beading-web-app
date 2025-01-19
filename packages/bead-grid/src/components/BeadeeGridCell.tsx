@@ -4,7 +4,7 @@ import { BeadingGridOffset, BeadingPointerEvent } from "../types";
 import { getGridCellRenderBounds } from "../utils";
 import { useGrid, useGridStyles } from "../hooks";
 
-export const BeadingGridCell: FC<{
+export const BeadeeGridCell: FC<{
     color: string;
     offset: BeadingGridOffset;
     isSelected?: boolean;

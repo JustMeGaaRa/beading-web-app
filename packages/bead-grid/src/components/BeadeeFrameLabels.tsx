@@ -1,14 +1,14 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback } from "react";
 import { Layer } from "react-konva";
-import { BeadingFrameRowLabels } from "./BeadingFrameRowLabels";
-import { BeadingFrameColumnLabels } from "./BeadingFrameColumnLabels";
-import { BeadingFrameMiddleMarker } from "./BeadingFrameMiddleMarker";
+import { BeadingFrameRowLabels } from "./BeadeeFrameRowLabels";
+import { BeadeeFrameColumnLabels } from "./BeadeeFrameColumnLabels";
+import { BeadeeFrameMiddleMarker } from "./BeadeeFrameMiddleMarker";
 import { useGridStyles, useGridSelection } from "../hooks";
 import { BeadingGridProperties, TextState } from "../types";
 import { getGridCellRenderSize } from "@repo/bead-grid";
 
-export const BeadingFrame: FC<{
+export const BeadeeFrameLabels: FC<{
     options: BeadingGridProperties;
     height: number;
     width: number;
@@ -87,7 +87,7 @@ export const BeadingFrame: FC<{
         isVisible && (
             <Layer>
                 {columnsTextArray.map((column) => (
-                    <BeadingFrameColumnLabels
+                    <BeadeeFrameColumnLabels
                         key={`column-label-${column.patternIndex}`}
                         cellHeight={cellHeight}
                         cellWidth={cellWidth}
@@ -116,14 +116,14 @@ export const BeadingFrame: FC<{
                         onContextMenu={onContextMenu}
                     />
                 ))}
-                <BeadingFrameMiddleMarker
+                <BeadeeFrameMiddleMarker
                     orientation={"vertical"}
                     x={(width * cellWidth) / 2 + cellWidth / 2}
                     y={-cellHeight * 2}
                     height={cellHeight}
                     width={cellWidth}
                 />
-                <BeadingFrameMiddleMarker
+                <BeadeeFrameMiddleMarker
                     orientation={"horizontal"}
                     x={-cellWidth * 2}
                     y={(height * cellHeight) / 2 + cellHeight / 2}

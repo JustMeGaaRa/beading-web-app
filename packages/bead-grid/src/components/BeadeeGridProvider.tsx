@@ -6,7 +6,7 @@ import {
     DefaultGridProperties,
 } from "../types";
 
-export const BeadingGridProvider: FC<PropsWithChildren> = ({ children }) => {
+export const BeadeeGridProvider: FC<PropsWithChildren> = ({ children }) => {
     const [gridId, setGridId] = useState<string>("");
     const [name, setName] = useState<string>("");
     const [cells, setCells] = useState<Array<BeadingGridCellState>>([]);

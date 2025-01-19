@@ -4,7 +4,7 @@ import { Rect, Text } from "react-konva";
 import { TextState } from "../types";
 import { useGridStyles } from "../hooks";
 
-export const BeadingFrameColumnLabels: FC<{
+export const BeadeeFrameColumnLabels: FC<{
     cellHeight: number;
     cellWidth: number;
     gridIndex: number;

@@ -12,7 +12,7 @@ import {
 } from "../utils";
 import { Html } from "react-konva-utils";
 
-export const BeadingGridSectionToolbar: FC<
+export const BeadeeGridSectionToolbar: FC<
     PropsWithChildren<{
         isVisible?: boolean;
         placement: ToolbarPlacement;

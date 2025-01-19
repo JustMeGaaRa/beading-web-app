@@ -5,7 +5,7 @@ import {
     BeadingGridSelectionFrameContext,
 } from "../context";
 
-export const BeadingGridSelectionProvider: FC<PropsWithChildren> = ({
+export const BeadeeGridSelectionProvider: FC<PropsWithChildren> = ({
     children,
 }) => {
     const [cliboardCells, setClipboardCells] = useState<

@@ -9,15 +9,15 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import {
-    BeadingGridProvider,
+    BeadeeGridProvider,
     useGridStyles,
     TextState,
     useGridSelection,
-    BeadingFrame,
+    BeadeeFrameLabels,
     DefaultGridProperties,
-    BeadingGridSelectionFrame,
+    BeadeeGridSelectionFrame,
     useGridSelectionFrame,
-    BeadingGridSelectionProvider,
+    BeadeeGridSelectionProvider,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -461,18 +461,18 @@ export const PatternContainer: FC = () => {
                 onWheel={handleOnStageWheel}
             >
                 {pattern.grids.map((grid) => (
-                    <BeadingGridSelectionProvider key={grid.name}>
-                        <BeadingGridProvider>
+                    <BeadeeGridSelectionProvider key={grid.name}>
+                        <BeadeeGridProvider>
                             <BeadingGridContainer
                                 grid={grid}
                                 isLayoutHorizontal={isHorizontal}
                             />
-                        </BeadingGridProvider>
-                    </BeadingGridSelectionProvider>
+                        </BeadeeGridProvider>
+                    </BeadeeGridSelectionProvider>
                 ))}
                 <Layer>
                     {mouseDownPosition && mouseCurrentPosition && (
-                        <BeadingGridSelectionFrame
+                        <BeadeeGridSelectionFrame
                             position={mouseDownPosition}
                             width={mouseCurrentPosition.x - mouseDownPosition.x}
                             height={
@@ -482,7 +482,7 @@ export const PatternContainer: FC = () => {
                         />
                     )}
                 </Layer>
-                <BeadingFrame
+                <BeadeeFrameLabels
                     height={height}
                     width={width}
                     options={

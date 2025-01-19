@@ -17,7 +17,7 @@ import {
 } from "../containers";
 import {
     BeadingGridSelectionFrameProvider,
-    BeadingGridStylesProvider,
+    BeadeeGridStylesProvider,
     DefaultGridStyles,
 } from "@repo/bead-grid";
 
@@ -83,7 +83,7 @@ export const ProjectPage: FC = () => {
                     <PageContent>
                         <ProjectHeader />
                         <PageBody>
-                            <BeadingGridStylesProvider
+                            <BeadeeGridStylesProvider
                                 styles={{
                                     ...DefaultGridStyles,
                                     bead: pattern.options.beadSize,
@@ -95,7 +95,7 @@ export const ProjectPage: FC = () => {
                                     <ProjectSettingsContainer />
                                     <PatternContainer />
                                 </BeadingGridSelectionFrameProvider>
-                            </BeadingGridStylesProvider>
+                            </BeadeeGridStylesProvider>
                         </PageBody>
                     </PageContent>
                 </ToolsProvider>

@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, useEffect, useState } from "react";
 import { BeadingGridStylesContext } from "../context";
 import { BeadingGridStyles, DefaultGridStyles } from "../types";
 
-export const BeadingGridStylesProvider: FC<
+export const BeadeeGridStylesProvider: FC<
     PropsWithChildren<{
         styles: BeadingGridStyles;
     }>

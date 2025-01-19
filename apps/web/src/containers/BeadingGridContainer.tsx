@@ -1,17 +1,17 @@
 import {
-    BeadingGrid,
-    BeadingGridDivider,
-    BeadingText,
+    BeadeeGrid,
+    BeadeeGridDivider,
+    BeadeeText,
     BeadingPointerEvent,
     useGridStyles,
     useGridSelection,
     BeadingGridState,
-    BeadingGridBackgroundPattern,
+    BeadeeGridBackgroundPattern,
     getGridHeight,
     hitTestArea,
     createRenderBounds,
     hitTestCursor,
-    BeadingGridSection,
+    BeadeeGridSection,
     useGridSelectionFrame,
 } from "@repo/bead-grid";
 import { usePatternStore, patternSelector } from "@repo/bead-pattern-editor";
@@ -203,20 +203,20 @@ export const BeadingGridContainer: FC<{
           };
 
     return (
-        <BeadingGrid
+        <BeadeeGrid
             gridId={grid.gridId}
             offset={grid.offset}
             cells={grid.cells}
             options={grid.options}
             onCellEnter={handleOnGridCellPointerEnter}
         >
-            <BeadingGridBackgroundPattern />
-            <BeadingText
+            <BeadeeGridBackgroundPattern />
+            <BeadeeText
                 text={grid.name}
                 offset={decorationOffset}
                 options={grid.options}
             />
-            <BeadingGridDivider
+            <BeadeeGridDivider
                 length={
                     isLayoutHorizontal
                         ? getGridHeight(grid.options) + 6
@@ -225,7 +225,7 @@ export const BeadingGridContainer: FC<{
                 offset={decorationOffset}
                 orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
             />
-            <BeadingGridSection
+            <BeadeeGridSection
                 cells={selectedCells}
                 // onHover={handleOnGridSectionHover}
             >
@@ -243,7 +243,7 @@ export const BeadingGridContainer: FC<{
                     onFlipVertical={handleOnSectionFlipVerticalClick}
                     onClear={handleOnSectionClearClick}
                 />
-            </BeadingGridSection>
-        </BeadingGrid>
+            </BeadeeGridSection>
+        </BeadeeGrid>
     );
 };

@@ -6,14 +6,14 @@ import {
     BeadingGridState,
     BeadingPointerEvent,
 } from "../types";
-import { BeadingGridCell } from "./BeadingGridCell";
-import { BeadingGridDivider } from "./BeadingGridDivider";
+import { BeadeeGridCell } from "./BeadeeGridCell";
+import { BeadeeGridDivider } from "./BeadeeGridDivider";
 import { useGrid, useGridStyles, usePointerDisclosure } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
 import { getGridRenderBounds, hitTestCursor } from "../utils";
 
-export const BeadingGrid: FC<
+export const BeadeeGrid: FC<
     PropsWithChildren<{
         gridId?: string;
         name?: string;
@@ -131,14 +131,14 @@ export const BeadingGrid: FC<
                 onPointerClick={handleOnPointerClick}
             />
             {cells.map((cell) => (
-                <BeadingGridCell
+                <BeadeeGridCell
                     key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
                     color={cell.color}
                     offset={cell.offset}
                 />
             ))}
             {options.type === "brick" && options.fringe > 0 && (
-                <BeadingGridDivider
+                <BeadeeGridDivider
                     length={options.width}
                     offset={{ columnIndex: 0, rowIndex: options.height }}
                     orientation={"horizontal"}
