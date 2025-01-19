@@ -1,18 +1,21 @@
 import { FC, PropsWithChildren } from "react";
-import { Group, Rect } from "react-konva";
+import { Group } from "react-konva";
 import { useGrid, useGridSelection, useGridStyles } from "../hooks";
-import {
-    getGridBounds,
-    getGridSectionBounds,
-    getGridSectionRenderBounds,
-    indeciesInBounds,
-} from "../utils";
+import { getGridSectionBounds, getGridSectionRenderBounds } from "../utils";
+import { BeadingGridCellState } from "../types";
+import { BeadingGridCell } from "./BeadingGridCell";
+import { BeadingGridSelectionFrame } from "./BeadingGridSelectionFrame";
 
 // TODO: introduce style props to support state styling from outside
-export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
+export const BeadingGridSection: FC<
+    PropsWithChildren<{
+        cells?: Array<BeadingGridCellState>;
+    }>
+> = ({ children, cells }) => {
     const { options } = useGrid();
     const { styles } = useGridStyles();
     const { selectedCells } = useGridSelection();
+
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
         sectionBounds,
@@ -20,31 +23,24 @@ export const BeadingGridSection: FC<PropsWithChildren> = ({ children }) => {
         styles
     );
 
-    const gridBounds = getGridBounds(options);
-    const sectionBoundsBottomRight = {
-        columnIndex:
-            sectionBounds.topLeft.columnIndex + sectionBounds.width - 1,
-        rowIndex: sectionBounds.topLeft.rowIndex + sectionBounds.height - 1,
-    };
-    const isInBounds =
-        indeciesInBounds(gridBounds, sectionBounds.topLeft) &&
-        indeciesInBounds(gridBounds, sectionBoundsBottomRight);
-
     return (
-        isInBounds && (
-            <Group>
-                <Rect
-                    listening={false}
-                    opacity={0.3}
-                    stroke={styles.components.frame.selection.borderColor}
-                    strokeWidth={styles.components.frame.selection.borderWidth}
-                    height={sectionRenderBounds.height}
-                    width={sectionRenderBounds.width}
-                    x={sectionRenderBounds.position.x}
-                    y={sectionRenderBounds.position.y}
+        <Group>
+            <BeadingGridSelectionFrame
+                backgroundColor={"transparent"}
+                position={sectionRenderBounds.position}
+                height={sectionRenderBounds.height}
+                width={sectionRenderBounds.width}
+                isVisible
+            />
+            {cells?.map((cell) => (
+                <BeadingGridCell
+                    key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
+                    color={cell.color}
+                    offset={cell.offset}
+                    isSelected={true}
                 />
-                {children}
-            </Group>
-        )
+            ))}
+            {children}
+        </Group>
     );
 };

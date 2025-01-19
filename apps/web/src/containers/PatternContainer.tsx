@@ -36,7 +36,7 @@ import {
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Stage } from "react-konva";
+import { Layer, Stage } from "react-konva";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { useTools, Shortcuts } from "../components";
@@ -391,8 +391,12 @@ export const PatternContainer: FC = () => {
     }, [columnState, dispatch, isHorizontal]);
 
     // SECTION: cursor selection handlers
-    const { setMouseCurrentPosition, setMouseDownPosition } =
-        useGridSelectionFrame();
+    const {
+        mouseCurrentPosition,
+        mouseDownPosition,
+        setMouseCurrentPosition,
+        setMouseDownPosition,
+    } = useGridSelectionFrame();
     const [isMouseDown, setIsMouseDown] = useState(false);
 
     const handleOnPointerDown = useCallback(
@@ -466,8 +470,18 @@ export const PatternContainer: FC = () => {
                         </BeadingGridProvider>
                     </BeadingGridSelectionProvider>
                 ))}
-
-                <BeadingGridSelectionFrame isVisible={Tools.isCursor(tool)} />
+                <Layer>
+                    {mouseDownPosition && mouseCurrentPosition && (
+                        <BeadingGridSelectionFrame
+                            position={mouseDownPosition}
+                            width={mouseCurrentPosition.x - mouseDownPosition.x}
+                            height={
+                                mouseCurrentPosition.y - mouseDownPosition.y
+                            }
+                            isVisible={Tools.isCursor(tool)}
+                        />
+                    )}
+                </Layer>
                 <BeadingFrame
                     height={height}
                     width={width}

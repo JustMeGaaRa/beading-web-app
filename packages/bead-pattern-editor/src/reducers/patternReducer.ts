@@ -9,7 +9,7 @@ import { PatternActions } from "../actions";
 import { PatternState } from "../types";
 import { createGrid, mergeOptions } from "../utils";
 
-const getCurrentGridOffset = (
+const getGridOffset = (
     previousGrid: BeadingGridState | undefined,
     orientation: "horizontal" | "vertical"
 ) => {
@@ -37,7 +37,7 @@ const mapGridOffset = (
 ) => {
     return grids.map((grid, index) => ({
         ...grid,
-        offset: getCurrentGridOffset(
+        offset: getGridOffset(
             index === 0 ? undefined : grids.at(index - 1),
             orientation
         ),
@@ -59,7 +59,7 @@ export const patternReducer = (
             const previousGrid = state.grids.at(-1);
             const currentGrid = createGrid(
                 mergeOptions(state.options, DefaultGridProperties),
-                getCurrentGridOffset(previousGrid, state.options.orientation),
+                getGridOffset(previousGrid, state.options.orientation),
                 previousGrid!.name
             );
             return {
@@ -106,16 +106,28 @@ export const patternReducer = (
                 options: action.options,
             };
         case "BEADING_GRID_APPLY_OPTIONS":
+        case "BEADING_GRID_DELETE_ROW":
+        case "BEADING_GRID_DELETE_COLUMN":
+            return {
+                ...state,
+                lastModified: new Date(),
+                grids: mapGridOffset(
+                    state.grids.map((grid) =>
+                        grid.gridId === action.gridId
+                            ? gridReducer(grid, action)
+                            : grid
+                    ),
+                    state.options.orientation
+                ),
+            };
         case "BEADING_GRID_SET_CELL":
         case "BEADING_GRID_SELECT_CELLS":
         case "BEADING_GRID_CLEAR_CELLS":
         case "BEADING_GRID_ADD_COLUMN_BEFORE":
         case "BEADING_GRID_ADD_COLUMN_AFTER":
-        case "BEADING_GRID_DELETE_COLUMN":
         case "BEADING_GRID_CLEAR_COLUMN":
         case "BEADING_GRID_ADD_ROW_BEFORE":
         case "BEADING_GRID_ADD_ROW_AFTER":
-        case "BEADING_GRID_DELETE_ROW":
         case "BEADING_GRID_CLEAR_ROW":
         case "BEADING_GRID_PASTE_SECTION":
         case "BEADING_GRID_FLIP_SECTION":

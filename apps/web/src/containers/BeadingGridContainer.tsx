@@ -15,7 +15,7 @@ import {
     useGridSelectionFrame,
 } from "@repo/bead-grid";
 import { usePatternStore, patternSelector } from "@repo/bead-pattern-editor";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import {
     useColorPalette,
     useTools,
@@ -39,10 +39,11 @@ export const BeadingGridContainer: FC<{
         setSelectedCells,
     } = useGridSelection();
     const { mouseCurrentPosition, mouseDownPosition } = useGridSelectionFrame();
+    const [hitInBounds, setHitInBounds] = useState(false);
 
     useEffect(() => {
         if (!mouseCurrentPosition || !mouseDownPosition) return;
-        // TODO: check cell positions isntead of mouse positions
+        // TODO: check cell positions instead of mouse positions
         // stylus gives different values onpointerdown and onpointerup
         const isSelectedCell =
             mouseDownPosition &&
@@ -57,9 +58,10 @@ export const BeadingGridContainer: FC<{
                   styles,
                   createRenderBounds(mouseDownPosition!, mouseCurrentPosition!)
               );
+        setHitInBounds(hitTest.successfull);
 
         if (Tools.isCursor(tool)) {
-            setSelectedCells(hitTest.hits);
+            setSelectedCells(hitTest.successfull ? hitTest.hits : []);
         }
 
         if (isSelectedCell && Tools.isPencil(tool)) {
@@ -224,10 +226,11 @@ export const BeadingGridContainer: FC<{
                 orientation={isLayoutHorizontal ? "vertical" : "horizontal"}
             />
             <BeadingGridSection
-            // onHover={handleOnGridSectionHover}
+                cells={selectedCells}
+                // onHover={handleOnGridSectionHover}
             >
                 <BeadingGridSectionControlsToolbar
-                    isVisible={Tools.isCursor(tool)}
+                    isVisible={Tools.isCursor(tool) && hitInBounds}
                 />
 
                 {/* TODO: consider moving this toolbar inside grid and handling state internally */}

@@ -21,6 +21,7 @@ export const BeadingGridSectionToolbar: FC<
     const { offset, options } = useGrid();
     const { styles } = useGridStyles();
     const { selectedCells } = useGridSelection();
+
     // TODO: section has to know about grid offset
     const sectionBounds = getGridSectionBounds(selectedCells);
     const sectionRenderBounds = getGridSectionRenderBounds(
@@ -45,7 +46,7 @@ export const BeadingGridSectionToolbar: FC<
         isInBounds && (
             <Html
                 divProps={{ style: { pointerEvents: "none" } }}
-                groupProps={toolbarRelativePosition}
+                groupProps={{ toolbarRelativePosition }}
                 transform
                 transformFunc={(attr) => ({
                     ...attr,

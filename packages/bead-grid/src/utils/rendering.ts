@@ -126,16 +126,25 @@ export const getGridSectionRenderBounds = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const topLeftCellRelativeBounds = getGridCellRenderBounds(
-        bounds.topLeft,
-        options,
-        styles
+    const cellRenderBounds = bounds.cells.map((cell) =>
+        getGridCellRenderBounds(cell.offset, options, styles)
+    );
+    const minX = Math.min(...cellRenderBounds.map((cell) => cell.position.x));
+    const minY = Math.min(...cellRenderBounds.map((cell) => cell.position.y));
+    const maxX = Math.max(
+        ...cellRenderBounds.map((cell) => cell.position.x + cell.width)
+    );
+    const maxY = Math.max(
+        ...cellRenderBounds.map((cell) => cell.position.y + cell.height)
     );
 
     return {
-        position: topLeftCellRelativeBounds.position,
-        height: topLeftCellRelativeBounds.height * bounds.height,
-        width: topLeftCellRelativeBounds.width * bounds.width,
+        position: {
+            x: minX,
+            y: minY,
+        },
+        height: maxY - minY,
+        width: maxX - minX,
     };
 };
 

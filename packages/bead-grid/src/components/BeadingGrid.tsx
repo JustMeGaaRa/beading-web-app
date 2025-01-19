@@ -8,20 +8,10 @@ import {
 } from "../types";
 import { BeadingGridCell } from "./BeadingGridCell";
 import { BeadingGridDivider } from "./BeadingGridDivider";
-import {
-    useGrid,
-    useGridSelection,
-    useGridStyles,
-    usePointerDisclosure,
-} from "../hooks";
+import { useGrid, useGridStyles, usePointerDisclosure } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { KonvaEventObject } from "konva/lib/Node";
-import {
-    getGridBounds,
-    getGridRenderBounds,
-    hitTestCursor,
-    indeciesInBounds,
-} from "../utils";
+import { getGridRenderBounds, hitTestCursor } from "../utils";
 
 export const BeadingGrid: FC<
     PropsWithChildren<{
@@ -66,7 +56,6 @@ export const BeadingGrid: FC<
         setOffset,
         setOptions,
     } = useGrid();
-    const { selectedCells } = useGridSelection();
     const { isPointerDown, onPointerDown, onPointerUp } =
         usePointerDisclosure();
 
@@ -128,10 +117,6 @@ export const BeadingGrid: FC<
     );
 
     const gridRenderBounds = getGridRenderBounds(offset, options, styles);
-    const gridBounds = getGridBounds(options);
-    const selectedInBoundCells = selectedCells.filter((cell) =>
-        indeciesInBounds(gridBounds, cell.offset)
-    );
 
     return (
         <Layer x={gridRenderBounds.position.x} y={gridRenderBounds.position.y}>
@@ -150,14 +135,6 @@ export const BeadingGrid: FC<
                     key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
                     color={cell.color}
                     offset={cell.offset}
-                />
-            ))}
-            {selectedInBoundCells.map((cell) => (
-                <BeadingGridCell
-                    key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
-                    color={cell.color}
-                    offset={cell.offset}
-                    isSelected={true}
                 />
             ))}
             {options.type === "brick" && options.fringe > 0 && (
