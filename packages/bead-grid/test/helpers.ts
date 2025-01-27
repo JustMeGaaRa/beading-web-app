@@ -1,7 +1,7 @@
-import { BeadingGridState } from "../src";
+import { BeadingGrid } from "../src";
 
 export function eachRowMatchesCellCount(
-    grid: BeadingGridState,
+    grid: BeadingGrid,
     rowCellCount: number[]
 ) {
     return Array.from({ length: grid.options.height }).every((_, rowIndex) => {
@@ -14,7 +14,7 @@ export function eachRowMatchesCellCount(
 }
 
 export function eachColumnMatchesCellCount(
-    grid: BeadingGridState,
+    grid: BeadingGrid,
     columnCellCount: number[]
 ) {
     return Array.from({ length: grid.options.width }).every(

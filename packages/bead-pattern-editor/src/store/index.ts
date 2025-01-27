@@ -7,15 +7,22 @@ import { PatternActions } from "../actions";
 import { patternReducer } from "../reducers";
 import { createPattern } from "../utils";
 import { DefaultGridProperties } from "@repo/bead-grid";
+import Konva from "konva";
 
 export const PatternContext = createContext<PatternTemporalStore | null>(null);
 
 export type PatternStore = {
+    patternNode?: Konva.Stage | null;
     pattern: PatternState;
     isDirty: boolean;
     resetDirty: () => void;
     dispatch: (action: PatternActions) => void;
 };
+
+export type PatternPartialStore = Omit<
+    PatternStore,
+    "patternNode" | "isDirty" | "resetDirty"
+>;
 
 export type PatternTemporalStore = ReturnType<typeof createPatterStore>;
 
@@ -36,13 +43,11 @@ export const createPatterStore = (pattern?: PatternState) => {
             }),
             {
                 limit: 100,
-                partialize: (state) => {
-                    const { isDirty, ...rest } = state;
+                partialize: (state: PatternStore) => {
+                    const { isDirty, patternNode, ...rest } = state;
                     return rest as any;
                 },
-                handleSet: (handleSet) => {
-                    return debounce(handleSet, 200, true);
-                },
+                handleSet: (handleSet) => debounce(handleSet, 200, true),
             }
         )
     );

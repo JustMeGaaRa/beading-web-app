@@ -1,9 +1,9 @@
-import { BeadingGridState } from "../types";
+import { BeadingGrid } from "../types";
 
 export const gridClearColumn = (
-    state: BeadingGridState,
+    state: BeadingGrid,
     columnIndex: number
-): BeadingGridState => {
+): BeadingGrid => {
     return {
         ...state,
         cells: state.cells.filter(

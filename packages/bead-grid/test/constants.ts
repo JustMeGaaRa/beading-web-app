@@ -1,6 +1,6 @@
-import { BeadingGridState } from "../src";
+import { BeadingGrid } from "../src";
 
-export const Brick10x10EmptyGrid: BeadingGridState = {
+export const Brick10x10EmptyGrid: BeadingGrid = {
     gridId: "brick-10x10-empty",
     offset: { columnIndex: 0, rowIndex: 0 },
     name: "Brick Grid 1",
@@ -14,7 +14,7 @@ export const Brick10x10EmptyGrid: BeadingGridState = {
     },
 };
 
-export const Square10x10EmptyGrid: BeadingGridState = {
+export const Square10x10EmptyGrid: BeadingGrid = {
     gridId: "square-10x10-empty",
     offset: { columnIndex: 0, rowIndex: 0 },
     name: "Test Grid",
@@ -26,7 +26,7 @@ export const Square10x10EmptyGrid: BeadingGridState = {
     },
 };
 
-export const Square3x3GridWithCellsOnDiagonal: BeadingGridState = {
+export const Square3x3GridWithCellsOnDiagonal: BeadingGrid = {
     gridId: "square-3x3-diagonal",
     offset: { columnIndex: 0, rowIndex: 0 },
     name: "Square Grid 1",
@@ -42,7 +42,7 @@ export const Square3x3GridWithCellsOnDiagonal: BeadingGridState = {
     },
 };
 
-export const Square7x9GridWithCellsFormingLetterS: BeadingGridState = {
+export const Square7x9GridWithCellsFormingLetterS: BeadingGrid = {
     gridId: "square-7x9-s",
     offset: { columnIndex: 0, rowIndex: 0 },
     name: "Square Grid 1",

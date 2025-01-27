@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Text } from "react-konva";
-import { useGridStyles } from "../hooks";
+import { useBeadeeGridStyles } from "../hooks";
 import { BeadingGridOffset, BeadingGridProperties } from "../types";
 import { getGridCellRenderBounds } from "../utils";
 
@@ -11,7 +11,7 @@ export const BeadeeText: FC<{
     padding?: number;
     options: BeadingGridProperties;
 }> = ({ text, color, offset, padding = 0, options }) => {
-    const { styles } = useGridStyles();
+    const { styles } = useBeadeeGridStyles();
     const { position, height } = getGridCellRenderBounds(
         offset,
         options,

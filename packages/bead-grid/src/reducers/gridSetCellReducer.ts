@@ -1,16 +1,17 @@
 import {
-    BeadingGridState,
-    BeadingGridCellState,
+    BeadingGrid,
+    BeadingGridCell,
     shallowEqualsCell,
     deepEqualsCell,
+    createGridBounds,
 } from "../types";
-import { getGridBounds, indeciesInBounds, isNullOrEmpty } from "../utils";
+import { indeciesInBounds, isNullOrEmpty } from "../utils";
 
 export const gridSetCell = (
-    grid: BeadingGridState,
-    modifiedCell: BeadingGridCellState
-): BeadingGridState => {
-    const deepEqualsTargetCell = (current: BeadingGridCellState) =>
+    grid: BeadingGrid,
+    modifiedCell: BeadingGridCell
+): BeadingGrid => {
+    const deepEqualsTargetCell = (current: BeadingGridCell) =>
         deepEqualsCell(current, modifiedCell);
 
     // check if the grid already contains the cell with the same color and offset
@@ -19,7 +20,7 @@ export const gridSetCell = (
     }
 
     // check if the target cell is out of bounds or has no color
-    const area = getGridBounds(grid.options);
+    const area = createGridBounds(grid.options, grid.offset);
     if (!indeciesInBounds(area, modifiedCell.offset)) {
         return grid;
     }

@@ -1,3 +1,4 @@
+export * from "./BeadeeRednerBounds";
 export * from "./BeadeeFrameLabels";
 export * from "./BeadeeFrameColumnLabels";
 export * from "./BeadeeFrameRowLabels";
@@ -6,10 +7,11 @@ export * from "./BeadeeGrid";
 export * from "./BeadeeGridBackgroundPattern";
 export * from "./BeadeeGridCell";
 export * from "./BeadeeGridDivider";
+export * from "./BeadeeGridMetadataProvider";
 export * from "./BeadeeGridProvider";
 export * from "./BeadeeGridSection";
 export * from "./BeadeeGridSectionToolbar";
-export * from "./BeadeeGridSelectionFrame";
 export * from "./BeadeeGridSelectionProvider";
 export * from "./BeadeeGridStylesProvider";
+export * from "./BeadeeRenderBoundsProvider";
 export * from "./BeadeeText";

@@ -1,5 +1,6 @@
-import { BeadingGridMetadata } from "@repo/bead-grid";
+import { BeadingGridMetadata, RenderBounds } from "@repo/bead-grid";
 
 export type PatternMetadata = {
-    grids: Record<string, BeadingGridMetadata>;
+    patternBounds: RenderBounds;
+    gridsMetadata: Map<string, BeadingGridMetadata>;
 };

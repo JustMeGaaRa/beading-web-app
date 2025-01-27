@@ -1,9 +1,9 @@
-import { BeadingGridState, flipBead } from "@repo/bead-grid";
+import { BeadingGrid, flipBead } from "@repo/bead-grid";
 import { PatternOptions, PatternSummary } from "../types";
 import { getPatternSize } from "./pattern";
 
 export const getPatternSummary = (
-    grids: Array<BeadingGridState>,
+    grids: Array<BeadingGrid>,
     patternOptions: PatternOptions
 ): PatternSummary => {
     const beadItems = new Map<string, number>();
@@ -35,7 +35,7 @@ export const getPatternSummary = (
 };
 
 export const getPatternRealSize = (
-    grids: Array<BeadingGridState>,
+    grids: Array<BeadingGrid>,
     patternOptions: PatternOptions
 ) => {
     const patternSize = getPatternSize(grids, patternOptions);

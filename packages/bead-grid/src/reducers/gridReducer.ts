@@ -1,5 +1,5 @@
 import { GridActions } from "../actions";
-import { BeadingGridState } from "../types";
+import { BeadingGrid } from "../types";
 import { gridApplyOptions } from "./gridApplyOptionsReducer";
 import { gridClearColumn } from "./gridClearColumnReducer";
 import { gridClearRow } from "./gridClearRowReducer";
@@ -43,9 +43,9 @@ import { gridPasteSection } from "./gridPasteSectionReducer";
 // - Select eraser tool - click on cell to apply OR press down mouse and drag to apply
 
 export const gridReducer = (
-    state: BeadingGridState,
+    state: BeadingGrid,
     action: GridActions
-): BeadingGridState => {
+): BeadingGrid => {
     switch (action.type) {
         case "BEADING_GRID_APPLY_OPTIONS":
             return gridApplyOptions(state, action.options);

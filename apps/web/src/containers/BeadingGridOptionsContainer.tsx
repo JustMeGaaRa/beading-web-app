@@ -1,7 +1,7 @@
-import { Button, ButtonGroup, Flex, Icon, Text } from "@chakra-ui/react";
+import { Button, ButtonGroup, Flex, Text } from "@chakra-ui/react";
 import {
     BeadingGridProperties,
-    BeadingGridState,
+    BeadingGrid,
     BeadingGridType,
 } from "@repo/bead-grid";
 import { patternSelector, usePatternStore } from "@repo/bead-pattern-editor";
@@ -9,7 +9,7 @@ import { CloseIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
 import { FC, useCallback } from "react";
 import { BeadingGridOptionsPanel } from "../components";
 
-export const BeadingGridOptionsContainer: FC<{ grid: BeadingGridState }> = ({
+export const BeadingGridOptionsContainer: FC<{ grid: BeadingGrid }> = ({
     grid,
 }) => {
     const { pattern, dispatch } = usePatternStore(patternSelector);
@@ -70,7 +70,7 @@ export const BeadingGridOptionsContainer: FC<{ grid: BeadingGridState }> = ({
                     <Button
                         aria-selected={grid.options.type === "square"}
                         borderColor={"gray.400"}
-                        leftIcon={<Icon as={LoomIcon} boxSize={4} />}
+                        leftIcon={<LoomIcon size={16} />}
                         width={"50%"}
                         _selected={{
                             backgroundColor: "gray.900",
@@ -87,7 +87,7 @@ export const BeadingGridOptionsContainer: FC<{ grid: BeadingGridState }> = ({
                     <Button
                         aria-selected={grid.options.type === "peyote"}
                         borderColor={"gray.400"}
-                        leftIcon={<Icon as={PeyoteIcon} boxSize={4} />}
+                        leftIcon={<PeyoteIcon size={16} />}
                         width={"50%"}
                         _selected={{
                             backgroundColor: "gray.900",

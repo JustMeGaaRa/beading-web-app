@@ -7,10 +7,14 @@ import {
     BeadProperties,
     BrickGridProperties,
     BeadingGridSize,
-    BeadingGridSectionState,
+    getGridSize,
+    BeadingGridCell,
+    shiftOffset,
+    BeadingGrid,
+    getCellKey,
+    BeadingGridMetadata,
 } from "../types";
 import { flipBead } from "./common";
-import { getGridSize } from "./grid";
 
 export const getGridCellRenderSize = (
     options: BeadingGridProperties,
@@ -122,12 +126,18 @@ export const getGridCellRenderBounds = (
 };
 
 export const getGridSectionRenderBounds = (
-    bounds: BeadingGridSectionState,
+    cells: Array<BeadingGridCell>,
+    offset: BeadingGridOffset,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const cellRenderBounds = bounds.cells.map((cell) =>
-        getGridCellRenderBounds(cell.offset, options, styles)
+    // TODO: optimize to be O(n) complexity
+    const cellRenderBounds = cells.map((cell) =>
+        getGridCellRenderBounds(
+            shiftOffset(cell.offset, offset),
+            options,
+            styles
+        )
     );
     const minX = Math.min(...cellRenderBounds.map((cell) => cell.position.x));
     const minY = Math.min(...cellRenderBounds.map((cell) => cell.position.y));
@@ -160,5 +170,82 @@ export const getGridRenderBounds = (
         position: topLeftCellBounds.position,
         height: gridSize.height * topLeftCellBounds.height,
         width: gridSize.width * topLeftCellBounds.width,
+    };
+};
+
+export const combineRenderBounds = (
+    gridBounds: Array<RenderBounds>
+): RenderBounds => {
+    if (gridBounds.length === 0) {
+        return {
+            position: { x: 0, y: 0 },
+            width: 0,
+
+            height: 0,
+        } satisfies RenderBounds;
+    }
+
+    const minX = Math.min(...gridBounds.map((bounds) => bounds.position.x));
+    const minY = Math.min(...gridBounds.map((bounds) => bounds.position.y));
+    const maxX = Math.max(
+        ...gridBounds.map((bounds) => bounds.position.x + bounds.width)
+    );
+    const maxY = Math.max(
+        ...gridBounds.map((bounds) => bounds.position.y + bounds.height)
+    );
+
+    return {
+        position: { x: minX, y: minY },
+        width: maxX - minX,
+        height: maxY - minY,
+    } satisfies RenderBounds;
+};
+
+export const getGridMetadata = (
+    grid: BeadingGrid,
+    styles: BeadingGridStyles
+): BeadingGridMetadata => {
+    return {
+        gridBounds: getGridRenderBounds(grid.offset, grid.options, styles),
+        cellsBounds: grid.cells.reduce((map, cell) => {
+            return map.set(
+                getCellKey(cell),
+                getGridCellRenderBounds(cell.offset, grid.options, styles)
+            );
+        }, new Map()),
+    };
+};
+
+export type GridMetadataCache = ReturnType<typeof createGridMetadata>;
+
+export const createGridMetadata = (
+    grid: BeadingGrid,
+    styles: BeadingGridStyles
+) => {
+    let gridBounds: RenderBounds;
+    const cellsBounds = new Map<string, RenderBounds>();
+
+    const getGridBounds = () => {
+        if (!gridBounds) {
+            gridBounds = getGridRenderBounds(grid.offset, grid.options, styles);
+        }
+        return gridBounds;
+    };
+
+    const getCellBounds = (cell: BeadingGridCell) => {
+        if (!cellsBounds.has(getCellKey(cell))) {
+            const renderBounds = getGridCellRenderBounds(
+                cell.offset,
+                grid.options,
+                styles
+            );
+            cellsBounds.set(getCellKey(cell), renderBounds);
+        }
+        return cellsBounds.get(getCellKey(cell))!;
+    };
+
+    return {
+        getGridBounds,
+        getCellBounds,
     };
 };

@@ -16,9 +16,9 @@ import {
     ProjectToolsContainer,
 } from "../containers";
 import {
-    BeadingGridSelectionFrameProvider,
     BeadeeGridStylesProvider,
     DefaultGridStyles,
+    BeadeeGridSelectionProvider,
 } from "@repo/bead-grid";
 
 export const ProjectPage: FC = () => {
@@ -89,12 +89,12 @@ export const ProjectPage: FC = () => {
                                     bead: pattern.options.beadSize,
                                 }}
                             >
-                                <BeadingGridSelectionFrameProvider>
+                                <BeadeeGridSelectionProvider>
                                     <ProjectToolsContainer />
                                     <ProjectHelpContainer />
                                     <ProjectSettingsContainer />
                                     <PatternContainer />
-                                </BeadingGridSelectionFrameProvider>
+                                </BeadeeGridSelectionProvider>
                             </BeadeeGridStylesProvider>
                         </PageBody>
                     </PageContent>

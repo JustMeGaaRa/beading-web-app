@@ -1,18 +1,18 @@
-import { BeadingGridCellState, BeadingGridState } from "../types";
-import { clear, flip, FlipAxis, getGridSectionBounds, paste } from "../utils";
+import { BeadingGridCell, BeadingGrid, createGridSection } from "../types";
+import { clear, flip, FlipAxis, paste } from "../utils";
 
 export const gridFlipSection = (
-    grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>,
+    grid: BeadingGrid,
+    cells: Array<BeadingGridCell>,
     axis: FlipAxis
-): BeadingGridState => {
-    const sectionBounds = getGridSectionBounds(cells);
+): BeadingGrid => {
+    const sectionBounds = createGridSection(cells);
     const flippedSection = flip(sectionBounds, axis);
     const clearedGrid = clear(grid, cells);
     const modifiedGrid = paste(
         clearedGrid,
         flippedSection,
-        flippedSection.topLeft
+        flippedSection.offset
     );
     return modifiedGrid;
 };

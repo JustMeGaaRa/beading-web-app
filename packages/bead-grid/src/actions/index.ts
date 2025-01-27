@@ -1,5 +1,5 @@
 import {
-    BeadingGridCellState,
+    BeadingGridCell,
     BeadingGridOffset,
     BeadingGridProperties,
 } from "../types";
@@ -17,15 +17,15 @@ export type GridApplyOptionsAction = Action<
 >;
 export type GridSetCellAction = Action<
     "BEADING_GRID_SET_CELL",
-    { cell: BeadingGridCellState }
+    { cell: BeadingGridCell }
 >;
 export type GridSetSelectedCellsAction = Action<
     "BEADING_GRID_SELECT_CELLS",
-    { cells: Array<BeadingGridCellState> }
+    { cells: Array<BeadingGridCell> }
 >;
 export type GridClearCellsAction = Action<
     "BEADING_GRID_CLEAR_CELLS",
-    { cells: Array<BeadingGridCellState> }
+    { cells: Array<BeadingGridCell> }
 >;
 export type GridAddColumnBeforeAction = Action<
     "BEADING_GRID_ADD_COLUMN_BEFORE",
@@ -61,11 +61,11 @@ export type GridClearRowAction = Action<
 >;
 export type GridPasteSectionAction = Action<
     "BEADING_GRID_PASTE_SECTION",
-    { cells: Array<BeadingGridCellState>; offset: BeadingGridOffset }
+    { cells: Array<BeadingGridCell>; offset: BeadingGridOffset }
 >;
 export type GridFlipSectionAction = Action<
     "BEADING_GRID_FLIP_SECTION",
-    { cells: Array<BeadingGridCellState>; axis: FlipAxis }
+    { cells: Array<BeadingGridCell>; axis: FlipAxis }
 >;
 
 export type GridActions =

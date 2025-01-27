@@ -8,36 +8,41 @@ import {
     clear,
     copy,
     flip,
-    getGridSectionBounds,
+    createGridSection,
     indeciesInBounds,
     paste,
 } from "../../src";
 
 test.each([
     {
-        area: { topLeft: { columnIndex: 0, rowIndex: 0 }, width: 1, height: 1 },
+        area: { offset: { columnIndex: 0, rowIndex: 0 }, width: 1, height: 1 },
+        cells: Square3x3GridWithCellsOnDiagonal.cells.slice(0, 1),
         length: 1,
     },
     {
-        area: { topLeft: { columnIndex: 0, rowIndex: 0 }, width: 2, height: 2 },
+        area: { offset: { columnIndex: 0, rowIndex: 0 }, width: 2, height: 2 },
+        cells: Square3x3GridWithCellsOnDiagonal.cells.slice(0, 2),
         length: 2,
     },
     {
-        area: { topLeft: { columnIndex: 1, rowIndex: 1 }, width: 1, height: 1 },
+        area: { offset: { columnIndex: 1, rowIndex: 1 }, width: 1, height: 1 },
+        cells: Square3x3GridWithCellsOnDiagonal.cells.slice(1, 2),
         length: 1,
     },
     {
-        area: { topLeft: { columnIndex: 1, rowIndex: 0 }, width: 1, height: 3 },
+        area: { offset: { columnIndex: 1, rowIndex: 0 }, width: 1, height: 3 },
+        cells: Square3x3GridWithCellsOnDiagonal.cells.slice(1, 2),
         length: 1,
     },
     {
-        area: { topLeft: { columnIndex: 1, rowIndex: 1 }, width: 3, height: 3 },
+        area: { offset: { columnIndex: 1, rowIndex: 1 }, width: 3, height: 3 },
+        cells: Square3x3GridWithCellsOnDiagonal.cells.slice(1, 3),
         length: 2,
     },
 ])(
     "copy should return ($length) cells within bounds ($area.columnIndex, $area.rowIndex, $area.height, $area.width)",
-    ({ area, length }) => {
-        const copiedSection = copy(Square3x3GridWithCellsOnDiagonal, area);
+    ({ cells, length }) => {
+        const copiedSection = copy(Square3x3GridWithCellsOnDiagonal, cells);
 
         expect(copiedSection).toBeDefined();
         expect(copiedSection.cells).toBeDefined();
@@ -50,7 +55,7 @@ test.each([
         grid: Square10x10EmptyGrid,
         section: {
             cells: [{ offset: { columnIndex: 0, rowIndex: 0 }, color: "blue" }],
-            topLeft: { columnIndex: 0, rowIndex: 0 },
+            offset: { columnIndex: 0, rowIndex: 0 },
             height: 1,
             width: 1,
         },
@@ -60,7 +65,7 @@ test.each([
         grid: Square10x10EmptyGrid,
         section: {
             cells: [{ offset: { columnIndex: 1, rowIndex: 1 }, color: "blue" }],
-            topLeft: { columnIndex: 1, rowIndex: 1 },
+            offset: { columnIndex: 1, rowIndex: 1 },
             height: 1,
             width: 1,
         },
@@ -74,7 +79,7 @@ test.each([
                 { offset: { columnIndex: 0, rowIndex: 1 }, color: "green" },
                 { offset: { columnIndex: 1, rowIndex: 0 }, color: "red" },
             ],
-            topLeft: { columnIndex: 0, rowIndex: 0 },
+            offset: { columnIndex: 0, rowIndex: 0 },
             height: 2,
             width: 2,
         },
@@ -88,7 +93,7 @@ test.each([
                 { offset: { columnIndex: 2, rowIndex: 4 }, color: "green" },
                 { offset: { columnIndex: 3, rowIndex: 3 }, color: "red" },
             ],
-            topLeft: { columnIndex: 2, rowIndex: 3 },
+            offset: { columnIndex: 2, rowIndex: 3 },
             height: 2,
             width: 2,
         },
@@ -109,11 +114,11 @@ test.each([
                         gridCell.offset.columnIndex ===
                             sectionCell.offset.columnIndex +
                                 offset.columnIndex -
-                                section.topLeft.columnIndex &&
+                                section.offset.columnIndex &&
                         gridCell.offset.rowIndex ===
                             sectionCell.offset.rowIndex +
                                 offset.rowIndex -
-                                section.topLeft.rowIndex &&
+                                section.offset.rowIndex &&
                         gridCell.color === sectionCell.color
                 )
             ),
@@ -143,12 +148,12 @@ test.each([{ clearRowIndex: 2 }])(
 
 test("flip should return section with cells flipped but same bounds", () => {
     const grid = Square7x9GridWithCellsFormingLetterS;
-    const section = getGridSectionBounds(grid.cells);
+    const section = createGridSection(grid.cells);
     const modifiedSection = flip(section, "horizontal");
 
     expect(modifiedSection).toBeDefined();
     expect(modifiedSection.cells).toBeDefined();
-    expect(modifiedSection.topLeft).toEqual(section.topLeft);
+    expect(modifiedSection.offset).toEqual(section.offset);
     expect(modifiedSection.height).toEqual(section.height);
     expect(modifiedSection.width).toEqual(section.width);
     expect(
@@ -161,11 +166,11 @@ test("flip should return section with cells flipped but same bounds", () => {
 test("getGridSectionBounds should return valid bounds", () => {
     const grid = Square7x9GridWithCellsFormingLetterS;
 
-    const bounds = getGridSectionBounds(grid.cells);
+    const bounds = createGridSection(grid.cells);
 
     expect(bounds).toBeDefined();
     expect(bounds).toEqual({
-        topLeft: { columnIndex: 2, rowIndex: 2 },
+        offset: { columnIndex: 2, rowIndex: 2 },
         width: 3,
         height: 5,
         cells: grid.cells,

@@ -1,10 +1,6 @@
-import { BeadingGridOffset } from "./BeadingGridBounds";
+import { RenderBounds } from "./RenderBounds";
 
 export type BeadingGridMetadata = {
-    offset: BeadingGridOffset;
-    divider: {
-        offset: BeadingGridOffset;
-        length: number;
-    };
-    text: BeadingGridOffset;
+    gridBounds: RenderBounds;
+    cellsBounds: Map<string, RenderBounds>;
 };

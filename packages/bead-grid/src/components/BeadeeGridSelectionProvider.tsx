@@ -1,19 +1,16 @@
-import { BeadingGridCellState } from "@repo/bead-grid";
+import { BeadingGridCell } from "@repo/bead-grid";
 import { FC, PropsWithChildren, useState } from "react";
-import {
-    BeadingGridSelectionContext,
-    BeadingGridSelectionFrameContext,
-} from "../context";
+import { BeadingGridSelectionContext } from "../context";
 
 export const BeadeeGridSelectionProvider: FC<PropsWithChildren> = ({
     children,
 }) => {
     const [cliboardCells, setClipboardCells] = useState<
-        Array<BeadingGridCellState>
-    >([]);
+        Record<string, Array<BeadingGridCell>>
+    >({});
     const [selectedCells, setSelectedCells] = useState<
-        Array<BeadingGridCellState>
-    >([]);
+        Record<string, Array<BeadingGridCell>>
+    >({});
     const [selectedColumn, setSelectedColumn] = useState(-1);
     const [selectedRow, setSelectedRow] = useState(-1);
 
@@ -32,37 +29,5 @@ export const BeadeeGridSelectionProvider: FC<PropsWithChildren> = ({
         >
             {children}
         </BeadingGridSelectionContext.Provider>
-    );
-};
-
-export const BeadingGridSelectionFrameProvider: FC<PropsWithChildren> = ({
-    children,
-}) => {
-    const [mouseDownPosition, setMouseDownPosition] = useState<
-        | {
-              x: number;
-              y: number;
-          }
-        | undefined
-    >(undefined);
-    const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
-        | {
-              x: number;
-              y: number;
-          }
-        | undefined
-    >(undefined);
-
-    return (
-        <BeadingGridSelectionFrameContext.Provider
-            value={{
-                mouseDownPosition,
-                mouseCurrentPosition,
-                setMouseDownPosition,
-                setMouseCurrentPosition,
-            }}
-        >
-            {children}
-        </BeadingGridSelectionFrameContext.Provider>
     );
 };

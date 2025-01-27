@@ -1,46 +1,48 @@
 import { FC, PropsWithChildren } from "react";
-import { Group } from "react-konva";
-import { useGrid, useGridSelection, useGridStyles } from "../hooks";
-import { getGridSectionBounds, getGridSectionRenderBounds } from "../utils";
-import { BeadingGridCellState } from "../types";
+import {
+    BeadingGridCell,
+    BeadingGridOffset,
+    BeadingGridProperties,
+    getCellKey,
+    shiftOffset,
+} from "../types";
 import { BeadeeGridCell } from "./BeadeeGridCell";
-import { BeadeeGridSelectionFrame } from "./BeadeeGridSelectionFrame";
+import { useBeadeeGridStyles } from "../hooks";
+import { getGridSectionRenderBounds } from "../utils";
+import { BeadeeRenderBounds } from "./BeadeeRednerBounds";
 
 // TODO: introduce style props to support state styling from outside
 export const BeadeeGridSection: FC<
     PropsWithChildren<{
-        cells?: Array<BeadingGridCellState>;
+        cells: Array<BeadingGridCell>;
+        offset: BeadingGridOffset;
+        options: BeadingGridProperties;
     }>
-> = ({ children, cells }) => {
-    const { options } = useGrid();
-    const { styles } = useGridStyles();
-    const { selectedCells } = useGridSelection();
+> = ({ children, cells, offset, options }) => {
+    const { styles } = useBeadeeGridStyles();
 
-    const sectionBounds = getGridSectionBounds(selectedCells);
-    const sectionRenderBounds = getGridSectionRenderBounds(
-        sectionBounds,
+    const sectionBounds = getGridSectionRenderBounds(
+        cells,
+        offset,
         options,
         styles
     );
 
     return (
-        <Group>
-            <BeadeeGridSelectionFrame
-                backgroundColor={"transparent"}
-                position={sectionRenderBounds.position}
-                height={sectionRenderBounds.height}
-                width={sectionRenderBounds.width}
-                isVisible
-            />
-            {cells?.map((cell) => (
+        <BeadeeRenderBounds
+            backgroundColor={"transparent"}
+            {...sectionBounds}
+            isVisible={sectionBounds !== undefined}
+        >
+            {cells.map((cell) => (
                 <BeadeeGridCell
-                    key={`${cell.offset.rowIndex}-${cell.offset.columnIndex}`}
+                    key={getCellKey(cell)}
                     color={cell.color}
-                    offset={cell.offset}
-                    isSelected={true}
+                    offset={shiftOffset(cell.offset, offset)}
+                    isSelected
                 />
             ))}
             {children}
-        </Group>
+        </BeadeeRenderBounds>
     );
 };

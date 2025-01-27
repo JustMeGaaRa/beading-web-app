@@ -3,14 +3,14 @@ import {
     gridReducer,
     DefaultGridProperties,
     getGridHeight,
-    BeadingGridState,
+    BeadingGrid,
 } from "@repo/bead-grid";
 import { PatternActions } from "../actions";
 import { PatternState } from "../types";
 import { createGrid, mergeOptions } from "../utils";
 
 const getGridOffset = (
-    previousGrid: BeadingGridState | undefined,
+    previousGrid: BeadingGrid | undefined,
     orientation: "horizontal" | "vertical"
 ) => {
     if (!previousGrid) return { columnIndex: 0, rowIndex: 0 };
@@ -32,7 +32,7 @@ const getGridOffset = (
 };
 
 const mapGridOffset = (
-    grids: Array<BeadingGridState>,
+    grids: Array<BeadingGrid>,
     orientation: "horizontal" | "vertical"
 ) => {
     return grids.map((grid, index) => ({

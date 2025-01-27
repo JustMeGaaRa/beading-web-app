@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { BeadingGridStylesContext } from "../context";
 
-export const useGridStyles = () => {
+export const useBeadeeGridStyles = () => {
     return useContext(BeadingGridStylesContext);
 };

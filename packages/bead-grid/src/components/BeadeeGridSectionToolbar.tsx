@@ -1,15 +1,7 @@
 import { FC, PropsWithChildren } from "react";
 import { ToolbarPlacement } from "../types";
-import { useGrid, useGridSelection, useGridStyles } from "../hooks";
-import {
-    getGridCellRenderBounds,
-    getGridRenderBounds,
-    getGridSectionBounds,
-    getGridSectionRenderBounds,
-    getPlacementAbsolutePosition,
-    getPlacementRelativePosition,
-    pointInBounds,
-} from "../utils";
+import { useBeadeeRenderBounds } from "../hooks";
+import { getPlacementPosition } from "../utils";
 import { Html } from "react-konva-utils";
 
 export const BeadeeGridSectionToolbar: FC<
@@ -18,35 +10,13 @@ export const BeadeeGridSectionToolbar: FC<
         placement: ToolbarPlacement;
     }>
 > = ({ children, isVisible, placement }) => {
-    const { offset, options } = useGrid();
-    const { styles } = useGridStyles();
-    const { selectedCells } = useGridSelection();
-
-    // TODO: section has to know about grid offset
-    const sectionBounds = getGridSectionBounds(selectedCells);
-    const sectionRenderBounds = getGridSectionRenderBounds(
-        sectionBounds,
-        options,
-        styles
-    );
-    const toolbarAbsolutePosition = getPlacementAbsolutePosition(
-        placement,
-        getGridCellRenderBounds(offset, options, styles).position,
-        sectionRenderBounds
-    );
-    const toolbarRelativePosition = getPlacementRelativePosition(
-        placement,
-        sectionRenderBounds
-    );
-    const gridBounds = getGridRenderBounds(offset, options, styles);
-    const isInBounds = pointInBounds(gridBounds, toolbarAbsolutePosition);
+    const bounds = useBeadeeRenderBounds();
 
     return (
-        isVisible &&
-        isInBounds && (
+        isVisible && (
             <Html
                 divProps={{ style: { pointerEvents: "none" } }}
-                groupProps={toolbarRelativePosition}
+                groupProps={getPlacementPosition(placement, bounds)}
                 transform
                 transformFunc={(attr) => ({
                     ...attr,

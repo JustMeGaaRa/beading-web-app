@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Line } from "react-konva";
-import { useGrid, useGridStyles } from "../hooks";
+import { useBeadeeGrid, useBeadeeGridStyles } from "../hooks";
 import { BeadingGridOffset } from "../types";
 import { flipBead } from "../utils";
 
@@ -11,8 +11,8 @@ export const BeadeeGridDivider: FC<{
     strokeColor?: string;
     strokeWidth?: number;
 }> = ({ length, offset, orientation, strokeColor, strokeWidth }) => {
-    const { styles } = useGridStyles();
-    const { options } = useGrid();
+    const { styles } = useBeadeeGridStyles();
+    const { options } = useBeadeeGrid();
     const bead = options.type === "brick" ? flipBead(styles.bead) : styles.bead;
 
     // TODO: move this to a helper function

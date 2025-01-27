@@ -1,14 +1,15 @@
 import {
-    BeadingGridState,
+    BeadingGrid,
     BeadingGridProperties,
     deepEqualGridOptions,
+    createGridBounds,
 } from "../types";
-import { getGridBounds, indeciesInBounds, getCurrentGridName } from "../utils";
+import { indeciesInBounds, getCurrentGridName } from "../utils";
 
 export const gridApplyOptions = (
-    grid: BeadingGridState,
+    grid: BeadingGrid,
     modifiedGridOptions: BeadingGridProperties
-): BeadingGridState => {
+): BeadingGrid => {
     if (deepEqualGridOptions(grid.options, modifiedGridOptions)) {
         return grid;
     }
@@ -18,7 +19,7 @@ export const gridApplyOptions = (
         name: getCurrentGridName(modifiedGridOptions, grid.name),
         options: modifiedGridOptions,
         cells: grid.cells.filter((cell) => {
-            const area = getGridBounds(modifiedGridOptions);
+            const area = createGridBounds(modifiedGridOptions, grid.offset);
             return indeciesInBounds(area, cell.offset);
         }),
     };

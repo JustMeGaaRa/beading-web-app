@@ -1,4 +1,4 @@
-import { BeadingGridState } from "@repo/bead-grid";
+import { BeadingGrid } from "@repo/bead-grid";
 import { PatternOptions } from "./PatternOptions";
 import { PatternVersion } from "./PatternVersion";
 
@@ -9,6 +9,6 @@ export type PatternState = {
     coverUrl: string;
     lastModified: Date;
     options: PatternOptions;
-    grids: Array<BeadingGridState>;
+    grids: Array<BeadingGrid>;
     gridCount: number;
 };

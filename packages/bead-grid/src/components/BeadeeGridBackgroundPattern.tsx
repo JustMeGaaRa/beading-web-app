@@ -1,12 +1,13 @@
 import { FC } from "react";
 import { Circle } from "react-konva";
 import { Portal } from "react-konva-utils";
-import { getGridCellRenderBounds, getGridSize } from "../utils";
-import { useGrid, useGridStyles } from "../hooks";
+import { getGridCellRenderBounds } from "../utils";
+import { useBeadeeGrid, useBeadeeGridStyles } from "../hooks";
+import { getGridSize } from "../types";
 
 export const BeadeeGridBackgroundPattern: FC = () => {
-    const { styles } = useGridStyles();
-    const { gridId, options } = useGrid();
+    const { styles } = useBeadeeGridStyles();
+    const { gridId, options } = useBeadeeGrid();
 
     const { height, width } = getGridSize(options);
 

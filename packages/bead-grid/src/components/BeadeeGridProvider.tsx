@@ -1,36 +1,26 @@
-import { FC, PropsWithChildren, useState } from "react";
-import { BeadingGridContext } from "../context";
-import {
-    BeadingGridCellState,
-    BeadingGridProperties,
-    DefaultGridProperties,
-} from "../types";
+import { FC, PropsWithChildren } from "react";
+import { BeadeeGridContext } from "../context";
+import { BeadingGrid } from "../types";
 
-export const BeadeeGridProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [gridId, setGridId] = useState<string>("");
-    const [name, setName] = useState<string>("");
-    const [cells, setCells] = useState<Array<BeadingGridCellState>>([]);
-    const [offset, setOffset] = useState({ rowIndex: 0, columnIndex: 0 });
-    const [options, setOptions] = useState<BeadingGridProperties>(
-        DefaultGridProperties
-    );
-
+export const BeadeeGridProvider: FC<PropsWithChildren<BeadingGrid>> = ({
+    children,
+    gridId,
+    name,
+    cells,
+    offset,
+    options,
+}) => {
     return (
-        <BeadingGridContext.Provider
+        <BeadeeGridContext.Provider
             value={{
                 gridId,
                 name,
                 cells,
                 offset,
                 options,
-                setGridId,
-                setName,
-                setCells,
-                setOffset,
-                setOptions,
             }}
         >
             {children}
-        </BeadingGridContext.Provider>
+        </BeadeeGridContext.Provider>
     );
 };

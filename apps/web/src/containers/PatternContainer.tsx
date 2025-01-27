@@ -9,84 +9,94 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import {
-    BeadeeGridProvider,
-    useGridStyles,
-    TextState,
-    useGridSelection,
     BeadeeFrameLabels,
+    BeadeeRenderBounds,
     DefaultGridProperties,
-    BeadeeGridSelectionFrame,
-    useGridSelectionFrame,
-    BeadeeGridSelectionProvider,
+    TextState,
+    useBeadeeGridStyles,
+    useBeadeeGridSelection,
+    combineRenderBounds,
+    getGridSectionRenderBounds,
+    RenderPoint,
+    createRenderBounds,
+    pointInBounds,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
     PatternState,
     usePatterHistory,
-    getPatternRenderSize,
+    getPatternRenderBounds,
     patternSelector,
     dirtyStateSelector,
     getPatternSize,
+    Pattern,
+    getStageRelativePosition,
+    getCellsInPatternBounds,
+    getCellAtPatternPosition,
+    getPatternMetadata,
+    PatternMetadataProvider,
 } from "@repo/bead-pattern-editor";
 import {
     ArrowDownIcon,
     DocumentCodeIcon,
     DocumentImageIcon,
 } from "@repo/icons";
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Layer, Stage } from "react-konva";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
-import { useTools, Shortcuts } from "../components";
 import {
-    downloadUri,
-    getContentScale,
-    toJsonUri,
-    SCALE_MAXIMUM,
-} from "../utils";
-import Tools from "../utils/tools";
+    useTools,
+    Shortcuts,
+    useColorPalette,
+    createToolInfo,
+} from "../components";
+import { downloadUri, toJsonUri } from "../utils";
 import { putPattern } from "../api";
 import { BeadingGridContainer } from "./BeadingGridContainer";
 
 const hotkeysOptions = { preventDefault: true };
 
 export const PatternContainer: FC = () => {
-    const stageRef = useRef<Konva.Stage>(null);
-    const lastTouchDistanceRef = useRef(0);
+    const patternRef = useRef<Konva.Stage>(null);
 
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [columnState, setColumnState] = useState<TextState | undefined>();
     const [rowState, setRowState] = useState<TextState | undefined>();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { tool } = useTools();
+    const { selectedColor, setSelectedColor } = useColorPalette();
+    const { tool, enablePencil } = useTools();
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
-    const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } =
-        useGridSelection();
+    const {
+        selectedCells,
+        selectedColumn,
+        selectedRow,
+        setSelectedColumn,
+        setSelectedRow,
+    } = useBeadeeGridSelection();
     const { undo, redo } = usePatterHistory();
 
-    const { styles } = useGridStyles();
+    const { styles } = useBeadeeGridStyles();
     const { height, width } = getPatternSize(pattern.grids, pattern.options);
 
     const isHorizontal = pattern.options.orientation === "horizontal";
 
-    const centerStage = useCallback(
+    const centerPattern = useCallback(
         (pattern: PatternState) => {
-            if (stageRef.current && pattern?.grids.length > 0) {
-                const patternSize = getPatternRenderSize(
+            if (patternRef.current && pattern?.grids.length > 0) {
+                const patternSize = getPatternRenderBounds(
                     pattern.grids,
-                    styles,
-                    pattern.options
+                    styles
                 );
                 const position = {
                     x: window.innerWidth / 2 - patternSize.width / 2,
                     y: window.innerHeight / 2 - patternSize.height / 2,
                 };
-                stageRef.current.position(position);
-                stageRef.current.scale({ x: 1, y: 1 });
+                patternRef.current.position(position);
+                patternRef.current.scale({ x: 1, y: 1 });
             }
         },
         [styles]
@@ -94,9 +104,9 @@ export const PatternContainer: FC = () => {
 
     useHotkeys(
         Shortcuts.patternCenter.keyString,
-        () => centerStage(pattern),
+        () => centerPattern(pattern),
         hotkeysOptions,
-        [centerStage, pattern]
+        [centerPattern, pattern]
     );
     useHotkeys(Shortcuts.patternUndo.keyString, () => undo(), hotkeysOptions, [
         undo,
@@ -105,14 +115,14 @@ export const PatternContainer: FC = () => {
         redo,
     ]);
 
-    useEffect(() => centerStage(pattern), [centerStage]);
+    useEffect(() => centerPattern(pattern), [centerPattern]);
 
     useEffect(() => {
         // NOTE: auto save pattern cover every 5 seconds
         const intervalId = setInterval(() => {
             if (isDirty) {
-                const imageUri = stageRef.current?.toDataURL() ?? "";
-                putPattern({ ...pattern, coverUrl: imageUri });
+                const coverUrl = patternRef.current?.toDataURL() ?? "";
+                putPattern({ ...pattern, coverUrl });
                 resetDirty();
             }
         }, 5000);
@@ -120,172 +130,23 @@ export const PatternContainer: FC = () => {
         return () => clearInterval(intervalId);
     }, [pattern, isDirty, resetDirty]);
 
-    // SECTION: stage event handlers
-    const handleOnStageWheel = useCallback(
-        (event: Konva.KonvaEventObject<WheelEvent>) => {
-            event.evt.preventDefault();
-
-            const stage = event.target.getStage();
-            if (!stage) return;
-
-            const currentScale = stage.scaleX();
-            const pointerPosition = stage.getPointerPosition();
-            const stagePosition = stage.position();
-
-            if (!pointerPosition) return;
-
-            const stageSize = stage.getSize();
-            const patternSize = getPatternRenderSize(
-                pattern.grids,
-                styles,
-                pattern.options
-            );
-            const minScale = getContentScale(stageSize, patternSize);
-            const maxScale = SCALE_MAXIMUM;
-
-            const direction = event.evt.deltaY > 0 ? -1 : 1;
-            const scaleBy = 1.2;
-            let newScale =
-                direction > 0 ? currentScale * scaleBy : currentScale / scaleBy;
-
-            const mousePointTo = {
-                x: (pointerPosition.x - stagePosition.x) / currentScale,
-                y: (pointerPosition.y - stagePosition.y) / currentScale,
-            };
-
-            if (direction > 0) {
-                // Zoom In: Keep the point under cursor stationary
-                newScale = Math.min(maxScale, newScale);
-            } else {
-                // Zoom Out: Keep the point under cursor stationary
-                newScale = Math.max(minScale, newScale);
-            }
-
-            const newPos = {
-                x: pointerPosition.x - mousePointTo.x * newScale,
-                y: pointerPosition.y - mousePointTo.y * newScale,
-            };
-
-            stage.scale({ x: newScale, y: newScale });
-            stage.position(newPos);
-
-            stage.batchDraw();
-        },
-        [pattern.grids, pattern.options, styles]
-    );
-
-    const [touchZoom, setTouchZoom] = useState(false);
-
-    const handleOnStageTouchStart = useCallback(
-        (event: Konva.KonvaEventObject<TouchEvent>) => {
-            // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
-            setTouchZoom(event.evt.touches.length === 2);
-        },
-        []
-    );
-
-    const handleOnStageTouchMove = useCallback(
-        (event: Konva.KonvaEventObject<TouchEvent>) => {
-            event.evt.preventDefault();
-
-            if (!Tools.isMovement(tool)) return;
-
-            // NOTE: pinch gesture requires two fingers, otherwise it might be other gesture
-            if (event.evt.touches.length !== 2) return;
-
-            const [touchPoint1, touchPoint2] = event.evt.touches as unknown as [
-                Touch,
-                Touch,
-            ];
-            const currentTouchDistance = Math.hypot(
-                touchPoint2.clientX - touchPoint1.clientX,
-                touchPoint2.clientY - touchPoint1.clientY
-            );
-
-            if (lastTouchDistanceRef.current === 0) {
-                lastTouchDistanceRef.current = currentTouchDistance;
-                return;
-            }
-
-            const stage = event.target.getStage();
-            if (!stage) return;
-
-            const pointerPosition = {
-                x: (touchPoint1.clientX + touchPoint2.clientX) / 2,
-                y: (touchPoint1.clientY + touchPoint2.clientY) / 2,
-            };
-
-            const stageSize = stage.getSize();
-            const stagePosition = stage.position();
-            const patternSize = getPatternRenderSize(
-                pattern.grids,
-                styles,
-                pattern.options
-            );
-            const minScale = getContentScale(stageSize, patternSize);
-            const maxScale = SCALE_MAXIMUM;
-            const oldScale = stage.scaleX();
-
-            let newScale =
-                oldScale *
-                (currentTouchDistance / lastTouchDistanceRef.current);
-
-            newScale = Math.max(minScale, Math.min(maxScale, newScale));
-
-            const mousePointTo = {
-                x: (pointerPosition.x - stagePosition.x) / oldScale,
-                y: (pointerPosition.y - stagePosition.y) / oldScale,
-            };
-
-            const newPos = {
-                x: pointerPosition.x - mousePointTo.x * newScale,
-                y: pointerPosition.y - mousePointTo.y * newScale,
-            };
-
-            stage.scale({ x: newScale, y: newScale });
-            stage.position(newPos);
-            stage.batchDraw();
-
-            lastTouchDistanceRef.current = currentTouchDistance;
-        },
-        [pattern.grids, pattern.options, styles, tool]
-    );
-
-    const handleOnStageTouchEnd = useCallback(() => {
-        lastTouchDistanceRef.current = 0;
-        setTouchZoom(false);
-    }, []);
-
-    const handleOnStageClick = useCallback(() => {
-        // NOTE: clear all active selections when clicked on stage empty space
-        setSelectedColumn(-1);
-        setSelectedRow(-1);
-        // resetGridsSelection();
-    }, [setSelectedColumn, setSelectedRow]);
-
-    const handleOnStageContextMenu = useCallback(
-        (event: KonvaEventObject<MouseEvent>) => {
-            event.evt.preventDefault();
-        },
-        []
-    );
-
-    // SECTION: pattern event handlers
-    const handleOnPatternColumnClick = useCallback(
+    // SECTION: frame event handlers
+    const handleOnFrameColumnClick = useCallback(
         (_event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
+            // TODO: calculate the relative index here instead of having one in the event
             setColumnState(columnState);
         },
         []
     );
 
-    const handleOnPatternRowClick = useCallback(
+    const handleOnFrameRowClick = useCallback(
         (_event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
             setRowState(rowState);
         },
         []
     );
 
-    const handleOnPatternContextMenu = useCallback(
+    const handleOnFrameContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
             event.evt.preventDefault();
             const position = event.target.getStage()?.getPointerPosition() ?? {
@@ -300,7 +161,7 @@ export const PatternContainer: FC = () => {
 
     // SECTION: header menu handlers
     const handleOnPatternSavePngClick = useCallback(() => {
-        const imageUri = stageRef.current?.toDataURL() ?? "";
+        const imageUri = patternRef.current?.toDataURL() ?? "";
         downloadUri(imageUri, `${pattern.name}.png`);
     }, [pattern.name]);
 
@@ -315,7 +176,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_ADD_ROW_BEFORE",
                 gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.gridIndex,
+                row: rowState.relativeIndex,
             });
         }
     }, [dispatch, isHorizontal, rowState]);
@@ -325,7 +186,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_ADD_ROW_AFTER",
                 gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.gridIndex,
+                row: rowState.relativeIndex,
             });
         }
     }, [rowState, dispatch, isHorizontal]);
@@ -335,7 +196,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_CLEAR_ROW",
                 gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.gridIndex,
+                row: rowState.relativeIndex,
             });
         }
     }, [rowState, dispatch, isHorizontal]);
@@ -345,7 +206,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_DELETE_ROW",
                 gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.gridIndex,
+                row: rowState.relativeIndex,
             });
         }
     }, [rowState, dispatch, isHorizontal]);
@@ -355,7 +216,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_ADD_COLUMN_BEFORE",
                 gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.gridIndex,
+                column: columnState.relativeIndex,
             });
         }
     }, [columnState, dispatch, isHorizontal]);
@@ -365,7 +226,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_ADD_COLUMN_AFTER",
                 gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.gridIndex,
+                column: columnState.relativeIndex,
             });
         }
     }, [columnState, dispatch, isHorizontal]);
@@ -375,7 +236,7 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_CLEAR_COLUMN",
                 gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.gridIndex,
+                column: columnState.relativeIndex,
             });
         }
     }, [columnState, dispatch, isHorizontal]);
@@ -385,115 +246,307 @@ export const PatternContainer: FC = () => {
             dispatch({
                 type: "BEADING_GRID_DELETE_COLUMN",
                 gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.gridIndex,
+                column: columnState.relativeIndex,
             });
         }
     }, [columnState, dispatch, isHorizontal]);
 
     // SECTION: cursor selection handlers
-    const {
-        mouseCurrentPosition,
-        mouseDownPosition,
-        setMouseCurrentPosition,
-        setMouseDownPosition,
-    } = useGridSelectionFrame();
+    const [mouseDownPosition, setMouseDownPosition] = useState<
+        RenderPoint | undefined
+    >();
+    const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
+        RenderPoint | undefined
+    >();
     const [isMouseDown, setIsMouseDown] = useState(false);
+    const { setSelectedCells } = useBeadeeGridSelection();
 
-    const handleOnPointerDown = useCallback(
+    const metadata = useMemo(
+        () => getPatternMetadata(pattern.grids, styles),
+        [pattern.grids, styles]
+    );
+
+    const handleOnPatternContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            const stage = event.target.getStage();
-            const currentPosition = stage?.getRelativePointerPosition() ?? {
-                x: 0,
-                y: 0,
-            };
+            event.evt.preventDefault();
+        },
+        []
+    );
+
+    // SECTION: pattern event handlers
+    const handleOnPatternClick = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            const currentPosition = getStageRelativePosition(
+                event.target.getStage()
+            );
+
+            // NOTE: clear selection of click outside of bounds
+            const patternBounds = getPatternRenderBounds(pattern.grids, styles);
+            const clickInBounds = pointInBounds(patternBounds, currentPosition);
+
+            if (!clickInBounds) {
+                setSelectedCells({});
+            }
+
+            setSelectedColumn(-1);
+            setSelectedRow(-1);
+        },
+        [
+            pattern.grids,
+            styles,
+            setSelectedCells,
+            setSelectedColumn,
+            setSelectedRow,
+        ]
+    );
+
+    const handleOnPatternPointerDown = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            const toolInfo = createToolInfo(tool);
+            const currentPosition = getStageRelativePosition(
+                event.target.getStage()
+            );
 
             setIsMouseDown(true);
             setMouseDownPosition(currentPosition);
-            setMouseCurrentPosition(currentPosition);
-        },
-        [setMouseCurrentPosition, setMouseDownPosition]
-    );
+            setMouseCurrentPosition(undefined);
 
-    const handleOnPointerUp = useCallback(
-        (event: KonvaEventObject<MouseEvent>) => {
-            const stage = event.target.getStage();
-            const currentPosition = stage?.getRelativePointerPosition() ?? {
-                x: 0,
-                y: 0,
-            };
+            const patternBounds = metadata.patternBounds;
+            const mouseInBounds = pointInBounds(patternBounds, currentPosition);
 
-            setIsMouseDown(false);
-            setMouseDownPosition(undefined);
-            setMouseCurrentPosition(currentPosition);
-        },
-        [setMouseDownPosition, setMouseCurrentPosition]
-    );
+            if (mouseInBounds) {
+                // NOTE: handle cursor, pencil, eraser and picker only on click
+                const currentCell = getCellAtPatternPosition(
+                    pattern.grids,
+                    styles,
+                    currentPosition
+                );
 
-    const handleOnPointerMove = useCallback(
-        (event: KonvaEventObject<MouseEvent>) => {
-            if (isMouseDown) {
-                const stage = event.target.getStage();
-                const position = stage?.getRelativePointerPosition() ?? {
-                    x: 0,
-                    y: 0,
-                };
-                setMouseCurrentPosition(position);
+                if (toolInfo.isCursorEnabled) {
+                    setSelectedCells(currentCell);
+                }
+                if (toolInfo.isPencilEnabled) {
+                    const gridId = Object.keys(currentCell).at(0) ?? "";
+                    dispatch({
+                        type: "BEADING_GRID_SET_CELL",
+                        gridId: gridId,
+                        cell: {
+                            ...currentCell[gridId][0],
+                            color: selectedColor,
+                        },
+                    });
+                }
+                if (toolInfo.isEraserEnabled) {
+                    const gridId = Object.keys(currentCell).at(0) ?? "";
+                    dispatch({
+                        type: "BEADING_GRID_SET_CELL",
+                        gridId: gridId,
+                        cell: { ...currentCell[gridId][0], color: "" },
+                    });
+                }
+                if (toolInfo.isPickerEnabled) {
+                    const gridId = Object.keys(currentCell).at(0) ?? "";
+                    setSelectedColor(currentCell[gridId][0].color);
+                    enablePencil();
+                }
             }
         },
-        [isMouseDown, setMouseCurrentPosition]
+        [
+            pattern.grids,
+            metadata,
+            selectedColor,
+            styles,
+            tool,
+            dispatch,
+            enablePencil,
+            setSelectedCells,
+            setSelectedColor,
+        ]
     );
 
-    return (
-        <Box cursor={Tools.getCursor(tool)} height={"100%"} width={"100%"}>
-            <Stage
-                ref={stageRef}
-                draggable={Tools.isMovement(tool) && !touchZoom}
-                height={window.innerHeight}
-                width={window.innerWidth}
-                onClick={handleOnStageClick}
-                onContextMenu={handleOnStageContextMenu}
-                onTouchStart={handleOnStageTouchStart}
-                onTouchMove={handleOnStageTouchMove}
-                onTouchEnd={handleOnStageTouchEnd}
-                onPointerDown={handleOnPointerDown}
-                onPointerUp={handleOnPointerUp}
-                onPointerMove={handleOnPointerMove}
-                onWheel={handleOnStageWheel}
-            >
-                {pattern.grids.map((grid) => (
-                    <BeadeeGridSelectionProvider key={grid.name}>
-                        <BeadeeGridProvider>
-                            <BeadingGridContainer
-                                grid={grid}
-                                isLayoutHorizontal={isHorizontal}
-                            />
-                        </BeadeeGridProvider>
-                    </BeadeeGridSelectionProvider>
-                ))}
-                <Layer>
-                    {mouseDownPosition && mouseCurrentPosition && (
-                        <BeadeeGridSelectionFrame
-                            position={mouseDownPosition}
-                            width={mouseCurrentPosition.x - mouseDownPosition.x}
-                            height={
-                                mouseCurrentPosition.y - mouseDownPosition.y
-                            }
-                            isVisible={Tools.isCursor(tool)}
-                        />
-                    )}
-                </Layer>
-                <BeadeeFrameLabels
-                    height={height}
-                    width={width}
-                    options={
-                        pattern.grids.at(0)?.options ?? DefaultGridProperties
+    const handleOnPatternPointerUp = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            const currentPosition = getStageRelativePosition(
+                event.target.getStage()
+            );
+
+            setIsMouseDown(false);
+            setMouseCurrentPosition(currentPosition);
+            setMouseDownPosition(undefined);
+        },
+        []
+    );
+
+    const handleOnPatternPointerMove = useCallback(
+        (event: KonvaEventObject<MouseEvent>) => {
+            if (isMouseDown) {
+                const toolInfo = createToolInfo(tool);
+                const currentPosition = getStageRelativePosition(
+                    event.target.getStage()
+                );
+                setMouseCurrentPosition(currentPosition);
+
+                // NOTE: if cursor is enabled, then only area selection is possible on move
+                if (toolInfo.isCursorEnabled) {
+                    const mouseSelectedBounds = createRenderBounds(
+                        mouseDownPosition ?? { x: 0, y: 0 },
+                        mouseCurrentPosition ?? { x: 0, y: 0 }
+                    );
+                    const currentSelectedCells = getCellsInPatternBounds(
+                        pattern.grids,
+                        styles,
+                        mouseSelectedBounds
+                    );
+                    setSelectedCells(currentSelectedCells);
+                }
+
+                // NOTE: if cursor is not enabled, then only drawing is possible on move
+                if (!toolInfo.isCursorEnabled) {
+                    const patternBounds = metadata.patternBounds;
+                    const mouseInBounds = pointInBounds(
+                        patternBounds,
+                        currentPosition
+                    );
+
+                    if (mouseInBounds) {
+                        // NOTE: handle pencil, eraser and picker only on click
+                        const currentCell = getCellAtPatternPosition(
+                            pattern.grids,
+                            styles,
+                            currentPosition
+                        );
+
+                        if (toolInfo.isPencilEnabled) {
+                            // TODO: think of a better way to get gridId
+                            const gridId = Object.keys(currentCell).at(0) ?? "";
+                            dispatch({
+                                type: "BEADING_GRID_SET_CELL",
+                                gridId: gridId,
+                                cell: {
+                                    ...currentCell[gridId][0],
+                                    color: selectedColor,
+                                },
+                            });
+                        }
+                        if (toolInfo.isEraserEnabled) {
+                            const gridId = Object.keys(currentCell).at(0) ?? "";
+                            dispatch({
+                                type: "BEADING_GRID_SET_CELL",
+                                gridId: gridId,
+                                cell: { ...currentCell[gridId][0], color: "" },
+                            });
+                        }
+                        if (toolInfo.isPickerEnabled) {
+                            const gridId = Object.keys(currentCell).at(0) ?? "";
+                            setSelectedColor(currentCell[gridId][0].color);
+                            enablePencil();
+                        }
                     }
-                    isVisible={pattern.grids.length > 0}
-                    onColumnClick={handleOnPatternColumnClick}
-                    onRowClick={handleOnPatternRowClick}
+                }
+            }
+        },
+        [
+            isMouseDown,
+            mouseDownPosition,
+            mouseCurrentPosition,
+            pattern.grids,
+            metadata,
+            styles,
+            selectedColor,
+            tool,
+            setSelectedCells,
+            dispatch,
+            setSelectedColor,
+            enablePencil,
+        ]
+    );
+
+    const toolInfo = createToolInfo(tool);
+    const sectionsCompoundBounds = useMemo(
+        () =>
+            combineRenderBounds(
+                pattern.grids
+                    .filter((grid) => selectedCells[grid.gridId]?.length > 0)
+                    .map((grid) =>
+                        getGridSectionRenderBounds(
+                            selectedCells[grid.gridId],
+                            grid.offset,
+                            grid.options,
+                            styles
+                        )
+                    )
+            ),
+        [pattern.grids, selectedCells, styles]
+    );
+    const sectionsCompoundBoundsVisible =
+        toolInfo.isCursorEnabled &&
+        !isMouseDown &&
+        sectionsCompoundBounds.height > 0 &&
+        sectionsCompoundBounds.width > 0;
+
+    const mouseSelectedBounds = createRenderBounds(
+        mouseDownPosition ?? { x: 0, y: 0 },
+        mouseCurrentPosition ?? { x: 0, y: 0 }
+    );
+    const mouseSelectedBoundsVisible =
+        toolInfo.isCursorEnabled &&
+        !!mouseCurrentPosition &&
+        !!mouseDownPosition;
+
+    return (
+        <Box cursor={toolInfo.cursor} height={"100%"} width={"100%"}>
+            <PatternMetadataProvider metadata={metadata}>
+                <Pattern
+                    ref={patternRef}
+                    pattern={pattern}
+                    isDraggable={toolInfo.isMovementEnabled}
+                    height={window.innerHeight}
+                    width={window.innerWidth}
+                    onClick={handleOnPatternClick}
                     onContextMenu={handleOnPatternContextMenu}
-                />
-            </Stage>
+                    onPointerDown={handleOnPatternPointerDown}
+                    onPointerUp={handleOnPatternPointerUp}
+                    onPointerMove={handleOnPatternPointerMove}
+                >
+                    {pattern.grids.map((grid) => (
+                        <BeadingGridContainer
+                            key={grid.name}
+                            grid={grid}
+                            metadata={metadata.gridsMetadata.get(grid.gridId)}
+                            isLayoutHorizontal={isHorizontal}
+                            mouseCurrentPosition={mouseCurrentPosition}
+                            mouseDownPosition={mouseDownPosition}
+                            isMouseDown={isMouseDown}
+                        />
+                    ))}
+
+                    {/* NOTE: Renders the frame around all section frames */}
+                    <BeadeeRenderBounds
+                        backgroundColor={"transparent"}
+                        {...sectionsCompoundBounds}
+                        isVisible={sectionsCompoundBoundsVisible}
+                    />
+
+                    {/* NOTE: Renders the selected area from the user mouse input */}
+                    <BeadeeRenderBounds
+                        {...mouseSelectedBounds}
+                        isVisible={mouseSelectedBoundsVisible}
+                    />
+
+                    <BeadeeFrameLabels
+                        height={height}
+                        width={width}
+                        options={
+                            pattern.grids.at(0)?.options ??
+                            DefaultGridProperties
+                        }
+                        isVisible={pattern.grids.length > 0}
+                        onColumnClick={handleOnFrameColumnClick}
+                        onRowClick={handleOnFrameRowClick}
+                        onContextMenu={handleOnFrameContextMenu}
+                    />
+                </Pattern>
+            </PatternMetadataProvider>
 
             <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>
                 <MenuButton
@@ -543,7 +596,7 @@ export const PatternContainer: FC = () => {
                     </MenuList>
                 )}
             </Menu>
-            {stageRef.current &&
+            {patternRef.current &&
                 createPortal(
                     <Menu>
                         <MenuButton

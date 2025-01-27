@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Group, Line } from "react-konva";
-import { useGridStyles } from "../hooks";
+import { useBeadeeGridStyles } from "../hooks";
 
 export const BeadeeFrameMiddleMarker: FC<{
     orientation: "horizontal" | "vertical";
@@ -9,7 +9,7 @@ export const BeadeeFrameMiddleMarker: FC<{
     height: number;
     width: number;
 }> = ({ orientation, x, y, height, width }) => {
-    const { styles } = useGridStyles();
+    const { styles } = useBeadeeGridStyles();
 
     return (
         <Group x={x} y={y}>

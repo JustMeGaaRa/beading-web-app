@@ -1,16 +1,11 @@
-import {
-    BeadingGridCellState,
-    BeadingGridSectionState,
-    BeadingGridState,
-} from "../types";
-import { clear, copy, getGridSectionBounds } from "../utils";
+import { BeadingGridCell, BeadingGridSection, BeadingGrid } from "../types";
+import { clear, copy } from "../utils";
 
 export const gridCutSection = (
-    grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>
-): [BeadingGridState, BeadingGridSectionState] => {
-    const sectionBounds = getGridSectionBounds(cells);
-    const selectedSection = copy(grid, sectionBounds);
+    grid: BeadingGrid,
+    cells: Array<BeadingGridCell>
+): [BeadingGrid, BeadingGridSection] => {
+    const selectedSection = copy(grid, cells);
     const modifiedGrid = clear(grid, cells);
     return [modifiedGrid, selectedSection];
 };

@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import { DefaultGridStyles } from "../../src";
-import { hitTestCursor, hitTestArea } from "../../src/utils/hittest";
+import { getCellAtPosition, getCellsInBounds } from "../../src/utils/hittest";
 import {
     Square3x3GridWithCellsOnDiagonal,
     Square10x10EmptyGrid,
@@ -38,27 +38,21 @@ test.each([
     [
         {
             cursor: { x: 260, y: 320 },
-            hitCells: [
-                { offset: { columnIndex: 10, rowIndex: 10 }, color: "" },
-            ],
+            hitCells: [],
             successfull: false,
         },
     ],
     [
         {
             cursor: { x: -10, y: -10 },
-            hitCells: [
-                { offset: { columnIndex: -1, rowIndex: -1 }, color: "" },
-            ],
+            hitCells: [],
             successfull: false,
         },
     ],
     [
         {
             cursor: { x: 312, y: 384 },
-            hitCells: [
-                { offset: { columnIndex: 12, rowIndex: 12 }, color: "" },
-            ],
+            hitCells: [],
             successfull: false,
         },
     ],
@@ -68,7 +62,7 @@ test.each([
         const grid = Square10x10EmptyGrid;
         const gridStyles = DefaultGridStyles;
 
-        const hitResult = hitTestCursor(grid, gridStyles, cursor);
+        const hitResult = getCellAtPosition(grid, gridStyles, cursor);
 
         expect(hitResult).toBeDefined();
         expect(hitResult.successfull).toBe(successfull);
@@ -138,7 +132,7 @@ test.each([
         const grid = Square3x3GridWithCellsOnDiagonal;
         const gridStyles = DefaultGridStyles;
 
-        const hitResult = hitTestArea(grid, gridStyles, area);
+        const hitResult = getCellsInBounds(grid, gridStyles, area);
 
         expect(hitResult).toBeDefined();
         expect(hitResult.successfull).toBe(successfull);

@@ -1,46 +1,61 @@
 import {
-    BeadingGridCellState,
+    BeadingGridCell,
     BeadingGridOffset,
-    BeadingGridState,
+    BeadingGrid,
     BeadingGridStyles,
-    BeadingGridSectionBounds,
+    BeadingGridBounds,
     RenderBounds,
     RenderPoint,
     shallowEqualsCell,
     shiftOffset,
+    createGridBounds,
 } from "../types";
-import { getGridBounds } from "./grid";
-import { getGridCellRenderBounds, getGridCellRenderSize } from "./rendering";
+import {
+    getGridCellRenderBounds,
+    getGridCellRenderSize,
+    getGridRenderBounds,
+} from "./rendering";
 
 export type HitTestResult = {
     successfull: boolean;
-    hits: Array<BeadingGridCellState>;
+    hits: Array<BeadingGridCell>;
 };
 
-export const pointInBounds = (area: RenderBounds, point: RenderPoint) => {
+export const pointInBounds = (bounds: RenderBounds, point: RenderPoint) => {
     return (
-        point.x >= area.position.x &&
-        point.x < area.position.x + area.width &&
-        point.y >= area.position.y &&
-        point.y < area.position.y + area.height
+        point.x >= bounds.position.x &&
+        point.x < bounds.position.x + bounds.width &&
+        point.y >= bounds.position.y &&
+        point.y < bounds.position.y + bounds.height
+    );
+};
+
+export const cellInBounds = (bounds: RenderBounds, cell: RenderBounds) => {
+    const bottomRight = {
+        x: cell.position.x + cell.width,
+        y: cell.position.y + cell.height,
+    };
+    return (
+        pointInBounds(bounds, cell.position) &&
+        pointInBounds(bounds, bottomRight)
     );
 };
 
 export const indeciesInBounds = (
-    area: BeadingGridSectionBounds,
+    bounds: BeadingGridBounds,
     offset: BeadingGridOffset
 ) => {
     return (
-        offset.columnIndex >= area.topLeft.columnIndex &&
-        offset.columnIndex < area.topLeft.columnIndex + area.width &&
-        offset.rowIndex >= area.topLeft.rowIndex &&
-        offset.rowIndex < area.topLeft.rowIndex + area.height
+        offset.columnIndex >= 0 &&
+        offset.columnIndex < bounds.offset.columnIndex + bounds.width &&
+        offset.rowIndex >= 0 &&
+        offset.rowIndex < bounds.offset.rowIndex + bounds.height
     );
 };
 
 const getNeighbourCells = (
     offset: BeadingGridOffset
-): Array<BeadingGridCellState> => {
+): Array<BeadingGridCell> => {
     return [
         {
             offset: {
@@ -108,56 +123,74 @@ const getNeighbourCells = (
     ];
 };
 
-export const hitTestCursor = (
-    grid: BeadingGridState,
+export const getCellAtPosition = (
+    grid: BeadingGrid,
     styles: BeadingGridStyles,
-    cursor: RenderPoint
+    position: RenderPoint
 ): HitTestResult => {
+    const gridRenderBounds = getGridRenderBounds(
+        grid.offset,
+        grid.options,
+        styles
+    );
+    const isCursorInBounds = pointInBounds(gridRenderBounds, position);
+
+    if (!isCursorInBounds) {
+        return {
+            successfull: false,
+            hits: [],
+        };
+    }
+
     const beadSize = getGridCellRenderSize(grid.options, styles);
-    const hitCellApproximation: BeadingGridCellState = {
+    const hitCellApproximation: BeadingGridCell = {
         offset: {
             columnIndex:
-                Math.floor(cursor.x / beadSize.width) - grid.offset.columnIndex,
+                Math.floor(position.x / beadSize.width) -
+                grid.offset.columnIndex,
             rowIndex:
-                Math.floor(cursor.y / beadSize.height) - grid.offset.rowIndex,
+                Math.floor(position.y / beadSize.height) - grid.offset.rowIndex,
         },
         color: "",
     };
-    const hitCells: Array<BeadingGridCellState> =
+
+    const gridBounds = createGridBounds(grid.options, grid.offset);
+    const hitCells: Array<BeadingGridCell> =
         grid.options.type === "square"
             ? [hitCellApproximation]
-            : getNeighbourCells(hitCellApproximation.offset).filter((cell) => {
-                  const cellAbsoluteOffset = shiftOffset(
-                      cell.offset,
-                      grid.offset
+            : getNeighbourCells(hitCellApproximation.offset)
+                  .filter((cell) => indeciesInBounds(gridBounds, cell.offset))
+                  .filter((cell) => {
+                      const cellAbsoluteOffset = shiftOffset(
+                          cell.offset,
+                          grid.offset
+                      );
+                      const bounds = getGridCellRenderBounds(
+                          cellAbsoluteOffset,
+                          grid.options,
+                          styles
+                      );
+                      return pointInBounds(bounds, position);
+                  })
+                  .map(
+                      (cell) =>
+                          grid.cells.find((existing: BeadingGridCell) => {
+                              return shallowEqualsCell(
+                                  existing,
+                                  hitCellApproximation
+                              );
+                          }) ?? cell
                   );
-                  const bounds = getGridCellRenderBounds(
-                      cellAbsoluteOffset,
-                      grid.options,
-                      styles
-                  );
-                  return pointInBounds(bounds, cursor);
-              })!;
-
-    const equalCellApproximation = (cell: BeadingGridCellState) => {
-        return shallowEqualsCell(cell, hitCellApproximation);
-    };
-    // TODO: consider filtering out the cells that are out of bounds
     return {
-        successfull: hitCells.every((cell) => {
-            const bounds = getGridBounds(grid.options);
-            return indeciesInBounds(bounds, cell.offset);
-        }),
-        hits: hitCells.map(
-            (cell) => grid.cells.find(equalCellApproximation) ?? cell
-        ),
+        successfull: hitCells.length > 0,
+        hits: hitCells,
     };
 };
 
-export const hitTestArea = (
-    grid: BeadingGridState,
+export const getCellsInBounds = (
+    grid: BeadingGrid,
     styles: BeadingGridStyles,
-    area: RenderBounds
+    bounds: RenderBounds
 ): HitTestResult => {
     const hitCells = grid.cells.filter((cell) => {
         const cellAbsoluteOffset = shiftOffset(cell.offset, grid.offset);
@@ -175,8 +208,8 @@ export const hitTestArea = (
             y: boundary.position.y + boundary.height - 1,
         };
         return (
-            pointInBounds(area, boundaryTopLeft) &&
-            pointInBounds(area, boundaryBottomRight)
+            pointInBounds(bounds, boundaryTopLeft) &&
+            pointInBounds(bounds, boundaryBottomRight)
         );
     });
     return {

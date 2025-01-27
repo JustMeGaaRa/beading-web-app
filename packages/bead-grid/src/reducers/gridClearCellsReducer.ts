@@ -1,9 +1,9 @@
-import { BeadingGridCellState, BeadingGridState } from "../types";
+import { BeadingGridCell, BeadingGrid } from "../types";
 import { clear } from "../utils";
 
 export const gridClearCells = (
-    grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>
-): BeadingGridState => {
+    grid: BeadingGrid,
+    cells: Array<BeadingGridCell>
+): BeadingGrid => {
     return clear(grid, cells);
 };

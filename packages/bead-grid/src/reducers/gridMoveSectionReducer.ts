@@ -1,22 +1,23 @@
 import {
-    BeadingGridCellState,
+    BeadingGridCell,
     BeadingGridOffset,
-    BeadingGridState,
+    BeadingGrid,
+    createGridSection,
 } from "../types";
-import { clear, getGridSectionBounds, paste, shift } from "../utils";
+import { clear, paste, shift } from "../utils";
 
 export const gridMoveSection = (
-    grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>,
+    grid: BeadingGrid,
+    cells: Array<BeadingGridCell>,
     offset: BeadingGridOffset
-): BeadingGridState => {
-    const sectionBounds = getGridSectionBounds(cells);
+): BeadingGrid => {
+    const sectionBounds = createGridSection(cells);
     const shiftedSection = shift(sectionBounds, offset);
     const clearedGrid = clear(grid, cells);
     const modifiedGrid = paste(
         clearedGrid,
         shiftedSection,
-        shiftedSection.topLeft
+        shiftedSection.offset
     );
     return modifiedGrid;
 };

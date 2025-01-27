@@ -1,11 +1,11 @@
 import { BeadingGridOffset } from "./BeadingGridBounds";
-import { BeadingGridCellState } from "./BeadingGridCellState";
+import { BeadingGridCell } from "./BeadingGridCell";
 import { BeadingGridProperties } from "./BeadingGridProperties";
 
-export type BeadingGridState = {
+export type BeadingGrid = {
     gridId: string;
     offset: BeadingGridOffset;
     name: string;
-    cells: Array<BeadingGridCellState>;
+    cells: Array<BeadingGridCell>;
     options: BeadingGridProperties;
 };

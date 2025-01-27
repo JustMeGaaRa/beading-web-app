@@ -2,7 +2,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback, Fragment } from "react";
 import { Rect, Text } from "react-konva";
 import { TextState } from "../types";
-import { useGridStyles } from "../hooks";
+import { useBeadeeGridStyles } from "../hooks";
 
 export const BeadingFrameRowLabels: FC<{
     cellHeight: number;
@@ -33,18 +33,26 @@ export const BeadingFrameRowLabels: FC<{
     onClick,
     onContextMenu,
 }) => {
-    const { styles } = useGridStyles();
+    const { styles } = useBeadeeGridStyles();
 
     const handleOnClick = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            onClick?.(event, { gridIndex, patternIndex, gridId });
+            onClick?.(event, {
+                relativeIndex: gridIndex,
+                absoluteIndex: patternIndex,
+                gridId,
+            });
         },
         [onClick, gridIndex, patternIndex, gridId]
     );
 
     const handleOnContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            onContextMenu?.(event, { gridIndex, patternIndex, gridId });
+            onContextMenu?.(event, {
+                relativeIndex: gridIndex,
+                absoluteIndex: patternIndex,
+                gridId,
+            });
         },
         [onContextMenu, gridIndex, patternIndex, gridId]
     );

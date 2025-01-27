@@ -1,9 +1,9 @@
-import { BeadingGridState } from "../types";
+import { BeadingGrid } from "../types";
 
 export const gridDeleteRow = (
-    state: BeadingGridState,
+    state: BeadingGrid,
     rowIndex: number
-): BeadingGridState => {
+): BeadingGrid => {
     if (rowIndex < 0 || rowIndex >= state.options.height) {
         return state;
     }

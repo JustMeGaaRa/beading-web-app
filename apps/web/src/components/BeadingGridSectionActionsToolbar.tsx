@@ -6,7 +6,7 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import { FC } from "react";
-import { ToolState } from "./ToolsProvider";
+import { createToolInfo, ToolState } from "./ToolsProvider";
 import {
     CheckmarkIcon,
     ClipboardAddIcon,
@@ -45,12 +45,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
     onClear,
     onDone,
 }) => {
-    const isCursorEnabled =
-        tool.name === "cursor" && tool.state.currentAction === "default";
-    const isMirroringEnabled =
-        tool.name === "cursor" && tool.state.currentAction === "mirror";
-    const isDuplicatingEnabled =
-        tool.name === "cursor" && tool.state.currentAction === "duplicate";
+    const toolInfo = createToolInfo(tool);
 
     return (
         <BeadeeGridSectionToolbar
@@ -58,7 +53,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
             placement={"top-center"}
         >
             <Box transform={"translate(-50%, -100%)"}>
-                {isCursorEnabled && (
+                {toolInfo.isCursorEnabled && (
                     <ButtonGroup
                         backgroundColor={"gray.900"}
                         borderRadius={"md"}
@@ -180,7 +175,7 @@ export const BeadingGridSectionActionsToolbar: FC<{
                         </Tooltip>
                     </ButtonGroup>
                 )}
-                {(isMirroringEnabled || isDuplicatingEnabled) && (
+                {(toolInfo.isMirrorEnabled || toolInfo.isDuplicateEnabled) && (
                     <ButtonGroup
                         colorScheme={"gray"}
                         orientation={"horizontal"}

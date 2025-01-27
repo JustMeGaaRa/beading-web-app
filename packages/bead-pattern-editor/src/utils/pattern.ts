@@ -1,7 +1,7 @@
 import {
     BeadingGridOffset,
     BeadingGridProperties,
-    BeadingGridState,
+    BeadingGrid,
     BrickGridProperties,
     DefaultGridProperties,
     getCurrentGridName,
@@ -41,7 +41,7 @@ export const createGrid = (
     options: BeadingGridProperties,
     offset?: BeadingGridOffset,
     previousName?: string
-): BeadingGridState => {
+): BeadingGrid => {
     return {
         gridId: `grid-${crypto.randomUUID()}`,
         offset: offset ?? { rowIndex: 0, columnIndex: 0 },
@@ -70,7 +70,7 @@ export const createPattern = (
 };
 
 export const getPatternSize = (
-    grids: Array<BeadingGridState>,
+    grids: Array<BeadingGrid>,
     patternOptions: PatternOptions
 ) => {
     const isHorizontal = patternOptions.orientation === "horizontal";

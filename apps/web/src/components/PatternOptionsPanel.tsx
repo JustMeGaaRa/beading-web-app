@@ -37,34 +37,54 @@ export const PatternOptionsPanel: FC<
         });
     }, [onChange, options]);
 
-    const handleOnHeightChange = useCallback(
+    const handleOnHeightBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
+            const value = event.target.value;
             const isValidInteger =
-                Number.parseInt(event.target.value) &&
-                !Number.isNaN(event.target.value);
+                Number.parseInt(value) && !Number.isNaN(value);
             if (isValidInteger) {
                 onChange?.({
                     ...options,
-                    height: Number.parseInt(event.target.value),
+                    height: Number.parseInt(value),
                 });
             }
         },
         [onChange, options]
     );
 
-    const handleOnWidthChange = useCallback(
+    const handleOnWidthBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
+            const value = event.target.value;
             const isValidInteger =
-                Number.parseInt(event.target.value) &&
-                !Number.isNaN(event.target.value);
+                Number.parseInt(value) && !Number.isNaN(value);
             if (isValidInteger) {
                 onChange?.({
                     ...options,
-                    width: Number.parseInt(event.target.value),
+                    width: Number.parseInt(value),
                 });
             }
         },
         [onChange, options]
+    );
+
+    const handleOnHeightKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            console.log("height", event.key);
+            if (event.key === "Enter") {
+                event.currentTarget.blur();
+            }
+        },
+        []
+    );
+
+    const handleOnWidthKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            console.log("width", event.key);
+            if (event.key === "Enter") {
+                event.currentTarget.blur();
+            }
+        },
+        []
     );
 
     const handleOnBeadSizeChange = useCallback(
@@ -145,7 +165,8 @@ export const PatternOptionsPanel: FC<
                         min={1}
                         max={100}
                         width={"100%"}
-                        onBlur={handleOnHeightChange}
+                        onBlur={handleOnHeightBlur}
+                        onKeyDown={handleOnHeightKeyDown}
                     >
                         <NumberInputField />
                         <NumberInputStepper>
@@ -167,7 +188,8 @@ export const PatternOptionsPanel: FC<
                         min={1}
                         max={100}
                         width={"100%"}
-                        onBlur={handleOnWidthChange}
+                        onBlur={handleOnWidthBlur}
+                        onKeyDown={handleOnWidthKeyDown}
                     >
                         <NumberInputField />
                         <NumberInputStepper>

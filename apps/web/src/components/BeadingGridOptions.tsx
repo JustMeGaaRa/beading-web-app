@@ -18,7 +18,7 @@ export const BeadingGridOptionsPanel: FC<{
     size?: "xs" | "sm" | "md" | "lg";
     onChange?: (options: BeadingGridProperties) => void;
 }> = ({ options, orientation, size = "xs", onChange }) => {
-    const handleOnHeightChange = useCallback(
+    const handleOnHeightBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger =
                 Number.parseInt(event.target.value) &&
@@ -33,7 +33,7 @@ export const BeadingGridOptionsPanel: FC<{
         [onChange, options]
     );
 
-    const handleOnWidthChange = useCallback(
+    const handleOnWidthBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger =
                 Number.parseInt(event.target.value) &&
@@ -48,7 +48,7 @@ export const BeadingGridOptionsPanel: FC<{
         [onChange, options]
     );
 
-    const handleOnDropChange = useCallback(
+    const handleOnDropBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger =
                 Number.parseInt(event.target.value) &&
@@ -63,7 +63,7 @@ export const BeadingGridOptionsPanel: FC<{
         [onChange, options]
     );
 
-    const handleOnFringeChange = useCallback(
+    const handleOnFringeBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
             const isValidInteger =
                 Number.parseInt(event.target.value) &&
@@ -76,6 +76,42 @@ export const BeadingGridOptionsPanel: FC<{
             }
         },
         [onChange, options]
+    );
+
+    const handleOnHeightKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "Enter") {
+                event.currentTarget.blur();
+            }
+        },
+        []
+    );
+
+    const handleOnWidthKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "Enter") {
+                event.currentTarget.blur();
+            }
+        },
+        []
+    );
+
+    const handleOnDropKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "Enter") {
+                event.currentTarget.blur();
+            }
+        },
+        []
+    );
+
+    const handleOnFringeKeyDown = useCallback(
+        (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "Enter") {
+                event.currentTarget.blur();
+            }
+        },
+        []
     );
 
     const isHorizontal = orientation === "horizontal";
@@ -95,7 +131,8 @@ export const BeadingGridOptionsPanel: FC<{
                         min={1}
                         max={100}
                         width={"100%"}
-                        onBlur={handleOnHeightChange}
+                        onBlur={handleOnHeightBlur}
+                        onKeyDown={handleOnHeightKeyDown}
                     >
                         <NumberInputField />
                         <NumberInputStepper>
@@ -117,7 +154,8 @@ export const BeadingGridOptionsPanel: FC<{
                         min={1}
                         max={100}
                         width={"100%"}
-                        onBlur={handleOnWidthChange}
+                        onBlur={handleOnWidthBlur}
+                        onKeyDown={handleOnWidthKeyDown}
                     >
                         <NumberInputField />
                         <NumberInputStepper>
@@ -139,7 +177,8 @@ export const BeadingGridOptionsPanel: FC<{
                         min={1}
                         max={100}
                         width={"100%"}
-                        onBlur={handleOnDropChange}
+                        onBlur={handleOnDropBlur}
+                        onKeyDown={handleOnDropKeyDown}
                     >
                         <NumberInputField />
                         <NumberInputStepper>
@@ -161,7 +200,8 @@ export const BeadingGridOptionsPanel: FC<{
                         min={0}
                         max={100}
                         width={"100%"}
-                        onBlur={handleOnFringeChange}
+                        onBlur={handleOnFringeBlur}
+                        onKeyDown={handleOnFringeKeyDown}
                     >
                         <NumberInputField />
                         <NumberInputStepper>

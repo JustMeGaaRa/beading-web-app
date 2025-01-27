@@ -1,9 +1,9 @@
-import { BeadingGridState } from "../types";
+import { BeadingGrid } from "../types";
 
 export const gridInsertColumn = (
-    state: BeadingGridState,
+    state: BeadingGrid,
     columnIndex: number
-): BeadingGridState => {
+): BeadingGrid => {
     if (columnIndex < 0 || columnIndex >= state.options.width) {
         return state;
     }

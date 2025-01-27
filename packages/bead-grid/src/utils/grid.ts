@@ -1,42 +1,40 @@
 import {
-    BeadingGridSectionBounds,
-    BeadingGridCellState,
+    BeadingGridCell,
     BeadingGridOffset,
     BeadingGridProperties,
-    BeadingGridSectionState,
-    BeadingGridSize,
-    BeadingGridState,
+    BeadingGridSection,
+    BeadingGrid,
     shallowEqualsCell,
     shiftCell,
     BeadProperties,
+    createGridSection,
+    getGridSize,
+    createGridBounds,
+    shiftOffset,
+    negateOffset,
 } from "../types";
 import { capitalize } from "./common";
 import { indeciesInBounds } from "./hittest";
 
 export const copy = (
-    grid: BeadingGridState,
-    bounds: BeadingGridSectionBounds
-): BeadingGridSectionState => {
-    const gridRelativeCells = grid.cells.filter((cell) =>
-        indeciesInBounds(bounds, cell.offset)
-    );
+    _: BeadingGrid,
+    cells: Array<BeadingGridCell>
+): BeadingGridSection => {
+    const bounds = createGridSection(cells);
 
     return {
         ...bounds,
-        cells: gridRelativeCells,
+        cells: cells,
     };
 };
 
 export const paste = (
-    grid: BeadingGridState,
-    section: BeadingGridSectionState,
+    grid: BeadingGrid,
+    section: BeadingGridSection,
     offset: BeadingGridOffset
-): BeadingGridState => {
-    const targetOffset = {
-        columnIndex: offset.columnIndex - section.topLeft.columnIndex,
-        rowIndex: offset.rowIndex - section.topLeft.rowIndex,
-    };
-    const targetBounds = getGridBounds(grid.options);
+): BeadingGrid => {
+    const targetOffset = shiftOffset(offset, negateOffset(section.offset));
+    const targetBounds = createGridBounds(grid.options, grid.offset);
 
     const gridTargetCells = section.cells
         .map((cell) => shiftCell(cell, targetOffset))
@@ -53,9 +51,9 @@ export const paste = (
 };
 
 export const clear = (
-    grid: BeadingGridState,
-    cells: Array<BeadingGridCellState>
-): BeadingGridState => {
+    grid: BeadingGrid,
+    cells: Array<BeadingGridCell>
+): BeadingGrid => {
     return {
         ...grid,
         cells: grid.cells.filter(
@@ -65,15 +63,12 @@ export const clear = (
 };
 
 export const shift = (
-    section: BeadingGridSectionState,
+    section: BeadingGridSection,
     offset: BeadingGridOffset
-): BeadingGridSectionState => {
+): BeadingGridSection => {
     return {
         ...section,
-        topLeft: {
-            columnIndex: section.topLeft.columnIndex + offset.columnIndex,
-            rowIndex: section.topLeft.rowIndex + offset.rowIndex,
-        },
+        offset: shiftOffset(section.offset, offset),
         cells: section.cells.map((cell) => shiftCell(cell, offset)),
     };
 };
@@ -81,63 +76,45 @@ export const shift = (
 export type FlipAxis = "horizontal" | "vertical";
 
 export const flip = (
-    section: BeadingGridSectionState,
+    section: BeadingGridSection,
     axis: FlipAxis
-): BeadingGridSectionState => {
+): BeadingGridSection => {
+    const swapIndecies = (index: number, length: number) => {
+        return Math.abs(length - 1 - index);
+    };
+
     return {
         ...section,
         cells: section.cells.map((cell) => {
-            const sectionRelativeOffset = {
-                columnIndex:
-                    cell.offset.columnIndex - section.topLeft.columnIndex,
-                rowIndex: cell.offset.rowIndex - section.topLeft.rowIndex,
-            };
+            const sectionRelativeOffset = shiftOffset(
+                cell.offset,
+                negateOffset(section.offset)
+            );
 
             const cellOffset = {
                 columnIndex:
                     axis === "vertical"
-                        ? Math.abs(
-                              section.width -
-                                  1 -
-                                  sectionRelativeOffset.columnIndex
+                        ? swapIndecies(
+                              sectionRelativeOffset.columnIndex,
+                              section.width
                           )
                         : sectionRelativeOffset.columnIndex,
                 rowIndex:
                     axis === "horizontal"
-                        ? Math.abs(
-                              section.height -
-                                  1 -
-                                  sectionRelativeOffset.rowIndex
+                        ? swapIndecies(
+                              sectionRelativeOffset.rowIndex,
+                              section.height
                           )
                         : sectionRelativeOffset.rowIndex,
             };
 
-            const gridRelativeOffset = {
-                columnIndex:
-                    cellOffset.columnIndex + section.topLeft.columnIndex,
-                rowIndex: cellOffset.rowIndex + section.topLeft.rowIndex,
-            };
+            const gridRelativeOffset = shiftOffset(cellOffset, section.offset);
 
             return {
                 ...cell,
                 offset: gridRelativeOffset,
             };
         }),
-    };
-};
-
-export const getGridHeight = (options: BeadingGridProperties) => {
-    return options.type === "brick"
-        ? options.height + options.fringe
-        : options.height;
-};
-
-export const getGridSize = (
-    options: BeadingGridProperties
-): BeadingGridSize => {
-    return {
-        height: getGridHeight(options),
-        width: options.width,
     };
 };
 
@@ -150,37 +127,6 @@ export const getGridRealSize = (
     return {
         height: gridSize.height * bead.height,
         width: gridSize.width * bead.width,
-    };
-};
-
-export const getGridBounds = (
-    options: BeadingGridProperties
-): BeadingGridSectionBounds => {
-    return {
-        topLeft: { columnIndex: 0, rowIndex: 0 },
-        ...getGridSize(options),
-    };
-};
-
-export const getGridSectionBounds = (
-    cells: Array<BeadingGridCellState>
-): BeadingGridSectionState => {
-    const minColumnIndex = Math.min(
-        ...cells.map((cell) => cell.offset.columnIndex)
-    );
-    const minRowIndex = Math.min(...cells.map((cell) => cell.offset.rowIndex));
-    const maxColumnIndex = Math.max(
-        ...cells.map((cell) => cell.offset.columnIndex)
-    );
-    const maxRowIndex = Math.max(...cells.map((cell) => cell.offset.rowIndex));
-    const height = maxRowIndex - minRowIndex + 1;
-    const width = maxColumnIndex - minColumnIndex + 1;
-
-    return {
-        topLeft: { columnIndex: minColumnIndex, rowIndex: minRowIndex },
-        height,
-        width,
-        cells,
     };
 };
 

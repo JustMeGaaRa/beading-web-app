@@ -1,10 +1,6 @@
-import {
-    BeadingGridCellState,
-    BeadingGridOffset,
-    BeadingGridState,
-} from "../types";
+import { BeadingGridCell, BeadingGridOffset, BeadingGrid } from "../types";
 
-export const isBeadingGrid = (data: unknown): data is BeadingGridState => {
+export const isBeadingGrid = (data: unknown): data is BeadingGrid => {
     if (typeof data !== "object" || data === null) {
         return false;
     }
@@ -23,9 +19,7 @@ export const isBeadingGrid = (data: unknown): data is BeadingGridState => {
     );
 };
 
-export const isBeadingGridCell = (
-    data: unknown
-): data is BeadingGridCellState => {
+export const isBeadingGridCell = (data: unknown): data is BeadingGridCell => {
     if (typeof data !== "object" || data === null) {
         return false;
     }

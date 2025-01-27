@@ -1,6 +1,6 @@
-import { BeadingGridCellState } from "./BeadingGridCellState";
+import { BeadingGridCell } from "./BeadingGridCell";
 
 export type BeadingPointerEvent = {
-    cell: BeadingGridCellState;
+    cell: BeadingGridCell;
     isPointerDown?: boolean;
 };

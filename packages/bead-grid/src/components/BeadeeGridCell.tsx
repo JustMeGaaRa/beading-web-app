@@ -1,8 +1,9 @@
-import { FC, useCallback, Fragment } from "react";
+import { FC, useCallback } from "react";
 import { Rect } from "react-konva";
 import { BeadingGridOffset, BeadingPointerEvent } from "../types";
 import { getGridCellRenderBounds } from "../utils";
-import { useGrid, useGridStyles } from "../hooks";
+import { useBeadeeGridOptions, useBeadeeGridStyles } from "../hooks";
+import { BeadeeRenderBoundsProvider } from "./BeadeeRenderBoundsProvider";
 
 export const BeadeeGridCell: FC<{
     color: string;
@@ -23,14 +24,14 @@ export const BeadeeGridCell: FC<{
     onPointerOver,
     onPointerEnter,
 }) => {
-    const { styles } = useGridStyles();
-    const { options } = useGrid();
+    const { styles } = useBeadeeGridStyles();
+    const { options } = useBeadeeGridOptions();
 
-    const {
-        position: relativePosition,
-        height,
-        width,
-    } = getGridCellRenderBounds(offset, options, styles);
+    const { position, height, width } = getGridCellRenderBounds(
+        offset,
+        options,
+        styles
+    );
 
     const handleOnClick = useCallback(() => {
         onClick?.({ cell: { offset, color } });
@@ -53,7 +54,11 @@ export const BeadeeGridCell: FC<{
     }, [onPointerEnter, offset, color]);
 
     return (
-        <Fragment>
+        <BeadeeRenderBoundsProvider
+            position={position}
+            height={height}
+            width={width}
+        >
             <Rect
                 cornerRadius={styles.components.cell.borderRadius}
                 fill={color}
@@ -62,8 +67,8 @@ export const BeadeeGridCell: FC<{
                 stroke={styles.components.cell.borderColor}
                 strokeWidth={1}
                 width={width}
-                x={relativePosition.x}
-                y={relativePosition.y}
+                x={position.x}
+                y={position.y}
                 onClick={handleOnClick}
                 onTap={handleOnClick}
                 onPointerDown={handleOnPointerDown}
@@ -81,8 +86,8 @@ export const BeadeeGridCell: FC<{
                     stroke={styles.components.cell._selected.borderColor}
                     strokeWidth={styles.components.cell._selected.borderWidth}
                     width={width}
-                    x={relativePosition.x}
-                    y={relativePosition.y}
+                    x={position.x}
+                    y={position.y}
                     onClick={handleOnClick}
                     onTap={handleOnClick}
                     onPointerDown={handleOnPointerDown}
@@ -91,6 +96,6 @@ export const BeadeeGridCell: FC<{
                     onPointerEnter={handleOnPointerEnter}
                 />
             )}
-        </Fragment>
+        </BeadeeRenderBoundsProvider>
     );
 };

@@ -1,10 +1,10 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback } from "react";
-import { Layer } from "react-konva";
+import { Group } from "react-konva";
 import { BeadingFrameRowLabels } from "./BeadeeFrameRowLabels";
 import { BeadeeFrameColumnLabels } from "./BeadeeFrameColumnLabels";
 import { BeadeeFrameMiddleMarker } from "./BeadeeFrameMiddleMarker";
-import { useGridStyles, useGridSelection } from "../hooks";
+import { useBeadeeGridStyles, useBeadeeGridSelection } from "../hooks";
 import { BeadingGridProperties, TextState } from "../types";
 import { getGridCellRenderSize } from "@repo/bead-grid";
 
@@ -31,9 +31,9 @@ export const BeadeeFrameLabels: FC<{
     onRowClick,
     onContextMenu,
 }) => {
-    const { styles } = useGridStyles();
+    const { styles } = useBeadeeGridStyles();
     const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } =
-        useGridSelection();
+        useBeadeeGridSelection();
 
     const { height: cellHeight, width: cellWidth } = getGridCellRenderSize(
         options,
@@ -47,7 +47,7 @@ export const BeadeeFrameLabels: FC<{
             event.evt.preventDefault();
             event.cancelBubble = true;
             setSelectedColumn(-1);
-            setSelectedRow(rowState.patternIndex);
+            setSelectedRow(rowState.absoluteIndex);
             onRowClick?.(event, rowState);
         },
         [setSelectedColumn, setSelectedRow, onRowClick]
@@ -57,7 +57,7 @@ export const BeadeeFrameLabels: FC<{
         (event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
             event.evt.preventDefault();
             event.cancelBubble = true;
-            setSelectedColumn(columnState.patternIndex);
+            setSelectedColumn(columnState.absoluteIndex);
             setSelectedRow(-1);
             onColumnClick?.(event, columnState);
         },
@@ -69,8 +69,8 @@ export const BeadeeFrameLabels: FC<{
         (_, index) => ({
             // TODO: calculate relative index
             gridId: "all",
-            gridIndex: index,
-            patternIndex: index,
+            relativeIndex: index,
+            absoluteIndex: index,
         })
     );
     const rowTextArray: Array<TextState> = Array.from(
@@ -78,40 +78,40 @@ export const BeadeeFrameLabels: FC<{
         (_, index) => ({
             // TODO: calculate relative index
             gridId: "all",
-            gridIndex: index,
-            patternIndex: index,
+            relativeIndex: index,
+            absoluteIndex: index,
         })
     );
 
     return (
         isVisible && (
-            <Layer>
+            <Group>
                 {columnsTextArray.map((column) => (
                     <BeadeeFrameColumnLabels
-                        key={`column-label-${column.patternIndex}`}
+                        key={`column-label-${column.absoluteIndex}`}
                         cellHeight={cellHeight}
                         cellWidth={cellWidth}
                         gridId={column.gridId}
-                        gridIndex={column.gridIndex}
-                        patternIndex={column.patternIndex}
+                        gridIndex={column.relativeIndex}
+                        patternIndex={column.absoluteIndex}
                         marginY={frameTextMarginY}
                         rows={height}
-                        isSelected={selectedColumn === column.patternIndex}
+                        isSelected={selectedColumn === column.absoluteIndex}
                         onClick={handleOnColumnClick}
                         onContextMenu={onContextMenu}
                     />
                 ))}
                 {rowTextArray.map((row) => (
                     <BeadingFrameRowLabels
-                        key={`row-label-${row.patternIndex}`}
+                        key={`row-label-${row.absoluteIndex}`}
                         cellHeight={cellHeight}
                         cellWidth={cellWidth}
                         gridId={row.gridId}
-                        gridIndex={row.gridIndex}
-                        patternIndex={row.patternIndex}
+                        gridIndex={row.relativeIndex}
+                        patternIndex={row.absoluteIndex}
                         marginX={frameTextMarginX}
                         columns={width}
-                        isSelected={selectedRow === row.patternIndex}
+                        isSelected={selectedRow === row.absoluteIndex}
                         onClick={handleOnRowClick}
                         onContextMenu={onContextMenu}
                     />
@@ -130,7 +130,7 @@ export const BeadeeFrameLabels: FC<{
                     height={cellHeight}
                     width={cellWidth}
                 />
-            </Layer>
+            </Group>
         )
     );
 };
