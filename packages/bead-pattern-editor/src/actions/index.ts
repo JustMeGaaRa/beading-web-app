@@ -1,3 +1,4 @@
+import { BeadingGrid } from "@repo/bead-grid";
 import { GridActions } from "../../../bead-grid/src/actions";
 import { PatternOptions } from "../types";
 
@@ -21,6 +22,12 @@ export type PatternApplyOptionsAction = Action<
     { options: PatternOptions }
 >;
 export type PatternAddGridAction = Action<"PATTERN_ADD_GRID", {}>;
+export type PatternUpdateGridAction = Action<
+    "PATTERN_UPDATE_GRID",
+    {
+        grid: BeadingGrid;
+    }
+>;
 export type PatternDeleteGridAction = Action<
     "PATTERN_DELETE_GRID",
     { gridId: string }
@@ -35,4 +42,5 @@ export type PatternActions =
     | PatternApplyOptionsAction
     | PatternAddGridAction
     | PatternDeleteGridAction
-    | PatternGridAction;
+    | PatternGridAction
+    | PatternUpdateGridAction;

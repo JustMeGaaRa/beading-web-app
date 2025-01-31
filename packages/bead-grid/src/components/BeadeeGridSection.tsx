@@ -11,7 +11,7 @@ import { useBeadeeGridStyles } from "../hooks";
 import { getGridSectionRenderBounds } from "../utils";
 import { BeadeeRenderBounds } from "./BeadeeRednerBounds";
 
-// TODO: introduce style props to support state styling from outside
+// TODO: introduce style props to support copied, pasted and other styles
 export const BeadeeGridSection: FC<
     PropsWithChildren<{
         cells: Array<BeadingGridCell>;

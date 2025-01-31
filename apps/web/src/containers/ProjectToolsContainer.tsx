@@ -35,10 +35,6 @@ export const ProjectToolsContainer: FC = () => {
             toggleTool({ name: "cursor", state: { currentAction: "default" } }),
         [toggleTool]
     );
-    const onSetMoveTool = useCallback(
-        () => toggleTool({ name: "move", state: { currentAction: "default" } }),
-        [toggleTool]
-    );
     const onSetPencilTool = useCallback(
         () =>
             toggleTool({ name: "pencil", state: { currentAction: "default" } }),
@@ -61,9 +57,6 @@ export const ProjectToolsContainer: FC = () => {
         hotkeysOptions,
         [onSetCursorTool]
     );
-    useHotkeys(Shortcuts.toolMove.keyString, onSetMoveTool, hotkeysOptions, [
-        onSetMoveTool,
-    ]);
     useHotkeys(
         Shortcuts.toolPencil.keyString,
         onSetPencilTool,

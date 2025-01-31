@@ -10,4 +10,4 @@ export * from "./BeadingGridSectionControlsToolbar";
 export * from "./PatternCard";
 export * from "./PatternSummary";
 export * from "./Toolbar";
-export * from "./ToolsProvider";
+export * from "./tools";

@@ -3,8 +3,8 @@ import {
     BeadingGridOffset,
     BeadingGrid,
     createGridSection,
+    paste,
 } from "../types";
-import { paste } from "../utils";
 
 export const gridPasteSection = (
     grid: BeadingGrid,

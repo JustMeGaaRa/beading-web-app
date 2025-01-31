@@ -4,8 +4,9 @@ import {
     shallowEqualsCell,
     deepEqualsCell,
     createGridBounds,
+    indeciesInBounds,
 } from "../types";
-import { indeciesInBounds, isNullOrEmpty } from "../utils";
+import { isNullOrEmpty } from "../utils";
 
 export const gridSetCell = (
     grid: BeadingGrid,

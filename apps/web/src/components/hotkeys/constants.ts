@@ -55,28 +55,22 @@ export const Shortcuts: ShortcutsTable = {
         keyString: "Ctrl + 1",
         description: "Use cursor tool",
     },
-    toolMove: {
+    toolPencil: {
         scope: "page.pattern",
         keys: ["ctrl", "2"],
         keyString: "Ctrl + 2",
-        description: "Use move tool",
-    },
-    toolPencil: {
-        scope: "page.pattern",
-        keys: ["ctrl", "3"],
-        keyString: "Ctrl + 3",
         description: "Use pencil tool",
     },
     toolEraser: {
         scope: "page.pattern",
-        keys: ["ctrl", "4"],
-        keyString: "Ctrl + 4",
+        keys: ["ctrl", "3"],
+        keyString: "Ctrl + 3",
         description: "Use eraser tool",
     },
     toolPicker: {
         scope: "page.pattern",
-        keys: ["ctrl", "5"],
-        keyString: "Ctrl + 5",
+        keys: ["ctrl", "4"],
+        keyString: "Ctrl + 4",
         description: "Use color picker tool",
     },
     panelToggleAll: {

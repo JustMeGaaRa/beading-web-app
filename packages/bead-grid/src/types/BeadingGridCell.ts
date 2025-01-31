@@ -1,19 +1,8 @@
-import {
-    BeadingGridOffset,
-    negateOffset,
-    shiftOffset,
-} from "./BeadingGridBounds";
-import { RenderPoint } from "./RenderBounds";
+import { BeadingGridOffset, shiftOffset } from "./BeadingGridOffset";
 
 export type BeadingGridCell = {
     color: string;
     offset: BeadingGridOffset;
-};
-
-export type BeadingGridCellMetadata = {
-    position: RenderPoint;
-    height: number;
-    width: number;
 };
 
 export const getCellKey = (cell: BeadingGridCell) => {
@@ -21,26 +10,6 @@ export const getCellKey = (cell: BeadingGridCell) => {
 };
 
 export const shiftCell = (cell: BeadingGridCell, offset: BeadingGridOffset) => {
-    return {
-        ...cell,
-        offset: shiftOffset(cell.offset, offset),
-    };
-};
-
-export const getRelativeCell = (
-    cell: BeadingGridCell,
-    offset: BeadingGridOffset
-): BeadingGridCell => {
-    return {
-        ...cell,
-        offset: shiftOffset(cell.offset, negateOffset(offset)),
-    };
-};
-
-export const getCellAbsoluteIndicies = (
-    cell: BeadingGridCell,
-    offset: BeadingGridOffset
-): BeadingGridCell => {
     return {
         ...cell,
         offset: shiftOffset(cell.offset, offset),

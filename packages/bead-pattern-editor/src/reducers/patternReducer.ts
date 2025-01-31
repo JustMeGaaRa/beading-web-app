@@ -68,6 +68,14 @@ export const patternReducer = (
                 grids: [...state.grids, currentGrid],
                 gridCount: state.gridCount + 1,
             };
+        case "PATTERN_UPDATE_GRID":
+            return {
+                ...state,
+                lastModified: new Date(),
+                grids: state.grids.map((grid) =>
+                    grid.gridId === action.grid.gridId ? action.grid : grid
+                ),
+            };
         case "PATTERN_DELETE_GRID":
             return {
                 ...state,
@@ -131,6 +139,7 @@ export const patternReducer = (
         case "BEADING_GRID_CLEAR_ROW":
         case "BEADING_GRID_PASTE_SECTION":
         case "BEADING_GRID_FLIP_SECTION":
+        case "BEADING_GRID_MOVE_SECTION":
             return {
                 ...state,
                 lastModified: new Date(),

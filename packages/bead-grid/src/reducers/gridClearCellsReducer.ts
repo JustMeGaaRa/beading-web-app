@@ -1,5 +1,4 @@
-import { BeadingGridCell, BeadingGrid } from "../types";
-import { clear } from "../utils";
+import { BeadingGridCell, BeadingGrid, clear } from "../types";
 
 export const gridClearCells = (
     grid: BeadingGrid,

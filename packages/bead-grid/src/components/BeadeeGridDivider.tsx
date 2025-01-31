@@ -1,8 +1,7 @@
 import { FC } from "react";
 import { Line } from "react-konva";
 import { useBeadeeGrid, useBeadeeGridStyles } from "../hooks";
-import { BeadingGridOffset } from "../types";
-import { flipBead } from "../utils";
+import { BeadingGridOffset, flipBead } from "../types";
 
 export const BeadeeGridDivider: FC<{
     length: number;

@@ -1,122 +1,16 @@
 import {
+    BeadingGrid,
     BeadingGridCell,
     BeadingGridOffset,
     BeadingGridProperties,
     BeadingGridSection,
-    BeadingGrid,
-    shallowEqualsCell,
-    shiftCell,
     BeadProperties,
-    createGridSection,
+    cut,
     getGridSize,
-    createGridBounds,
-    shiftOffset,
-    negateOffset,
+    paste,
+    shift,
 } from "../types";
 import { capitalize } from "./common";
-import { indeciesInBounds } from "./hittest";
-
-export const copy = (
-    _: BeadingGrid,
-    cells: Array<BeadingGridCell>
-): BeadingGridSection => {
-    const bounds = createGridSection(cells);
-
-    return {
-        ...bounds,
-        cells: cells,
-    };
-};
-
-export const paste = (
-    grid: BeadingGrid,
-    section: BeadingGridSection,
-    offset: BeadingGridOffset
-): BeadingGrid => {
-    const targetOffset = shiftOffset(offset, negateOffset(section.offset));
-    const targetBounds = createGridBounds(grid.options, grid.offset);
-
-    const gridTargetCells = section.cells
-        .map((cell) => shiftCell(cell, targetOffset))
-        .filter((cell) => indeciesInBounds(targetBounds, cell.offset));
-    const gridFilteredCells = grid.cells.filter(
-        (cell) =>
-            !gridTargetCells.some((target) => shallowEqualsCell(target, cell))
-    );
-
-    return {
-        ...grid,
-        cells: [...gridFilteredCells, ...gridTargetCells],
-    };
-};
-
-export const clear = (
-    grid: BeadingGrid,
-    cells: Array<BeadingGridCell>
-): BeadingGrid => {
-    return {
-        ...grid,
-        cells: grid.cells.filter(
-            (cell) => !cells.some((target) => shallowEqualsCell(target, cell))
-        ),
-    };
-};
-
-export const shift = (
-    section: BeadingGridSection,
-    offset: BeadingGridOffset
-): BeadingGridSection => {
-    return {
-        ...section,
-        offset: shiftOffset(section.offset, offset),
-        cells: section.cells.map((cell) => shiftCell(cell, offset)),
-    };
-};
-
-export type FlipAxis = "horizontal" | "vertical";
-
-export const flip = (
-    section: BeadingGridSection,
-    axis: FlipAxis
-): BeadingGridSection => {
-    const swapIndecies = (index: number, length: number) => {
-        return Math.abs(length - 1 - index);
-    };
-
-    return {
-        ...section,
-        cells: section.cells.map((cell) => {
-            const sectionRelativeOffset = shiftOffset(
-                cell.offset,
-                negateOffset(section.offset)
-            );
-
-            const cellOffset = {
-                columnIndex:
-                    axis === "vertical"
-                        ? swapIndecies(
-                              sectionRelativeOffset.columnIndex,
-                              section.width
-                          )
-                        : sectionRelativeOffset.columnIndex,
-                rowIndex:
-                    axis === "horizontal"
-                        ? swapIndecies(
-                              sectionRelativeOffset.rowIndex,
-                              section.height
-                          )
-                        : sectionRelativeOffset.rowIndex,
-            };
-
-            const gridRelativeOffset = shiftOffset(cellOffset, section.offset);
-
-            return {
-                ...cell,
-                offset: gridRelativeOffset,
-            };
-        }),
-    };
-};
 
 export const getGridRealSize = (
     options: BeadingGridProperties,
@@ -162,4 +56,44 @@ export const getNextGridName = (
 ) => {
     const lastGridNumber = parseGridNumber(currentName);
     return buildGridName(options, lastGridNumber + 1);
+};
+
+export const createSectionDragContext = (
+    grid: BeadingGrid,
+    cells: Array<BeadingGridCell>
+) => {
+    let originalGrid: BeadingGrid;
+    let currentGrid: BeadingGrid;
+    let originalSection: BeadingGridSection;
+    let currentSection: BeadingGridSection;
+
+    const start = (): [BeadingGrid, BeadingGridSection] => {
+        const [clearedGrid, section] = cut(grid, cells);
+        originalGrid = grid;
+        currentGrid = clearedGrid;
+        originalSection = { ...section } satisfies BeadingGridSection;
+        currentSection = { ...section } satisfies BeadingGridSection;
+        return [clearedGrid, section];
+    };
+
+    const accept = (): [BeadingGrid, BeadingGridSection] => {
+        currentGrid = paste(currentGrid, currentSection, currentSection.offset);
+        return [currentGrid, currentSection];
+    };
+
+    const cancel = (): [BeadingGrid, BeadingGridSection] => {
+        return [originalGrid, originalSection];
+    };
+
+    const move = (offset: BeadingGridOffset): BeadingGridSection => {
+        currentSection = shift(currentSection, offset);
+        return currentSection;
+    };
+
+    return {
+        start,
+        accept,
+        cancel,
+        move,
+    };
 };

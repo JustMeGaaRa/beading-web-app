@@ -13,8 +13,8 @@ import {
     BeadingGrid,
     getCellKey,
     BeadingGridMetadata,
+    flipBead,
 } from "../types";
-import { flipBead } from "./common";
 
 export const getGridCellRenderSize = (
     options: BeadingGridProperties,

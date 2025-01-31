@@ -5,49 +5,93 @@ import {
     BeadeeGridSection,
     BeadeeText,
     BeadingGrid,
-    useBeadeeGridStyles,
     useBeadeeGridSelection,
     getGridHeight,
-    getCellAtPosition,
     RenderPoint,
     BeadeeGridOptionsProvider,
     BeadingGridMetadata,
     BeadeeGridMetadataProvider,
+    distanceBetween,
+    getStageRelativePosition,
+    isZeroOffset,
 } from "@repo/bead-grid";
-import { usePatternStore, patternSelector } from "@repo/bead-pattern-editor";
-import { FC, useCallback } from "react";
+import {
+    usePatternStore,
+    patternSelector,
+    useBeadeeSectionDragContext,
+    useBeadeePatternHitTest,
+} from "@repo/bead-pattern-editor";
+import { FC, useCallback, useRef } from "react";
 import {
     useTools,
     BeadingGridSectionActionsToolbar,
     BeadingGridSectionControlsToolbar,
     createToolInfo,
 } from "../components";
+import Konva from "konva";
 
 export const BeadingGridContainer: FC<{
     grid: BeadingGrid;
     metadata?: BeadingGridMetadata;
+    patternRef: React.RefObject<Konva.Stage>;
     isLayoutHorizontal?: boolean;
-    mouseCurrentPosition: RenderPoint | undefined;
-    mouseDownPosition: RenderPoint | undefined;
-    isMouseDown?: boolean;
+    isPointerDown?: boolean;
+    pointerPosition: RenderPoint | undefined;
 }> = ({
     grid,
     metadata,
+    patternRef,
     isLayoutHorizontal,
-    mouseCurrentPosition,
-    isMouseDown,
+    isPointerDown,
+    pointerPosition,
 }) => {
     const { tool } = useTools();
     const { dispatch } = usePatternStore(patternSelector);
-    const { styles } = useBeadeeGridStyles();
     const {
         cliboardCells,
         selectedCells,
         setClipboardCells,
         setSelectedCells,
     } = useBeadeeGridSelection();
+    const { getCellAtPosition } = useBeadeePatternHitTest();
 
     const toolInfo = createToolInfo(tool);
+
+    const dragLastPosition = useRef<RenderPoint>();
+    const { startDragging, endDragging, updateDragging } =
+        useBeadeeSectionDragContext(grid);
+
+    const handleOnDragStart = useCallback(() => {
+        const currentPosition = getStageRelativePosition(patternRef.current);
+        dragLastPosition.current = currentPosition;
+        startDragging();
+    }, [patternRef, startDragging]);
+
+    const handleOnDrag = useCallback(() => {
+        if (dragLastPosition.current) {
+            const currentPosition = getStageRelativePosition(
+                patternRef.current
+            );
+            const lastCell = getCellAtPosition(dragLastPosition.current);
+            const currentCell = getCellAtPosition(currentPosition);
+            const lastCellOffset = lastCell[grid.gridId][0].offset;
+            const currentOffset = currentCell[grid.gridId][0].offset;
+            const distance = distanceBetween(lastCellOffset, currentOffset);
+
+            if (!isZeroOffset(distance)) {
+                dragLastPosition.current = currentPosition;
+                updateDragging(distance);
+            }
+        }
+    }, [patternRef, getCellAtPosition, grid.gridId, updateDragging]);
+
+    const handleOnDragEnd = useCallback(
+        (event: { cancelled: boolean }) => {
+            dragLastPosition.current = undefined;
+            endDragging(event.cancelled);
+        },
+        [endDragging]
+    );
 
     // SECTION: toolbar action handlers
     const onCopyClick = useCallback(() => {
@@ -59,31 +103,30 @@ export const BeadingGridContainer: FC<{
     const onPasteClick = useCallback(() => {
         if (
             toolInfo.isCursorEnabled &&
-            cliboardCells[grid.gridId].length > 0 &&
-            mouseCurrentPosition
+            cliboardCells[grid.gridId]?.length > 0 &&
+            pointerPosition
         ) {
-            const hitResult = getCellAtPosition(
-                grid,
-                styles,
-                mouseCurrentPosition
-            );
+            const hitResult = getCellAtPosition(pointerPosition);
 
-            if (hitResult.hits.length > 0) {
+            if (hitResult[grid.gridId]?.length > 0) {
+                const targetCells = cliboardCells[grid.gridId];
+                const targetCellOffset = hitResult[grid.gridId][0].offset;
+
                 setSelectedCells({});
                 dispatch({
                     type: "BEADING_GRID_PASTE_SECTION",
                     gridId: grid.gridId,
-                    cells: cliboardCells[grid.gridId],
-                    offset: hitResult.hits[0].offset,
+                    cells: targetCells,
+                    offset: targetCellOffset,
                 });
             }
         }
     }, [
-        toolInfo,
+        toolInfo.isCursorEnabled,
         cliboardCells,
-        mouseCurrentPosition,
-        grid,
-        styles,
+        grid.gridId,
+        pointerPosition,
+        getCellAtPosition,
         setSelectedCells,
         dispatch,
     ]);
@@ -132,24 +175,24 @@ export const BeadingGridContainer: FC<{
               columnIndex: -6,
               rowIndex: 0,
           };
-    // TODO: hide toolbar when selecting an area or dragging the section
+
     // NOTE: visible only when cursor tool enabled and some cells are selected
     const toolbarsVisible =
         toolInfo.isCursorEnabled &&
-        !isMouseDown &&
+        !isPointerDown &&
         selectedCells[grid.gridId]?.length > 0;
 
     return (
         <BeadeeGridOptionsProvider options={grid.options}>
             <BeadeeGridMetadataProvider metadata={metadata}>
                 <BeadeeGrid
-                    gridId={grid.gridId}
+                    id={grid.gridId}
                     name={grid.name}
                     offset={grid.offset}
                     cells={grid.cells}
                     options={grid.options}
                 >
-                    <BeadeeGridBackgroundPattern />
+                    <BeadeeGridBackgroundPattern id={grid.gridId} />
                     <BeadeeText
                         text={grid.name}
                         offset={decorationOffset}
@@ -174,6 +217,9 @@ export const BeadingGridContainer: FC<{
                 >
                     <BeadingGridSectionControlsToolbar
                         isVisible={toolbarsVisible}
+                        onDragStart={handleOnDragStart}
+                        onDrag={handleOnDrag}
+                        onDragEnd={handleOnDragEnd}
                     />
                     <BeadingGridSectionActionsToolbar
                         isVisible={toolbarsVisible}

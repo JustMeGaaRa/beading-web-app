@@ -3,5 +3,5 @@ export * from "./grid";
 export * from "./guards";
 export * from "./hittest";
 export * from "./rendering";
-export * from "./section";
+export * from "./stage";
 export * from "./toolbar";

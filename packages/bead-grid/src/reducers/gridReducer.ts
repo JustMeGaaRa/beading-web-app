@@ -12,6 +12,7 @@ import { gridSelectCells } from "./gridSelectCellsReducer";
 import { gridFlipSection } from "./gridFlipSectionReducer";
 import { gridClearCells } from "./gridClearCellsReducer";
 import { gridPasteSection } from "./gridPasteSectionReducer";
+import { gridMoveSection } from "./gridMoveSectionReducer";
 
 // user actions:
 // - clear selected = clear
@@ -75,6 +76,8 @@ export const gridReducer = (
             return gridPasteSection(state, action.cells, action.offset);
         case "BEADING_GRID_FLIP_SECTION":
             return gridFlipSection(state, action.cells, action.axis);
+        case "BEADING_GRID_MOVE_SECTION":
+            return gridMoveSection(state, action.cells, action.offset);
         default:
             return state;
     }

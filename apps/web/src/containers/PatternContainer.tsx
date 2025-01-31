@@ -17,9 +17,10 @@ import {
     useBeadeeGridSelection,
     combineRenderBounds,
     getGridSectionRenderBounds,
-    RenderPoint,
     createRenderBounds,
     pointInBounds,
+    getStageRelativePosition,
+    usePointerDisclosure,
 } from "@repo/bead-grid";
 import {
     usePatternStore,
@@ -30,11 +31,9 @@ import {
     dirtyStateSelector,
     getPatternSize,
     Pattern,
-    getStageRelativePosition,
-    getCellsInPatternBounds,
-    getCellAtPatternPosition,
     getPatternMetadata,
     PatternMetadataProvider,
+    useBeadeePatternHitTest,
 } from "@repo/bead-pattern-editor";
 import {
     ArrowDownIcon,
@@ -115,7 +114,9 @@ export const PatternContainer: FC = () => {
         redo,
     ]);
 
-    useEffect(() => centerPattern(pattern), [centerPattern]);
+    // NOTE: disabled linting as this effect should only run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => centerPattern(pattern), []);
 
     useEffect(() => {
         // NOTE: auto save pattern cover every 5 seconds
@@ -252,19 +253,21 @@ export const PatternContainer: FC = () => {
     }, [columnState, dispatch, isHorizontal]);
 
     // SECTION: cursor selection handlers
-    const [mouseDownPosition, setMouseDownPosition] = useState<
-        RenderPoint | undefined
-    >();
-    const [mouseCurrentPosition, setMouseCurrentPosition] = useState<
-        RenderPoint | undefined
-    >();
-    const [isMouseDown, setIsMouseDown] = useState(false);
+    const {
+        isPointerDown,
+        pointerDownPosition,
+        pointerCurrentPosition,
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+    } = usePointerDisclosure();
     const { setSelectedCells } = useBeadeeGridSelection();
 
     const metadata = useMemo(
         () => getPatternMetadata(pattern.grids, styles),
         [pattern.grids, styles]
     );
+    const { getCellAtPosition, getCellsInBounds } = useBeadeePatternHitTest();
 
     const handleOnPatternContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
@@ -306,21 +309,16 @@ export const PatternContainer: FC = () => {
             const currentPosition = getStageRelativePosition(
                 event.target.getStage()
             );
+            onPointerDown(currentPosition);
 
-            setIsMouseDown(true);
-            setMouseDownPosition(currentPosition);
-            setMouseCurrentPosition(undefined);
-
-            const patternBounds = metadata.patternBounds;
-            const mouseInBounds = pointInBounds(patternBounds, currentPosition);
+            const mouseInBounds = pointInBounds(
+                metadata.patternBounds,
+                currentPosition
+            );
 
             if (mouseInBounds) {
                 // NOTE: handle cursor, pencil, eraser and picker only on click
-                const currentCell = getCellAtPatternPosition(
-                    pattern.grids,
-                    styles,
-                    currentPosition
-                );
+                const currentCell = getCellAtPosition(currentPosition);
 
                 if (toolInfo.isCursorEnabled) {
                     setSelectedCells(currentCell);
@@ -352,15 +350,15 @@ export const PatternContainer: FC = () => {
             }
         },
         [
-            pattern.grids,
-            metadata,
-            selectedColor,
-            styles,
             tool,
-            dispatch,
-            enablePencil,
+            onPointerDown,
+            metadata.patternBounds,
+            getCellAtPosition,
             setSelectedCells,
+            dispatch,
+            selectedColor,
             setSelectedColor,
+            enablePencil,
         ]
     );
 
@@ -369,52 +367,41 @@ export const PatternContainer: FC = () => {
             const currentPosition = getStageRelativePosition(
                 event.target.getStage()
             );
-
-            setIsMouseDown(false);
-            setMouseCurrentPosition(currentPosition);
-            setMouseDownPosition(undefined);
+            onPointerUp(currentPosition);
         },
-        []
+        [onPointerUp]
     );
 
     const handleOnPatternPointerMove = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            if (isMouseDown) {
+            if (isPointerDown) {
                 const toolInfo = createToolInfo(tool);
                 const currentPosition = getStageRelativePosition(
                     event.target.getStage()
                 );
-                setMouseCurrentPosition(currentPosition);
+                onPointerMove(currentPosition);
 
                 // NOTE: if cursor is enabled, then only area selection is possible on move
                 if (toolInfo.isCursorEnabled) {
                     const mouseSelectedBounds = createRenderBounds(
-                        mouseDownPosition ?? { x: 0, y: 0 },
-                        mouseCurrentPosition ?? { x: 0, y: 0 }
+                        pointerDownPosition ?? { x: 0, y: 0 },
+                        pointerCurrentPosition ?? { x: 0, y: 0 }
                     );
-                    const currentSelectedCells = getCellsInPatternBounds(
-                        pattern.grids,
-                        styles,
-                        mouseSelectedBounds
-                    );
+                    const currentSelectedCells =
+                        getCellsInBounds(mouseSelectedBounds);
                     setSelectedCells(currentSelectedCells);
                 }
 
                 // NOTE: if cursor is not enabled, then only drawing is possible on move
                 if (!toolInfo.isCursorEnabled) {
-                    const patternBounds = metadata.patternBounds;
                     const mouseInBounds = pointInBounds(
-                        patternBounds,
+                        metadata.patternBounds,
                         currentPosition
                     );
 
                     if (mouseInBounds) {
                         // NOTE: handle pencil, eraser and picker only on click
-                        const currentCell = getCellAtPatternPosition(
-                            pattern.grids,
-                            styles,
-                            currentPosition
-                        );
+                        const currentCell = getCellAtPosition(currentPosition);
 
                         if (toolInfo.isPencilEnabled) {
                             // TODO: think of a better way to get gridId
@@ -446,16 +433,17 @@ export const PatternContainer: FC = () => {
             }
         },
         [
-            isMouseDown,
-            mouseDownPosition,
-            mouseCurrentPosition,
-            pattern.grids,
-            metadata,
-            styles,
-            selectedColor,
+            isPointerDown,
             tool,
+            onPointerMove,
+            pointerDownPosition,
+            pointerCurrentPosition,
+            getCellsInBounds,
             setSelectedCells,
+            metadata.patternBounds,
+            getCellAtPosition,
             dispatch,
+            selectedColor,
             setSelectedColor,
             enablePencil,
         ]
@@ -480,18 +468,19 @@ export const PatternContainer: FC = () => {
     );
     const sectionsCompoundBoundsVisible =
         toolInfo.isCursorEnabled &&
-        !isMouseDown &&
+        !isPointerDown &&
         sectionsCompoundBounds.height > 0 &&
         sectionsCompoundBounds.width > 0;
 
-    const mouseSelectedBounds = createRenderBounds(
-        mouseDownPosition ?? { x: 0, y: 0 },
-        mouseCurrentPosition ?? { x: 0, y: 0 }
+    const pointerSelectedBounds = createRenderBounds(
+        pointerDownPosition ?? { x: 0, y: 0 },
+        pointerCurrentPosition ?? { x: 0, y: 0 }
     );
-    const mouseSelectedBoundsVisible =
+    const pointerSelectedBoundsVisible =
         toolInfo.isCursorEnabled &&
-        !!mouseCurrentPosition &&
-        !!mouseDownPosition;
+        isPointerDown &&
+        !!pointerCurrentPosition &&
+        !!pointerDownPosition;
 
     return (
         <Box cursor={toolInfo.cursor} height={"100%"} width={"100%"}>
@@ -513,10 +502,10 @@ export const PatternContainer: FC = () => {
                             key={grid.name}
                             grid={grid}
                             metadata={metadata.gridsMetadata.get(grid.gridId)}
+                            patternRef={patternRef}
                             isLayoutHorizontal={isHorizontal}
-                            mouseCurrentPosition={mouseCurrentPosition}
-                            mouseDownPosition={mouseDownPosition}
-                            isMouseDown={isMouseDown}
+                            isPointerDown={isPointerDown}
+                            pointerPosition={pointerCurrentPosition}
                         />
                     ))}
 
@@ -529,8 +518,8 @@ export const PatternContainer: FC = () => {
 
                     {/* NOTE: Renders the selected area from the user mouse input */}
                     <BeadeeRenderBounds
-                        {...mouseSelectedBounds}
-                        isVisible={mouseSelectedBoundsVisible}
+                        {...pointerSelectedBounds}
+                        isVisible={pointerSelectedBoundsVisible}
                     />
 
                     <BeadeeFrameLabels

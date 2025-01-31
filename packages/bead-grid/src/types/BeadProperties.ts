@@ -27,3 +27,11 @@ export const BEAD_OPTIONS: Array<BeadProperties> = [
     TWO_ZERO_BY_ONE_FIVE,
     THREE_ZERO_BY_TWO_FOUR,
 ];
+
+export const flipBead = (bead: BeadProperties): BeadProperties => {
+    return {
+        ...bead,
+        width: bead.height,
+        height: bead.width,
+    };
+};

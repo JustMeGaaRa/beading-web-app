@@ -6,7 +6,7 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import { FC } from "react";
-import { createToolInfo, ToolState } from "./ToolsProvider";
+import { createToolInfo, ToolState } from "./tools";
 import {
     CheckmarkIcon,
     ClipboardAddIcon,

@@ -3,12 +3,13 @@ import {
     BeadingGridOffset,
     BeadingGrid,
     BeadingGridStyles,
-    BeadingGridBounds,
     RenderBounds,
     RenderPoint,
     shallowEqualsCell,
     shiftOffset,
     createGridBounds,
+    indeciesInBounds,
+    pointInBounds,
 } from "../types";
 import {
     getGridCellRenderBounds,
@@ -19,38 +20,6 @@ import {
 export type HitTestResult = {
     successfull: boolean;
     hits: Array<BeadingGridCell>;
-};
-
-export const pointInBounds = (bounds: RenderBounds, point: RenderPoint) => {
-    return (
-        point.x >= bounds.position.x &&
-        point.x < bounds.position.x + bounds.width &&
-        point.y >= bounds.position.y &&
-        point.y < bounds.position.y + bounds.height
-    );
-};
-
-export const cellInBounds = (bounds: RenderBounds, cell: RenderBounds) => {
-    const bottomRight = {
-        x: cell.position.x + cell.width,
-        y: cell.position.y + cell.height,
-    };
-    return (
-        pointInBounds(bounds, cell.position) &&
-        pointInBounds(bounds, bottomRight)
-    );
-};
-
-export const indeciesInBounds = (
-    bounds: BeadingGridBounds,
-    offset: BeadingGridOffset
-) => {
-    return (
-        offset.columnIndex >= 0 &&
-        offset.columnIndex < bounds.offset.columnIndex + bounds.width &&
-        offset.rowIndex >= 0 &&
-        offset.rowIndex < bounds.offset.rowIndex + bounds.height
-    );
 };
 
 const getNeighbourCells = (

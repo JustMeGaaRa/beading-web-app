@@ -1,5 +1,12 @@
-import { BeadingGridCell, BeadingGrid, createGridSection } from "../types";
-import { clear, flip, FlipAxis, paste } from "../utils";
+import {
+    BeadingGridCell,
+    BeadingGrid,
+    createGridSection,
+    clear,
+    paste,
+    flip,
+    FlipAxis,
+} from "../types";
 
 export const gridFlipSection = (
     grid: BeadingGrid,

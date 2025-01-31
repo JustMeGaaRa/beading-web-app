@@ -3,8 +3,9 @@ import {
     BeadingGridProperties,
     deepEqualGridOptions,
     createGridBounds,
+    indeciesInBounds,
 } from "../types";
-import { indeciesInBounds, getCurrentGridName } from "../utils";
+import { getCurrentGridName } from "../utils";
 
 export const gridApplyOptions = (
     grid: BeadingGrid,
