@@ -1,5 +1,5 @@
 import { useToken } from "@chakra-ui/react";
-import { PatternProvider, PatternState } from "@beadee/pattern-editor";
+import { BeadeePatternProvider, Pattern } from "@beadee/pattern-editor";
 import { FC } from "react";
 import { useLoaderData } from "react-router";
 import {
@@ -9,7 +9,7 @@ import {
     ToolsProvider,
 } from "../components";
 import {
-    PatternContainer,
+    BeadeePatternContainer,
     ProjectHeader,
     ProjectHelpContainer,
     ProjectSettingsContainer,
@@ -22,7 +22,7 @@ import {
 } from "@beadee/grid-editor";
 
 export const ProjectPage: FC = () => {
-    const pattern = useLoaderData() as PatternState;
+    const pattern = useLoaderData() as Pattern;
     const colors = useToken("colors", [
         "gray.900",
         "gray.700",
@@ -77,7 +77,7 @@ export const ProjectPage: FC = () => {
     ]);
 
     return (
-        <PatternProvider pattern={pattern}>
+        <BeadeePatternProvider pattern={pattern}>
             <ColorPaletteProvider colors={colors}>
                 <ToolsProvider>
                     <PageContent>
@@ -93,13 +93,13 @@ export const ProjectPage: FC = () => {
                                     <ProjectToolsContainer />
                                     <ProjectHelpContainer />
                                     <ProjectSettingsContainer />
-                                    <PatternContainer />
+                                    <BeadeePatternContainer />
                                 </BeadeeGridSelectionProvider>
                             </BeadeeGridStylesProvider>
                         </PageBody>
                     </PageContent>
                 </ToolsProvider>
             </ColorPaletteProvider>
-        </PatternProvider>
+        </BeadeePatternProvider>
     );
 };

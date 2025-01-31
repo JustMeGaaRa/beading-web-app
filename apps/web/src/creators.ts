@@ -1,11 +1,11 @@
-import { PatternState } from "@beadee/pattern-editor";
+import { Pattern } from "@beadee/pattern-editor";
 import {
     PatternAddAction,
     PatternDeleteAction,
     PatternSaveAction,
 } from "./actions";
 
-export const addPatternAction = (pattern: PatternState): PatternAddAction => {
+export const addPatternAction = (pattern: Pattern): PatternAddAction => {
     return {
         type: "PATTERN_ADD",
         payload: { pattern },
@@ -19,7 +19,7 @@ export const deletePatternAction = (patternId: string): PatternDeleteAction => {
     };
 };
 
-export const savePatternAction = (pattern: PatternState): PatternSaveAction => {
+export const savePatternAction = (pattern: Pattern): PatternSaveAction => {
     return {
         type: "PATTERN_SAVE",
         payload: { pattern },

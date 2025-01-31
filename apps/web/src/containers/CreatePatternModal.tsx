@@ -22,7 +22,7 @@ import {
 } from "@beadee/grid-editor";
 import {
     formatPatternSize,
-    PatternState,
+    Pattern,
     createPattern,
     PatternOptions,
     DefaultPatternOptions,
@@ -31,7 +31,10 @@ import {
 import { BrickIcon, LoomIcon, PeyoteIcon } from "@beadee/icons";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { BeadingGridOptionsPanel, PatternOptionsPanel } from "../components";
+import {
+    BeadeeGridOptionsPanel,
+    BeadeePatternOptionsPanel,
+} from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction, deletePatternAction } from "../creators";
 
@@ -157,7 +160,7 @@ export const CreatePatternModal: FC<{
                         <Text color={"gray.700"} fontSize={"small"}>
                             Common pattern properties
                         </Text>
-                        <PatternOptionsPanel
+                        <BeadeePatternOptionsPanel
                             size={"sm"}
                             options={patternOptions}
                             onChange={handleOnPatternOptionsChange}
@@ -165,7 +168,7 @@ export const CreatePatternModal: FC<{
                         <Text color={"gray.700"} fontSize={"small"}>
                             Initial grid properties
                         </Text>
-                        <BeadingGridOptionsPanel
+                        <BeadeeGridOptionsPanel
                             name={"Initial Grid"}
                             options={gridOptions}
                             orientation={patternOptions.orientation}
@@ -197,7 +200,7 @@ export const CreatePatternModal: FC<{
 };
 
 export const DeletePatternModal: FC<{
-    pattern: PatternState | null;
+    pattern: Pattern | null;
     isOpen: boolean;
     onClose: () => void;
 }> = ({ pattern, isOpen, onClose }) => {

@@ -24,13 +24,13 @@ import {
 import { FC, useCallback, useRef } from "react";
 import {
     useTools,
-    BeadingGridSectionActionsToolbar,
-    BeadingGridSectionControlsToolbar,
+    BeadeeGridSectionActionsToolbar,
+    BeadeeGridSectionControlsToolbar,
     createToolInfo,
 } from "../components";
 import Konva from "konva";
 
-export const BeadingGridContainer: FC<{
+export const BeadeeGridContainer: FC<{
     grid: BeadingGrid;
     metadata?: BeadingGridMetadata;
     patternRef: React.RefObject<Konva.Stage>;
@@ -215,13 +215,13 @@ export const BeadingGridContainer: FC<{
                     offset={grid.offset}
                     options={grid.options}
                 >
-                    <BeadingGridSectionControlsToolbar
+                    <BeadeeGridSectionControlsToolbar
                         isVisible={toolbarsVisible}
                         onDragStart={handleOnDragStart}
                         onDrag={handleOnDrag}
                         onDragEnd={handleOnDragEnd}
                     />
-                    <BeadingGridSectionActionsToolbar
+                    <BeadeeGridSectionActionsToolbar
                         isVisible={toolbarsVisible}
                         tool={tool}
                         onCopy={onCopyClick}

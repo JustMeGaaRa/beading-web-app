@@ -16,7 +16,7 @@ import { PatternOptions } from "@beadee/pattern-editor";
 import { AlignRightIcon, AlignBottomIcon } from "@beadee/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
-export const PatternOptionsPanel: FC<
+export const BeadeePatternOptionsPanel: FC<
     PropsWithChildren<{
         size?: "xs" | "sm" | "md" | "lg";
         options: PatternOptions;

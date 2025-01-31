@@ -13,12 +13,12 @@ import {
     SCALE_MAXIMUM,
 } from "../utils";
 import { useBeadeeGridStyles } from "@beadee/grid-editor";
-import { PatternState } from "../types";
+import { Pattern } from "../types";
 
-export const Pattern = forwardRef<
+export const BeadeePattern = forwardRef<
     Konva.Stage,
     PropsWithChildren<{
-        pattern: PatternState;
+        pattern: Pattern;
         height: number;
         width: number;
         isDraggable?: boolean;

@@ -1,11 +1,11 @@
 import { Flex, HStack, Text } from "@chakra-ui/react";
 import { PatternOptions, usePatternStore } from "@beadee/pattern-editor";
 import { FC, useCallback } from "react";
-import { PatternOptionsPanel } from "../components";
+import { BeadeePatternOptionsPanel } from "../components";
 import { InfoCircleIcon } from "@beadee/icons";
 import { useBeadeeGridStyles } from "@beadee/grid-editor";
 
-export const PatternOptionsContainer: FC = () => {
+export const BeadeePatternOptionsContainer: FC = () => {
     const pattern = usePatternStore((state) => state.pattern);
     const dispatch = usePatternStore((state) => state.dispatch);
     const { setStyles } = useBeadeeGridStyles();
@@ -29,7 +29,7 @@ export const PatternOptionsContainer: FC = () => {
             <Text fontSize={"xs"} fontWeight={"600"}>
                 Layout
             </Text>
-            <PatternOptionsPanel
+            <BeadeePatternOptionsPanel
                 options={pattern.options}
                 size={"xs"}
                 onChange={handleOnLayoutChange}

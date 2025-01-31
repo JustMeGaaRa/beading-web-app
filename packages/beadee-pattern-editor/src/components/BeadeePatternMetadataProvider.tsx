@@ -1,15 +1,15 @@
 import { FC, PropsWithChildren } from "react";
-import { PatternMetadataContext } from "../context";
+import { BeadeePatternMetadataContext } from "../context";
 import { PatternMetadata } from "../types";
 
-export const PatternMetadataProvider: FC<
+export const BeadeePatternMetadataProvider: FC<
     PropsWithChildren<{
         metadata: PatternMetadata;
     }>
 > = ({ children, metadata }) => {
     return (
-        <PatternMetadataContext.Provider value={{ metadata }}>
+        <BeadeePatternMetadataContext.Provider value={{ metadata }}>
             {children}
-        </PatternMetadataContext.Provider>
+        </BeadeePatternMetadataContext.Provider>
     );
 };

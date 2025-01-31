@@ -2,7 +2,7 @@ import debounce from "just-debounce-it";
 import { createContext, useContext } from "react";
 import { create, useStore } from "zustand";
 import { temporal } from "zundo";
-import { DefaultPatternOptions, PatternState } from "../types";
+import { DefaultPatternOptions, Pattern } from "../types";
 import { PatternActions } from "../actions";
 import { patternReducer } from "../reducers";
 import { createPattern } from "../utils";
@@ -13,7 +13,7 @@ export const PatternContext = createContext<PatternTemporalStore | null>(null);
 
 export type PatternStore = {
     patternNode?: Konva.Stage | null;
-    pattern: PatternState;
+    pattern: Pattern;
     isDirty: boolean;
     resetDirty: () => void;
     dispatch: (action: PatternActions) => void;
@@ -26,7 +26,7 @@ export type PatternPartialStore = Omit<
 
 export type PatternTemporalStore = ReturnType<typeof createPatterStore>;
 
-export const createPatterStore = (pattern?: PatternState) => {
+export const createPatterStore = (pattern?: Pattern) => {
     return create(
         temporal<PatternStore>(
             (set) => ({

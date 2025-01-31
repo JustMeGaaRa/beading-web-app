@@ -3,7 +3,7 @@ import { BeadeeGridSectionToolbar } from "@beadee/grid-editor";
 import { TapMoveIcon } from "@beadee/icons";
 import { FC, useCallback, useEffect, useState } from "react";
 
-export const BeadingGridSectionControlsToolbar: FC<{
+export const BeadeeGridSectionControlsToolbar: FC<{
     isVisible?: boolean;
     onDragStart?: () => void;
     onDrag?: () => void;

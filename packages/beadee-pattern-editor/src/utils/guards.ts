@@ -1,7 +1,7 @@
 import { isBeadingGrid } from "@beadee/grid-editor";
-import { PatternOptions, PatternState } from "../types";
+import { PatternOptions, Pattern } from "../types";
 
-export const isPattern = (data: unknown): data is PatternState => {
+export const isPattern = (data: unknown): data is Pattern => {
     if (typeof data !== "object" || data === null) {
         return false;
     }

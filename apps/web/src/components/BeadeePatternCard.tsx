@@ -13,17 +13,17 @@ import {
     MenuList,
     Text,
 } from "@chakra-ui/react";
-import { PatternState } from "@beadee/pattern-editor";
+import { Pattern } from "@beadee/pattern-editor";
 import { MoreMenuIcon } from "@beadee/icons";
 import { FC, useCallback } from "react";
 
 export type PatternEventHandler<TEvent> = (
-    source: PatternState,
+    source: Pattern,
     event: TEvent
 ) => void;
 
-export const PatternCard: FC<{
-    pattern: PatternState;
+export const BeadeePatternCard: FC<{
+    pattern: Pattern;
     onClick?: PatternEventHandler<React.MouseEvent<HTMLDivElement>>;
     onSave?: PatternEventHandler<React.MouseEvent<HTMLButtonElement>>;
     onDelete?: PatternEventHandler<React.MouseEvent<HTMLButtonElement>>;

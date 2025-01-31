@@ -7,9 +7,9 @@ import {
 import { patternSelector, usePatternStore } from "@beadee/pattern-editor";
 import { CloseIcon, LoomIcon, PeyoteIcon } from "@beadee/icons";
 import { FC, useCallback } from "react";
-import { BeadingGridOptionsPanel } from "../components";
+import { BeadeeGridOptionsPanel } from "../components";
 
-export const BeadingGridOptionsContainer: FC<{ grid: BeadingGrid }> = ({
+export const BeadeeGridOptionsContainer: FC<{ grid: BeadingGrid }> = ({
     grid,
 }) => {
     const { pattern, dispatch } = usePatternStore(patternSelector);
@@ -103,7 +103,7 @@ export const BeadingGridOptionsContainer: FC<{ grid: BeadingGrid }> = ({
                     </Button>
                 </ButtonGroup>
             )}
-            <BeadingGridOptionsPanel
+            <BeadeeGridOptionsPanel
                 name={grid.name}
                 options={grid.options}
                 orientation={pattern.options.orientation}

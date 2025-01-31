@@ -7,22 +7,22 @@ import {
     useBreakpointValue,
     useDisclosure,
 } from "@chakra-ui/react";
-import { PatternState } from "@beadee/pattern-editor";
+import { Pattern } from "@beadee/pattern-editor";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
-import { PatternCard } from "../components";
+import { BeadeePatternCard } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
 import { usePatternCollectionStore } from "../store";
 import { PlusIcon } from "@beadee/icons";
 
-const comparePatterns = (a: PatternState, b: PatternState) => {
+const comparePatterns = (a: Pattern, b: Pattern) => {
     return (
         new Date(b.lastModified).valueOf() - new Date(a.lastModified).valueOf()
     );
 };
 
-export const PatternCollectionExplorer: FC = () => {
+export const BeadeePatternExplorer: FC = () => {
     const navigate = useNavigate();
     const gridColumns = useBreakpointValue({
         base: 1,
@@ -31,7 +31,7 @@ export const PatternCollectionExplorer: FC = () => {
         xl: 4,
         "2xl": 5,
     });
-    const [deletingPattern, setDeletingPattern] = useState<PatternState | null>(
+    const [deletingPattern, setDeletingPattern] = useState<Pattern | null>(
         null
     );
     const {
@@ -47,7 +47,7 @@ export const PatternCollectionExplorer: FC = () => {
     const { patterns } = usePatternCollectionStore();
 
     const handleOnPatternClick = useCallback(
-        (pattern: PatternState) => {
+        (pattern: Pattern) => {
             navigate(`/patterns/${pattern.patternId}`);
         },
         [navigate]
@@ -58,14 +58,14 @@ export const PatternCollectionExplorer: FC = () => {
     }, [onCreateOpen]);
 
     const handleOnPatternDelete = useCallback(
-        (pattern: PatternState) => {
+        (pattern: Pattern) => {
             setDeletingPattern(pattern);
             onDeleteOpen();
         },
         [onDeleteOpen]
     );
 
-    const handleOnPatternSave = useCallback((pattern: PatternState) => {
+    const handleOnPatternSave = useCallback((pattern: Pattern) => {
         const patternUri = toJsonUri(pattern);
         downloadUri(patternUri, `${pattern.name}.json`);
     }, []);
@@ -87,7 +87,7 @@ export const PatternCollectionExplorer: FC = () => {
             </Box>
             <Grid gridTemplateColumns={`repeat(${gridColumns}, 1fr)`} gap={6}>
                 {patterns.sort(comparePatterns).map((pattern) => (
-                    <PatternCard
+                    <BeadeePatternCard
                         key={pattern.patternId}
                         pattern={pattern}
                         onClick={handleOnPatternClick}

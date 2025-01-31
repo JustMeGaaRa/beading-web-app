@@ -4,11 +4,11 @@ import {
     PatternContext,
     PatternTemporalStore,
 } from "../store";
-import { PatternState } from "../types";
+import { Pattern } from "../types";
 
-export const PatternProvider: FC<
+export const BeadeePatternProvider: FC<
     PropsWithChildren<{
-        pattern?: PatternState;
+        pattern?: Pattern;
     }>
 > = ({ children, pattern }) => {
     const storeRef = useRef<PatternTemporalStore>();

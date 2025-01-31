@@ -1,1 +1,1 @@
-export * from "./PatternMetadataContext";
+export * from "./BeadeePatternMetadataContext";

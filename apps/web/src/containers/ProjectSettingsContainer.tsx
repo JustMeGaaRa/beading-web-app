@@ -15,8 +15,8 @@ import { PaintingPaletteIcon, PlusIcon, SettingsIcon } from "@beadee/icons";
 import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ColorPalette, useColorPalette, Shortcuts } from "../components";
-import { PatternOptionsContainer } from "./PatternOptionsContainer";
-import { BeadingGridOptionsContainer } from "./BeadingGridOptionsContainer";
+import { BeadeePatternOptionsContainer } from "./BeadeePatternOptionsContainer";
+import { BeadeeGridOptionsContainer } from "./BeadeeGridOptionsContainer";
 
 const hotkeysOptions = { preventDefault: true };
 
@@ -116,9 +116,9 @@ export const ProjectSettingsContainer: FC = () => {
                                 }
                                 spacing={4}
                             >
-                                <PatternOptionsContainer />
+                                <BeadeePatternOptionsContainer />
                                 {pattern.grids.map((grid) => (
-                                    <BeadingGridOptionsContainer
+                                    <BeadeeGridOptionsContainer
                                         key={grid.name}
                                         grid={grid}
                                     />

@@ -11,7 +11,7 @@ import {
 import { BeadingGridProperties } from "@beadee/grid-editor";
 import { FC, useCallback } from "react";
 
-export const BeadingGridOptionsPanel: FC<{
+export const BeadeeGridOptionsPanel: FC<{
     name: string;
     options: BeadingGridProperties;
     orientation: "vertical" | "horizontal";

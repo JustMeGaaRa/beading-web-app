@@ -26,7 +26,11 @@ import {
 import { FC, ChangeEvent, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate } from "react-router";
-import { PageHeader, Shortcuts, PatternSummaryPanel } from "../components";
+import {
+    PageHeader,
+    Shortcuts,
+    BeadeePatternSummaryPanel,
+} from "../components";
 import { usePatternCollectionStore } from "../store";
 import { savePatternAction } from "../creators";
 
@@ -119,7 +123,7 @@ export const ProjectHeader: FC = () => {
                     <PopoverContent>
                         <PopoverCloseButton />
                         <PopoverBody>
-                            <PatternSummaryPanel pattern={pattern} />
+                            <BeadeePatternSummaryPanel pattern={pattern} />
                         </PopoverBody>
                     </PopoverContent>
                 </Popover>

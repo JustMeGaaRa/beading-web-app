@@ -20,7 +20,7 @@ import {
 } from "@beadee/icons";
 import { BeadeeGridSectionToolbar } from "@beadee/grid-editor";
 
-export const BeadingGridSectionActionsToolbar: FC<{
+export const BeadeeGridSectionActionsToolbar: FC<{
     isVisible?: boolean;
     tool: ToolState;
     onCopy?: () => void;

@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { PatternState } from "@beadee/pattern-editor";
+import { Pattern } from "@beadee/pattern-editor";
 import { PatternCollectionActions } from "./actions";
 import { patternCollectionReducer } from "./reducers";
 
 export type PatternCollectionStore = {
-    patterns: Array<PatternState>;
+    patterns: Array<Pattern>;
     dispatch: (action: PatternCollectionActions) => void;
 };
 

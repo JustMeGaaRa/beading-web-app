@@ -1,3 +1,3 @@
-export * from "./Pattern";
-export * from "./PatternMetadataProvider";
-export * from "./PatternProvider";
+export * from "./BeadeePattern";
+export * from "./BeadeePatternMetadataProvider";
+export * from "./BeadeePatternProvider";

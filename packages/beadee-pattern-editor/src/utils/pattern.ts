@@ -8,7 +8,7 @@ import {
     getGridHeight,
     getNextGridName,
 } from "@beadee/grid-editor";
-import { PatternOptions, PatternState } from "../types";
+import { PatternOptions, Pattern } from "../types";
 
 export const mergeOptions = (
     patternOptions: PatternOptions,
@@ -56,7 +56,7 @@ export const createGrid = (
 export const createPattern = (
     patternOptions: PatternOptions,
     gridOptions: BeadingGridProperties
-): PatternState => {
+): Pattern => {
     return {
         version: "1.0.0",
         patternId: `pattern-${crypto.randomUUID()}`,

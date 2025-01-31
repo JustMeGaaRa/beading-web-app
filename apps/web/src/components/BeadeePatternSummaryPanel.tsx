@@ -2,12 +2,12 @@ import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import {
     formatPatternSize,
     getPatternSummary,
-    PatternState,
+    Pattern,
 } from "@beadee/pattern-editor";
 import { FC, memo } from "react";
 
-export const PatternSummaryPanel: FC<{
-    pattern: PatternState;
+export const BeadeePatternSummaryPanel: FC<{
+    pattern: Pattern;
 }> = memo(({ pattern }) => {
     const summary = getPatternSummary(pattern.grids, pattern.options);
 

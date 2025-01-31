@@ -24,15 +24,15 @@ import {
 } from "@beadee/grid-editor";
 import {
     usePatternStore,
-    PatternState,
+    Pattern,
     usePatterHistory,
     getPatternRenderBounds,
     patternSelector,
     dirtyStateSelector,
     getPatternSize,
-    Pattern,
+    BeadeePattern,
     getPatternMetadata,
-    PatternMetadataProvider,
+    BeadeePatternMetadataProvider,
     useBeadeePatternHitTest,
 } from "@beadee/pattern-editor";
 import {
@@ -53,11 +53,11 @@ import {
 } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
 import { putPattern } from "../api";
-import { BeadingGridContainer } from "./BeadingGridContainer";
+import { BeadeeGridContainer } from "./BeadeeGridContainer";
 
 const hotkeysOptions = { preventDefault: true };
 
-export const PatternContainer: FC = () => {
+export const BeadeePatternContainer: FC = () => {
     const patternRef = useRef<Konva.Stage>(null);
 
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -84,7 +84,7 @@ export const PatternContainer: FC = () => {
     const isHorizontal = pattern.options.orientation === "horizontal";
 
     const centerPattern = useCallback(
-        (pattern: PatternState) => {
+        (pattern: Pattern) => {
             if (patternRef.current && pattern?.grids.length > 0) {
                 const patternSize = getPatternRenderBounds(
                     pattern.grids,
@@ -484,8 +484,8 @@ export const PatternContainer: FC = () => {
 
     return (
         <Box cursor={toolInfo.cursor} height={"100%"} width={"100%"}>
-            <PatternMetadataProvider metadata={metadata}>
-                <Pattern
+            <BeadeePatternMetadataProvider metadata={metadata}>
+                <BeadeePattern
                     ref={patternRef}
                     pattern={pattern}
                     isDraggable={toolInfo.isMovementEnabled}
@@ -498,7 +498,7 @@ export const PatternContainer: FC = () => {
                     onPointerMove={handleOnPatternPointerMove}
                 >
                     {pattern.grids.map((grid) => (
-                        <BeadingGridContainer
+                        <BeadeeGridContainer
                             key={grid.name}
                             grid={grid}
                             metadata={metadata.gridsMetadata.get(grid.gridId)}
@@ -534,8 +534,8 @@ export const PatternContainer: FC = () => {
                         onRowClick={handleOnFrameRowClick}
                         onContextMenu={handleOnFrameContextMenu}
                     />
-                </Pattern>
-            </PatternMetadataProvider>
+                </BeadeePattern>
+            </BeadeePatternMetadataProvider>
 
             <Menu isOpen={isOpen} closeOnBlur closeOnSelect onClose={onClose}>
                 <MenuButton

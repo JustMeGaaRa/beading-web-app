@@ -6,7 +6,7 @@ import {
     BeadingGrid,
 } from "@beadee/grid-editor";
 import { PatternActions } from "../actions";
-import { PatternState } from "../types";
+import { Pattern } from "../types";
 import { createGrid, mergeOptions } from "../utils";
 
 const getGridOffset = (
@@ -45,9 +45,9 @@ const mapGridOffset = (
 };
 
 export const patternReducer = (
-    state: PatternState,
+    state: Pattern,
     action: PatternActions
-): PatternState => {
+): Pattern => {
     switch (action.type) {
         case "PATTERN_CHANGE_NAME":
             return {
