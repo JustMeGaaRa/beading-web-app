@@ -1,10 +1,4 @@
+import { config } from "@beadee/eslint-config/react-internal";
+
 /** @type {import("eslint").Linter.Config} */
-module.exports = {
-    root: true,
-    extends: ["@beadee/eslint-config/library.js"],
-    parser: "@typescript-eslint/parser",
-    parserOptions: {
-        project: "./tsconfig.lint.json",
-        tsconfigRootDir: __dirname,
-    },
-};
+export default config;
