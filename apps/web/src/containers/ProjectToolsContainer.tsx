@@ -9,7 +9,7 @@ import {
     getPatternSummary,
     usePatterHistory,
     usePatternStore,
-} from "@repo/bead-pattern-editor";
+} from "@beadee/pattern-editor";
 import {
     EraserIcon,
     NavigationIcon,
@@ -17,7 +17,7 @@ import {
     ReverseLeftIcon,
     ReverseRightIcon,
     ThermometerIcon,
-} from "@repo/icons";
+} from "@beadee/icons";
 import { FC, useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Shortcuts, Toolbar, useTools } from "../components";

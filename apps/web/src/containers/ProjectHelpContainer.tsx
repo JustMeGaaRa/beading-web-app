@@ -8,7 +8,7 @@ import {
 import { FC, useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Shortcuts, ShortcutTableModal } from "../components";
-import { QuestionmarkCircleIcon } from "@repo/icons";
+import { QuestionmarkCircleIcon } from "@beadee/icons";
 
 const hotkeysOptions = { preventDefault: true, keydown: true, keyup: true };
 

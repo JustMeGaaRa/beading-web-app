@@ -1,0 +1,28 @@
+{
+    "name": "@beadee/pattern-editor",
+    "version": "0.0.0",
+    "private": true,
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "test": "vitest",
+        "lint": "eslint ."
+    },
+    "dependencies": {
+        "@beadee/grid-editor": "*",
+        "just-debounce-it": "^3.2.0"
+    },
+    "devDependencies": {
+        "@beadee/eslint-config": "*",
+        "@beadee/typescript-config": "*",
+        "@types/react": "18.3.0"
+    },
+    "peerDependencies": {
+        "konva": "9.3.14",
+        "react": "^18.3.1",
+        "react-konva": "18.2.10",
+        "zundo": "2.1.0",
+        "zustand": "4.5.5"
+    }
+}

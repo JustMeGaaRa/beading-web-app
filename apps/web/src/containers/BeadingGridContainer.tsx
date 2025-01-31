@@ -14,13 +14,13 @@ import {
     distanceBetween,
     getStageRelativePosition,
     isZeroOffset,
-} from "@repo/bead-grid";
+} from "@beadee/grid-editor";
 import {
     usePatternStore,
     patternSelector,
     useBeadeeSectionDragContext,
     useBeadeePatternHitTest,
-} from "@repo/bead-pattern-editor";
+} from "@beadee/pattern-editor";
 import { FC, useCallback, useRef } from "react";
 import {
     useTools,

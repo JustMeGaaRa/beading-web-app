@@ -13,8 +13,8 @@ import {
     MenuList,
     Text,
 } from "@chakra-ui/react";
-import { PatternState } from "@repo/bead-pattern-editor";
-import { MoreMenuIcon } from "@repo/icons";
+import { PatternState } from "@beadee/pattern-editor";
+import { MoreMenuIcon } from "@beadee/icons";
 import { FC, useCallback } from "react";
 
 export type PatternEventHandler<TEvent> = (

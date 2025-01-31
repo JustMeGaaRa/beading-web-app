@@ -3,7 +3,7 @@ import {
     formatPatternSize,
     getPatternSummary,
     PatternState,
-} from "@repo/bead-pattern-editor";
+} from "@beadee/pattern-editor";
 import { FC, memo } from "react";
 
 export const PatternSummaryPanel: FC<{

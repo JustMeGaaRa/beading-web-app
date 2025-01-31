@@ -19,7 +19,7 @@ import {
     capitalize,
     DefaultGridProperties,
     getGridRealSize,
-} from "@repo/bead-grid";
+} from "@beadee/grid-editor";
 import {
     formatPatternSize,
     PatternState,
@@ -27,8 +27,8 @@ import {
     PatternOptions,
     DefaultPatternOptions,
     mergeOptions,
-} from "@repo/bead-pattern-editor";
-import { BrickIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
+} from "@beadee/pattern-editor";
+import { BrickIcon, LoomIcon, PeyoteIcon } from "@beadee/icons";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { BeadingGridOptionsPanel, PatternOptionsPanel } from "../components";

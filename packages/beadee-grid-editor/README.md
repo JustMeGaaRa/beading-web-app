@@ -1,0 +1,1 @@
+# `@beadee/grid-editor`

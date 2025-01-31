@@ -1,4 +1,4 @@
-import { PatternState } from "@repo/bead-pattern-editor";
+import { PatternState } from "@beadee/pattern-editor";
 import { savePatternAction } from "./creators";
 import { usePatternCollectionStore } from "./store";
 

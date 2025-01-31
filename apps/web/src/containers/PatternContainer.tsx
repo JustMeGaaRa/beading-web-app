@@ -21,7 +21,7 @@ import {
     pointInBounds,
     getStageRelativePosition,
     usePointerDisclosure,
-} from "@repo/bead-grid";
+} from "@beadee/grid-editor";
 import {
     usePatternStore,
     PatternState,
@@ -34,12 +34,12 @@ import {
     getPatternMetadata,
     PatternMetadataProvider,
     useBeadeePatternHitTest,
-} from "@repo/bead-pattern-editor";
+} from "@beadee/pattern-editor";
 import {
     ArrowDownIcon,
     DocumentCodeIcon,
     DocumentImageIcon,
-} from "@repo/icons";
+} from "@beadee/icons";
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useHotkeys } from "react-hotkeys-hook";

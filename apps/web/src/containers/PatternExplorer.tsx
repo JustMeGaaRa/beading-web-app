@@ -7,14 +7,14 @@ import {
     useBreakpointValue,
     useDisclosure,
 } from "@chakra-ui/react";
-import { PatternState } from "@repo/bead-pattern-editor";
+import { PatternState } from "@beadee/pattern-editor";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { CreatePatternModal, DeletePatternModal } from "./CreatePatternModal";
 import { PatternCard } from "../components";
 import { downloadUri, toJsonUri } from "../utils";
 import { usePatternCollectionStore } from "../store";
-import { PlusIcon } from "@repo/icons";
+import { PlusIcon } from "@beadee/icons";
 
 const comparePatterns = (a: PatternState, b: PatternState) => {
     return (

@@ -8,7 +8,7 @@ import {
     PopoverTrigger,
     Text,
 } from "@chakra-ui/react";
-import { usePatternStore } from "@repo/bead-pattern-editor";
+import { usePatternStore } from "@beadee/pattern-editor";
 import { FC, PropsWithChildren, useCallback } from "react";
 import { BeadSummaryItem, ColorPalette } from "../components";
 

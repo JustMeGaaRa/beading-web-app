@@ -10,8 +10,8 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import { usePatternStore, patternSelector } from "@repo/bead-pattern-editor";
-import { PaintingPaletteIcon, PlusIcon, SettingsIcon } from "@repo/icons";
+import { usePatternStore, patternSelector } from "@beadee/pattern-editor";
+import { PaintingPaletteIcon, PlusIcon, SettingsIcon } from "@beadee/icons";
 import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ColorPalette, useColorPalette, Shortcuts } from "../components";

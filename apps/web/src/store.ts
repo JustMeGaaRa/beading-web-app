@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { PatternState } from "@repo/bead-pattern-editor";
+import { PatternState } from "@beadee/pattern-editor";
 import { PatternCollectionActions } from "./actions";
 import { patternCollectionReducer } from "./reducers";
 

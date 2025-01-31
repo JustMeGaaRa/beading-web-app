@@ -3,9 +3,9 @@ import {
     BeadingGridProperties,
     BeadingGrid,
     BeadingGridType,
-} from "@repo/bead-grid";
-import { patternSelector, usePatternStore } from "@repo/bead-pattern-editor";
-import { CloseIcon, LoomIcon, PeyoteIcon } from "@repo/icons";
+} from "@beadee/grid-editor";
+import { patternSelector, usePatternStore } from "@beadee/pattern-editor";
+import { CloseIcon, LoomIcon, PeyoteIcon } from "@beadee/icons";
 import { FC, useCallback } from "react";
 import { BeadingGridOptionsPanel } from "../components";
 

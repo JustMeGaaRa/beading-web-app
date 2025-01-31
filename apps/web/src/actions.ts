@@ -1,4 +1,4 @@
-import { PatternState } from "@repo/bead-pattern-editor";
+import { PatternState } from "@beadee/pattern-editor";
 
 type Action<TAction extends string, TPayload> = {
     type: TAction;

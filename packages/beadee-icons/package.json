@@ -1,0 +1,20 @@
+{
+    "name": "@beadee/icons",
+    "version": "0.0.0",
+    "private": true,
+    "exports": {
+        ".": "./src/index.tsx"
+    },
+    "scripts": {
+        "test": "vitest",
+        "lint": "eslint ."
+    },
+    "dependencies": {
+        "react": "^18.3.1"
+    },
+    "devDependencies": {
+        "@beadee/eslint-config": "*",
+        "@beadee/typescript-config": "*",
+        "@types/react": "18.3.0"
+    }
+}

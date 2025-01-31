@@ -17,8 +17,8 @@ import {
     FlipVerticalIcon,
     RemoveCircleIcon,
     VerticalMirrorIcon,
-} from "@repo/icons";
-import { BeadeeGridSectionToolbar } from "@repo/bead-grid";
+} from "@beadee/icons";
+import { BeadeeGridSectionToolbar } from "@beadee/grid-editor";
 
 export const BeadingGridSectionActionsToolbar: FC<{
     isVisible?: boolean;

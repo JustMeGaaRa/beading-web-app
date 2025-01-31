@@ -1,5 +1,5 @@
 import { useToken } from "@chakra-ui/react";
-import { PatternProvider, PatternState } from "@repo/bead-pattern-editor";
+import { PatternProvider, PatternState } from "@beadee/pattern-editor";
 import { FC } from "react";
 import { useLoaderData } from "react-router";
 import {
@@ -19,7 +19,7 @@ import {
     BeadeeGridStylesProvider,
     DefaultGridStyles,
     BeadeeGridSelectionProvider,
-} from "@repo/bead-grid";
+} from "@beadee/grid-editor";
 
 export const ProjectPage: FC = () => {
     const pattern = useLoaderData() as PatternState;

@@ -11,9 +11,9 @@ import {
     NumberInputStepper,
     Select,
 } from "@chakra-ui/react";
-import { BEAD_OPTIONS } from "@repo/bead-grid";
-import { PatternOptions } from "@repo/bead-pattern-editor";
-import { AlignRightIcon, AlignBottomIcon } from "@repo/icons";
+import { BEAD_OPTIONS } from "@beadee/grid-editor";
+import { PatternOptions } from "@beadee/pattern-editor";
+import { AlignRightIcon, AlignBottomIcon } from "@beadee/icons";
 import { FC, ChangeEvent, useCallback, PropsWithChildren } from "react";
 
 export const PatternOptionsPanel: FC<

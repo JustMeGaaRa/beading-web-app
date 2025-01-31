@@ -7,14 +7,14 @@ import {
     useDisclosure,
     useToast,
 } from "@chakra-ui/react";
-import { isPattern } from "@repo/bead-pattern-editor";
+import { isPattern } from "@beadee/pattern-editor";
 import { FC, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CreatePatternModal } from "./CreatePatternModal";
 import { PageHeader, Shortcuts, ShortcutTableModal } from "../components";
 import { usePatternCollectionStore } from "../store";
 import { addPatternAction } from "../creators";
-import { BeadeeAppIcon, DocumentUploadIcon, PlusIcon } from "@repo/icons";
+import { BeadeeAppIcon, DocumentUploadIcon, PlusIcon } from "@beadee/icons";
 
 const hotkeysOptions = { preventDefault: true };
 const hotkeysKeyOptions = { preventDefault: true, keydown: true, keyup: true };

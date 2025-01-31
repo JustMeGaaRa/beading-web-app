@@ -1,6 +1,6 @@
 import { Box, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
-import { BeadeeGridSectionToolbar } from "@repo/bead-grid";
-import { TapMoveIcon } from "@repo/icons";
+import { BeadeeGridSectionToolbar } from "@beadee/grid-editor";
+import { TapMoveIcon } from "@beadee/icons";
 import { FC, useCallback, useEffect, useState } from "react";
 
 export const BeadingGridSectionControlsToolbar: FC<{

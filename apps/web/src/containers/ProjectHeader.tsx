@@ -16,13 +16,13 @@ import {
     dirtyStateSelector,
     patternSelector,
     usePatternStore,
-} from "@repo/bead-pattern-editor";
+} from "@beadee/pattern-editor";
 import {
     ArrowLeftMDIcon,
     CloudCheckIcon,
     CloudRefreshIcon,
     DocumentIcon,
-} from "@repo/icons";
+} from "@beadee/icons";
 import { FC, ChangeEvent, useCallback, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate } from "react-router";

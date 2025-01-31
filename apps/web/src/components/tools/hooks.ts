@@ -1,4 +1,4 @@
-import { RenderPoint } from "@repo/bead-grid";
+import { RenderPoint } from "@beadee/grid-editor";
 import { useCallback, useContext } from "react";
 import { ToolsContext } from "./context";
 import { ToolState } from "./types";

@@ -1,0 +1,23 @@
+{
+    "name": "@beadee/grid-editor",
+    "version": "0.0.0",
+    "private": true,
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "test": "vitest",
+        "lint": "eslint ."
+    },
+    "devDependencies": {
+        "@beadee/eslint-config": "*",
+        "@beadee/typescript-config": "*",
+        "@types/react": "18.3.0"
+    },
+    "peerDependencies": {
+        "konva": "9.3.14",
+        "react": "^18.3.1",
+        "react-konva": "^18.2.10",
+        "react-konva-utils": "^1.0.6"
+    }
+}

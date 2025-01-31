@@ -1,9 +1,9 @@
 import { Flex, HStack, Text } from "@chakra-ui/react";
-import { PatternOptions, usePatternStore } from "@repo/bead-pattern-editor";
+import { PatternOptions, usePatternStore } from "@beadee/pattern-editor";
 import { FC, useCallback } from "react";
 import { PatternOptionsPanel } from "../components";
-import { InfoCircleIcon } from "@repo/icons";
-import { useBeadeeGridStyles } from "@repo/bead-grid";
+import { InfoCircleIcon } from "@beadee/icons";
+import { useBeadeeGridStyles } from "@beadee/grid-editor";
 
 export const PatternOptionsContainer: FC = () => {
     const pattern = usePatternStore((state) => state.pattern);
