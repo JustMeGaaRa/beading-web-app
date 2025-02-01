@@ -2,5 +2,13 @@ import { useContext } from "react";
 import { BeadingGridSelectionContext } from "../context";
 
 export const useBeadeeGridSelection = () => {
-    return useContext(BeadingGridSelectionContext);
+    const context = useContext(BeadingGridSelectionContext);
+
+    if (!context) {
+        throw new Error(
+            "useBeadeeGridSelection must be used within a BeadeeGridSelectionProvider"
+        );
+    }
+
+    return context;
 };

@@ -1,4 +1,4 @@
-import { BeadingGrid, flipBead } from "@beadee/grid-editor";
+import { BeadingGrid, flipBead, POINT_PIXEL_RATIO } from "@beadee/grid-editor";
 import { PatternOptions, PatternSummary } from "../types";
 import { getPatternSize } from "./pattern";
 
@@ -45,11 +45,11 @@ export const getPatternRealSize = (
             : patternOptions.beadSize;
 
     return {
-        height: patternSize.height * beadSize.height,
-        width: patternSize.width * beadSize.width,
+        height: (patternSize.height * beadSize.height) / POINT_PIXEL_RATIO,
+        width: (patternSize.width * beadSize.width) / POINT_PIXEL_RATIO,
     };
 };
 
 export const formatPatternSize = (size: { height: number; width: number }) => {
-    return `${size.height.toFixed(2)} x ${size.width.toFixed(2)} mm`;
+    return `${size.height.toFixed(2)} x ${size.width.toFixed(2)} cm`;
 };

@@ -503,7 +503,7 @@ export const BeadeePatternContainer: FC = () => {
                             grid={grid}
                             metadata={metadata.gridsMetadata.get(grid.gridId)}
                             patternRef={patternRef}
-                            isLayoutHorizontal={isHorizontal}
+                            layout={pattern.options.orientation}
                             isPointerDown={isPointerDown}
                             pointerPosition={pointerCurrentPosition}
                         />

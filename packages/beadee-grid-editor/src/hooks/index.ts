@@ -1,4 +1,4 @@
-export * from "./useBeadeeGrid";
+export * from "./useBeadeeGridOptions";
 export * from "./useBeadeeGridMetadata";
 export * from "./useBeadeeRenderBounds";
 export * from "./useBeadeeGridStyles";

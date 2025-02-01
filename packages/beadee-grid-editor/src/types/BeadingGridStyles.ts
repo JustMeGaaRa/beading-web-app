@@ -1,9 +1,6 @@
 import { BeadProperties, ONE_SIX_BY_ONE_THREE } from "./BeadProperties";
 
 export type BeadingGridStyles = {
-    rendering: {
-        pixelPerPoint: number;
-    };
     components: {
         pattern: {
             color: string;
@@ -50,9 +47,6 @@ export type BeadingGridStyles = {
 };
 
 export const DefaultGridStyles: BeadingGridStyles = {
-    rendering: {
-        pixelPerPoint: 20,
-    },
     components: {
         pattern: {
             color: "rgba(0, 0, 0, 0.36)",

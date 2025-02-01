@@ -3,8 +3,6 @@ import {
     BeadingGridOffset,
     BeadingGridProperties,
     BeadingGridStyles,
-    BeadingGridType,
-    BeadProperties,
     BrickGridProperties,
     BeadingGridSize,
     getGridSize,
@@ -14,37 +12,22 @@ import {
     getCellKey,
     BeadingGridMetadata,
     flipBead,
+    BeadProperties,
 } from "../types";
 
-export const getGridCellRenderSize = (
+export const getCellRenderSize = (
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): BeadingGridSize => {
-    const getGridCellSize = (
-        type: BeadingGridType,
-        pixelPerPoint: number,
-        bead: BeadProperties
-    ) => {
-        const beadSize = type === "brick" ? flipBead(bead) : bead;
-        const height = beadSize.height * pixelPerPoint;
-        const width = beadSize.width * pixelPerPoint;
-
-        return { height, width };
-    };
-
-    return getGridCellSize(
-        options.type,
-        styles.rendering.pixelPerPoint,
-        styles.bead
-    );
+    return options.type === "brick" ? flipBead(styles.bead) : styles.bead;
 };
 
-export const getGridCellRenderBounds = (
+export const getCellRenderBounds = (
     offset: BeadingGridOffset,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const { height, width } = getGridCellRenderSize(options, styles);
+    const { height, width } = getCellRenderSize(options, styles);
 
     const cellStaggerX = width / 2;
     const cellStaggerY = height / 2;
@@ -133,11 +116,7 @@ export const getGridSectionRenderBounds = (
 ): RenderBounds => {
     // TODO: optimize to be O(n) complexity
     const cellRenderBounds = cells.map((cell) =>
-        getGridCellRenderBounds(
-            shiftOffset(cell.offset, offset),
-            options,
-            styles
-        )
+        getCellRenderBounds(shiftOffset(cell.offset, offset), options, styles)
     );
     const minX = Math.min(...cellRenderBounds.map((cell) => cell.position.x));
     const minY = Math.min(...cellRenderBounds.map((cell) => cell.position.y));
@@ -158,13 +137,40 @@ export const getGridSectionRenderBounds = (
     };
 };
 
+export const getGridRenderSize = (
+    options: BeadingGridProperties,
+    bead: BeadProperties
+) => {
+    const gridSize = getGridSize(options);
+
+    return {
+        height: gridSize.height * bead.height,
+        width: gridSize.width * bead.width,
+    };
+};
+
 export const getGridRenderBounds = (
     offset: BeadingGridOffset,
     options: BeadingGridProperties,
     styles: BeadingGridStyles
 ): RenderBounds => {
-    const topLeftCellBounds = getGridCellRenderBounds(offset, options, styles);
+    const topLeftCellBounds = getCellRenderBounds(offset, options, styles);
     const gridSize = getGridSize(options);
+
+    return {
+        position: topLeftCellBounds.position,
+        height: gridSize.height * topLeftCellBounds.height,
+        width: gridSize.width * topLeftCellBounds.width,
+    };
+};
+
+export const getGridRenderBoundsNoFringe = (
+    offset: BeadingGridOffset,
+    options: BeadingGridProperties,
+    styles: BeadingGridStyles
+): RenderBounds => {
+    const topLeftCellBounds = getCellRenderBounds(offset, options, styles);
+    const gridSize = { height: options.height, width: options.width };
 
     return {
         position: topLeftCellBounds.position,
@@ -210,7 +216,7 @@ export const getGridMetadata = (
         cellsBounds: grid.cells.reduce((map, cell) => {
             return map.set(
                 getCellKey(cell),
-                getGridCellRenderBounds(cell.offset, grid.options, styles)
+                getCellRenderBounds(cell.offset, grid.options, styles)
             );
         }, new Map()),
     };
@@ -225,16 +231,16 @@ export const createGridMetadata = (
     let gridBounds: RenderBounds;
     const cellsBounds = new Map<string, RenderBounds>();
 
-    const getGridBounds = () => {
+    const getOrCreateGridBounds = () => {
         if (!gridBounds) {
             gridBounds = getGridRenderBounds(grid.offset, grid.options, styles);
         }
         return gridBounds;
     };
 
-    const getCellBounds = (cell: BeadingGridCell) => {
+    const getOrCreateCellBounds = (cell: BeadingGridCell) => {
         if (!cellsBounds.has(getCellKey(cell))) {
-            const renderBounds = getGridCellRenderBounds(
+            const renderBounds = getCellRenderBounds(
                 cell.offset,
                 grid.options,
                 styles
@@ -245,7 +251,7 @@ export const createGridMetadata = (
     };
 
     return {
-        getGridBounds,
-        getCellBounds,
+        getGridBounds: getOrCreateGridBounds,
+        getCellBounds: getOrCreateCellBounds,
     };
 };

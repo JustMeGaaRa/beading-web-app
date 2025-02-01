@@ -3,10 +3,9 @@ import {
     BeadeeGridBackgroundPattern,
     BeadeeGridDivider,
     BeadeeGridSection,
-    BeadeeText,
+    BeadeeGridName,
     BeadingGrid,
     useBeadeeGridSelection,
-    getGridHeight,
     RenderPoint,
     BeadeeGridOptionsProvider,
     BeadingGridMetadata,
@@ -14,6 +13,9 @@ import {
     distanceBetween,
     getStageRelativePosition,
     isZeroOffset,
+    BeadeeRenderBoundsProvider,
+    shiftBounds,
+    extendBounds,
 } from "@beadee/grid-editor";
 import {
     usePatternStore,
@@ -34,14 +36,14 @@ export const BeadeeGridContainer: FC<{
     grid: BeadingGrid;
     metadata?: BeadingGridMetadata;
     patternRef: React.RefObject<Konva.Stage>;
-    isLayoutHorizontal?: boolean;
+    layout?: "horizontal" | "vertical";
     isPointerDown?: boolean;
     pointerPosition: RenderPoint | undefined;
 }> = ({
     grid,
     metadata,
     patternRef,
-    isLayoutHorizontal,
+    layout = "vertical",
     isPointerDown,
     pointerPosition,
 }) => {
@@ -166,49 +168,50 @@ export const BeadeeGridContainer: FC<{
         }
     }, [toolInfo, selectedCells, setSelectedCells, dispatch, grid.gridId]);
 
-    const decorationOffset = isLayoutHorizontal
-        ? {
-              columnIndex: 0,
-              rowIndex: -3,
-          }
-        : {
-              columnIndex: -6,
-              rowIndex: 0,
-          };
-
     // NOTE: visible only when cursor tool enabled and some cells are selected
     const toolbarsVisible =
         toolInfo.isCursorEnabled &&
         !isPointerDown &&
         selectedCells[grid.gridId]?.length > 0;
 
+    const gridLabelBounds = shiftBounds(
+        extendBounds(
+            metadata?.gridBounds ?? {
+                position: { x: 0, y: 0 },
+                height: 0,
+                width: 0,
+            },
+            layout === "vertical" ? { x: 200, y: 0 } : { x: 0, y: 100 }
+        ),
+        layout === "vertical" ? { x: -200, y: 0 } : { x: 0, y: -100 }
+    );
+
     return (
-        <BeadeeGridOptionsProvider options={grid.options}>
+        <BeadeeGridOptionsProvider offset={grid.offset} options={grid.options}>
             <BeadeeGridMetadataProvider metadata={metadata}>
                 <BeadeeGrid
                     id={grid.gridId}
                     name={grid.name}
-                    offset={grid.offset}
                     cells={grid.cells}
+                    offset={grid.offset}
                     options={grid.options}
                 >
                     <BeadeeGridBackgroundPattern id={grid.gridId} />
-                    <BeadeeText
-                        text={grid.name}
-                        offset={decorationOffset}
-                        options={grid.options}
-                    />
-                    <BeadeeGridDivider
-                        length={
-                            isLayoutHorizontal
-                                ? getGridHeight(grid.options) + 6
-                                : grid.options.width + 6
-                        }
-                        offset={decorationOffset}
-                        orientation={
-                            isLayoutHorizontal ? "vertical" : "horizontal"
-                        }
-                    />
+                    <BeadeeRenderBoundsProvider {...gridLabelBounds}>
+                        <BeadeeGridName
+                            alignment={"start"}
+                            placement={"start"}
+                            text={grid.name}
+                        />
+                        <BeadeeGridDivider
+                            placement={"start"}
+                            orientation={
+                                layout === "horizontal"
+                                    ? "vertical"
+                                    : "horizontal"
+                            }
+                        />
+                    </BeadeeRenderBoundsProvider>
                 </BeadeeGrid>
                 <BeadeeGridSection
                     cells={selectedCells[grid.gridId] ?? []}

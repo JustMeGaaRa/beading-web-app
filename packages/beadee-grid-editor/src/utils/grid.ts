@@ -8,6 +8,7 @@ import {
     cut,
     getGridSize,
     paste,
+    POINT_PIXEL_RATIO,
     shift,
 } from "../types";
 import { capitalize } from "./common";
@@ -19,8 +20,8 @@ export const getGridRealSize = (
     const gridSize = getGridSize(options);
 
     return {
-        height: gridSize.height * bead.height,
-        width: gridSize.width * bead.width,
+        height: (gridSize.height * bead.height) / POINT_PIXEL_RATIO,
+        width: (gridSize.width * bead.width) / POINT_PIXEL_RATIO,
     };
 };
 

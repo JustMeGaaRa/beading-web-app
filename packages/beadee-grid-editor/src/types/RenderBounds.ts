@@ -44,3 +44,28 @@ export const cellInBounds = (bounds: RenderBounds, cell: RenderBounds) => {
         pointInBounds(bounds, bottomRight)
     );
 };
+
+export const extendBounds = (bounds: RenderBounds, size: RenderPoint) => {
+    return {
+        position: {
+            x: bounds.position.x,
+            y: bounds.position.y,
+        },
+        width: bounds.width + size.x,
+        height: bounds.height + size.y,
+    };
+};
+
+export const shiftBounds = (
+    bounds: RenderBounds,
+    offset: RenderPoint
+): RenderBounds => {
+    return {
+        position: {
+            x: bounds.position.x + offset.x,
+            y: bounds.position.y + offset.y,
+        },
+        width: bounds.width,
+        height: bounds.height,
+    };
+};

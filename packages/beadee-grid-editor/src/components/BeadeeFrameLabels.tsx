@@ -6,7 +6,7 @@ import { BeadeeFrameColumnLabels } from "./BeadeeFrameColumnLabels";
 import { BeadeeFrameMiddleMarker } from "./BeadeeFrameMiddleMarker";
 import { useBeadeeGridStyles, useBeadeeGridSelection } from "../hooks";
 import { BeadingGridProperties, TextState } from "../types";
-import { getGridCellRenderSize } from "@beadee/grid-editor";
+import { getCellRenderSize } from "@beadee/grid-editor";
 
 export const BeadeeFrameLabels: FC<{
     options: BeadingGridProperties;
@@ -35,12 +35,9 @@ export const BeadeeFrameLabels: FC<{
     const { selectedColumn, selectedRow, setSelectedColumn, setSelectedRow } =
         useBeadeeGridSelection();
 
-    const { height: cellHeight, width: cellWidth } = getGridCellRenderSize(
-        options,
-        styles
-    );
-    const frameTextMarginX = cellWidth / 2;
-    const frameTextMarginY = cellHeight / 4;
+    const bead = getCellRenderSize(options, styles);
+    const frameTextMarginX = bead.width / 2;
+    const frameTextMarginY = bead.height / 4;
 
     const handleOnRowClick = useCallback(
         (event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
@@ -89,8 +86,8 @@ export const BeadeeFrameLabels: FC<{
                 {columnsTextArray.map((column) => (
                     <BeadeeFrameColumnLabels
                         key={`column-label-${column.absoluteIndex}`}
-                        cellHeight={cellHeight}
-                        cellWidth={cellWidth}
+                        cellHeight={bead.height}
+                        cellWidth={bead.width}
                         gridId={column.gridId}
                         gridIndex={column.relativeIndex}
                         patternIndex={column.absoluteIndex}
@@ -104,8 +101,8 @@ export const BeadeeFrameLabels: FC<{
                 {rowTextArray.map((row) => (
                     <BeadingFrameRowLabels
                         key={`row-label-${row.absoluteIndex}`}
-                        cellHeight={cellHeight}
-                        cellWidth={cellWidth}
+                        cellHeight={bead.height}
+                        cellWidth={bead.width}
                         gridId={row.gridId}
                         gridIndex={row.relativeIndex}
                         patternIndex={row.absoluteIndex}
@@ -118,17 +115,17 @@ export const BeadeeFrameLabels: FC<{
                 ))}
                 <BeadeeFrameMiddleMarker
                     orientation={"vertical"}
-                    x={(width * cellWidth) / 2 + cellWidth / 2}
-                    y={-cellHeight * 2}
-                    height={cellHeight}
-                    width={cellWidth}
+                    x={(width * bead.width) / 2 + bead.width / 2}
+                    y={-bead.height * 2}
+                    height={bead.height}
+                    width={bead.width}
                 />
                 <BeadeeFrameMiddleMarker
                     orientation={"horizontal"}
-                    x={-cellWidth * 2}
-                    y={(height * cellHeight) / 2 + cellHeight / 2}
-                    height={cellHeight}
-                    width={cellWidth}
+                    x={-bead.width * 2}
+                    y={(height * bead.height) / 2 + bead.height / 2}
+                    height={bead.height}
+                    width={bead.width}
                 />
             </Group>
         )

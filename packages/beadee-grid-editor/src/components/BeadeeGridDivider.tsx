@@ -1,40 +1,54 @@
 import { FC } from "react";
 import { Line } from "react-konva";
-import { useBeadeeGrid, useBeadeeGridStyles } from "../hooks";
-import { BeadingGridOffset, flipBead } from "../types";
+import { useBeadeeGridStyles, useBeadeeRenderBounds } from "../hooks";
+import { RenderPoint } from "../types";
+
+type RenderRect = {
+    topLeft: RenderPoint;
+    topRight: RenderPoint;
+    bottomLeft: RenderPoint;
+    bottomRight: RenderPoint;
+};
 
 export const BeadeeGridDivider: FC<{
-    length: number;
-    offset: BeadingGridOffset;
+    placement?: "start" | "end";
     orientation: "horizontal" | "vertical";
     strokeColor?: string;
     strokeWidth?: number;
-}> = ({ length, offset, orientation, strokeColor, strokeWidth }) => {
+}> = ({ placement = "end", orientation, strokeColor, strokeWidth }) => {
     const { styles } = useBeadeeGridStyles();
-    const { options } = useBeadeeGrid();
-    const bead = options.type === "brick" ? flipBead(styles.bead) : styles.bead;
+    const { position, height, width } = useBeadeeRenderBounds();
 
-    // TODO: move this to a helper function
-    const positionX1 =
-        offset.columnIndex * bead.width * styles.rendering.pixelPerPoint;
-    const positionY1 =
-        offset.rowIndex * bead.height * styles.rendering.pixelPerPoint;
-    const positionX2 =
-        orientation === "horizontal"
-            ? (offset.columnIndex + length) *
-              bead.width *
-              styles.rendering.pixelPerPoint
-            : offset.columnIndex * bead.width * styles.rendering.pixelPerPoint;
-    const positionY2 =
-        orientation === "horizontal"
-            ? offset.rowIndex * bead.height * styles.rendering.pixelPerPoint
-            : (offset.rowIndex + length) *
-              bead.height *
-              styles.rendering.pixelPerPoint;
+    const place = ({
+        topLeft,
+        topRight,
+        bottomLeft,
+        bottomRight,
+    }: RenderRect) => {
+        return orientation === "horizontal"
+            ? placement === "start"
+                ? { point1: topLeft, point2: topRight }
+                : { point1: bottomLeft, point2: bottomRight }
+            : placement === "start"
+              ? { point1: topLeft, point2: bottomLeft }
+              : { point1: topRight, point2: bottomRight };
+    };
+
+    const topLeft = { x: position.x, y: position.y };
+    const topRight = { x: position.x + width, y: position.y };
+    const bottomLeft = { x: position.x, y: position.y + height };
+    const bottomRight = { x: position.x + width, y: position.y + height };
+
+    const { point1, point2 } = place({
+        topLeft,
+        topRight,
+        bottomLeft,
+        bottomRight,
+    });
 
     return (
         <Line
-            points={[positionX1, positionY1, positionX2, positionY2]}
+            points={[point1.x, point1.y, point2.x, point2.y]}
             stroke={strokeColor ?? styles.components.divider.strokeColor}
             strokeWidth={strokeWidth ?? styles.components.divider.strokeWidth}
         />

@@ -12,8 +12,8 @@ import {
     pointInBounds,
 } from "../types";
 import {
-    getGridCellRenderBounds,
-    getGridCellRenderSize,
+    getCellRenderBounds,
+    getCellRenderSize,
     getGridRenderBounds,
 } from "./rendering";
 
@@ -111,7 +111,7 @@ export const getCellAtPosition = (
         };
     }
 
-    const beadSize = getGridCellRenderSize(grid.options, styles);
+    const beadSize = getCellRenderSize(grid.options, styles);
     const hitCellApproximation: BeadingGridCell = {
         offset: {
             columnIndex:
@@ -134,7 +134,7 @@ export const getCellAtPosition = (
                           cell.offset,
                           grid.offset
                       );
-                      const bounds = getGridCellRenderBounds(
+                      const bounds = getCellRenderBounds(
                           cellAbsoluteOffset,
                           grid.options,
                           styles
@@ -163,7 +163,7 @@ export const getCellsInBounds = (
 ): HitTestResult => {
     const hitCells = grid.cells.filter((cell) => {
         const cellAbsoluteOffset = shiftOffset(cell.offset, grid.offset);
-        const boundary = getGridCellRenderBounds(
+        const boundary = getCellRenderBounds(
             cellAbsoluteOffset,
             grid.options,
             styles

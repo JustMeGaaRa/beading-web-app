@@ -1,5 +1,5 @@
 export * from "./BeadeeRenderBoundsContext";
 export * from "./BeadeeGridMetadataContext";
-export * from "./BeadeeGridContext";
+export * from "./BeadeeGridOptionsContext";
 export * from "./BeadeeGridSelectionContext";
 export * from "./BeadeeGridStylesContext";

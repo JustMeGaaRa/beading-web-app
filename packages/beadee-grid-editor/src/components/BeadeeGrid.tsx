@@ -21,10 +21,9 @@ import {
     getGridRenderBounds,
     getCellAtPosition,
     getStageRelativePosition,
+    getGridRenderBoundsNoFringe,
 } from "../utils";
-import { BeadeeGridProvider } from "./BeadeeGridProvider";
 import { BeadeeRenderBoundsProvider } from "./BeadeeRenderBoundsProvider";
-import { BeadeeGridOptionsContext } from "../context";
 
 export const BeadeeGrid: FC<
     PropsWithChildren<{
@@ -117,60 +116,43 @@ export const BeadeeGrid: FC<
 
     const gridRenderBounds =
         metadata?.gridBounds ?? getGridRenderBounds(offset, options, styles);
+    const gridRenderBoundsNoFringe = getGridRenderBoundsNoFringe(
+        offset,
+        options,
+        styles
+    );
 
     return (
         <BeadeeRenderBoundsProvider {...gridRenderBounds}>
-            <BeadeeGridProvider
-                gridId={id}
-                name={name}
-                cells={cells}
-                offset={offset}
-                options={options}
-            >
-                <Group
-                    name={id}
+            <Group name={id}>
+                <Rect
+                    fill={"transparent"}
                     x={gridRenderBounds.position.x}
                     y={gridRenderBounds.position.y}
-                >
-                    <Rect
-                        fill={"transparent"}
-                        height={gridRenderBounds.height}
-                        width={gridRenderBounds.width}
-                        onPointerDown={handleOnPointerDown}
-                        onPointerUp={handleOnPointerUp}
-                        onPointerMove={handleOnPointerMove}
-                        onPointerClick={handleOnPointerClick}
-                    />
+                    height={gridRenderBounds.height}
+                    width={gridRenderBounds.width}
+                    onPointerDown={handleOnPointerDown}
+                    onPointerUp={handleOnPointerUp}
+                    onPointerMove={handleOnPointerMove}
+                    onPointerClick={handleOnPointerClick}
+                />
+                <BeadeeRenderBoundsProvider {...gridRenderBoundsNoFringe}>
                     {options.type === "brick" && options.fringe > 0 && (
                         <BeadeeGridDivider
-                            length={options.width}
-                            offset={{
-                                columnIndex: 0,
-                                rowIndex: options.height,
-                            }}
+                            placement={"end"}
                             orientation={"horizontal"}
                         />
                     )}
-                    {children}
-                </Group>
-                {cells.map((cell) => (
-                    <BeadeeGridCell
-                        key={getCellKey(cell)}
-                        color={cell.color}
-                        offset={shiftOffset(cell.offset, offset)}
-                    />
-                ))}
-            </BeadeeGridProvider>
-        </BeadeeRenderBoundsProvider>
-    );
-};
-
-export const BeadeeGridOptionsProvider: FC<
-    PropsWithChildren<{ options: BeadingGridProperties }>
-> = ({ children, options }) => {
-    return (
-        <BeadeeGridOptionsContext.Provider value={{ options }}>
+                </BeadeeRenderBoundsProvider>
+            </Group>
+            {cells.map((cell) => (
+                <BeadeeGridCell
+                    key={getCellKey(cell)}
+                    color={cell.color}
+                    offset={shiftOffset(cell.offset, offset)}
+                />
+            ))}
             {children}
-        </BeadeeGridOptionsContext.Provider>
+        </BeadeeRenderBoundsProvider>
     );
 };

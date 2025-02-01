@@ -1,15 +1,15 @@
 import { FC, useMemo } from "react";
 import { Circle } from "react-konva";
 import { Portal } from "react-konva-utils";
-import { getGridCellRenderBounds } from "../utils";
+import { getCellRenderBounds } from "../utils";
 import { useBeadeeGridOptions, useBeadeeGridStyles } from "../hooks";
-import { getGridSize } from "../types";
+import { getGridSize, shiftOffset } from "../types";
 
 export const BeadeeGridBackgroundPattern: FC<{
     id: string;
 }> = ({ id }) => {
     const { styles } = useBeadeeGridStyles();
-    const { options } = useBeadeeGridOptions();
+    const { offset, options } = useBeadeeGridOptions();
 
     const cells = useMemo(() => {
         const { height, width } = getGridSize(options);
@@ -17,7 +17,7 @@ export const BeadeeGridBackgroundPattern: FC<{
             .map((_, rowIndex) =>
                 Array.from({ length: width }).map((_, columnIndex) => ({
                     color: "",
-                    offset: { rowIndex, columnIndex },
+                    offset: shiftOffset(offset, { rowIndex, columnIndex }),
                 }))
             )
             .flat();
@@ -26,7 +26,7 @@ export const BeadeeGridBackgroundPattern: FC<{
     return (
         <Portal selector={`.${id}`}>
             {cells.map((cell) => {
-                const { position, height, width } = getGridCellRenderBounds(
+                const { position, height, width } = getCellRenderBounds(
                     cell.offset,
                     options,
                     styles
