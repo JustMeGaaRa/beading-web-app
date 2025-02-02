@@ -14,8 +14,10 @@ import {
     getStageRelativePosition,
     isZeroOffset,
     BeadeeRenderBoundsProvider,
+    negateDelta,
+    expandBounds,
     shiftBounds,
-    extendBounds,
+    DefaultEmptyBounds,
 } from "@beadee/grid-editor";
 import {
     usePatternStore,
@@ -174,16 +176,11 @@ export const BeadeeGridContainer: FC<{
         !isPointerDown &&
         selectedCells[grid.gridId]?.length > 0;
 
+    const delta =
+        layout === "vertical" ? { dx: 200, dy: 0 } : { dx: 0, dy: 100 };
     const gridLabelBounds = shiftBounds(
-        extendBounds(
-            metadata?.gridBounds ?? {
-                position: { x: 0, y: 0 },
-                height: 0,
-                width: 0,
-            },
-            layout === "vertical" ? { x: 200, y: 0 } : { x: 0, y: 100 }
-        ),
-        layout === "vertical" ? { x: -200, y: 0 } : { x: 0, y: -100 }
+        expandBounds(metadata?.gridBounds ?? DefaultEmptyBounds, delta),
+        negateDelta(delta)
     );
 
     return (

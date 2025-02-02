@@ -131,11 +131,9 @@ export const patternReducer = (
         case "BEADING_GRID_SET_CELL":
         case "BEADING_GRID_SELECT_CELLS":
         case "BEADING_GRID_CLEAR_CELLS":
-        case "BEADING_GRID_ADD_COLUMN_BEFORE":
-        case "BEADING_GRID_ADD_COLUMN_AFTER":
+        case "BEADING_GRID_INSERT_COLUMN":
         case "BEADING_GRID_CLEAR_COLUMN":
-        case "BEADING_GRID_ADD_ROW_BEFORE":
-        case "BEADING_GRID_ADD_ROW_AFTER":
+        case "BEADING_GRID_INSERT_ROW":
         case "BEADING_GRID_CLEAR_ROW":
         case "BEADING_GRID_PASTE_SECTION":
         case "BEADING_GRID_FLIP_SECTION":

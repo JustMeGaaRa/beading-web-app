@@ -27,12 +27,8 @@ export type GridClearCellsAction = Action<
     "BEADING_GRID_CLEAR_CELLS",
     { cells: Array<BeadingGridCell> }
 >;
-export type GridAddColumnBeforeAction = Action<
-    "BEADING_GRID_ADD_COLUMN_BEFORE",
-    { column: number }
->;
-export type GridAddColumnAfterAction = Action<
-    "BEADING_GRID_ADD_COLUMN_AFTER",
+export type GridInsertColumnAction = Action<
+    "BEADING_GRID_INSERT_COLUMN",
     { column: number }
 >;
 export type GridDeleteColumnAction = Action<
@@ -43,12 +39,8 @@ export type GridClearColumnAction = Action<
     "BEADING_GRID_CLEAR_COLUMN",
     { column: number }
 >;
-export type GridAddRowBeforeAction = Action<
-    "BEADING_GRID_ADD_ROW_BEFORE",
-    { row: number }
->;
-export type GridAddRowAfterAction = Action<
-    "BEADING_GRID_ADD_ROW_AFTER",
+export type GridInsertRowAction = Action<
+    "BEADING_GRID_INSERT_ROW",
     { row: number }
 >;
 export type GridDeleteRowAction = Action<
@@ -76,12 +68,10 @@ export type GridActions =
     | GridSetCellAction
     | GridClearCellsAction
     | GridApplyOptionsAction
-    | GridAddRowBeforeAction
-    | GridAddRowAfterAction
+    | GridInsertRowAction
     | GridDeleteRowAction
     | GridClearRowAction
-    | GridAddColumnBeforeAction
-    | GridAddColumnAfterAction
+    | GridInsertColumnAction
     | GridDeleteColumnAction
     | GridClearColumnAction
     | GridSetSelectedCellsAction

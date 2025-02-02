@@ -12,13 +12,18 @@ import {
     getPatternRenderBounds,
     SCALE_MAXIMUM,
 } from "../utils";
-import { useBeadeeGridStyles } from "@beadee/grid-editor";
-import { Pattern } from "../types";
+import {
+    BeadeeRenderBoundsProvider,
+    DefaultEmptyBounds,
+    useBeadeeGridStyles,
+} from "@beadee/grid-editor";
+import { Pattern, PatternMetadata } from "../types";
 
 export const BeadeePattern = forwardRef<
     Konva.Stage,
     PropsWithChildren<{
         pattern: Pattern;
+        metadata?: PatternMetadata;
         height: number;
         width: number;
         isDraggable?: boolean;
@@ -34,6 +39,7 @@ export const BeadeePattern = forwardRef<
         {
             children,
             pattern,
+            metadata,
             height,
             width,
             isDraggable,
@@ -184,23 +190,27 @@ export const BeadeePattern = forwardRef<
         }, []);
 
         return (
-            <Stage
-                ref={ref}
-                height={height}
-                width={width}
-                draggable={isDraggable && !touchZoom}
-                onClick={onClick}
-                onContextMenu={onContextMenu}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onTouchStart={handleOnStageTouchStart}
-                onTouchMove={handleOnStageTouchMove}
-                onTouchEnd={handleOnStageTouchEnd}
-                onWheel={handleOnStageWheel}
+            <BeadeeRenderBoundsProvider
+                {...(metadata?.patternBounds ?? DefaultEmptyBounds)}
             >
-                <Layer>{children}</Layer>
-            </Stage>
+                <Stage
+                    ref={ref}
+                    height={height}
+                    width={width}
+                    draggable={isDraggable && !touchZoom}
+                    onClick={onClick}
+                    onContextMenu={onContextMenu}
+                    onPointerDown={onPointerDown}
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                    onTouchStart={handleOnStageTouchStart}
+                    onTouchMove={handleOnStageTouchMove}
+                    onTouchEnd={handleOnStageTouchEnd}
+                    onWheel={handleOnStageWheel}
+                >
+                    <Layer>{children}</Layer>
+                </Stage>
+            </BeadeeRenderBoundsProvider>
         );
     }
 );

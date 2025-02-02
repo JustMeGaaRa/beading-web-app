@@ -3,10 +3,21 @@ export type RenderPoint = {
     y: number;
 };
 
+export type RenderDelta = {
+    dx: number;
+    dy: number;
+};
+
 export type RenderBounds = {
     position: RenderPoint;
     height: number;
     width: number;
+};
+
+export const DefaultEmptyBounds: RenderBounds = {
+    position: { x: 0, y: 0 },
+    height: 0,
+    width: 0,
 };
 
 export const createRenderBounds = (
@@ -45,27 +56,54 @@ export const cellInBounds = (bounds: RenderBounds, cell: RenderBounds) => {
     );
 };
 
-export const extendBounds = (bounds: RenderBounds, size: RenderPoint) => {
+export const extendDelta = (
+    delta: RenderDelta,
+    factor: number
+): RenderDelta => {
+    return {
+        dx: delta.dx * factor,
+        dy: delta.dy * factor,
+    };
+};
+
+export const negateDelta = (delta: RenderDelta): RenderDelta => {
+    return {
+        dx: -delta.dx,
+        dy: -delta.dy,
+    };
+};
+
+export const expandBounds = (bounds: RenderBounds, delta: RenderDelta) => {
     return {
         position: {
             x: bounds.position.x,
             y: bounds.position.y,
         },
-        width: bounds.width + size.x,
-        height: bounds.height + size.y,
+        width: bounds.width + delta.dx,
+        height: bounds.height + delta.dy,
     };
 };
 
 export const shiftBounds = (
     bounds: RenderBounds,
-    offset: RenderPoint
+    delta: RenderDelta
 ): RenderBounds => {
     return {
         position: {
-            x: bounds.position.x + offset.x,
-            y: bounds.position.y + offset.y,
+            x: bounds.position.x + delta.dx,
+            y: bounds.position.y + delta.dy,
         },
         width: bounds.width,
         height: bounds.height,
     };
+};
+
+export const scaleAroundCenter = (
+    bounds: RenderBounds,
+    delta: RenderDelta
+): RenderBounds => {
+    return expandBounds(
+        shiftBounds(bounds, negateDelta(delta)),
+        extendDelta(delta, 2)
+    );
 };

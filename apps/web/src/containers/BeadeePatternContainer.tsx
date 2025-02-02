@@ -12,7 +12,7 @@ import {
     BeadeeFrameLabels,
     BeadeeRenderBounds,
     DefaultGridProperties,
-    TextState,
+    RowEvent,
     useBeadeeGridStyles,
     useBeadeeGridSelection,
     combineRenderBounds,
@@ -21,6 +21,7 @@ import {
     pointInBounds,
     getStageRelativePosition,
     usePointerDisclosure,
+    ColumnEvent,
 } from "@beadee/grid-editor";
 import {
     usePatternStore,
@@ -34,6 +35,7 @@ import {
     getPatternMetadata,
     BeadeePatternMetadataProvider,
     useBeadeePatternHitTest,
+    useBeadeePatternFrame,
 } from "@beadee/pattern-editor";
 import {
     ArrowDownIcon,
@@ -61,12 +63,13 @@ export const BeadeePatternContainer: FC = () => {
     const patternRef = useRef<Konva.Stage>(null);
 
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const [columnState, setColumnState] = useState<TextState | undefined>();
-    const [rowState, setRowState] = useState<TextState | undefined>();
+    const [columnState, setColumnState] = useState<ColumnEvent | undefined>();
+    const [rowState, setRowState] = useState<RowEvent | undefined>();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { selectedColor, setSelectedColor } = useColorPalette();
     const { tool, enablePencil } = useTools();
+    const { styles } = useBeadeeGridStyles();
     const { pattern, dispatch } = usePatternStore(patternSelector);
     const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
     const {
@@ -77,11 +80,16 @@ export const BeadeePatternContainer: FC = () => {
         setSelectedRow,
     } = useBeadeeGridSelection();
     const { undo, redo } = usePatterHistory();
+    const {
+        clearColumn,
+        clearRow,
+        deleteColumn,
+        deleteRow,
+        insertColumn,
+        insertRow,
+    } = useBeadeePatternFrame();
 
-    const { styles } = useBeadeeGridStyles();
     const { height, width } = getPatternSize(pattern.grids, pattern.options);
-
-    const isHorizontal = pattern.options.orientation === "horizontal";
 
     const centerPattern = useCallback(
         (pattern: Pattern) => {
@@ -133,16 +141,15 @@ export const BeadeePatternContainer: FC = () => {
 
     // SECTION: frame event handlers
     const handleOnFrameColumnClick = useCallback(
-        (_event: KonvaEventObject<MouseEvent>, columnState: TextState) => {
-            // TODO: calculate the relative index here instead of having one in the event
-            setColumnState(columnState);
+        (_event: KonvaEventObject<MouseEvent>, source: ColumnEvent) => {
+            setColumnState(source);
         },
         []
     );
 
     const handleOnFrameRowClick = useCallback(
-        (_event: KonvaEventObject<MouseEvent>, rowState: TextState) => {
-            setRowState(rowState);
+        (_event: KonvaEventObject<MouseEvent>, source: RowEvent) => {
+            setRowState(source);
         },
         []
     );
@@ -150,11 +157,7 @@ export const BeadeePatternContainer: FC = () => {
     const handleOnFrameContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
             event.evt.preventDefault();
-            const position = event.target.getStage()?.getPointerPosition() ?? {
-                x: 0,
-                y: 0,
-            };
-            setMenuPosition(position);
+            setMenuPosition(getStageRelativePosition(event.target.getStage()));
             onOpen();
         },
         [onOpen]
@@ -174,83 +177,51 @@ export const BeadeePatternContainer: FC = () => {
     // SECTION: context menu handlers
     const handleOnGridAddRowAbove = useCallback(() => {
         if (rowState) {
-            dispatch({
-                type: "BEADING_GRID_ADD_ROW_BEFORE",
-                gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.relativeIndex,
-            });
+            insertRow(rowState.rowIndex);
         }
-    }, [dispatch, isHorizontal, rowState]);
+    }, [insertRow, rowState]);
 
     const handleOnGridAddRowBelow = useCallback(() => {
         if (rowState) {
-            dispatch({
-                type: "BEADING_GRID_ADD_ROW_AFTER",
-                gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.relativeIndex,
-            });
+            insertRow(rowState.rowIndex + 1);
         }
-    }, [rowState, dispatch, isHorizontal]);
+    }, [insertRow, rowState]);
 
     const handleOnGridClearRow = useCallback(() => {
         if (rowState) {
-            dispatch({
-                type: "BEADING_GRID_CLEAR_ROW",
-                gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.relativeIndex,
-            });
+            clearRow(rowState.rowIndex);
         }
-    }, [rowState, dispatch, isHorizontal]);
+    }, [clearRow, rowState]);
 
     const handleOnGridDeleteRow = useCallback(() => {
         if (rowState) {
-            dispatch({
-                type: "BEADING_GRID_DELETE_ROW",
-                gridId: isHorizontal ? "all" : rowState.gridId,
-                row: rowState.relativeIndex,
-            });
+            deleteRow(rowState.rowIndex);
         }
-    }, [rowState, dispatch, isHorizontal]);
+    }, [deleteRow, rowState]);
 
     const handleOnGridAddColumnLeft = useCallback(() => {
         if (columnState) {
-            dispatch({
-                type: "BEADING_GRID_ADD_COLUMN_BEFORE",
-                gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.relativeIndex,
-            });
+            insertColumn(columnState.columnIndex);
         }
-    }, [columnState, dispatch, isHorizontal]);
+    }, [insertColumn, columnState]);
 
     const handleOnGridAddColumnRight = useCallback(() => {
         if (columnState) {
-            dispatch({
-                type: "BEADING_GRID_ADD_COLUMN_AFTER",
-                gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.relativeIndex,
-            });
+            insertColumn(columnState.columnIndex + 1);
         }
-    }, [columnState, dispatch, isHorizontal]);
+    }, [insertColumn, columnState]);
 
     const handleOnGridClearColumn = useCallback(() => {
         if (columnState) {
-            dispatch({
-                type: "BEADING_GRID_CLEAR_COLUMN",
-                gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.relativeIndex,
-            });
+            clearColumn(columnState.columnIndex);
         }
-    }, [columnState, dispatch, isHorizontal]);
+    }, [clearColumn, columnState]);
 
     const handleOnGridDeleteColumn = useCallback(() => {
         if (columnState) {
-            dispatch({
-                type: "BEADING_GRID_DELETE_COLUMN",
-                gridId: isHorizontal ? columnState.gridId : "all",
-                column: columnState.relativeIndex,
-            });
+            deleteColumn(columnState.columnIndex);
         }
-    }, [columnState, dispatch, isHorizontal]);
+    }, [deleteColumn, columnState]);
 
     // SECTION: cursor selection handlers
     const {
@@ -488,6 +459,7 @@ export const BeadeePatternContainer: FC = () => {
                 <BeadeePattern
                     ref={patternRef}
                     pattern={pattern}
+                    metadata={metadata}
                     isDraggable={toolInfo.isMovementEnabled}
                     height={window.innerHeight}
                     width={window.innerWidth}

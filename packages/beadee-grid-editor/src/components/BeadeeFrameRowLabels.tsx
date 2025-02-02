@@ -1,105 +1,94 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { FC, useCallback, Fragment } from "react";
 import { Rect, Text } from "react-konva";
-import { TextState } from "../types";
-import { useBeadeeGridStyles } from "../hooks";
+import { RowEvent } from "../types";
+import { useBeadeeGridStyles, useBeadeeRenderBounds } from "../hooks";
 
 export const BeadingFrameRowLabels: FC<{
     cellHeight: number;
     cellWidth: number;
-    gridIndex: number;
-    gridId: string;
-    patternIndex: number;
+    rowIndex: number;
     marginX: number;
-    columns: number;
     isSelected: boolean;
-    onClick?: (
-        event: KonvaEventObject<MouseEvent>,
-        columnState: TextState
-    ) => void;
+    onClick?: (event: KonvaEventObject<MouseEvent>, source: RowEvent) => void;
     onContextMenu?: (
         event: KonvaEventObject<MouseEvent>,
-        columnState: TextState
+        source: RowEvent
     ) => void;
 }> = ({
     cellHeight,
     cellWidth,
-    gridIndex,
-    gridId,
-    patternIndex,
+    rowIndex,
     marginX,
-    columns,
     isSelected,
     onClick,
     onContextMenu,
 }) => {
     const { styles } = useBeadeeGridStyles();
+    const { position, width } = useBeadeeRenderBounds();
 
     const handleOnClick = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            onClick?.(event, {
-                relativeIndex: gridIndex,
-                absoluteIndex: patternIndex,
-                gridId,
-            });
+            onClick?.(event, { rowIndex });
         },
-        [onClick, gridIndex, patternIndex, gridId]
+        [onClick, rowIndex]
     );
 
     const handleOnContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
-            onContextMenu?.(event, {
-                relativeIndex: gridIndex,
-                absoluteIndex: patternIndex,
-                gridId,
-            });
+            onContextMenu?.(event, { rowIndex });
         },
-        [onContextMenu, gridIndex, patternIndex, gridId]
+        [onContextMenu, rowIndex]
     );
 
-    const frameTextOffsetX = cellWidth + marginX;
-    const selectedRowPositionX = -frameTextOffsetX;
-    const selectedRowPositionY = patternIndex * cellHeight;
-    const selectedRowHeight = cellHeight;
-    const selectedRowWidth = cellWidth * columns + 2 * frameTextOffsetX;
+    const leftTextPosition = {
+        x: position.x - cellWidth - marginX,
+        y: position.y + rowIndex * cellHeight,
+    };
+    const rightTextPosition = {
+        x: position.x + width + marginX,
+        y: position.y + rowIndex * cellHeight,
+    };
+    const selectedRowWidth =
+        rightTextPosition.x - leftTextPosition.x + cellWidth;
 
     return (
         <Fragment>
             <Text
-                key={`row-left-number-${patternIndex}`}
+                key={`row-left-number-${rowIndex}`}
                 align={"right"}
+                verticalAlign={"middle"}
                 fill={styles.components.text.color}
                 height={cellHeight}
-                text={(patternIndex + 1).toString()}
-                verticalAlign={"middle"}
                 width={cellWidth}
-                x={-frameTextOffsetX}
-                y={patternIndex * cellHeight}
+                x={leftTextPosition.x}
+                y={leftTextPosition.y}
+                text={(rowIndex + 1).toString()}
                 onClick={handleOnClick}
                 onContextMenu={handleOnContextMenu}
             />
             <Text
-                key={`row-right-number-${patternIndex}`}
+                key={`row-right-number-${rowIndex}`}
                 align={"left"}
+                verticalAlign={"middle"}
                 fill={styles.components.text.color}
                 height={cellHeight}
-                text={(patternIndex + 1).toString()}
-                verticalAlign={"middle"}
                 width={cellWidth}
-                x={columns * cellWidth + marginX}
-                y={patternIndex * cellHeight}
+                x={rightTextPosition.x}
+                y={rightTextPosition.y}
+                text={(rowIndex + 1).toString()}
                 onClick={handleOnClick}
                 onContextMenu={handleOnContextMenu}
             />
             <Rect
                 key={"selected-row-frame"}
                 cornerRadius={20}
-                height={selectedRowHeight}
+                height={cellHeight}
                 width={selectedRowWidth}
                 stroke={styles.components.frame.selection.borderColor}
                 strokeWidth={styles.components.frame.selection.borderWidth}
-                x={selectedRowPositionX}
-                y={selectedRowPositionY}
+                x={leftTextPosition.x}
+                y={leftTextPosition.y}
                 visible={isSelected}
                 onClick={handleOnClick}
                 onContextMenu={handleOnContextMenu}

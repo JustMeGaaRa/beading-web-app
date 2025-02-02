@@ -87,3 +87,30 @@ export const getPatternSize = (
 
     return { height, width };
 };
+
+export const getGridRowIndex = (
+    grids: Array<BeadingGrid>,
+    patternRowIndex: number
+): { gridId: string; rowIndex: number } | undefined => {
+    for (const grid of grids) {
+        const gridHeight = getGridHeight(grid.options);
+        if (patternRowIndex < gridHeight) {
+            return { gridId: grid.gridId, rowIndex: patternRowIndex };
+        }
+        patternRowIndex -= gridHeight;
+    }
+    return undefined;
+};
+
+export const getGridColumnIndex = (
+    grids: Array<BeadingGrid>,
+    patternColumnIndex: number
+): { gridId: string; columnIndex: number } | undefined => {
+    for (const grid of grids) {
+        if (patternColumnIndex < grid.options.width) {
+            return { gridId: grid.gridId, columnIndex: patternColumnIndex };
+        }
+        patternColumnIndex -= grid.options.width;
+    }
+    return undefined;
+};

@@ -56,18 +56,14 @@ export const gridReducer = (
             return gridSelectCells(state, action.cells);
         case "BEADING_GRID_CLEAR_CELLS":
             return gridClearCells(state, action.cells);
-        case "BEADING_GRID_ADD_COLUMN_BEFORE":
+        case "BEADING_GRID_INSERT_COLUMN":
             return gridInsertColumn(state, action.column);
-        case "BEADING_GRID_ADD_COLUMN_AFTER":
-            return gridInsertColumn(state, action.column + 1);
         case "BEADING_GRID_DELETE_COLUMN":
             return gridDeleteColumn(state, action.column);
         case "BEADING_GRID_CLEAR_COLUMN":
             return gridClearColumn(state, action.column);
-        case "BEADING_GRID_ADD_ROW_BEFORE":
+        case "BEADING_GRID_INSERT_ROW":
             return gridInsertRow(state, action.row);
-        case "BEADING_GRID_ADD_ROW_AFTER":
-            return gridInsertRow(state, action.row + 1);
         case "BEADING_GRID_DELETE_ROW":
             return gridDeleteRow(state, action.row);
         case "BEADING_GRID_CLEAR_ROW":

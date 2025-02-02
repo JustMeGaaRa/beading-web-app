@@ -1,5 +1,7 @@
-export type TextState = {
-    gridId: string;
-    relativeIndex: number;
-    absoluteIndex: number;
+export type RowEvent = {
+    rowIndex: number;
+};
+
+export type ColumnEvent = {
+    columnIndex: number;
 };
