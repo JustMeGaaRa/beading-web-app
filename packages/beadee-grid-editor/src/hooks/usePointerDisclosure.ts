@@ -12,14 +12,6 @@ export const usePointerDisclosure = () => {
     const [pointerCurrentPosition, setPointerCurrentPosition] =
         useState<PointerPosition>();
 
-    useEffect(() => {
-        window.addEventListener("pointerup", onPointerRelease);
-
-        return () => {
-            window.removeEventListener("pointerup", onPointerRelease);
-        };
-    }, [isPointerDown]);
-
     const onPointerRelease = useCallback(() => {
         setIsPointerDown(false);
     }, []);
@@ -38,6 +30,14 @@ export const usePointerDisclosure = () => {
     const onPointerMove = useCallback((position: PointerPosition) => {
         setPointerCurrentPosition(position);
     }, []);
+
+    useEffect(() => {
+        window.addEventListener("pointerup", onPointerRelease);
+
+        return () => {
+            window.removeEventListener("pointerup", onPointerRelease);
+        };
+    }, [isPointerDown, onPointerRelease]);
 
     return {
         isPointerDown,

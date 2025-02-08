@@ -58,7 +58,7 @@ export const BeadeeGrid: FC<
             );
             onPointerDown(cursor);
         },
-        [onCellEnter]
+        [onPointerDown]
     );
 
     const handleOnPointerUp = useCallback(
@@ -89,7 +89,17 @@ export const BeadeeGrid: FC<
                 onPointerMove(cursor);
             }
         },
-        [onCellEnter, isPointerDown]
+        [
+            onCellEnter,
+            id,
+            name,
+            offset,
+            cells,
+            options,
+            styles,
+            isPointerDown,
+            onPointerMove,
+        ]
     );
 
     const handleOnPointerClick = useCallback(
@@ -111,7 +121,17 @@ export const BeadeeGrid: FC<
                 onPointerUp(cursor);
             }
         },
-        [onCellClick]
+        [
+            cells,
+            id,
+            name,
+            offset,
+            onCellClick,
+            onPointerDown,
+            onPointerUp,
+            options,
+            styles,
+        ]
     );
 
     const gridRenderBounds =

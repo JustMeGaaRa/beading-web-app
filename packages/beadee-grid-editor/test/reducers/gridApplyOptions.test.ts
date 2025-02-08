@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { gridApplyOptions } from "../../src";
+import { BeadingGridProperties, gridApplyOptions } from "../../src";
 import { Square3x3GridWithCellsOnDiagonal } from "../constants";
 
 test.each([
@@ -32,7 +32,7 @@ test.each([
     ({ options, name }) => {
         const modifiedGrid = gridApplyOptions(
             Square3x3GridWithCellsOnDiagonal,
-            options as any
+            options as BeadingGridProperties
         );
 
         expect(modifiedGrid).toBeDefined();

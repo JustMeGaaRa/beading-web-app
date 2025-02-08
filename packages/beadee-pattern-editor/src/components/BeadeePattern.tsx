@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import {
     forwardRef,
     PropsWithChildren,
@@ -109,7 +110,7 @@ export const BeadeePattern = forwardRef<
 
                 stage.batchDraw();
             },
-            [pattern.grids, pattern.options, styles]
+            [pattern.grids, styles]
         );
 
         const handleOnStageTouchStart = useCallback(
@@ -181,7 +182,7 @@ export const BeadeePattern = forwardRef<
 
                 lastTouchDistanceRef.current = currentTouchDistance;
             },
-            [pattern.grids, pattern.options, styles]
+            [isZoomable, pattern.grids, styles]
         );
 
         const handleOnStageTouchEnd = useCallback(() => {

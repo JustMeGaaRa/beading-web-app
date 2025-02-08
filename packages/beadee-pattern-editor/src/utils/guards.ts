@@ -27,7 +27,6 @@ export const isPattern = (data: unknown): data is Pattern => {
     );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isPatternOptions = (data: unknown): data is PatternOptions => {
     if (typeof data !== "object" || data === null) {
         return false;

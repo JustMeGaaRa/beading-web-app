@@ -22,6 +22,7 @@ import {
     getStageRelativePosition,
     usePointerDisclosure,
     ColumnEvent,
+    getStageAbsolutePosition,
 } from "@beadee/grid-editor";
 import {
     usePatternStore,
@@ -157,7 +158,7 @@ export const BeadeePatternContainer: FC = () => {
     const handleOnFrameContextMenu = useCallback(
         (event: KonvaEventObject<MouseEvent>) => {
             event.evt.preventDefault();
-            setMenuPosition(getStageRelativePosition(event.target.getStage()));
+            setMenuPosition(getStageAbsolutePosition(event.target.getStage()));
             onOpen();
         },
         [onOpen]

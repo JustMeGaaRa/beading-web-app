@@ -21,7 +21,7 @@ export const BeadeeGridBackgroundPattern: FC<{
                 }))
             )
             .flat();
-    }, [options]);
+    }, [offset, options]);
 
     return (
         <Portal selector={`.${id}`}>

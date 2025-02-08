@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { createGrid } from "../../src";
+import { BeadingGridProperties } from "@beadee/grid-editor";
 
 test.each([
     [
@@ -27,7 +28,7 @@ test.each([
         },
     ],
 ])("should create a new grid with name ($name)", ({ options, name }) => {
-    const defaultGrid = createGrid(options as any);
+    const defaultGrid = createGrid(options as BeadingGridProperties);
 
     expect(defaultGrid).toBeDefined();
     expect(defaultGrid.options).toBeDefined();

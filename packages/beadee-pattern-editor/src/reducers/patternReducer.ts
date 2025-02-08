@@ -55,7 +55,7 @@ export const patternReducer = (
                 lastModified: new Date(),
                 name: action.name,
             };
-        case "PATTERN_ADD_GRID":
+        case "PATTERN_ADD_GRID": {
             const previousGrid = state.grids.at(-1);
             const currentGrid = createGrid(
                 mergeOptions(state.options, DefaultGridProperties),
@@ -68,6 +68,7 @@ export const patternReducer = (
                 grids: [...state.grids, currentGrid],
                 gridCount: state.gridCount + 1,
             };
+        }
         case "PATTERN_UPDATE_GRID":
             return {
                 ...state,

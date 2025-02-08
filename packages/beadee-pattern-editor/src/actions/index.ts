@@ -20,7 +20,7 @@ export type PatternApplyOptionsAction = Action<
     "PATTERN_APPLY_OPTIONS",
     { options: PatternOptions }
 >;
-export type PatternAddGridAction = Action<"PATTERN_ADD_GRID", {}>;
+export type PatternAddGridAction = Action<"PATTERN_ADD_GRID", unknown>;
 export type PatternUpdateGridAction = Action<
     "PATTERN_UPDATE_GRID",
     {

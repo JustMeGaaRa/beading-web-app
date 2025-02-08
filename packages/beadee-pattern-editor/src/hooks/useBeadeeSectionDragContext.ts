@@ -25,7 +25,7 @@ export const useBeadeeSectionDragContext = (originalGrid: BeadingGrid) => {
             ...state,
             [grid.gridId]: section.cells,
         }));
-    }, [selectedCells, dispatch, setSelectedCells]);
+    }, [originalGrid, selectedCells, dispatch, setSelectedCells]);
 
     const endDragging = useCallback(
         (cancel: boolean = false) => {
@@ -56,7 +56,7 @@ export const useBeadeeSectionDragContext = (originalGrid: BeadingGrid) => {
                 }));
             }
         },
-        [setSelectedCells]
+        [originalGrid.gridId, setSelectedCells]
     );
 
     return {

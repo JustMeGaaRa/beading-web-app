@@ -40,6 +40,7 @@ export const ColorPaletteProvider: FC<
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useColorPalette = () => {
     return useContext(ColorPaletteContext);
 };
