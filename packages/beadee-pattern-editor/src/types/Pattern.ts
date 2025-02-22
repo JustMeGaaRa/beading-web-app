@@ -16,43 +16,6 @@ export type Pattern = {
     lastModified: Date;
     options: PatternOptions;
     grids: Array<BeadingGrid>;
-    gridCount: number;
-};
-
-export const setPatternName = (pattern: Pattern, newName: string): Pattern => {
-    return {
-        ...pattern,
-        lastModified: new Date(),
-        name: newName,
-    };
-};
-
-export const addPatternGrid = (pattern: Pattern): Pattern => {
-    const previousGrid = pattern.grids.at(-1);
-    const currentGrid = createGrid(
-        mergeOptions(pattern.options, DefaultGridProperties),
-        getGridOffset(previousGrid, pattern.options.orientation),
-        previousGrid!.name
-    );
-    return {
-        ...pattern,
-        lastModified: new Date(),
-        grids: [...pattern.grids, currentGrid],
-        gridCount: pattern.gridCount + 1,
-    };
-};
-
-export const updatePatternGrid = (
-    pattern: Pattern,
-    grid: BeadingGrid
-): Pattern => {
-    return {
-        ...pattern,
-        lastModified: new Date(),
-        grids: pattern.grids.map((current) =>
-            current.gridId === grid.gridId ? current : grid
-        ),
-    };
 };
 
 export const getGridOffset = (
@@ -88,6 +51,46 @@ export const mapGridsOffset = (
             orientation
         ),
     }));
+};
+
+export const setPatternName = (pattern: Pattern, newName: string): Pattern => {
+    return {
+        ...pattern,
+        lastModified: new Date(),
+        name: newName,
+    };
+};
+
+export const addPatternGrid = (pattern: Pattern): Pattern => {
+    const previousGrid = pattern.grids.at(-1);
+    return {
+        ...pattern,
+        lastModified: new Date(),
+        grids: [
+            ...pattern.grids,
+            createGrid(
+                mergeOptions(pattern.options, DefaultGridProperties),
+                getGridOffset(previousGrid, pattern.options.orientation),
+                previousGrid?.name
+            ),
+        ],
+    };
+};
+
+export const updatePatternGrid = (
+    pattern: Pattern,
+    grid: BeadingGrid
+): Pattern => {
+    return {
+        ...pattern,
+        lastModified: new Date(),
+        grids: mapGridsOffset(
+            pattern.grids.map((current) =>
+                current.gridId === grid.gridId ? current : grid
+            ),
+            pattern.options.orientation
+        ),
+    };
 };
 
 export const deletePatternGrid = (

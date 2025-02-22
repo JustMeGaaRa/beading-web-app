@@ -39,13 +39,13 @@ export const BeadeePatternOptionsPanel: FC<
 
     const handleOnHeightBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
-            const value = event.target.value;
-            const isValidInteger =
-                Number.parseInt(value) && !Number.isNaN(value);
+            const isValidInteger = !Number.isNaN(
+                Number.parseInt(event.target.value)
+            );
             if (isValidInteger) {
                 onChange?.({
                     ...options,
-                    height: Number.parseInt(value),
+                    height: Number.parseInt(event.target.value),
                 });
             }
         },
@@ -54,13 +54,13 @@ export const BeadeePatternOptionsPanel: FC<
 
     const handleOnWidthBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
-            const value = event.target.value;
-            const isValidInteger =
-                Number.parseInt(value) && !Number.isNaN(value);
+            const isValidInteger = !Number.isNaN(
+                Number.parseInt(event.target.value)
+            );
             if (isValidInteger) {
                 onChange?.({
                     ...options,
-                    width: Number.parseInt(value),
+                    width: Number.parseInt(event.target.value),
                 });
             }
         },
@@ -69,7 +69,6 @@ export const BeadeePatternOptionsPanel: FC<
 
     const handleOnHeightKeyDown = useCallback(
         (event: React.KeyboardEvent<HTMLDivElement>) => {
-            console.log("height", event.key);
             if (event.key === "Enter") {
                 event.currentTarget.blur();
             }
@@ -79,7 +78,6 @@ export const BeadeePatternOptionsPanel: FC<
 
     const handleOnWidthKeyDown = useCallback(
         (event: React.KeyboardEvent<HTMLDivElement>) => {
-            console.log("width", event.key);
             if (event.key === "Enter") {
                 event.currentTarget.blur();
             }

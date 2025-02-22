@@ -35,9 +35,9 @@ export const BeadeeGridOptionsPanel: FC<{
 
     const handleOnWidthBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
-            const isValidInteger =
-                Number.parseInt(event.target.value) &&
-                !Number.isNaN(event.target.value);
+            const isValidInteger = !Number.isNaN(
+                Number.parseInt(event.target.value)
+            );
             if (isValidInteger) {
                 onChange?.({
                     ...options,
@@ -50,9 +50,9 @@ export const BeadeeGridOptionsPanel: FC<{
 
     const handleOnDropBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
-            const isValidInteger =
-                Number.parseInt(event.target.value) &&
-                !Number.isNaN(event.target.value);
+            const isValidInteger = !Number.isNaN(
+                Number.parseInt(event.target.value)
+            );
             if (options.type === "brick" && isValidInteger) {
                 onChange?.({
                     ...options,
@@ -65,9 +65,9 @@ export const BeadeeGridOptionsPanel: FC<{
 
     const handleOnFringeBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
-            const isValidInteger =
-                Number.parseInt(event.target.value) &&
-                !Number.isNaN(event.target.value);
+            const isValidInteger = !Number.isNaN(
+                Number.parseInt(event.target.value)
+            );
             if (options.type === "brick" && isValidInteger) {
                 onChange?.({
                     ...options,

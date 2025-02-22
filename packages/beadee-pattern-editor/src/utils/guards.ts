@@ -12,7 +12,6 @@ export const isPattern = (data: unknown): data is Pattern => {
         "name" in data &&
         "coverUrl" in data &&
         "lastModified" in data &&
-        "gridCount" in data &&
         "grids" in data &&
         "options" in data &&
         typeof data.version === "string" &&
@@ -20,7 +19,6 @@ export const isPattern = (data: unknown): data is Pattern => {
         typeof data.coverUrl === "string" &&
         typeof data.lastModified === "string" &&
         typeof data.name === "string" &&
-        typeof data.gridCount === "number" &&
         isPatternOptions(data.options) &&
         Array.isArray(data.grids) &&
         data.grids.every((grid: unknown) => isBeadingGrid(grid))

@@ -65,7 +65,6 @@ export const createPattern = (
         lastModified: new Date(),
         options: patternOptions,
         grids: [createGrid(mergeOptions(patternOptions, gridOptions))],
-        gridCount: 1,
     };
 };
 
