@@ -25,7 +25,7 @@ import {
     useBeadeeSectionDragContext,
     useBeadeePatternHitTest,
 } from "@beadee/pattern-editor";
-import { FC, useCallback, useRef } from "react";
+import { FC, useCallback, useMemo, useRef } from "react";
 import {
     useTools,
     BeadeeGridSectionActionsToolbar,
@@ -59,7 +59,7 @@ export const BeadeeGridContainer: FC<{
     } = useBeadeeGridSelection();
     const { getCellAtPosition } = useBeadeePatternHitTest();
 
-    const toolInfo = createToolInfo(tool);
+    const toolInfo = useMemo(() => createToolInfo(tool), [tool]);
 
     const dragLastPosition = useRef<RenderPoint>();
     const { startDragging, endDragging, updateDragging } =
@@ -176,12 +176,14 @@ export const BeadeeGridContainer: FC<{
         !isPointerDown &&
         selectedCells[grid.gridId]?.length > 0;
 
-    const delta =
-        layout === "vertical" ? { dx: 200, dy: 0 } : { dx: 0, dy: 100 };
-    const gridLabelBounds = shiftBounds(
-        expandBounds(metadata?.gridBounds ?? DefaultEmptyBounds, delta),
-        negateDelta(delta)
-    );
+    const gridLabelBounds = useMemo(() => {
+        const delta =
+            layout === "vertical" ? { dx: 200, dy: 0 } : { dx: 0, dy: 100 };
+        return shiftBounds(
+            expandBounds(metadata?.gridBounds ?? DefaultEmptyBounds, delta),
+            negateDelta(delta)
+        );
+    }, [layout, metadata?.gridBounds]);
 
     return (
         <BeadeeGridOptionsProvider offset={grid.offset} options={grid.options}>
