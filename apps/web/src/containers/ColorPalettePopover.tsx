@@ -19,7 +19,7 @@ export const ColorPalettePopover: FC<
         number: number;
     }>
 > = ({ color, colorName, number }) => {
-    const dispatch = usePatternStore((state) => state.dispatch);
+    const { dispatch } = usePatternStore();
 
     const handleOnColorPaletteSelect = useCallback(
         (newColor: string) => {

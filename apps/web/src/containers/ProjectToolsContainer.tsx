@@ -7,7 +7,7 @@ import {
 } from "@chakra-ui/react";
 import {
     getPatternSummary,
-    usePatterHistory,
+    usePatternHistory,
     usePatternStore,
 } from "@beadee/pattern-editor";
 import {
@@ -27,8 +27,8 @@ const hotkeysOptions = { preventDefault: true };
 
 export const ProjectToolsContainer: FC = () => {
     const { tool, toggleTool } = useTools();
-    const { pastStates, futureStates, undo, redo } = usePatterHistory();
-    const pattern = usePatternStore((state) => state.pattern);
+    const { canUndo, canRedo, undo, redo } = usePatternHistory();
+    const { pattern } = usePatternStore();
 
     const onSetCursorTool = useCallback(
         () =>
@@ -152,7 +152,7 @@ export const ProjectToolsContainer: FC = () => {
                         <IconButton
                             aria-label={"undo"}
                             icon={<ReverseLeftIcon size={20} />}
-                            isDisabled={pastStates.length === 0}
+                            isDisabled={canUndo}
                             onClick={handleOnUndoClick}
                         />
                     </Tooltip>
@@ -160,7 +160,7 @@ export const ProjectToolsContainer: FC = () => {
                         <IconButton
                             aria-label={"redo"}
                             icon={<ReverseRightIcon size={20} />}
-                            isDisabled={futureStates.length === 0}
+                            isDisabled={canRedo}
                             onClick={handleOnRedoClick}
                         />
                     </Tooltip>

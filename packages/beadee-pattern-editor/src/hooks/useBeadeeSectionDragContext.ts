@@ -4,11 +4,11 @@ import {
     createSectionDragContext,
     useBeadeeGridSelection,
 } from "@beadee/grid-editor";
-import { patternSelector, usePatternStore } from "../store";
+import { usePatternStore } from "../store";
 import { useCallback, useRef } from "react";
 
 export const useBeadeeSectionDragContext = (originalGrid: BeadingGrid) => {
-    const { dispatch } = usePatternStore(patternSelector);
+    const { dispatch } = usePatternStore();
     const { selectedCells, setSelectedCells } = useBeadeeGridSelection();
     const dragContextRef =
         useRef<ReturnType<typeof createSectionDragContext>>();

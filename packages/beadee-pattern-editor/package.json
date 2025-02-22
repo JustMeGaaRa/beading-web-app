@@ -11,8 +11,7 @@
         "lint": "eslint ."
     },
     "dependencies": {
-        "@beadee/grid-editor": "*",
-        "just-debounce-it": "^3.2.0"
+        "@beadee/grid-editor": "*"
     },
     "devDependencies": {
         "@beadee/eslint-config": "*",
@@ -22,8 +21,6 @@
     "peerDependencies": {
         "konva": "9.3.14",
         "react": "^18.3.1",
-        "react-konva": "18.2.10",
-        "zundo": "2.1.0",
-        "zustand": "4.5.5"
+        "react-konva": "18.2.10"
     }
 }

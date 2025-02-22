@@ -15,6 +15,7 @@ export const patternReducer = (
     state: Pattern,
     action: PatternActions
 ): Pattern => {
+    console.log("patternReducer", action);
     switch (action.type) {
         case "PATTERN_CHANGE_NAME":
             return setPatternName(state, action.name);
@@ -51,14 +52,14 @@ export const applyPatternGridAction = (
     pattern: Pattern,
     action: PatternGridAction
 ): Pattern => {
+    console.log("applyPatternGridAction", action);
+    const modifiedGrids = pattern.grids.map((grid) =>
+        grid.gridId === action.gridId ? gridReducer(grid, action) : grid
+    );
+    console.log("modifiedGrids", modifiedGrids);
     return {
         ...pattern,
         lastModified: new Date(),
-        grids: mapGridsOffset(
-            pattern.grids.map((grid) =>
-                grid.gridId === action.gridId ? gridReducer(grid, action) : grid
-            ),
-            pattern.options.orientation
-        ),
+        grids: mapGridsOffset(modifiedGrids, pattern.options.orientation),
     };
 };

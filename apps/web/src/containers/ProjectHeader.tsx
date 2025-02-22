@@ -13,8 +13,7 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import {
-    dirtyStateSelector,
-    patternSelector,
+    usePatternChangeTracker,
     usePatternStore,
 } from "@beadee/pattern-editor";
 import {
@@ -43,8 +42,8 @@ export const ProjectHeader: FC = () => {
         (state) => state.dispatch
     );
 
-    const { pattern, dispatch } = usePatternStore(patternSelector);
-    const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
+    const { pattern, dispatch } = usePatternStore();
+    const { changed, reset } = usePatternChangeTracker();
 
     useHotkeys(
         Shortcuts.patternRename.keyString,
@@ -69,8 +68,8 @@ export const ProjectHeader: FC = () => {
 
     const handleOnBackupClick = useCallback(() => {
         dispatchCollection(savePatternAction(pattern));
-        resetDirty();
-    }, [pattern, resetDirty, dispatchCollection]);
+        reset();
+    }, [pattern, reset, dispatchCollection]);
 
     return (
         <PageHeader>
@@ -99,15 +98,15 @@ export const ProjectHeader: FC = () => {
                 variant={"ghost"}
             >
                 <Tooltip
-                    label={`Periodic backup: ${isDirty ? "Pending" : "Done"}`}
+                    label={`Periodic backup: ${changed ? "Pending" : "Done"}`}
                     placement={"bottom"}
                 >
                     <IconButton
                         aria-label={"periodic backup"}
                         icon={
-                            isDirty ? <CloudRefreshIcon /> : <CloudCheckIcon />
+                            changed ? <CloudRefreshIcon /> : <CloudCheckIcon />
                         }
-                        colorScheme={isDirty ? "blue" : "gray"}
+                        colorScheme={changed ? "blue" : "gray"}
                         size={"sm"}
                         variant={"ghost"}
                         onClick={handleOnBackupClick}

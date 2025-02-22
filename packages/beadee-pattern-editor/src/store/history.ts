@@ -28,7 +28,7 @@ export type UndoRedoAction<TAction> =
     | { type: "REDO" }
     | { type: "CLEAR" };
 
-export const createUndoRedoReducer = <TState, TAction extends object>(
+export const wrapWithUndoRedoReducer = <TState, TAction extends object>(
     reducer: Reducer<TState, TAction>,
     options: UndoRedoOptions = defaultOptions
 ): Reducer<UndoRedoWithDebounceState<TState>, UndoRedoAction<TAction>> => {
@@ -39,27 +39,29 @@ export const createUndoRedoReducer = <TState, TAction extends object>(
         if ("type" in action) {
             switch (action.type) {
                 case "UNDO":
-                    return state.past.length > 0
-                        ? {
-                              ...state,
-                              past: state.past.slice(0, -1),
-                              present: state.past[state.past.length - 1]!,
-                              future: [state.present, ...state.future],
-                              canUndo: state.past.length > 1,
-                              canRedo: true,
-                          }
-                        : state;
+                    if (state.past.length === 0) {
+                        return state;
+                    }
+                    return {
+                        ...state,
+                        past: state.past.slice(0, -1),
+                        present: state.past[state.past.length - 1]!,
+                        future: [state.present, ...state.future],
+                        canUndo: state.past.length > 1,
+                        canRedo: true,
+                    };
                 case "REDO":
-                    return state.future.length > 0
-                        ? {
-                              ...state,
-                              past: [...state.past, state.present],
-                              present: state.future[0]!,
-                              future: state.future.slice(1),
-                              canUndo: true,
-                              canRedo: state.future.length > 1,
-                          }
-                        : state;
+                    if (state.future.length === 0) {
+                        return state;
+                    }
+                    return {
+                        ...state,
+                        past: [...state.past, state.present],
+                        present: state.future[0]!,
+                        future: state.future.slice(1),
+                        canUndo: true,
+                        canRedo: state.future.length > 1,
+                    };
                 case "CLEAR":
                     return {
                         ...state,
@@ -77,8 +79,11 @@ export const createUndoRedoReducer = <TState, TAction extends object>(
             currentSnapshotTime - state.lastSnapshotTime;
 
         if (timeSinceLastSnapshot > options.delayMilliseconds) {
+            const past = [...state.past, state.present];
+
             return {
-                past: [...state.past, state.present],
+                ...state,
+                past: past.slice(past.length - options.maxHistoryLength),
                 present: reducer(state.present, action),
                 future: [],
                 canUndo: true,
@@ -95,7 +100,7 @@ export const createUndoRedoReducer = <TState, TAction extends object>(
     };
 };
 
-export const createUndoRedoState = <T>(
+export const wrapWithUndoRedoState = <T>(
     initialState: T
 ): UndoRedoWithDebounceState<T> => ({
     past: [],

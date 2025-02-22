@@ -46,6 +46,7 @@ export const gridReducer = (
     state: BeadingGrid,
     action: GridActions
 ): BeadingGrid => {
+    console.log("gridReducer", action);
     switch (action.type) {
         case "BEADING_GRID_APPLY_OPTIONS":
             return gridApplyOptions(state, action.options);

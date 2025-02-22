@@ -21,7 +21,6 @@ import {
 } from "@beadee/grid-editor";
 import {
     usePatternStore,
-    patternSelector,
     useBeadeeSectionDragContext,
     useBeadeePatternHitTest,
 } from "@beadee/pattern-editor";
@@ -50,7 +49,7 @@ export const BeadeeGridContainer: FC<{
     pointerPosition,
 }) => {
     const { tool } = useTools();
-    const { dispatch } = usePatternStore(patternSelector);
+    const { dispatch } = usePatternStore();
     const {
         cliboardCells,
         selectedCells,

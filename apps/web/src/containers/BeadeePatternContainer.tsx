@@ -27,16 +27,15 @@ import {
 import {
     usePatternStore,
     Pattern,
-    usePatterHistory,
     getPatternRenderBounds,
-    patternSelector,
-    dirtyStateSelector,
     getPatternSize,
     BeadeePattern,
     getPatternMetadata,
     BeadeePatternMetadataProvider,
     useBeadeePatternHitTest,
     useBeadeePatternFrame,
+    usePatternHistory,
+    usePatternChangeTracker,
 } from "@beadee/pattern-editor";
 import {
     ArrowDownIcon,
@@ -71,8 +70,8 @@ export const BeadeePatternContainer: FC = () => {
     const { selectedColor, setSelectedColor } = useColorPalette();
     const { tool, enablePencil } = useTools();
     const { styles } = useBeadeeGridStyles();
-    const { pattern, dispatch } = usePatternStore(patternSelector);
-    const { isDirty, resetDirty } = usePatternStore(dirtyStateSelector);
+    const { pattern, dispatch } = usePatternStore();
+    const { changed, reset } = usePatternChangeTracker();
     const {
         selectedCells,
         selectedColumn,
@@ -80,7 +79,7 @@ export const BeadeePatternContainer: FC = () => {
         setSelectedColumn,
         setSelectedRow,
     } = useBeadeeGridSelection();
-    const { undo, redo } = usePatterHistory();
+    const { undo, redo } = usePatternHistory();
     const {
         clearColumn,
         clearRow,
@@ -130,15 +129,15 @@ export const BeadeePatternContainer: FC = () => {
     useEffect(() => {
         // NOTE: auto save pattern cover every 5 seconds
         const intervalId = setInterval(() => {
-            if (isDirty) {
+            if (changed) {
                 const coverUrl = patternRef.current?.toDataURL() ?? "";
                 putPattern({ ...pattern, coverUrl });
-                resetDirty();
+                reset();
             }
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [pattern, isDirty, resetDirty]);
+    }, [pattern, changed, reset]);
 
     // SECTION: frame event handlers
     const handleOnFrameColumnClick = useCallback(

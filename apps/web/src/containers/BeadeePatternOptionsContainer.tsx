@@ -6,8 +6,7 @@ import { InfoCircleIcon } from "@beadee/icons";
 import { useBeadeeGridStyles } from "@beadee/grid-editor";
 
 export const BeadeePatternOptionsContainer: FC = () => {
-    const pattern = usePatternStore((state) => state.pattern);
-    const dispatch = usePatternStore((state) => state.dispatch);
+    const { pattern, dispatch } = usePatternStore();
     const { setStyles } = useBeadeeGridStyles();
 
     const handleOnLayoutChange = useCallback(

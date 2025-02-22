@@ -10,7 +10,7 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import { usePatternStore, patternSelector } from "@beadee/pattern-editor";
+import { usePatternStore } from "@beadee/pattern-editor";
 import { PaintingPaletteIcon, PlusIcon, SettingsIcon } from "@beadee/icons";
 import { FC, useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -29,7 +29,7 @@ export const ProjectSettingsContainer: FC = () => {
     );
 
     const { setSelectedColor } = useColorPalette();
-    const { pattern, dispatch } = usePatternStore(patternSelector);
+    const { pattern, dispatch } = usePatternStore();
 
     const togglePanels = useCallback(() => {
         setColorPaletteIndex((state) => (state === 0 ? 1 : 0));

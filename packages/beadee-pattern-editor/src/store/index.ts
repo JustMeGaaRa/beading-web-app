@@ -1,74 +1,82 @@
-import debounce from "just-debounce-it";
-import { createContext, useContext } from "react";
-import { create, useStore } from "zustand";
-import { temporal } from "zundo";
-import { DefaultPatternOptions, Pattern } from "../types";
+import {
+    createContext,
+    Reducer,
+    useCallback,
+    useContext,
+    useReducer,
+} from "react";
+import { wrapWithUndoRedoState, wrapWithUndoRedoReducer } from "./history";
+import {
+    wrapChangeTrackerState,
+    wrapWithChangeTrackerReducer,
+} from "./tracker";
 import { PatternActions } from "../actions";
-import { patternReducer } from "../reducers";
-import { createPattern } from "../utils";
-import { DefaultGridProperties } from "@beadee/grid-editor";
-import Konva from "konva";
+import { Pattern } from "../types";
 
-export const PatternContext = createContext<PatternTemporalStore | null>(null);
+export type PatternStore = ReturnType<typeof createPatterStore>;
 
-export type PatternStore = {
-    patternNode?: Konva.Stage | null;
-    pattern: Pattern;
-    isDirty: boolean;
-    resetDirty: () => void;
-    dispatch: (action: PatternActions) => void;
-};
+export const PatternContext = createContext<PatternStore | null>(null);
 
-export type PatternPartialStore = Omit<
-    PatternStore,
-    "patternNode" | "isDirty" | "resetDirty"
->;
-
-export type PatternTemporalStore = ReturnType<typeof createPatterStore>;
-
-export const createPatterStore = (pattern?: Pattern) => {
-    return create(
-        temporal<PatternStore>(
-            (set) => ({
-                pattern:
-                    pattern ??
-                    createPattern(DefaultPatternOptions, DefaultGridProperties),
-                isDirty: false,
-                resetDirty: () => set({ isDirty: false }),
-                dispatch: (action) =>
-                    set((state) => ({
-                        pattern: patternReducer(state.pattern, action),
-                        isDirty: true,
-                    })),
-            }),
-            {
-                limit: 100,
-                partialize: (state: PatternStore) => {
-                    const { isDirty, patternNode, ...rest } = state;
-                    return rest as any;
-                },
-                handleSet: (handleSet) => debounce(handleSet, 200, true),
-            }
-        )
+export const createPatterStore = (
+    reducer: Reducer<Pattern, PatternActions>,
+    initialState: Pattern
+) => {
+    const [state, dispatch] = useReducer(
+        wrapWithChangeTrackerReducer(wrapWithUndoRedoReducer(reducer)),
+        wrapChangeTrackerState(wrapWithUndoRedoState(initialState))
     );
+
+    return {
+        state,
+        dispatch,
+    };
 };
 
-export const usePatternStore = <U>(selector: (state: PatternStore) => U): U => {
-    const store = useContext(PatternContext);
-    return useStore(store!, selector);
+export const usePatternStore = () => {
+    const { state, dispatch } = useContext(PatternContext)!;
+
+    return {
+        pattern: state.present,
+        dispatch,
+    };
 };
 
-export const usePatterHistory = () => {
-    const store = useContext(PatternContext);
-    return useStore(store!.temporal, (state) => state);
+export const usePatternHistory = () => {
+    const { state, dispatch } = useContext(PatternContext)!;
+
+    const undo = useCallback(() => {
+        dispatch({ type: "UNDO" });
+    }, [dispatch]);
+
+    const redo = useCallback(() => {
+        dispatch({ type: "REDO" });
+    }, [dispatch]);
+
+    const clear = useCallback(() => {
+        dispatch({ type: "CLEAR" });
+    }, [dispatch]);
+
+    return {
+        past: state.past,
+        present: state.present,
+        future: state.future,
+        canUndo: state.canUndo,
+        canRedo: state.canRedo,
+        undo,
+        redo,
+        clear,
+    };
 };
 
-export const patternSelector = (state: PatternStore) => {
-    const { pattern, dispatch } = state;
-    return { pattern, dispatch };
-};
+export const usePatternChangeTracker = () => {
+    const { state, dispatch } = useContext(PatternContext)!;
 
-export const dirtyStateSelector = (state: PatternStore) => {
-    const { isDirty, resetDirty } = state;
-    return { isDirty, resetDirty };
+    const reset = useCallback(() => {
+        dispatch({ type: "RESET" });
+    }, [dispatch]);
+
+    return {
+        changed: state.changed,
+        reset,
+    };
 };
