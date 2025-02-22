@@ -65,3 +65,20 @@ export const paste = (
         cells: [...gridFilteredCells, ...gridTargetCells],
     };
 };
+
+export const changeColor = (
+    grid: BeadingGrid,
+    oldColor: string,
+    newColor: string
+): BeadingGrid => {
+    if (grid.cells.some((cell) => cell.color === oldColor)) {
+        return {
+            ...grid,
+            cells: grid.cells.map((cell) =>
+                cell.color === oldColor ? { ...cell, color: newColor } : cell
+            ),
+        };
+    }
+
+    return grid;
+};

@@ -1,5 +1,5 @@
 import { GridActions } from "../actions";
-import { BeadingGrid } from "../types";
+import { BeadingGrid, clear } from "../types";
 import { gridApplyOptions } from "./gridApplyOptionsReducer";
 import { gridClearColumn } from "./gridClearColumnReducer";
 import { gridClearRow } from "./gridClearRowReducer";
@@ -10,7 +10,6 @@ import { gridInsertRow } from "./gridInsertRowReducer";
 import { gridSetCell } from "./gridSetCellReducer";
 import { gridSelectCells } from "./gridSelectCellsReducer";
 import { gridFlipSection } from "./gridFlipSectionReducer";
-import { gridClearCells } from "./gridClearCellsReducer";
 import { gridPasteSection } from "./gridPasteSectionReducer";
 import { gridMoveSection } from "./gridMoveSectionReducer";
 
@@ -55,7 +54,7 @@ export const gridReducer = (
         case "BEADING_GRID_SELECT_CELLS":
             return gridSelectCells(state, action.cells);
         case "BEADING_GRID_CLEAR_CELLS":
-            return gridClearCells(state, action.cells);
+            return clear(state, action.cells);
         case "BEADING_GRID_INSERT_COLUMN":
             return gridInsertColumn(state, action.column);
         case "BEADING_GRID_DELETE_COLUMN":
