@@ -20,7 +20,7 @@ import {
     DefaultEmptyBounds,
 } from "@beadee/grid-editor";
 import {
-    usePatternStore,
+    useBeadeePatternStore,
     useBeadeeSectionDragContext,
     useBeadeePatternHitTest,
 } from "@beadee/pattern-editor";
@@ -49,7 +49,7 @@ export const BeadeeGridContainer: FC<{
     pointerPosition,
 }) => {
     const { tool } = useTools();
-    const { dispatch } = usePatternStore();
+    const { dispatch } = useBeadeePatternStore();
     const {
         cliboardCells,
         selectedCells,

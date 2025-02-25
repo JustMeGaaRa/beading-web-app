@@ -7,8 +7,8 @@ import {
 } from "@chakra-ui/react";
 import {
     getPatternSummary,
-    usePatternHistory,
-    usePatternStore,
+    useBeadeePatternHistory,
+    useBeadeePatternStore,
 } from "@beadee/pattern-editor";
 import {
     EraserIcon,
@@ -27,8 +27,8 @@ const hotkeysOptions = { preventDefault: true };
 
 export const ProjectToolsContainer: FC = () => {
     const { tool, toggleTool } = useTools();
-    const { canUndo, canRedo, undo, redo } = usePatternHistory();
-    const { pattern } = usePatternStore();
+    const { canUndo, canRedo, undo, redo } = useBeadeePatternHistory();
+    const { pattern } = useBeadeePatternStore();
 
     const onSetCursorTool = useCallback(
         () =>

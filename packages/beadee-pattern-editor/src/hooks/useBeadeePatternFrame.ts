@@ -1,9 +1,9 @@
 import { useCallback } from "react";
-import { usePatternStore } from "../store";
+import { useBeadeePatternStore } from "../hooks";
 import { getGridColumnIndex, getGridRowIndex } from "../utils";
 
 export const useBeadeePatternFrame = () => {
-    const { pattern, dispatch } = usePatternStore();
+    const { pattern, dispatch } = useBeadeePatternStore();
 
     const insertRow = useCallback(
         (patternRowIndex: number) => {

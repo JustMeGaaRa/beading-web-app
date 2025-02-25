@@ -1,14 +1,14 @@
-import { usePatternStore } from "../store";
 import {
     RenderBounds,
     RenderPoint,
     useBeadeeGridStyles,
 } from "@beadee/grid-editor";
 import { useCallback } from "react";
+import { useBeadeePatternStore } from "../hooks";
 import { getCellAtPatternPosition, getCellsInPatternBounds } from "../utils";
 
 export const useBeadeePatternHitTest = () => {
-    const { pattern } = usePatternStore();
+    const { pattern } = useBeadeePatternStore();
     const { styles } = useBeadeeGridStyles();
 
     const getCellAtPosition = useCallback(

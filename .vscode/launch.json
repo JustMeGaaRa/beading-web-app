@@ -12,6 +12,14 @@
             "webRoot": "${workspaceFolder}",
             "pathMappings": [
                 {
+                    "url": "http://localhost:5173/node_modules/@beadee/grid-editor",
+                    "path": "${workspaceFolder}/packages/beadee-grid-editor"
+                },
+                {
+                    "url": "http://localhost:5173/node_modules/@beadee/pattern-editor",
+                    "path": "${workspaceFolder}/packages/beadee-pattern-editor"
+                },
+                {
                     "url": "http://localhost:5173/src",
                     "path": "${workspaceFolder}/apps/web/src"
                 }

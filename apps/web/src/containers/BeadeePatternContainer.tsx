@@ -25,7 +25,7 @@ import {
     getStageAbsolutePosition,
 } from "@beadee/grid-editor";
 import {
-    usePatternStore,
+    useBeadeePatternStore,
     Pattern,
     getPatternRenderBounds,
     getPatternSize,
@@ -34,8 +34,8 @@ import {
     BeadeePatternMetadataProvider,
     useBeadeePatternHitTest,
     useBeadeePatternFrame,
-    usePatternHistory,
-    usePatternChangeTracker,
+    useBeadeePatternHistory,
+    useBeadeePatternChangeTracker,
 } from "@beadee/pattern-editor";
 import {
     ArrowDownIcon,
@@ -70,8 +70,8 @@ export const BeadeePatternContainer: FC = () => {
     const { selectedColor, setSelectedColor } = useColorPalette();
     const { tool, enablePencil } = useTools();
     const { styles } = useBeadeeGridStyles();
-    const { pattern, dispatch } = usePatternStore();
-    const { changed, reset } = usePatternChangeTracker();
+    const { pattern, dispatch } = useBeadeePatternStore();
+    const { changed, reset } = useBeadeePatternChangeTracker();
     const {
         selectedCells,
         selectedColumn,
@@ -79,7 +79,7 @@ export const BeadeePatternContainer: FC = () => {
         setSelectedColumn,
         setSelectedRow,
     } = useBeadeeGridSelection();
-    const { undo, redo } = usePatternHistory();
+    const { undo, redo } = useBeadeePatternHistory();
     const {
         clearColumn,
         clearRow,

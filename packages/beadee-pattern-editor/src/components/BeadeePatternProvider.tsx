@@ -1,30 +1,22 @@
-import { FC, PropsWithChildren, useRef } from "react";
-import { PatternContext, PatternStore, createPatterStore } from "../store";
-import { DefaultPatternOptions, Pattern } from "../types";
-import { patternReducer } from "../reducers";
-import { createPattern } from "../utils";
 import { DefaultGridProperties } from "@beadee/grid-editor";
+import { FC, PropsWithChildren } from "react";
+import { useBeadeePatternReducer } from "../hooks";
+import { BeadeePatternContext } from "../context";
+import { DefaultPatternOptions, Pattern } from "../types";
+import { createPattern } from "../utils";
 
 export const BeadeePatternProvider: FC<
     PropsWithChildren<{
         pattern?: Pattern;
     }>
 > = ({ children, pattern }) => {
-    const storeRef = useRef<PatternStore>();
-
-    if (!storeRef.current) {
-        storeRef.current = createPatterStore(
-            patternReducer,
-            pattern ??
-                createPattern(DefaultPatternOptions, DefaultGridProperties)
-        );
-    }
+    const [state, dispatch] = useBeadeePatternReducer(
+        pattern ?? createPattern(DefaultPatternOptions, DefaultGridProperties)
+    );
 
     return (
-        storeRef.current && (
-            <PatternContext.Provider value={storeRef.current}>
-                {children}
-            </PatternContext.Provider>
-        )
+        <BeadeePatternContext.Provider value={{ state, dispatch }}>
+            {children}
+        </BeadeePatternContext.Provider>
     );
 };

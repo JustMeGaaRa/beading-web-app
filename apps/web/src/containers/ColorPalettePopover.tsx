@@ -8,7 +8,7 @@ import {
     PopoverTrigger,
     Text,
 } from "@chakra-ui/react";
-import { usePatternStore } from "@beadee/pattern-editor";
+import { useBeadeePatternStore } from "@beadee/pattern-editor";
 import { FC, PropsWithChildren, useCallback } from "react";
 import { BeadSummaryItem, ColorPalette } from "../components";
 
@@ -19,7 +19,7 @@ export const ColorPalettePopover: FC<
         number: number;
     }>
 > = ({ color, colorName, number }) => {
-    const { dispatch } = usePatternStore();
+    const { dispatch } = useBeadeePatternStore();
 
     const handleOnColorPaletteSelect = useCallback(
         (newColor: string) => {

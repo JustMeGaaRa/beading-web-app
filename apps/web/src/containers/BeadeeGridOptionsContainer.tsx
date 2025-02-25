@@ -4,7 +4,7 @@ import {
     BeadingGrid,
     BeadingGridType,
 } from "@beadee/grid-editor";
-import { usePatternStore } from "@beadee/pattern-editor";
+import { useBeadeePatternStore } from "@beadee/pattern-editor";
 import { CloseIcon, LoomIcon, PeyoteIcon } from "@beadee/icons";
 import { FC, useCallback } from "react";
 import { BeadeeGridOptionsPanel } from "../components";
@@ -12,7 +12,7 @@ import { BeadeeGridOptionsPanel } from "../components";
 export const BeadeeGridOptionsContainer: FC<{ grid: BeadingGrid }> = ({
     grid,
 }) => {
-    const { pattern, dispatch } = usePatternStore();
+    const { pattern, dispatch } = useBeadeePatternStore();
 
     const handleOnDeleteGridClick = useCallback(() => {
         dispatch({

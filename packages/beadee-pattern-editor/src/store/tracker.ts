@@ -31,7 +31,7 @@ export const wrapWithChangeTrackerReducer = <TState, TAction extends object>(
     };
 };
 
-export const wrapChangeTrackerState = <T>(
+export const wrapWithChangeTrackerState = <T>(
     initialState: T
 ): ChangeTrackerState<T> => {
     return {

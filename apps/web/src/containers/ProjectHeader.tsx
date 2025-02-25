@@ -13,8 +13,8 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import {
-    usePatternChangeTracker,
-    usePatternStore,
+    useBeadeePatternChangeTracker,
+    useBeadeePatternStore,
 } from "@beadee/pattern-editor";
 import {
     ArrowLeftMDIcon,
@@ -42,8 +42,8 @@ export const ProjectHeader: FC = () => {
         (state) => state.dispatch
     );
 
-    const { pattern, dispatch } = usePatternStore();
-    const { changed, reset } = usePatternChangeTracker();
+    const { pattern, dispatch } = useBeadeePatternStore();
+    const { changed, reset } = useBeadeePatternChangeTracker();
 
     useHotkeys(
         Shortcuts.patternRename.keyString,
